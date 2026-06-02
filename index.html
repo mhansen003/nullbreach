@@ -339,6 +339,21 @@ body {
 </head>
 <body>
 
+<!-- AUDIO -->
+<audio id="bgMusic" loop preload="auto">
+  <source src="assets/void-horizon.mp3" type="audio/mpeg">
+</audio>
+
+<!-- MUTE TOGGLE -->
+<div id="muteBtn" onclick="toggleMute()" style="
+  position:fixed;bottom:16px;right:16px;z-index:100;
+  width:36px;height:36px;border-radius:50%;
+  background:#000000bb;border:1px solid #8855ff44;
+  color:#8855ff;font-size:16px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all 0.2s;
+" title="Toggle music">🔊</div>
+
 <!-- STARFIELD -->
 <canvas id="starfield"></canvas>
 
@@ -687,8 +702,30 @@ function selectRace(race, tileEl) {
   }, 60);
 }
 
+// ── MUSIC ──────────────────────────────────────────
+let musicStarted = false;
+let muted = false;
+
+function startMusic() {
+  if (musicStarted) return;
+  const audio = document.getElementById('bgMusic');
+  audio.volume = 0.35;
+  audio.play().then(() => { musicStarted = true; }).catch(() => {});
+}
+
+function toggleMute() {
+  const audio = document.getElementById('bgMusic');
+  const btn = document.getElementById('muteBtn');
+  muted = !muted;
+  audio.muted = muted;
+  btn.textContent = muted ? '🔇' : '🔊';
+  btn.style.opacity = muted ? '0.4' : '1';
+  if (!musicStarted && !muted) startMusic();
+}
+
 // ── SCREEN TRANSITIONS ─────────────────────────────
 function showDeckSelect() {
+  startMusic(); // First user interaction — safe to play
   const splash = document.getElementById('splash');
   const splashBg = document.getElementById('splashBg');
   const splashDim = document.getElementById('splashDim');
