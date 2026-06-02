@@ -2,184 +2,184 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>GALACTIC ZERO</title>
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap');
+
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
+:root {
+  --bg: #020208;
+  --purple: #8855ff;
+  --purple-dim: #4422aa;
+}
+
 body {
-  background: #020208;
+  background: var(--bg);
   color: #e0e0e0;
-  font-family: 'Courier New', monospace;
+  font-family: 'Share Tech Mono', 'Courier New', monospace;
   height: 100vh;
   overflow: hidden;
   user-select: none;
+  cursor: default;
 }
 
-/* ── STARFIELD ── */
-#starfield {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
+/* ── LAYERS ── */
+#starfield { position:fixed; inset:0; z-index:0; }
+
+.splash-bg-img {
+  position: fixed; inset: 0; z-index: 1;
+  background: url('assets/splash.png') center/cover no-repeat;
+  opacity: 0.55;
+}
+.splash-bg-dim {
+  position: fixed; inset: 0; z-index: 2;
+  background: radial-gradient(ellipse at 50% 55%,
+    transparent 0%, #020208cc 55%, #020208f5 100%);
 }
 
-/* ── SHARED SCREEN LAYER ── */
-.screen {
-  position: fixed;
-  inset: 0;
-  z-index: 10;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  transition: opacity 0.8s ease, transform 0.8s ease;
+/* Race background — fades in when a deck is selected */
+#race-bg {
+  position: fixed; inset: 0; z-index: 1;
+  background-size: cover; background-position: center;
+  opacity: 0; transition: opacity 0.8s ease;
 }
-.screen.hidden {
-  opacity: 0;
-  pointer-events: none;
-  transform: scale(0.97);
-}
-
-/* ── GALACTIC CORE GLOW (background effect) ── */
-.core-glow {
-  position: fixed;
-  inset: 0;
-  z-index: 1;
-  background: radial-gradient(ellipse at 50% 52%,
-    #0d0820 0%,
-    #070414 35%,
-    #020208 70%,
+#race-bg-overlay {
+  position: fixed; inset: 0; z-index: 2;
+  background: linear-gradient(
+    105deg,
+    #020208f0 0%,
+    #020208cc 45%,
+    #02020888 75%,
     transparent 100%
   );
-}
-.core-glow-ring {
-  position: fixed;
-  top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
-  width: 600px; height: 600px;
-  z-index: 1;
-  background: radial-gradient(ellipse,
-    #1a0a3a44 0%,
-    #0d0620 30%,
-    transparent 70%
-  );
-  animation: corePulse 6s ease-in-out infinite;
-}
-@keyframes corePulse {
-  0%, 100% { opacity: 0.5; transform: translate(-50%,-50%) scale(1); }
-  50%       { opacity: 0.9; transform: translate(-50%,-50%) scale(1.08); }
+  opacity: 0; transition: opacity 0.8s ease;
 }
 
-/* ── SCREEN 1: SPLASH ── */
-#splash {
-  gap: 0;
-  text-align: center;
+/* ── SCREEN TRANSITIONS ── */
+.screen {
+  position: fixed; inset: 0; z-index: 10;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  transition: opacity 0.7s ease, transform 0.7s ease;
 }
+.screen.hidden {
+  opacity: 0; pointer-events: none;
+  transform: scale(0.98) translateY(8px);
+}
+
+/* ══════════════════════════════════════
+   SCREEN 1 — SPLASH
+══════════════════════════════════════ */
+#splash { gap: 0; text-align: center; }
 
 .splash-eyebrow {
-  font-size: 11px;
-  letter-spacing: 6px;
-  color: #5a4a7a;
-  margin-bottom: 18px;
+  font-size: 10px; letter-spacing: 8px;
+  color: #443366; margin-bottom: 24px;
   text-transform: uppercase;
 }
 
 .splash-title {
-  font-size: clamp(52px, 7vw, 88px);
-  font-weight: bold;
-  letter-spacing: 16px;
+  font-family: 'Orbitron', monospace;
+  font-weight: 900;
+  font-size: clamp(48px, 8vw, 96px);
+  letter-spacing: 12px;
   color: #fff;
-  text-shadow:
-    0 0 30px #8855ff88,
-    0 0 80px #4422aa44,
-    0 0 140px #22118822;
-  animation: titleGlow 4s ease-in-out infinite;
   line-height: 1;
-  margin-bottom: 6px;
-}
-@keyframes titleGlow {
-  0%, 100% { text-shadow: 0 0 30px #8855ff88, 0 0 80px #4422aa44; }
-  50%       { text-shadow: 0 0 50px #aa77ffaa, 0 0 120px #6633cc66, 0 0 200px #33119944; }
-}
-
-.splash-divider {
-  width: 120px; height: 1px;
-  background: linear-gradient(90deg, transparent, #7755bb, transparent);
-  margin: 20px auto;
-  animation: dividerPulse 3s ease-in-out infinite;
-}
-@keyframes dividerPulse {
-  0%, 100% { width: 120px; opacity: 0.6; }
-  50%       { width: 200px; opacity: 1; }
-}
-
-.splash-sub {
-  font-size: 12px;
-  letter-spacing: 5px;
-  color: #8877aa;
+  text-shadow:
+    0 0 20px #ffffff88,
+    0 0 60px #8855ff66,
+    0 0 120px #4422aa44,
+    0 0 200px #22119922;
+  animation: titleGlow 5s ease-in-out infinite;
   margin-bottom: 8px;
 }
-.splash-sub2 {
-  font-size: 10px;
-  letter-spacing: 4px;
-  color: #443366;
-  margin-bottom: 48px;
+@keyframes titleGlow {
+  0%,100% {
+    text-shadow: 0 0 20px #fff8, 0 0 60px #8855ff55, 0 0 120px #4422aa33;
+  }
+  50% {
+    text-shadow: 0 0 30px #ffff, 0 0 90px #aa77ffaa, 0 0 180px #6633cc66, 0 0 280px #33119944;
+  }
 }
 
-.btn-primary {
+.splash-tagline {
+  font-size: 11px; letter-spacing: 6px;
+  color: #6644aa; margin-bottom: 4px;
+  animation: fadeIn 2s ease forwards;
+}
+.splash-tagline2 {
+  font-size: 9px; letter-spacing: 4px;
+  color: #332255; margin-bottom: 52px;
+}
+
+/* Scanning line */
+.splash-divider {
+  width: 1px; height: 60px;
+  background: linear-gradient(to bottom, transparent, #8855ff, transparent);
+  margin: 0 auto 28px;
+  animation: scanDown 2s ease-in-out infinite;
+}
+@keyframes scanDown {
+  0%,100% { opacity:0.3; transform:scaleY(0.5); }
+  50%      { opacity:1;   transform:scaleY(1); }
+}
+
+.btn-enter {
+  position: relative;
   background: transparent;
   border: 1px solid #8855ff66;
   color: #c9aaff;
   font-family: inherit;
-  font-size: 12px;
-  letter-spacing: 5px;
-  padding: 14px 44px;
+  font-size: 11px; letter-spacing: 6px;
+  padding: 16px 52px;
   cursor: pointer;
-  position: relative;
-  overflow: hidden;
-  transition: all 0.3s;
   text-transform: uppercase;
+  transition: all 0.3s;
+  overflow: hidden;
 }
-.btn-primary::before {
+.btn-enter::before {
   content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(90deg, transparent, #8855ff22, transparent);
+  position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent 0%, #8855ff22 50%, transparent 100%);
   transform: translateX(-100%);
-  transition: transform 0.4s;
+  transition: transform 0.5s;
 }
-.btn-primary:hover {
+.btn-enter:hover {
   border-color: #aa77ff;
   color: #fff;
-  box-shadow: 0 0 20px #8855ff44, 0 0 40px #4422aa22;
+  box-shadow: 0 0 24px #8855ff44, 0 0 60px #4422aa22;
+  letter-spacing: 8px;
 }
-.btn-primary:hover::before { transform: translateX(100%); }
-.btn-primary:active { transform: scale(0.98); }
+.btn-enter:hover::before { transform: translateX(100%); }
+.btn-enter:active { transform: scale(0.98); }
 
-.splash-lore {
-  position: absolute;
-  bottom: 30px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 9px;
-  letter-spacing: 3px;
-  color: #332255;
+/* Corner decorations */
+.corner {
+  position: absolute; width: 20px; height: 20px;
+  opacity: 0.3;
+}
+.corner-tl { top: 10px; left: 10px; border-top: 1px solid #8855ff; border-left: 1px solid #8855ff; }
+.corner-tr { top: 10px; right: 10px; border-top: 1px solid #8855ff; border-right: 1px solid #8855ff; }
+.corner-bl { bottom: 10px; left: 10px; border-bottom: 1px solid #8855ff; border-left: 1px solid #8855ff; }
+.corner-br { bottom: 10px; right: 10px; border-bottom: 1px solid #8855ff; border-right: 1px solid #8855ff; }
+
+.splash-footer {
+  position: absolute; bottom: 28px; left: 50%; transform: translateX(-50%);
   text-align: center;
-  line-height: 2;
 }
-
-.splash-version {
-  position: absolute;
-  bottom: 16px;
-  right: 24px;
-  font-size: 8px;
-  color: #221144;
-  letter-spacing: 2px;
+.splash-footer-lore {
+  font-size: 9px; letter-spacing: 3px; color: #221133; margin-bottom: 4px;
 }
+.splash-version { font-size: 8px; color: #1a0d2a; letter-spacing: 2px; }
 
-/* ── SCREEN 2: DECK SELECT ── */
+/* ══════════════════════════════════════
+   SCREEN 2 — DECK SELECT
+══════════════════════════════════════ */
 #deckselect {
   justify-content: flex-start;
-  padding: 28px 40px 24px;
+  padding: 0;
   overflow: hidden;
 }
 
@@ -187,305 +187,348 @@ body {
   width: 100%;
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 6px;
+  align-items: flex-start;
+  padding: 22px 36px 12px;
+  border-bottom: 1px solid #1a1428;
   flex-shrink: 0;
+  background: linear-gradient(to bottom, #020208ee, transparent);
 }
+.ds-header-left {}
 .ds-title {
-  font-size: 13px;
-  letter-spacing: 6px;
-  color: #fff;
-  text-shadow: 0 0 20px #8855ff66;
+  font-family: 'Orbitron', monospace;
+  font-size: 11px; letter-spacing: 6px; color: #fff;
+  text-shadow: 0 0 16px #8855ff66;
+  margin-bottom: 4px;
 }
+.ds-subtitle { font-size: 8px; letter-spacing: 4px; color: #332255; }
+.ds-header-right { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
 .ds-logo {
-  font-size: 10px;
-  letter-spacing: 4px;
-  color: #443366;
+  font-family: 'Orbitron', monospace;
+  font-size: 9px; letter-spacing: 4px; color: #2a1a44;
 }
 .btn-back {
-  background: transparent;
-  border: 1px solid #332255;
-  color: #554477;
-  font-family: inherit;
-  font-size: 9px;
-  letter-spacing: 3px;
-  padding: 5px 14px;
-  cursor: pointer;
-  transition: all 0.2s;
+  background: transparent; border: 1px solid #221133;
+  color: #443366; font-family: inherit;
+  font-size: 8px; letter-spacing: 3px;
+  padding: 5px 14px; cursor: pointer; transition: all 0.2s;
 }
 .btn-back:hover { border-color: #8855ff; color: #aa77ff; }
 
-.ds-instruction {
-  font-size: 9px;
-  letter-spacing: 4px;
-  color: #443366;
-  margin-bottom: 20px;
-  flex-shrink: 0;
-}
-
-.ds-divider {
+/* Main deck select body — two column layout */
+.ds-body {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
   width: 100%;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, #7755bb33, transparent);
-  margin-bottom: 20px;
-  flex-shrink: 0;
 }
 
-/* Race grid */
+/* Left — race grid */
+.ds-left {
+  width: 580px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 16px 20px 16px 36px;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+.ds-left::-webkit-scrollbar { display: none; }
+
 .race-grid {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 10px;
-  width: 100%;
-  max-width: 980px;
-  margin: 0 auto;
-  flex-shrink: 0;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
 }
 
 .race-tile {
   border-radius: 5px;
-  padding: 12px 8px;
+  padding: 10px 8px 8px;
   cursor: pointer;
+  display: flex; flex-direction: column; align-items: center;
+  gap: 5px; text-align: center;
+  background: #06050e;
+  border: 1px solid transparent;
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s, background 0.2s;
+  position: relative; overflow: hidden;
+}
+.race-tile::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, currentColor 0%, transparent 60%);
+  opacity: 0; transition: opacity 0.2s;
+}
+.race-tile:hover { transform: translateY(-3px) scale(1.02); }
+.race-tile:hover::before { opacity: 0.04; }
+.race-tile.selected { transform: translateY(-3px) scale(1.02); }
+.race-tile.selected::before { opacity: 0.06; }
+
+.rt-avatar { font-size: 26px; line-height: 1; position: relative; z-index: 1; }
+.rt-name { font-size: 7.5px; letter-spacing: 1px; line-height: 1.3; font-weight: bold; position: relative; z-index: 1; }
+.rt-sub { font-size: 6.5px; letter-spacing: 0.5px; opacity: 0.4; line-height: 1.3; position: relative; z-index: 1; }
+.rt-abilities {
+  font-size: 6.5px; letter-spacing: 0.5px; opacity: 0;
+  transition: opacity 0.2s; color: #888; line-height: 1.5;
+  position: relative; z-index: 1;
+}
+.race-tile:hover .rt-abilities,
+.race-tile.selected .rt-abilities { opacity: 0.65; }
+
+.rt-starter-badge {
+  position: absolute; top: 5px; right: 5px;
+  font-size: 6px; letter-spacing: 1px;
+  opacity: 0.5; padding: 1px 4px; border-radius: 2px;
+}
+
+/* Right — lore panel */
+.ds-right {
+  flex: 1;
+  padding: 20px 36px 20px 20px;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  transition: transform 0.2s, box-shadow 0.2s;
+  gap: 0;
+  overflow: hidden;
   position: relative;
-  text-align: center;
-  background: #07060f;
-  border: 1px solid #1a1428;
-}
-.race-tile:hover {
-  transform: translateY(-4px) scale(1.03);
-}
-.race-tile.selected {
-  transform: translateY(-4px) scale(1.03);
-}
-.race-avatar {
-  font-size: 28px;
-  line-height: 1;
-}
-.race-name {
-  font-size: 8px;
-  letter-spacing: 1.5px;
-  line-height: 1.3;
-  font-weight: bold;
-}
-.race-sub {
-  font-size: 7px;
-  letter-spacing: 0.5px;
-  opacity: 0.5;
-  line-height: 1.3;
-}
-.race-abilities {
-  font-size: 7px;
-  letter-spacing: 0.5px;
-  opacity: 0;
-  transition: opacity 0.2s;
-  color: #888;
-  line-height: 1.5;
-}
-.race-tile:hover .race-abilities,
-.race-tile.selected .race-abilities {
-  opacity: 0.7;
 }
 
-/* Bottom selection panel */
-.ds-selection-panel {
-  width: 100%;
-  max-width: 980px;
-  margin: 12px auto 0;
-  display: flex;
-  align-items: flex-start;
-  gap: 24px;
-  flex-shrink: 0;
-  transition: opacity 0.4s;
+/* Empty state */
+.ds-empty {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  height: 100%; gap: 14px; opacity: 0.3;
+  transition: opacity 0.3s;
 }
-.ds-selection-panel.hidden { opacity: 0; pointer-events: none; }
+.ds-empty.hidden { opacity: 0; pointer-events: none; display: none; }
+.ds-empty-icon { font-size: 40px; }
+.ds-empty-text { font-size: 9px; letter-spacing: 3px; }
 
-.ds-selected-info { flex: 1; }
-.ds-selected-name {
-  font-size: 16px;
-  letter-spacing: 3px;
-  font-weight: bold;
-  margin-bottom: 3px;
+/* Lore content */
+.ds-lore-content {
+  display: none; flex-direction: column; gap: 12px; height: 100%;
 }
-.ds-selected-sub {
-  font-size: 9px;
-  letter-spacing: 2px;
-  opacity: 0.5;
-  margin-bottom: 6px;
-}
-.ds-selected-quote {
-  font-size: 10px;
-  letter-spacing: 1px;
-  opacity: 0.6;
-  font-style: italic;
-  margin-bottom: 10px;
-}
-.ds-lore-block {
-  display: flex;
-  gap: 20px;
-}
-.ds-lore-col { flex: 1; }
-.ds-lore-label {
-  font-size: 8px;
-  letter-spacing: 3px;
-  opacity: 0.35;
-  margin-bottom: 5px;
-  text-transform: uppercase;
-}
-.ds-lore-text {
-  font-size: 9px;
-  letter-spacing: 0.5px;
-  opacity: 0.65;
-  line-height: 1.7;
-}
-.ds-counter-text {
-  font-size: 9px;
-  letter-spacing: 0.5px;
-  opacity: 0.45;
-  line-height: 1.7;
-  font-style: italic;
+.ds-lore-content.visible { display: flex; animation: loreIn 0.5s ease; }
+@keyframes loreIn {
+  from { opacity: 0; transform: translateX(12px); }
+  to   { opacity: 1; transform: translateX(0); }
 }
 
+.ds-race-header { margin-bottom: 4px; }
+.ds-race-name {
+  font-family: 'Orbitron', monospace;
+  font-size: 18px; letter-spacing: 3px; font-weight: 700;
+  line-height: 1.1; margin-bottom: 4px;
+}
+.ds-race-sub { font-size: 8px; letter-spacing: 3px; opacity: 0.45; margin-bottom: 8px; }
+.ds-race-quote {
+  font-size: 10px; letter-spacing: 1px; opacity: 0.65;
+  font-style: italic; line-height: 1.5; padding-left: 10px;
+  border-left: 2px solid currentColor;
+}
+
+.ds-abilities-row {
+  display: flex; gap: 6px; flex-wrap: wrap;
+}
+.ability-pill {
+  font-size: 7.5px; letter-spacing: 2px;
+  padding: 4px 10px; border-radius: 2px;
+  border: 1px solid currentColor; opacity: 0.7;
+}
+
+.lore-divider {
+  height: 1px; background: linear-gradient(90deg, currentColor, transparent);
+  opacity: 0.2; flex-shrink: 0;
+}
+
+.lore-cols { display: flex; gap: 20px; flex: 1; overflow: hidden; }
+.lore-col { flex: 1; display: flex; flex-direction: column; gap: 10px; overflow: hidden; }
+.lore-label {
+  font-size: 7.5px; letter-spacing: 3px; opacity: 0.35;
+  text-transform: uppercase; margin-bottom: 4px;
+}
+.lore-text {
+  font-size: 9px; letter-spacing: 0.5px;
+  opacity: 0.6; line-height: 1.8;
+}
+.lore-weakness {
+  font-size: 8.5px; letter-spacing: 0.5px;
+  opacity: 0.4; line-height: 1.7; font-style: italic;
+}
+
+/* Deploy button */
+.ds-deploy-wrap {
+  margin-top: auto; padding-top: 14px; flex-shrink: 0;
+  display: none;
+}
+.ds-deploy-wrap.visible { display: block; }
 .btn-deploy {
-  background: transparent;
-  font-family: inherit;
-  font-size: 11px;
-  letter-spacing: 4px;
-  padding: 12px 30px;
-  cursor: pointer;
-  text-transform: uppercase;
-  transition: all 0.3s;
-  flex-shrink: 0;
+  background: transparent; font-family: 'Orbitron', monospace;
+  font-size: 10px; letter-spacing: 5px;
+  padding: 14px 40px; cursor: pointer; text-transform: uppercase;
+  transition: all 0.3s; border-radius: 2px;
 }
 .btn-deploy:hover {
-  box-shadow: 0 0 20px currentColor, 0 0 40px currentColor;
-  opacity: 0.8;
+  box-shadow: 0 0 30px currentColor, 0 0 60px currentColor;
+  letter-spacing: 7px;
 }
-.btn-deploy:active { transform: scale(0.97); }
+.btn-deploy:active { transform: scale(0.98); }
 
-/* Lore footer */
-.ds-lore {
-  position: absolute;
-  bottom: 14px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 8px;
-  letter-spacing: 3px;
-  color: #221133;
-  text-align: center;
+/* Footer bar */
+.ds-footer {
+  flex-shrink: 0;
+  padding: 8px 36px;
+  border-top: 1px solid #0e0c1a;
+  display: flex; justify-content: space-between; align-items: center;
+  background: linear-gradient(to top, #020208, transparent);
 }
+.ds-footer-lore { font-size: 7.5px; letter-spacing: 3px; color: #1a0d2a; }
+.ds-race-count { font-size: 7.5px; letter-spacing: 2px; color: #221133; }
+
+/* ── ANIMATIONS ── */
+@keyframes fadeIn { from{opacity:0} to{opacity:1} }
 </style>
 </head>
 <body>
 
 <!-- STARFIELD -->
 <canvas id="starfield"></canvas>
-<div class="core-glow"></div>
-<div class="core-glow-ring"></div>
-<!-- Race background — switches when a deck is selected -->
-<div id="race-bg" style="
-  position:fixed;inset:0;z-index:2;
-  background-size:cover;background-position:center;
-  opacity:0;transition:opacity 0.7s ease;
-  pointer-events:none;
-"></div>
-<div id="race-bg-overlay" style="
-  position:fixed;inset:0;z-index:3;
-  background:linear-gradient(to right, #020208ee 40%, #020208aa 70%, #02020888 100%);
-  opacity:0;transition:opacity 0.7s ease;
-  pointer-events:none;
-"></div>
 
-<!-- SCREEN 1: SPLASH -->
+<!-- SPLASH BG -->
+<div class="splash-bg-img" id="splashBg"></div>
+<div class="splash-bg-dim" id="splashDim"></div>
+
+<!-- RACE COVER BG -->
+<div id="race-bg"></div>
+<div id="race-bg-overlay"></div>
+
+<!-- SCREEN 1: SPLASH ─────────────────────────── -->
 <div class="screen" id="splash">
+  <div class="corner corner-tl"></div>
+  <div class="corner corner-tr"></div>
+  <div class="corner corner-bl"></div>
+  <div class="corner corner-br"></div>
+
   <div class="splash-eyebrow">A GAME OF CIVILIZATIONAL CONFLICT</div>
   <div class="splash-title">GALACTIC ZERO</div>
+  <div class="splash-tagline">TEN CIVILIZATIONS &nbsp;·&nbsp; ONE SECTOR</div>
+  <div class="splash-tagline2">NO ONE CHOSE THIS CONFLICT — THE SECTOR SIMPLY IS</div>
   <div class="splash-divider"></div>
-  <div class="splash-sub">TEN CIVILIZATIONS &nbsp;·&nbsp; ONE SECTOR</div>
-  <div class="splash-sub2">NO ONE CHOSE THIS CONFLICT — THE SECTOR SIMPLY IS</div>
-  <button class="btn-primary" onclick="showDeckSelect()">ENTER THE SECTOR</button>
-  <div class="splash-lore">
-    SECTOR GZ-0 — GALACTIC CORE CONVERGENCE POINT<br>
-    WHERE TEN EXPANSION ROUTES COLLIDE
+  <button class="btn-enter" onclick="showDeckSelect()">ENTER THE SECTOR</button>
+
+  <div class="splash-footer">
+    <div class="splash-footer-lore">SECTOR GZ-0 &nbsp;·&nbsp; GALACTIC CORE CONVERGENCE &nbsp;·&nbsp; WHERE ALL EXPANSION ROUTES COLLIDE</div>
+    <div class="splash-version">v0.1 PROTOTYPE &nbsp;·&nbsp; GALACTIC ZERO</div>
   </div>
-  <div class="splash-version">v0.1 PROTOTYPE</div>
 </div>
 
-<!-- SCREEN 2: DECK SELECT -->
+<!-- SCREEN 2: DECK SELECT ──────────────────── -->
 <div class="screen hidden" id="deckselect">
+
   <div class="ds-header">
-    <div>
+    <div class="ds-header-left">
       <div class="ds-title">SELECT YOUR CIVILIZATION</div>
-      <div class="ds-instruction">CHOOSE THE RACE YOU WILL COMMAND AT GALACTIC ZERO</div>
+      <div class="ds-subtitle">CHOOSE THE RACE YOU WILL COMMAND AT SECTOR GZ-0</div>
     </div>
-    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+    <div class="ds-header-right">
       <div class="ds-logo">GALACTIC ZERO</div>
-      <button class="btn-back" onclick="showSplash()">← BACK</button>
+      <button class="btn-back" onclick="showSplash()">&#x2190; BACK</button>
     </div>
   </div>
 
-  <div class="ds-divider"></div>
+  <div class="ds-body">
 
-  <div class="race-grid" id="raceGrid"></div>
+    <!-- LEFT: Race tiles -->
+    <div class="ds-left">
+      <div class="race-grid" id="raceGrid"></div>
+    </div>
 
-  <div class="ds-selection-panel hidden" id="selectionPanel">
-    <div class="ds-selected-info" id="selectedInfo"></div>
-    <button class="btn-deploy" id="deployBtn" onclick="startGame()">
-      DEPLOY FLEET →
-    </button>
+    <!-- RIGHT: Lore panel -->
+    <div class="ds-right">
+
+      <div class="ds-empty" id="dsEmpty">
+        <div class="ds-empty-icon">✦</div>
+        <div class="ds-empty-text">SELECT A CIVILIZATION</div>
+      </div>
+
+      <div class="ds-lore-content" id="loreContent">
+        <div class="ds-race-header">
+          <div class="ds-race-name" id="loreName">—</div>
+          <div class="ds-race-sub" id="loreSub">—</div>
+          <div class="ds-race-quote" id="loreQuote">—</div>
+        </div>
+
+        <div class="ds-abilities-row" id="loreAbilities"></div>
+
+        <div class="lore-divider" id="loreDivider"></div>
+
+        <div class="lore-cols">
+          <div class="lore-col">
+            <div>
+              <div class="lore-label" id="loreLabel1">CIVILIZATION</div>
+              <div class="lore-text" id="loreText1">—</div>
+            </div>
+          </div>
+          <div class="lore-col">
+            <div>
+              <div class="lore-label" id="loreLabel2">HISTORY AT SECTOR GZ-0</div>
+              <div class="lore-text" id="loreText2">—</div>
+            </div>
+            <div>
+              <div class="lore-label" id="loreLabel3">WEAKNESS</div>
+              <div class="lore-weakness" id="loreText3">—</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ds-deploy-wrap" id="deployWrap">
+          <button class="btn-deploy" id="deployBtn" onclick="startGame()">DEPLOY FLEET &#x2192;</button>
+        </div>
+      </div>
+
+    </div>
   </div>
 
-  <div class="ds-lore">
-    ROWS = TRANSIT CORRIDORS &nbsp;·&nbsp; COLUMNS = RESOURCE STREAMS &nbsp;·&nbsp; WIN 6 OF 10 LINES
+  <div class="ds-footer">
+    <div class="ds-footer-lore">ROWS = TRANSIT CORRIDORS &nbsp;·&nbsp; COLUMNS = RESOURCE STREAMS &nbsp;·&nbsp; WIN 6 OF 10 LINES</div>
+    <div class="ds-race-count" id="raceCount">11 CIVILIZATIONS</div>
   </div>
+
 </div>
 
 <script>
-// ── STARFIELD ───────────────────────────────────────
-const canvas = document.getElementById('starfield');
-const ctx = canvas.getContext('2d');
-let stars = [];
+// ── STARFIELD ─────────────────────────────────────
+(function() {
+  const canvas = document.getElementById('starfield');
+  const ctx = canvas.getContext('2d');
+  let stars = [];
 
-function resizeCanvas() {
-  canvas.width  = window.innerWidth;
-  canvas.height = window.innerHeight;
-}
-
-function initStars(count = 320) {
-  stars = [];
-  for (let i = 0; i < count; i++) {
-    stars.push({
+  function resize() {
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+    stars = Array.from({length: 280}, () => ({
       x: Math.random() * canvas.width,
       y: Math.random() * canvas.height,
-      r: Math.random() * 1.4 + 0.2,
-      alpha: Math.random() * 0.7 + 0.1,
-      speed: Math.random() * 0.012 + 0.003,
+      r: Math.random() * 1.3 + 0.2,
+      alpha: Math.random() * 0.6 + 0.1,
+      speed: Math.random() * 0.008 + 0.002,
       phase: Math.random() * Math.PI * 2,
+    }));
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const t = Date.now() * 0.001;
+    stars.forEach(s => {
+      const a = s.alpha * (0.5 + 0.5 * Math.sin(t * s.speed * 12 + s.phase));
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(200,185,255,${a})`;
+      ctx.fill();
     });
+    requestAnimationFrame(draw);
   }
-}
 
-function animateStars() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  const t = Date.now() * 0.001;
-  for (const s of stars) {
-    const a = s.alpha * (0.6 + 0.4 * Math.sin(t * s.speed * 10 + s.phase));
-    ctx.beginPath();
-    ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-    ctx.fillStyle = `rgba(200,190,255,${a})`;
-    ctx.fill();
-  }
-  requestAnimationFrame(animateStars);
-}
-
-window.addEventListener('resize', () => { resizeCanvas(); initStars(); });
-resizeCanvas();
-initStars();
-animateStars();
+  window.addEventListener('resize', resize);
+  resize(); draw();
+})();
 
 // ── RACE DATA ─────────────────────────────────────
 const RACES = [
@@ -494,32 +537,32 @@ const RACES = [
     name: 'THE TERRAN ACCORD', sub: 'UNITED COLONIAL FEDERATION',
     color: '#7ab8e8', avatar: '★', starter: true,
     quote: '"We are many worlds, one purpose."',
-    abilities: 'COMMANDER · BOOST · SURGE',
+    abilities: ['COMMANDER', 'BOOST', 'SURGE', 'CHAIN'],
     playstyle: 'Balanced generalist',
     lore: "Humanity's unified colonial federation — 40 colony worlds, one military doctrine. No alien mystique, no ancient wisdom. They fight with discipline, numbers, and the one advantage no alien race shares: they understand each other.",
-    history: "The Accord emerged from centuries of intercolonial conflict, unified under the Colonial Defense Treaty after the Proxima Wars. They were the last major civilization to push toward the galactic core, and the first to realize all expansion routes led to the same impossible convergence. At Galactic Zero, they fight not as survivors — but as the only race that chose to be here.",
-    counter: 'Lithos high-edge walls absorb their standard attacks. Veil phase abilities bypass their formation tactics.'
+    history: "The Accord emerged from centuries of intercolonial conflict, unified under the Colonial Defense Treaty after the Proxima Wars. They were the last major civilization to push toward the galactic core, and the first to realize all expansion routes led to the same impossible convergence.",
+    counter: 'Lithos high-edge walls absorb their standard attacks. Veil phase abilities bypass formation tactics.'
   },
   {
     id: 'crystallis', cover: 'assets/deck_crystallis.png',
     name: 'THE CRYSTALLIS', sub: 'SILICON LATTICE CIVILIZATION',
     color: '#a8d8ff', avatar: '💎',
     quote: '"You will fracture against us."',
-    abilities: 'FORTRESS · BASTION · REFLECT',
+    abilities: ['FORTRESS', 'BASTION', 'REFLECT', 'WARD'],
     playstyle: 'Defensive anchor',
-    lore: "Silicon-lattice beings grown from asteroid fields — not manufactured but crystallized over geological time. Each individual is a faceted node in a civilization-scale lattice structure. What appears to be a ship is a mobile extension of their homeworld.",
-    history: "The Crystallis did not travel to Galactic Zero. They grew toward it — their expansion network extending one crystalline node at a time across millennia. When the other civilizations arrived, the Crystallis had already been here for ten thousand years, waiting for neighbors they had detected through vibration.",
-    counter: 'Drain and Sunder abilities permanently reduce their edge values. Mycos corrosive spread erodes even IMMOVABLE nodes.'
+    lore: "Silicon-lattice beings grown from asteroid fields — not manufactured but crystallized over geological time. What appears to be a ship is a mobile extension of their homeworld lattice, indistinguishable from the structure it grew from.",
+    history: "The Crystallis did not travel to Galactic Zero. They grew toward it — their expansion network extending one node at a time across millennia. When other civilizations arrived, the Crystallis had already been present for ten thousand years, waiting in silence.",
+    counter: 'Drain and Sunder permanently reduce their edge values. Mycos corrosive spread erodes even IMMOVABLE nodes.'
   },
   {
     id: 'mycos', cover: 'assets/deck_mycos.png',
     name: 'THE MYCOS DRIFT', sub: 'DISTRIBUTED FUNGAL INTELLIGENCE',
     color: '#9dcf6e', avatar: '🍄',
     quote: '"We have already begun."',
-    abilities: 'CORROSIVE · CHAIN · MOMENTUM',
+    abilities: ['CORROSIVE', 'CHAIN', 'MOMENTUM', 'SYNERGY'],
     playstyle: 'Attrition spreader',
     lore: "A distributed mycorrhizal intelligence spanning solar systems — no central mind, only network. The Drift does not make decisions. It grows. Every spore carries the full consciousness of the whole. Ships are enormous fruiting bodies deployed from an organism larger than most star systems.",
-    history: "The Mycos Drift arrived at Galactic Zero not as an expedition but as an infection. The sector's unusual gravitational profile carried their spores from a system they had already consumed. By the time the other races identified them as a civilization, the Drift had already established roots in seventeen transit corridors.",
+    history: "The Mycos Drift arrived at Galactic Zero not as an expedition but as an infection. The sector's unusual gravitational profile carried their spores from a system they had already consumed. By the time other races identified them as a civilization, the Drift had established roots in seventeen transit corridors.",
     counter: 'Rush strategies strike before Corrosive spreads. Ward cards resist their ability-based corrosion.'
   },
   {
@@ -527,65 +570,65 @@ const RACES = [
     name: 'THE VEIL', sub: 'COHERENT LIGHT ENTITIES',
     color: '#fff5a0', avatar: '✦',
     quote: '"You cannot strike what you cannot see."',
-    abilities: 'PHANTOM · PHASE · AMBUSH',
+    abilities: ['PHANTOM', 'PHASE', 'AMBUSH', 'ORACLE'],
     playstyle: 'Deception and displacement',
-    lore: "Beings of coherent light who never fully solidify. Visible only when two of their waveforms cross — and only for a moment. What other races perceive as a Veil ship is actually a briefly-stable interference pattern. Strike it and it simply becomes somewhere else.",
-    history: "The Veil's presence at Galactic Zero was detected only after they had already placed three nodes in contested corridors. No one saw them arrive. Diplomatic contact has been limited to interference patterns in communication arrays — messages left as standing waves in empty space, readable hours after the sender has moved on.",
-    counter: 'Fortress and Immovable cards cannot be phased away. Predictable placement patterns make Adaptive abilities weaker.'
+    lore: "Beings of coherent light who never fully solidify. Visible only when two waveforms cross — and only for a moment. What other races perceive as a Veil ship is a briefly-stable interference pattern. Strike it and it becomes somewhere else.",
+    history: "The Veil's presence at Galactic Zero was detected only after they had placed three nodes in contested corridors. No one saw them arrive. Diplomatic contact has been limited to interference patterns in communication arrays — messages left as standing waves in empty space.",
+    counter: 'Fortress and Immovable cards cannot be phased away. Predictable decks make Adaptive abilities weaker.'
   },
   {
     id: 'entropy', cover: 'assets/deck_entropy.png',
     name: 'THE ENTROPY CULT', sub: 'ANCIENT DECAY WORSHIPPERS',
     color: '#c4723a', avatar: '☄',
     quote: '"Everything ends. We simply hasten it."',
-    abilities: 'DRAIN · SUNDER · MIRROR',
+    abilities: ['DRAIN', 'SUNDER', 'MIRROR', 'SACRIFICE'],
     playstyle: 'Board degrader',
-    lore: "Ancient beings older than most stars, who reached the inevitable philosophical conclusion long ago: heat death is not a tragedy but a destination. They worship the end state. Their technology is designed not to preserve but to accelerate — every weapon is entropy made purposeful.",
-    history: "The Entropy Cult has fought at seventeen convergence points across galactic history. They lose most of them — deliberately. Each defeat weakens the victor. At Galactic Zero they arrive as they always do: with beautiful corroded ships, genuine smiles, and absolutely no fear of the outcome.",
-    counter: 'Ward and Immovable abilities resist Drain and Sunder. Quantum Wildcard randomness counters their deterministic decay strategy.'
+    lore: "Ancient beings who reached the inevitable philosophical conclusion long ago: heat death is not a tragedy but a destination. Their technology is designed not to preserve but to accelerate — every weapon is entropy made purposeful, every ship a slow-motion collapse.",
+    history: "The Entropy Cult has fought at seventeen convergence points across galactic history. They lose most of them — deliberately. Each defeat weakens the victor. At Galactic Zero they arrive as they always do: with beautiful corroded ships, genuine smiles, and no fear of the outcome.",
+    counter: 'Ward and Immovable abilities resist Drain and Sunder. Quantum Wildcard randomness counters their deterministic decay.'
   },
   {
     id: 'brood', cover: 'assets/deck_brood.png',
     name: 'THE BROOD SOVEREIGN', sub: 'INSECTOID HIVE-MIND',
     color: '#88cc44', avatar: '🪲',
     quote: '"The Sovereign sees through ten thousand eyes."',
-    abilities: 'COMMANDER · SWEEP · RUSH',
+    abilities: ['COMMANDER', 'SWEEP', 'RUSH', 'BOOST'],
     playstyle: 'Cluster formation',
-    lore: "Insectoid hive-mind where the Sovereign — always singular, always enormous — is the central consciousness and all other Brood are extensions of her will. Ships are colonies of living bodies fused into hull-shapes. The Sovereign herself is the Dreadnaught: a mobile throne that makes everything around her lethal.",
-    history: "The Brood arrived at Galactic Zero as a colony fleet that had consumed three neighboring systems. The Sovereign tasted the gravitational anomaly of the sector from parsecs away and redirected her entire expansion drive toward it. She has never retreated in her recorded history.",
-    counter: "Isolate their clusters — pick off individual nodes before they mass. The Sovereign's COMMANDER bonuses require adjacency."
+    lore: "Insectoid hive-mind where the Sovereign — always singular, always enormous — is the central consciousness. Ships are colonies of living bodies fused into hull-shapes. The Sovereign herself is the Dreadnaught: a mobile throne that makes everything around her lethal.",
+    history: "The Brood arrived at Galactic Zero as a colony fleet that had consumed three neighboring systems. The Sovereign tasted the gravitational anomaly of the sector from parsecs away and redirected her entire expansion drive toward it. She has never retreated in recorded history.",
+    counter: "Isolate their clusters before they mass. The Sovereign's COMMANDER bonuses require adjacency."
   },
   {
     id: 'void', cover: 'assets/deck_void.png',
     name: 'THE VOID HUNTERS', sub: 'DARK MATTER PREDATORS',
     color: '#9b59b6', avatar: '▪',
     quote: '"We come from the dark between stars."',
-    abilities: 'DOUBLE STRIKE · PIERCE · FLANK',
+    abilities: ['DOUBLE STRIKE', 'PIERCE', 'FLANK', 'SUNDER'],
     playstyle: 'Aggressive assassin',
-    lore: "From the intergalactic void — the true dark between galaxy clusters where no star has ever formed. Defined entirely by absence. Void Hunter ships absorb light; they are visible only by what they occlude. Their technology is predatory at the fundamental level: find the strongest thing, destroy its strength first.",
+    lore: "From the intergalactic void — the true dark between galaxy clusters where no star has ever formed. Defined entirely by absence. Void Hunter ships absorb light; visible only by what they occlude. Their technology is predatory at the fundamental level: find the strongest thing, destroy its strength first.",
     history: "No one knows how old the Void Hunters are. Their recorded interactions with other civilizations go back to the galactic formation period. They have no territory, no homeworld, no resources — only prey. Galactic Zero attracts them for the same reason it attracts everyone else: concentration of opponents.",
-    counter: 'High defensive edge values (Lithos, Crystallis) absorb their high-attack strikes. Shield abilities block their critical first comparisons.'
+    counter: 'High defensive edge values (Lithos, Crystallis) absorb their strikes. Shield abilities block their critical first comparisons.'
   },
   {
     id: 'gas', cover: 'assets/deck_gas.png',
     name: 'THE GAS NOMADS', sub: 'PLASMA STORM BEINGS',
     color: '#ffd700', avatar: '⚡',
     quote: '"You have angered the storm."',
-    abilities: 'BERSERK · SURGE · LAST STAND',
+    abilities: ['BERSERK', 'SURGE', 'LAST STAND', 'OVERLOAD'],
     playstyle: 'Volatile comeback',
-    lore: "Evolved in the upper atmospheres of gas giants — beings of ionized plasma held together by magnetic will rather than biology. Ships are literally contained storms: self-sustaining atmospheric systems directed by a collective plasma intelligence. The Dreadnaught is a weaponized planetary hurricane.",
-    history: "The Gas Nomads have no fixed territory — they drift through gas giant systems, consuming raw atmospheric energy. They arrived at Galactic Zero because the sector's gravitational anomaly was generating exotic plasma conditions they had never encountered. What began as curiosity became conflict when other races claimed resource streams the Nomads considered natural feeding grounds.",
-    counter: "Strike early before Berserk stacks accumulate. Spread cards across rows to avoid triggering Last Stand bonuses."
+    lore: "Evolved in the upper atmospheres of gas giants — beings of ionized plasma held together by magnetic will. Ships are literally contained storms: self-sustaining atmospheric systems directed by a collective plasma consciousness. The Dreadnaught is a weaponized planetary hurricane.",
+    history: "The Gas Nomads arrived at Galactic Zero because the sector's gravitational anomaly was generating exotic plasma conditions they had never encountered. What began as curiosity became conflict when other races claimed resource streams the Nomads considered natural feeding grounds.",
+    counter: "Strike early before Berserk stacks accumulate. Spread cards to avoid triggering Last Stand bonuses."
   },
   {
     id: 'lithos', cover: 'assets/deck_lithos.png',
     name: 'THE LITHOS', sub: 'GEOLOGICAL ANCIENTS',
     color: '#a0896a', avatar: '⬡',
     quote: '"We were here before your stars ignited."',
-    abilities: 'IMMOVABLE · FORTRESS · WARD',
+    abilities: ['IMMOVABLE', 'FORTRESS', 'WARD', 'LAST STAND'],
     playstyle: 'Denial control',
     lore: "Near-immortal beings thinking in geological time — a 'fast decision' takes a decade. Ships are asteroids shaped over millions of years by forces the Lithos will into specific geometries. They do not build. They wait for matter to become what they already decided it would be.",
-    history: "The Lithos have existed since before the current star generation. They have watched civilizations rise and collapse across the full sweep of galactic history. Their reason for fighting at Galactic Zero is not expansion or resources — it is memory. The sector contains a gravitational record of the previous galactic configuration, and the Lithos will not allow it to be disturbed.",
+    history: "The Lithos have existed since before the current star generation. Their reason for fighting at Galactic Zero is not expansion — it is memory. The sector contains a gravitational record of the previous galactic configuration, and the Lithos will not allow it to be disturbed.",
     counter: 'Corrosive and Sunder abilities permanently reduce even Immovable edge values. Momentum scoring outpaces their slow power accumulation.'
   },
   {
@@ -593,21 +636,21 @@ const RACES = [
     name: 'THE QUANTUM THREAD', sub: 'SUPERPOSITION ENTITIES',
     color: '#ff69b4', avatar: '◈',
     quote: '"We are all possibilities at once."',
-    abilities: 'WILDCARD · ADAPTIVE · AMBUSH',
+    abilities: ['WILDCARD', 'ADAPTIVE', 'AMBUSH', 'ORACLE'],
     playstyle: 'Reactive uncertainty',
-    lore: "Beings that exist in superposition — multiple states simultaneously until observed. Their ships are probability clouds: when you look directly at a Quantum Thread vessel, you have already changed what it was. Their entire civilization operates on the principle that the unobserved state contains more power than the resolved one.",
-    history: "The Quantum Thread's presence at Galactic Zero is, according to their own cosmology, both certain and impossible. Multiple branches of their probability-consciousness are fighting here simultaneously, in parallel timelines with different outcomes. They do not know which branch they are in. Neither do their opponents.",
-    counter: 'Consistent, predictable decks (Crystallis, Lithos) make Adaptive weaker. Fortress cards resist their phase and displacement attacks.'
+    lore: "Beings that exist in superposition — multiple states simultaneously until observed. Their ships are probability clouds: when you look directly at a Quantum Thread vessel, you have already changed what it was. They operate on the principle that the unobserved state contains more power than the resolved one.",
+    history: "The Quantum Thread's presence at Galactic Zero is, according to their own cosmology, both certain and impossible. Multiple branches of their probability-consciousness are fighting here simultaneously, in parallel timelines with different outcomes. They do not know which branch they are in.",
+    counter: 'Consistent, predictable decks make Adaptive weaker. Fortress cards resist their phase and displacement attacks.'
   },
   {
     id: 'choir', cover: 'assets/deck_choir.png',
     name: 'THE CHOIR', sub: 'RESONANT FREQUENCY ENTITIES',
     color: '#c8c8ff', avatar: '〜',
     quote: '"The note that breaks everything."',
-    abilities: 'SWEEP · SIDE SWIPE · REFLECT',
+    abilities: ['SWEEP', 'SIDE SWIPE', 'REFLECT', 'FLANK'],
     playstyle: 'Area resonance',
-    lore: "No visible form. No detectable mass. The Choir is pure resonant frequency — sound traveling through space at impossible scales. Their existence is acoustic: they perceive through vibration, communicate through harmonic modulation, and attack by finding the resonant frequency of whatever they want destroyed.",
-    history: "The Choir was detected at Galactic Zero as an anomalous resonance signature in the sector's background radiation. By the time other civilizations understood what they were hearing, The Choir had been present for three centuries — listening, mapping resonant vulnerabilities, calculating the frequency that would shatter each civilization's Dreadnaught. They have not struck yet. The calculations are almost complete.",
+    lore: "No visible form. No detectable mass. The Choir is pure resonant frequency — sound traveling through space at impossible scales. They perceive through vibration, communicate through harmonic modulation, and attack by finding the resonant frequency of whatever they want destroyed.",
+    history: "The Choir was detected at Galactic Zero as an anomalous resonance signature in the sector's background radiation. By the time other civilizations understood what they were hearing, The Choir had been present for three centuries — listening, mapping resonant vulnerabilities, calculating the frequency that will shatter each civilization's Dreadnaught.",
     counter: 'Spread your cards — do not cluster. Side Swipe and Sweep abilities are devastating against dense formations.'
   },
 ];
@@ -620,26 +663,30 @@ function buildRaceGrid() {
   grid.innerHTML = '';
   RACES.forEach(race => {
     const tile = document.createElement('div');
-    tile.className = 'race-tile' + (race.starter ? ' starter' : '');
+    tile.className = 'race-tile';
     tile.dataset.id = race.id;
-    tile.style.cssText = `
-      border-color: ${race.color}33;
-    `;
+    tile.style.color = race.color;
+    tile.style.borderColor = race.color + '28';
     tile.innerHTML = `
-      <div class="race-avatar">${race.avatar}</div>
-      <div class="race-name" style="color:${race.color}">${race.name}</div>
-      <div class="race-sub">${race.sub}</div>
-      <div class="race-abilities">${race.abilities}</div>
+      ${race.starter ? `<div class="rt-starter-badge" style="color:${race.color};border:1px solid ${race.color}44;background:${race.color}11">STARTER</div>` : ''}
+      <div class="rt-avatar">${race.avatar}</div>
+      <div class="rt-name" style="color:${race.color}">${race.name.replace('THE ', '')}</div>
+      <div class="rt-sub">${race.sub}</div>
+      <div class="rt-abilities">${race.abilities.slice(0,3).join(' · ')}</div>
     `;
     tile.addEventListener('click', () => selectRace(race, tile));
     tile.addEventListener('mouseenter', () => {
-      tile.style.boxShadow = `0 0 16px ${race.color}33, 0 0 30px ${race.color}11`;
-      tile.style.borderColor = `${race.color}77`;
+      if (selectedRace?.id !== race.id) {
+        tile.style.borderColor = race.color + '55';
+        tile.style.boxShadow = `0 0 14px ${race.color}22`;
+        tile.style.background = race.color + '08';
+      }
     });
     tile.addEventListener('mouseleave', () => {
       if (selectedRace?.id !== race.id) {
+        tile.style.borderColor = race.color + '28';
         tile.style.boxShadow = '';
-        tile.style.borderColor = `${race.color}33`;
+        tile.style.background = '';
       }
     });
     grid.appendChild(tile);
@@ -647,76 +694,99 @@ function buildRaceGrid() {
 }
 
 function selectRace(race, tileEl) {
-  // Deselect previous tile
+  // Deselect previous
   document.querySelectorAll('.race-tile.selected').forEach(t => {
     const r = RACES.find(r => r.id === t.dataset.id);
-    if (r) { t.style.boxShadow = ''; t.style.borderColor = `${r.color}33`; }
+    if (r) {
+      t.style.borderColor = r.color + '28';
+      t.style.boxShadow = '';
+      t.style.background = '';
+    }
     t.classList.remove('selected');
   });
 
   selectedRace = race;
   tileEl.classList.add('selected');
-  tileEl.style.boxShadow = `0 0 24px ${race.color}55, 0 0 60px ${race.color}22`;
   tileEl.style.borderColor = race.color;
+  tileEl.style.boxShadow = `0 0 20px ${race.color}44, 0 0 40px ${race.color}18`;
+  tileEl.style.background = race.color + '10';
 
-  // Switch full-screen background to race deck cover
-  const bg  = document.getElementById('race-bg');
-  const ov  = document.getElementById('race-bg-overlay');
+  // Background image
+  const bg = document.getElementById('race-bg');
+  const ov = document.getElementById('race-bg-overlay');
   bg.style.backgroundImage = `url('${race.cover}')`;
-  bg.style.opacity = '1';
+  bg.style.opacity = '0.6';
   ov.style.opacity = '1';
 
-  // Update info panel with full lore
-  const panel = document.getElementById('selectionPanel');
-  const info  = document.getElementById('selectedInfo');
-  const btn   = document.getElementById('deployBtn');
+  // Update lore panel
+  document.getElementById('dsEmpty').classList.add('hidden');
+  const lc = document.getElementById('loreContent');
+  lc.classList.remove('visible');
+  setTimeout(() => {
+    document.getElementById('loreName').textContent   = race.name;
+    document.getElementById('loreName').style.color   = race.color;
+    document.getElementById('loreSub').textContent    = race.sub + ' · ' + race.playstyle;
+    document.getElementById('loreQuote').textContent  = race.quote;
+    document.getElementById('loreQuote').style.borderLeftColor = race.color;
+    document.getElementById('loreText1').textContent  = race.lore;
+    document.getElementById('loreText2').textContent  = race.history;
+    document.getElementById('loreText3').textContent  = race.counter;
+    document.getElementById('loreLabel1').style.color = race.color;
+    document.getElementById('loreLabel2').style.color = race.color;
+    document.getElementById('loreLabel3').style.color = race.color;
+    document.getElementById('loreDivider').style.background =
+      `linear-gradient(90deg, ${race.color}, transparent)`;
 
-  info.innerHTML = `
-    <div class="ds-selected-name" style="color:${race.color}">${race.name}</div>
-    <div class="ds-selected-sub">${race.sub} &nbsp;·&nbsp; ${race.playstyle || ''}</div>
-    <div class="ds-selected-quote">${race.quote}</div>
-    <div class="ds-lore-block">
-      <div class="ds-lore-col">
-        <div class="ds-lore-label" style="color:${race.color}">CIVILIZATION</div>
-        <div class="ds-lore-text">${race.lore}</div>
-      </div>
-      <div class="ds-lore-col">
-        <div class="ds-lore-label" style="color:${race.color}">HISTORY AT SECTOR GZ-0</div>
-        <div class="ds-lore-text">${race.history}</div>
-        <div class="ds-lore-label" style="color:${race.color};margin-top:8px">WEAKNESS</div>
-        <div class="ds-counter-text">${race.counter}</div>
-      </div>
-    </div>
-  `;
+    const ab = document.getElementById('loreAbilities');
+    ab.innerHTML = race.abilities.map(a =>
+      `<span class="ability-pill" style="color:${race.color};border-color:${race.color}44">${a}</span>`
+    ).join('');
 
-  btn.style.cssText = `
-    background:transparent;font-family:inherit;font-size:11px;letter-spacing:4px;
-    padding:12px 30px;cursor:pointer;text-transform:uppercase;transition:all 0.3s;
-    flex-shrink:0;align-self:flex-start;margin-top:4px;
-    border:1px solid ${race.color}88;color:${race.color};
-  `;
-  panel.classList.remove('hidden');
+    const btn = document.getElementById('deployBtn');
+    btn.style.cssText = `
+      background:transparent;font-family:'Orbitron',monospace;font-size:10px;letter-spacing:5px;
+      padding:14px 40px;cursor:pointer;text-transform:uppercase;transition:all 0.3s;border-radius:2px;
+      border:1px solid ${race.color}88;color:${race.color};
+    `;
+    document.getElementById('deployWrap').classList.add('visible');
+    lc.classList.add('visible');
+  }, 60);
 }
 
 // ── SCREEN TRANSITIONS ─────────────────────────────
 function showDeckSelect() {
-  document.getElementById('splash').classList.add('hidden');
+  const splash = document.getElementById('splash');
+  const splashBg = document.getElementById('splashBg');
+  const splashDim = document.getElementById('splashDim');
+  splash.classList.add('hidden');
+  splashBg.style.transition = 'opacity 0.7s';
+  splashBg.style.opacity = '0';
+  splashDim.style.opacity = '0';
   setTimeout(() => {
     document.getElementById('deckselect').classList.remove('hidden');
-  }, 100);
+  }, 150);
 }
 
 function showSplash() {
   document.getElementById('deckselect').classList.add('hidden');
+  // Reset race bg
+  const bg = document.getElementById('race-bg');
+  const ov = document.getElementById('race-bg-overlay');
+  bg.style.opacity = '0';
+  ov.style.opacity = '0';
+  const splashBg = document.getElementById('splashBg');
+  const splashDim = document.getElementById('splashDim');
+  splashBg.style.opacity = '0.55';
+  splashDim.style.opacity = '1';
   setTimeout(() => {
     document.getElementById('splash').classList.remove('hidden');
-  }, 100);
+  }, 150);
 }
 
 function startGame() {
   if (!selectedRace) return;
-  // TODO: launch game with selectedRace
-  alert(`Launching with ${selectedRace.name}...\n(Game board integration coming next)`);
+  // Transition to game board
+  alert(`Launching as ${selectedRace.name}...\n(Game board integration coming next)`);
 }
 
 // ── INIT ──────────────────────────────────────────
