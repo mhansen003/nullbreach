@@ -204,24 +204,43 @@ body {
 .btn-back:hover { border-color: #aa77ff; color: #fff; }
 
 /* ── CONVEYOR BELT ── */
-.conveyor-wrap {
-  width: 100%; overflow: hidden; flex-shrink: 0;
-  padding: 10px 0 18px; position: relative; z-index: 20;
+.conveyor-section {
+  position: relative; flex-shrink: 0; z-index: 20;
 }
+.conveyor-wrap {
+  width: 100%;
+  overflow: hidden;
+  padding: 32px 0 20px; /* top padding = room for hover jump */
+}
+/* Pause while hovering */
 .conveyor-wrap:hover .conveyor-track { animation-play-state: paused; }
 .conveyor-track {
-  display: flex; gap: 18px; width: max-content;
-  padding: 8px 24px;
-  animation: conveyorScroll 55s linear infinite;
+  display: flex; gap: 22px; width: max-content;
+  padding: 0 28px;
+  animation: conveyorScroll 60s linear infinite;
 }
 @keyframes conveyorScroll {
   0%   { transform: translateX(0); }
   100% { transform: translateX(-50%); }
 }
 
+/* Navigation arrows */
+.conveyor-arrow {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  width: 48px; height: 80px; z-index: 30;
+  background: #000000cc; border: 1px solid #8855ff66;
+  color: #aa88ff; font-size: 22px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s; border-radius: 4px;
+  user-select: none;
+}
+.conveyor-arrow:hover { background: #1a0a2eee; border-color: #aa77ff; color: #fff; box-shadow: 0 0 20px #8855ff44; }
+.conveyor-arrow.left  { left: 8px; }
+.conveyor-arrow.right { right: 8px; }
+
 /* ── RACE TILES ── */
 .race-tile {
-  width: 195px; height: 262px; flex-shrink: 0;
+  width: 240px; height: 320px; flex-shrink: 0;
   border-radius: 8px; cursor: pointer;
   background: #06050e center/cover no-repeat;
   border: 2px solid transparent;
@@ -230,27 +249,28 @@ body {
 }
 .race-tile::after {
   content: ''; position: absolute; inset: 0;
-  background: linear-gradient(to top, #000000f2 0%, #000000bb 36%, #00000066 62%, transparent 100%);
+  background: linear-gradient(to top, #000000f2 0%, #000000bb 38%, #00000066 65%, transparent 100%);
   z-index: 0;
 }
-.race-tile:hover { transform: translateY(-20px) scale(1.12); z-index: 20; }
-.race-tile.selected { transform: translateY(-12px) scale(1.07); }
+/* Hover goes DOWN a little so it doesn't clip on top */
+.race-tile:hover { transform: translateY(-28px) scale(1.12); z-index: 20; }
+.race-tile.selected { transform: translateY(-14px) scale(1.07); }
 .rt-text-group {
   position: absolute; bottom: 0; left: 0; right: 0;
-  padding: 14px 12px 12px; z-index: 2;
-  display: flex; flex-direction: column; gap: 4px;
+  padding: 16px 14px 14px; z-index: 2;
+  display: flex; flex-direction: column; gap: 5px;
 }
 .rt-name {
-  font-size: 14px; letter-spacing: 1px; line-height: 1.2; font-weight: bold;
-  text-shadow: 0 0 14px #000, 0 2px 4px #000;
+  font-size: 16px; letter-spacing: 1px; line-height: 1.2; font-weight: bold;
+  text-shadow: 0 0 16px #000, 0 2px 5px #000;
 }
 .rt-sub {
-  font-size: 10px; letter-spacing: 0.5px; color: #ffffffcc; line-height: 1.3;
+  font-size: 11px; letter-spacing: 0.5px; color: #ffffffcc; line-height: 1.3;
   text-shadow: 0 0 10px #000, 0 1px 2px #000;
 }
 .rt-starter-badge {
-  position: absolute; top: 8px; right: 8px; z-index: 3;
-  font-size: 7px; letter-spacing: 2px; padding: 3px 7px; border-radius: 2px;
+  position: absolute; top: 10px; right: 10px; z-index: 3;
+  font-size: 8px; letter-spacing: 2px; padding: 4px 8px; border-radius: 2px;
 }
 
 /* ── LORE PANEL (below conveyor) ── */
@@ -354,8 +374,12 @@ body {
   </div>
 
   <!-- CONVEYOR BELT -->
-  <div class="conveyor-wrap" id="conveyorWrap">
-    <div class="conveyor-track" id="conveyorTrack"></div>
+  <div class="conveyor-section">
+    <div class="conveyor-arrow left" onclick="shiftSpeed(-1)" title="Slower / Reverse">&#x276E;</div>
+    <div class="conveyor-wrap" id="conveyorWrap">
+      <div class="conveyor-track" id="conveyorTrack"></div>
+    </div>
+    <div class="conveyor-arrow right" onclick="shiftSpeed(1)" title="Faster">&#x276F;</div>
   </div>
 
   <!-- LORE PANEL -->
@@ -559,6 +583,16 @@ const RACES = [
 ];
 
 let selectedRace = null;
+
+// ── CONVEYOR SPEED CONTROL ─────────────────────────
+const SPEEDS = [120, 60, 30, 15]; // seconds per full loop
+let speedIdx = 1; // start at 60s
+
+function shiftSpeed(dir) {
+  speedIdx = Math.max(0, Math.min(SPEEDS.length - 1, speedIdx + dir));
+  const track = document.getElementById('conveyorTrack');
+  if (track) track.style.animationDuration = SPEEDS[speedIdx] + 's';
+}
 
 // ── BUILD CONVEYOR BELT ────────────────────────────
 function buildRaceGrid() {
