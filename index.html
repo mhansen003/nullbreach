@@ -387,16 +387,25 @@ body {
 <!-- Civilization voice intro — plays on deck selection -->
 <audio id="civVoice" preload="none"></audio>
 
-<!-- MUTE TOGGLE — bottom right, never conflicts with headers -->
-<div id="muteBtn" onclick="toggleMute()" style="
-  position:fixed;bottom:20px;right:20px;z-index:200;
-  padding:6px 14px;border-radius:4px;
-  background:#000000cc;border:1px solid #ffffff33;
-  color:#ffffffcc;font-size:11px;letter-spacing:2px;
-  cursor:pointer;display:flex;align-items:center;gap:8px;
-  font-family:'Courier New',monospace;
-  transition:all 0.2s;
-" title="Toggle music">🔊 <span id="muteLbl">MUSIC</span></div>
+<!-- AUDIO CONTROLS — bottom right, stacked vertically -->
+<div style="position:fixed;bottom:20px;right:20px;z-index:200;display:flex;flex-direction:column;gap:6px;align-items:flex-end;">
+  <!-- Music mute -->
+  <div id="muteBtn" onclick="toggleMute()" style="
+    padding:5px 12px;border-radius:4px;
+    background:#000000cc;border:1px solid #ffffff22;
+    color:#ffffffaa;font-size:10px;letter-spacing:2px;
+    cursor:pointer;display:flex;align-items:center;gap:6px;
+    font-family:'Courier New',monospace;transition:all 0.2s;
+  " title="Toggle music">🎵 <span id="muteLbl">MUSIC</span></div>
+  <!-- Voice mute -->
+  <div id="voiceMuteBtn" onclick="toggleVoiceMute()" style="
+    padding:5px 12px;border-radius:4px;
+    background:#000000cc;border:1px solid #ffffff22;
+    color:#ffffffaa;font-size:10px;letter-spacing:2px;
+    cursor:pointer;display:flex;align-items:center;gap:6px;
+    font-family:'Courier New',monospace;transition:all 0.2s;
+  " title="Toggle civilization voice">🔊 <span id="voiceMuteLbl">VOICE</span></div>
+</div>
 
 <!-- STARFIELD -->
 <canvas id="starfield"></canvas>
@@ -940,9 +949,11 @@ function selectRace(race, tileEl) {
   }, 60);
 }
 
+let voiceMuted = false;
+
 function playCivVoice(raceId) {
   const v = document.getElementById('civVoice');
-  if (!v) return;
+  if (!v || voiceMuted) return;
   v.pause();
   v.src = `assets/voices/${raceId}.mp3`;
   v.volume = 0.85;
@@ -951,6 +962,21 @@ function playCivVoice(raceId) {
 function stopCivVoice() {
   const v = document.getElementById('civVoice');
   if (v) { v.pause(); v.currentTime = 0; }
+}
+function toggleVoiceMute() {
+  voiceMuted = !voiceMuted;
+  const btn = document.getElementById('voiceMuteBtn');
+  const lbl = document.getElementById('voiceMuteLbl');
+  if (voiceMuted) {
+    stopCivVoice();
+    if (btn) btn.style.opacity = '0.4';
+    if (lbl) lbl.textContent = 'VOICE OFF';
+  } else {
+    if (btn) btn.style.opacity = '1';
+    if (lbl) lbl.textContent = 'VOICE';
+    // Replay for currently selected race
+    if (selectedRace) playCivVoice(selectedRace.id);
+  }
 }
 
 // ── GALAXY VIDEO — play once, freeze on last frame ───────────────────
