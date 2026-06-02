@@ -340,13 +340,18 @@ body {
 <audio id="selectSfx"  preload="auto"><source src="assets/deploy-click.mp3" type="audio/mpeg"></audio>
 <audio id="bgTrack"    preload="none"></audio>
 
-<!-- Game music mute toggle -->
-<div id="gameMuteBtn" onclick="toggleGameMusic()" style="
-  position:fixed;bottom:16px;right:16px;z-index:100;
-  padding:5px 12px;border-radius:4px;background:#000000bb;
-  border:1px solid #00ffcc33;color:#00ffcc99;font-size:10px;
-  letter-spacing:2px;cursor:pointer;font-family:inherit;
-">🔊</div>
+<!-- Music controls: mute + volume -->
+<div style="position:fixed;bottom:16px;right:16px;z-index:100;display:flex;align-items:center;gap:8px;">
+  <input id="volSlider" type="range" min="0" max="100" value="40"
+    oninput="setVolume(this.value)"
+    style="width:80px;accent-color:#00ffcc;cursor:pointer;opacity:0.6;"
+    title="Volume">
+  <div id="gameMuteBtn" onclick="toggleGameMusic()" style="
+    padding:5px 12px;border-radius:4px;background:#000000bb;
+    border:1px solid #00ffcc33;color:#00ffcc99;font-size:10px;
+    letter-spacing:2px;cursor:pointer;font-family:inherit;
+  ">🔊</div>
+</div>
 
 <div class="header">
   <div class="title">NULL//BREACH</div>
@@ -358,6 +363,14 @@ body {
     <span class="score-lbl" id="linesLbl">| LINES: 0/10</span>
     <div class="turn-tag player" id="turnTag">YOUR TURN</div>
   </div>
+  <button onclick="goToMenu()" style="
+    background:#000000aa;border:1px solid #334;color:#668;
+    font-family:inherit;font-size:9px;letter-spacing:3px;
+    padding:5px 14px;cursor:pointer;border-radius:3px;transition:all 0.2s;
+  " onmouseenter="this.style.borderColor='#8855ff';this.style.color='#aa88ff'"
+     onmouseleave="this.style.borderColor='#334';this.style.color='#668'">
+    &#x2190; MENU
+  </button>
 </div>
 
 <div class="ai-area">
@@ -427,7 +440,12 @@ body {
   <div class="overlay-title" id="overlayTitle">BREACH COMPLETE</div>
   <div class="overlay-sub" id="overlaySub"></div>
   <div class="overlay-breakdown" id="overlayBreakdown"></div>
-  <button class="btn-restart" onclick="initGame()">PLAY AGAIN</button>
+  <div style="display:flex;gap:12px;margin-top:10px;">
+    <button class="btn-restart" onclick="initGame()">PLAY AGAIN</button>
+    <button class="btn-restart" onclick="goToMenu()" style="background:#0e0e1e;border-color:#8855ff;color:#aa88ff;">
+      &#x2190; CHANGE DECK
+    </button>
+  </div>
 </div>
 <div class="tooltip" id="tooltip"></div>
 
@@ -1162,6 +1180,16 @@ function startGameMusic() {
   const audio = document.getElementById('bgTrack');
   audio.addEventListener('ended', playNextTrack);
   playNextTrack();
+}
+
+function setVolume(val) {
+  const audio = document.getElementById('bgTrack');
+  if (audio) audio.volume = val / 100;
+}
+
+function goToMenu() {
+  // Navigate back to deck select screen
+  window.location.href = 'index.html?screen=deck';
 }
 
 function toggleGameMusic() {

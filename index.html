@@ -972,6 +972,14 @@ function startGame() {
 }
 
 // ── INIT ──────────────────────────────────────────
+// If returning from game with ?screen=deck, skip splash and show deck select directly
+if (new URLSearchParams(window.location.search).get('screen') === 'deck') {
+  document.getElementById('splash').classList.add('hidden');
+  document.getElementById('splashBg').style.opacity = '0';
+  document.getElementById('splashDim').style.opacity = '0';
+  document.getElementById('deckselect').classList.remove('hidden');
+}
+
 initConveyorWheel();
 
 // Preload ALL cover images first, then build tiles and start conveyor
