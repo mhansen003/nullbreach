@@ -993,6 +993,10 @@ Promise.all(
 ).then(() => {
   buildRaceGrid();
   runConveyor();
+  // Auto-select Terran Accord as default
+  const terranRace = RACES.find(r => r.id === 'terran');
+  const terranTile = document.querySelector('.race-tile[data-id="terran"]');
+  if (terranRace && terranTile) selectRace(terranRace, terranTile);
 });
 </script>
 </body>
