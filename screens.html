@@ -295,19 +295,18 @@ body {
 .ds-selection-panel {
   width: 100%;
   max-width: 980px;
-  margin: 16px auto 0;
+  margin: 12px auto 0;
   display: flex;
-  align-items: center;
-  gap: 20px;
+  align-items: flex-start;
+  gap: 24px;
   flex-shrink: 0;
-  min-height: 64px;
-  transition: opacity 0.3s;
+  transition: opacity 0.4s;
 }
 .ds-selection-panel.hidden { opacity: 0; pointer-events: none; }
 
 .ds-selected-info { flex: 1; }
 .ds-selected-name {
-  font-size: 14px;
+  font-size: 16px;
   letter-spacing: 3px;
   font-weight: bold;
   margin-bottom: 3px;
@@ -316,12 +315,38 @@ body {
   font-size: 9px;
   letter-spacing: 2px;
   opacity: 0.5;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
 }
 .ds-selected-quote {
-  font-size: 9px;
+  font-size: 10px;
   letter-spacing: 1px;
-  opacity: 0.4;
+  opacity: 0.6;
+  font-style: italic;
+  margin-bottom: 10px;
+}
+.ds-lore-block {
+  display: flex;
+  gap: 20px;
+}
+.ds-lore-col { flex: 1; }
+.ds-lore-label {
+  font-size: 8px;
+  letter-spacing: 3px;
+  opacity: 0.35;
+  margin-bottom: 5px;
+  text-transform: uppercase;
+}
+.ds-lore-text {
+  font-size: 9px;
+  letter-spacing: 0.5px;
+  opacity: 0.65;
+  line-height: 1.7;
+}
+.ds-counter-text {
+  font-size: 9px;
+  letter-spacing: 0.5px;
+  opacity: 0.45;
+  line-height: 1.7;
   font-style: italic;
 }
 
@@ -361,6 +386,19 @@ body {
 <canvas id="starfield"></canvas>
 <div class="core-glow"></div>
 <div class="core-glow-ring"></div>
+<!-- Race background — switches when a deck is selected -->
+<div id="race-bg" style="
+  position:fixed;inset:0;z-index:2;
+  background-size:cover;background-position:center;
+  opacity:0;transition:opacity 0.7s ease;
+  pointer-events:none;
+"></div>
+<div id="race-bg-overlay" style="
+  position:fixed;inset:0;z-index:3;
+  background:linear-gradient(to right, #020208ee 40%, #020208aa 70%, #02020888 100%);
+  opacity:0;transition:opacity 0.7s ease;
+  pointer-events:none;
+"></div>
 
 <!-- SCREEN 1: SPLASH -->
 <div class="screen" id="splash">
@@ -452,104 +490,125 @@ animateStars();
 // ── RACE DATA ─────────────────────────────────────
 const RACES = [
   {
-    id: 'terran',
-    name: 'THE TERRAN ACCORD',
-    sub: 'UNITED COLONIAL FEDERATION',
-    color: '#7ab8e8',
-    avatar: '★',
+    id: 'terran', cover: 'assets/deck_terran.png',
+    name: 'THE TERRAN ACCORD', sub: 'UNITED COLONIAL FEDERATION',
+    color: '#7ab8e8', avatar: '★', starter: true,
     quote: '"We are many worlds, one purpose."',
     abilities: 'COMMANDER · BOOST · SURGE',
-    starter: true
+    playstyle: 'Balanced generalist',
+    lore: "Humanity's unified colonial federation — 40 colony worlds, one military doctrine. No alien mystique, no ancient wisdom. They fight with discipline, numbers, and the one advantage no alien race shares: they understand each other.",
+    history: "The Accord emerged from centuries of intercolonial conflict, unified under the Colonial Defense Treaty after the Proxima Wars. They were the last major civilization to push toward the galactic core, and the first to realize all expansion routes led to the same impossible convergence. At Galactic Zero, they fight not as survivors — but as the only race that chose to be here.",
+    counter: 'Lithos high-edge walls absorb their standard attacks. Veil phase abilities bypass their formation tactics.'
   },
   {
-    id: 'crystallis',
-    name: 'THE CRYSTALLIS',
-    sub: 'SILICON LATTICE CIVILIZATION',
-    color: '#a8d8ff',
-    avatar: '💎',
+    id: 'crystallis', cover: 'assets/deck_crystallis.png',
+    name: 'THE CRYSTALLIS', sub: 'SILICON LATTICE CIVILIZATION',
+    color: '#a8d8ff', avatar: '💎',
     quote: '"You will fracture against us."',
-    abilities: 'FORTRESS · BASTION · REFLECT'
+    abilities: 'FORTRESS · BASTION · REFLECT',
+    playstyle: 'Defensive anchor',
+    lore: "Silicon-lattice beings grown from asteroid fields — not manufactured but crystallized over geological time. Each individual is a faceted node in a civilization-scale lattice structure. What appears to be a ship is a mobile extension of their homeworld.",
+    history: "The Crystallis did not travel to Galactic Zero. They grew toward it — their expansion network extending one crystalline node at a time across millennia. When the other civilizations arrived, the Crystallis had already been here for ten thousand years, waiting for neighbors they had detected through vibration.",
+    counter: 'Drain and Sunder abilities permanently reduce their edge values. Mycos corrosive spread erodes even IMMOVABLE nodes.'
   },
   {
-    id: 'mycos',
-    name: 'THE MYCOS DRIFT',
-    sub: 'DISTRIBUTED FUNGAL INTELLIGENCE',
-    color: '#9dcf6e',
-    avatar: '🍄',
+    id: 'mycos', cover: 'assets/deck_mycos.png',
+    name: 'THE MYCOS DRIFT', sub: 'DISTRIBUTED FUNGAL INTELLIGENCE',
+    color: '#9dcf6e', avatar: '🍄',
     quote: '"We have already begun."',
-    abilities: 'CORROSIVE · CHAIN · MOMENTUM'
+    abilities: 'CORROSIVE · CHAIN · MOMENTUM',
+    playstyle: 'Attrition spreader',
+    lore: "A distributed mycorrhizal intelligence spanning solar systems — no central mind, only network. The Drift does not make decisions. It grows. Every spore carries the full consciousness of the whole. Ships are enormous fruiting bodies deployed from an organism larger than most star systems.",
+    history: "The Mycos Drift arrived at Galactic Zero not as an expedition but as an infection. The sector's unusual gravitational profile carried their spores from a system they had already consumed. By the time the other races identified them as a civilization, the Drift had already established roots in seventeen transit corridors.",
+    counter: 'Rush strategies strike before Corrosive spreads. Ward cards resist their ability-based corrosion.'
   },
   {
-    id: 'veil',
-    name: 'THE VEIL',
-    sub: 'COHERENT LIGHT ENTITIES',
-    color: '#fff5a0',
-    avatar: '✦',
+    id: 'veil', cover: 'assets/deck_veil.png',
+    name: 'THE VEIL', sub: 'COHERENT LIGHT ENTITIES',
+    color: '#fff5a0', avatar: '✦',
     quote: '"You cannot strike what you cannot see."',
-    abilities: 'PHANTOM · PHASE · AMBUSH'
+    abilities: 'PHANTOM · PHASE · AMBUSH',
+    playstyle: 'Deception and displacement',
+    lore: "Beings of coherent light who never fully solidify. Visible only when two of their waveforms cross — and only for a moment. What other races perceive as a Veil ship is actually a briefly-stable interference pattern. Strike it and it simply becomes somewhere else.",
+    history: "The Veil's presence at Galactic Zero was detected only after they had already placed three nodes in contested corridors. No one saw them arrive. Diplomatic contact has been limited to interference patterns in communication arrays — messages left as standing waves in empty space, readable hours after the sender has moved on.",
+    counter: 'Fortress and Immovable cards cannot be phased away. Predictable placement patterns make Adaptive abilities weaker.'
   },
   {
-    id: 'entropy',
-    name: 'THE ENTROPY CULT',
-    sub: 'ANCIENT DECAY WORSHIPPERS',
-    color: '#c4723a',
-    avatar: '☄',
+    id: 'entropy', cover: 'assets/deck_entropy.png',
+    name: 'THE ENTROPY CULT', sub: 'ANCIENT DECAY WORSHIPPERS',
+    color: '#c4723a', avatar: '☄',
     quote: '"Everything ends. We simply hasten it."',
-    abilities: 'DRAIN · SUNDER · MIRROR'
+    abilities: 'DRAIN · SUNDER · MIRROR',
+    playstyle: 'Board degrader',
+    lore: "Ancient beings older than most stars, who reached the inevitable philosophical conclusion long ago: heat death is not a tragedy but a destination. They worship the end state. Their technology is designed not to preserve but to accelerate — every weapon is entropy made purposeful.",
+    history: "The Entropy Cult has fought at seventeen convergence points across galactic history. They lose most of them — deliberately. Each defeat weakens the victor. At Galactic Zero they arrive as they always do: with beautiful corroded ships, genuine smiles, and absolutely no fear of the outcome.",
+    counter: 'Ward and Immovable abilities resist Drain and Sunder. Quantum Wildcard randomness counters their deterministic decay strategy.'
   },
   {
-    id: 'brood',
-    name: 'THE BROOD SOVEREIGN',
-    sub: 'INSECTOID HIVE-MIND',
-    color: '#88cc44',
-    avatar: '🪲',
+    id: 'brood', cover: 'assets/deck_brood.png',
+    name: 'THE BROOD SOVEREIGN', sub: 'INSECTOID HIVE-MIND',
+    color: '#88cc44', avatar: '🪲',
     quote: '"The Sovereign sees through ten thousand eyes."',
-    abilities: 'COMMANDER · SWEEP · RUSH'
+    abilities: 'COMMANDER · SWEEP · RUSH',
+    playstyle: 'Cluster formation',
+    lore: "Insectoid hive-mind where the Sovereign — always singular, always enormous — is the central consciousness and all other Brood are extensions of her will. Ships are colonies of living bodies fused into hull-shapes. The Sovereign herself is the Dreadnaught: a mobile throne that makes everything around her lethal.",
+    history: "The Brood arrived at Galactic Zero as a colony fleet that had consumed three neighboring systems. The Sovereign tasted the gravitational anomaly of the sector from parsecs away and redirected her entire expansion drive toward it. She has never retreated in her recorded history.",
+    counter: "Isolate their clusters — pick off individual nodes before they mass. The Sovereign's COMMANDER bonuses require adjacency."
   },
   {
-    id: 'void',
-    name: 'THE VOID HUNTERS',
-    sub: 'DARK MATTER PREDATORS',
-    color: '#9b59b6',
-    avatar: '▪',
+    id: 'void', cover: 'assets/deck_void.png',
+    name: 'THE VOID HUNTERS', sub: 'DARK MATTER PREDATORS',
+    color: '#9b59b6', avatar: '▪',
     quote: '"We come from the dark between stars."',
-    abilities: 'DOUBLE STRIKE · PIERCE · FLANK'
+    abilities: 'DOUBLE STRIKE · PIERCE · FLANK',
+    playstyle: 'Aggressive assassin',
+    lore: "From the intergalactic void — the true dark between galaxy clusters where no star has ever formed. Defined entirely by absence. Void Hunter ships absorb light; they are visible only by what they occlude. Their technology is predatory at the fundamental level: find the strongest thing, destroy its strength first.",
+    history: "No one knows how old the Void Hunters are. Their recorded interactions with other civilizations go back to the galactic formation period. They have no territory, no homeworld, no resources — only prey. Galactic Zero attracts them for the same reason it attracts everyone else: concentration of opponents.",
+    counter: 'High defensive edge values (Lithos, Crystallis) absorb their high-attack strikes. Shield abilities block their critical first comparisons.'
   },
   {
-    id: 'gas',
-    name: 'THE GAS NOMADS',
-    sub: 'PLASMA STORM BEINGS',
-    color: '#ffd700',
-    avatar: '⚡',
+    id: 'gas', cover: 'assets/deck_gas.png',
+    name: 'THE GAS NOMADS', sub: 'PLASMA STORM BEINGS',
+    color: '#ffd700', avatar: '⚡',
     quote: '"You have angered the storm."',
-    abilities: 'BERSERK · SURGE · LAST STAND'
+    abilities: 'BERSERK · SURGE · LAST STAND',
+    playstyle: 'Volatile comeback',
+    lore: "Evolved in the upper atmospheres of gas giants — beings of ionized plasma held together by magnetic will rather than biology. Ships are literally contained storms: self-sustaining atmospheric systems directed by a collective plasma intelligence. The Dreadnaught is a weaponized planetary hurricane.",
+    history: "The Gas Nomads have no fixed territory — they drift through gas giant systems, consuming raw atmospheric energy. They arrived at Galactic Zero because the sector's gravitational anomaly was generating exotic plasma conditions they had never encountered. What began as curiosity became conflict when other races claimed resource streams the Nomads considered natural feeding grounds.",
+    counter: "Strike early before Berserk stacks accumulate. Spread cards across rows to avoid triggering Last Stand bonuses."
   },
   {
-    id: 'lithos',
-    name: 'THE LITHOS',
-    sub: 'GEOLOGICAL ANCIENTS',
-    color: '#a0896a',
-    avatar: '⬡',
+    id: 'lithos', cover: 'assets/deck_lithos.png',
+    name: 'THE LITHOS', sub: 'GEOLOGICAL ANCIENTS',
+    color: '#a0896a', avatar: '⬡',
     quote: '"We were here before your stars ignited."',
-    abilities: 'IMMOVABLE · FORTRESS · WARD'
+    abilities: 'IMMOVABLE · FORTRESS · WARD',
+    playstyle: 'Denial control',
+    lore: "Near-immortal beings thinking in geological time — a 'fast decision' takes a decade. Ships are asteroids shaped over millions of years by forces the Lithos will into specific geometries. They do not build. They wait for matter to become what they already decided it would be.",
+    history: "The Lithos have existed since before the current star generation. They have watched civilizations rise and collapse across the full sweep of galactic history. Their reason for fighting at Galactic Zero is not expansion or resources — it is memory. The sector contains a gravitational record of the previous galactic configuration, and the Lithos will not allow it to be disturbed.",
+    counter: 'Corrosive and Sunder abilities permanently reduce even Immovable edge values. Momentum scoring outpaces their slow power accumulation.'
   },
   {
-    id: 'quantum',
-    name: 'THE QUANTUM THREAD',
-    sub: 'SUPERPOSITION ENTITIES',
-    color: '#ff69b4',
-    avatar: '◈',
+    id: 'quantum', cover: 'assets/deck_quantum.png',
+    name: 'THE QUANTUM THREAD', sub: 'SUPERPOSITION ENTITIES',
+    color: '#ff69b4', avatar: '◈',
     quote: '"We are all possibilities at once."',
-    abilities: 'WILDCARD · ADAPTIVE · AMBUSH'
+    abilities: 'WILDCARD · ADAPTIVE · AMBUSH',
+    playstyle: 'Reactive uncertainty',
+    lore: "Beings that exist in superposition — multiple states simultaneously until observed. Their ships are probability clouds: when you look directly at a Quantum Thread vessel, you have already changed what it was. Their entire civilization operates on the principle that the unobserved state contains more power than the resolved one.",
+    history: "The Quantum Thread's presence at Galactic Zero is, according to their own cosmology, both certain and impossible. Multiple branches of their probability-consciousness are fighting here simultaneously, in parallel timelines with different outcomes. They do not know which branch they are in. Neither do their opponents.",
+    counter: 'Consistent, predictable decks (Crystallis, Lithos) make Adaptive weaker. Fortress cards resist their phase and displacement attacks.'
   },
   {
-    id: 'choir',
-    name: 'THE CHOIR',
-    sub: 'RESONANT FREQUENCY ENTITIES',
-    color: '#c8c8ff',
-    avatar: '〜',
+    id: 'choir', cover: 'assets/deck_choir.png',
+    name: 'THE CHOIR', sub: 'RESONANT FREQUENCY ENTITIES',
+    color: '#c8c8ff', avatar: '〜',
     quote: '"The note that breaks everything."',
-    abilities: 'SWEEP · SIDE SWIPE · REFLECT'
+    abilities: 'SWEEP · SIDE SWIPE · REFLECT',
+    playstyle: 'Area resonance',
+    lore: "No visible form. No detectable mass. The Choir is pure resonant frequency — sound traveling through space at impossible scales. Their existence is acoustic: they perceive through vibration, communicate through harmonic modulation, and attack by finding the resonant frequency of whatever they want destroyed.",
+    history: "The Choir was detected at Galactic Zero as an anomalous resonance signature in the sector's background radiation. By the time other civilizations understood what they were hearing, The Choir had been present for three centuries — listening, mapping resonant vulnerabilities, calculating the frequency that would shatter each civilization's Dreadnaught. They have not struck yet. The calculations are almost complete.",
+    counter: 'Spread your cards — do not cluster. Side Swipe and Sweep abilities are devastating against dense formations.'
   },
 ];
 
@@ -588,43 +647,53 @@ function buildRaceGrid() {
 }
 
 function selectRace(race, tileEl) {
-  // Deselect previous
+  // Deselect previous tile
   document.querySelectorAll('.race-tile.selected').forEach(t => {
     const r = RACES.find(r => r.id === t.dataset.id);
-    if (r) {
-      t.style.boxShadow = '';
-      t.style.borderColor = `${r.color}33`;
-    }
+    if (r) { t.style.boxShadow = ''; t.style.borderColor = `${r.color}33`; }
     t.classList.remove('selected');
   });
 
   selectedRace = race;
   tileEl.classList.add('selected');
   tileEl.style.boxShadow = `0 0 24px ${race.color}55, 0 0 60px ${race.color}22`;
-  tileEl.style.borderColor = `${race.color}`;
+  tileEl.style.borderColor = race.color;
 
-  // Update info panel
+  // Switch full-screen background to race deck cover
+  const bg  = document.getElementById('race-bg');
+  const ov  = document.getElementById('race-bg-overlay');
+  bg.style.backgroundImage = `url('${race.cover}')`;
+  bg.style.opacity = '1';
+  ov.style.opacity = '1';
+
+  // Update info panel with full lore
   const panel = document.getElementById('selectionPanel');
   const info  = document.getElementById('selectedInfo');
   const btn   = document.getElementById('deployBtn');
 
   info.innerHTML = `
     <div class="ds-selected-name" style="color:${race.color}">${race.name}</div>
-    <div class="ds-selected-sub">${race.sub}</div>
+    <div class="ds-selected-sub">${race.sub} &nbsp;·&nbsp; ${race.playstyle || ''}</div>
     <div class="ds-selected-quote">${race.quote}</div>
+    <div class="ds-lore-block">
+      <div class="ds-lore-col">
+        <div class="ds-lore-label" style="color:${race.color}">CIVILIZATION</div>
+        <div class="ds-lore-text">${race.lore}</div>
+      </div>
+      <div class="ds-lore-col">
+        <div class="ds-lore-label" style="color:${race.color}">HISTORY AT SECTOR GZ-0</div>
+        <div class="ds-lore-text">${race.history}</div>
+        <div class="ds-lore-label" style="color:${race.color};margin-top:8px">WEAKNESS</div>
+        <div class="ds-counter-text">${race.counter}</div>
+      </div>
+    </div>
   `;
+
   btn.style.cssText = `
-    background: transparent;
-    font-family: inherit;
-    font-size: 11px;
-    letter-spacing: 4px;
-    padding: 12px 30px;
-    cursor: pointer;
-    text-transform: uppercase;
-    transition: all 0.3s;
-    flex-shrink: 0;
-    border: 1px solid ${race.color}88;
-    color: ${race.color};
+    background:transparent;font-family:inherit;font-size:11px;letter-spacing:4px;
+    padding:12px 30px;cursor:pointer;text-transform:uppercase;transition:all 0.3s;
+    flex-shrink:0;align-self:flex-start;margin-top:4px;
+    border:1px solid ${race.color}88;color:${race.color};
   `;
   panel.classList.remove('hidden');
 }
