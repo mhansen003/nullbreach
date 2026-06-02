@@ -218,16 +218,11 @@ body {
   overflow: hidden;
   padding: 32px 0 20px; /* top padding = room for hover jump */
 }
-/* Pause while hovering */
-.conveyor-wrap:hover .conveyor-track { animation-play-state: paused; }
+/* Hover pause handled by JS */
 .conveyor-track {
   display: flex; gap: 22px; width: max-content;
   padding: 0 28px;
-  animation: conveyorScroll 60s linear infinite;
-}
-@keyframes conveyorScroll {
-  0%   { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+  will-change: transform; /* GPU hint for smooth animation */
 }
 
 /* Navigation arrows */
@@ -365,6 +360,9 @@ body {
 <audio id="clickSfx" preload="auto">
   <source src="assets/click.mp3" type="audio/mpeg">
 </audio>
+<audio id="deploySfx" preload="auto">
+  <source src="assets/deploy-click.mp3" type="audio/mpeg">
+</audio>
 
 <!-- MUTE TOGGLE — top right, always visible -->
 <div id="muteBtn" onclick="toggleMute()" style="
@@ -409,9 +407,11 @@ body {
 <div class="screen hidden" id="deckselect">
 
   <div class="ds-header">
-    <div class="ds-title">SELECT YOUR CIVILIZATION</div>
+    <div style="display:flex;flex-direction:column;gap:4px">
+      <div style="font-family:'Orbitron',monospace;font-size:22px;letter-spacing:6px;color:#fff;text-shadow:0 0 20px #8855ffaa,0 2px 4px #000">GALACTIC ZERO</div>
+      <div class="ds-title">SELECT YOUR CIVILIZATION</div>
+    </div>
     <div class="ds-header-right">
-      <div class="ds-logo">GALACTIC ZERO</div>
       <button class="btn-back" onclick="showSplash()">&#x2190; BACK</button>
     </div>
   </div>
@@ -661,25 +661,44 @@ const ABILITY_DESC = {
 
 let selectedRace = null;
 
-// ── CONVEYOR SPEED CONTROL ─────────────────────────
-const SPEEDS = [120, 80, 55, 35, 20, 10]; // seconds per full loop
-let speedIdx = 2; // start at 55s
+// ── CONVEYOR — JS-based animation (no restart on speed change) ────
+let cvPos    = 0;      // current scroll offset in pixels
+let cvSpeed  = 1.0;   // pixels per frame (default ~60fps = 55s per loop at ~3300px)
+let cvPaused = false;
+let cvHalf   = 0;      // half the track width — computed after build
+let cvRafId  = null;
 
-function shiftSpeed(dir) {
-  speedIdx = Math.max(0, Math.min(SPEEDS.length - 1, speedIdx + dir));
+const SPEED_LEVELS = [0.2, 0.4, 0.8, 1.5, 3.0, 6.0];
+let speedIdx = 2; // start at 0.8
+
+function runConveyor() {
   const track = document.getElementById('conveyorTrack');
-  if (track) track.style.animationDuration = SPEEDS[speedIdx] + 's';
+  if (!track) return;
+  if (!cvHalf) cvHalf = track.scrollWidth / 2;
+  if (!cvPaused) {
+    cvPos += cvSpeed;
+    if (cvPos >= cvHalf) cvPos -= cvHalf; // seamless loop
+    track.style.transform = `translateX(${-cvPos}px)`;
+  }
+  cvRafId = requestAnimationFrame(runConveyor);
 }
 
-// Mouse wheel on conveyor = speed up/down
+function shiftSpeed(dir) {
+  speedIdx = Math.max(0, Math.min(SPEED_LEVELS.length - 1, speedIdx + dir));
+  cvSpeed = SPEED_LEVELS[speedIdx];
+}
+
 function initConveyorWheel() {
   const wrap = document.getElementById('conveyorWrap');
   if (!wrap) return;
+  // Mouse wheel changes speed
   wrap.addEventListener('wheel', (e) => {
     e.preventDefault();
-    // Scroll up (deltaY < 0) = speed up, scroll down = slow down
     shiftSpeed(e.deltaY < 0 ? 1 : -1);
   }, { passive: false });
+  // Hover pauses
+  wrap.addEventListener('mouseenter', () => { cvPaused = true; });
+  wrap.addEventListener('mouseleave', () => { cvPaused = false; });
 }
 
 // ── BUILD CONVEYOR BELT ────────────────────────────
@@ -743,7 +762,7 @@ function selectRace(race, tileEl) {
   // Update lore panel
   document.getElementById('dsEmpty').classList.add('hidden');
   const lc = document.getElementById('loreContent');
-  lc.classList.remove('visible');
+  // Don't remove visible — update content directly to avoid black flash on re-select
   setTimeout(() => {
     document.getElementById('loreName').textContent   = race.name;
     document.getElementById('loreName').style.color   = race.color;
@@ -869,7 +888,9 @@ function showSplash() {
 
 function startGame() {
   if (!selectedRace) return;
-  playClick();
+  // Play deploy sound instead of regular click
+  const dep = document.getElementById('deploySfx');
+  if (dep) { dep.currentTime = 0; dep.volume = 0.8; dep.play().catch(()=>{}); }
   // Navigate to game board with selected race parameters
   const params = new URLSearchParams({
     race:  selectedRace.id,
@@ -882,6 +903,8 @@ function startGame() {
 // ── INIT ──────────────────────────────────────────
 buildRaceGrid();
 initConveyorWheel();
+// Start JS conveyor after tiles render
+requestAnimationFrame(() => { cvSpeed = SPEED_LEVELS[speedIdx]; runConveyor(); });
 </script>
 </body>
 </html>
