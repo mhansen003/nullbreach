@@ -31,13 +31,11 @@ body {
 .splash-bg-img {
   position: fixed; inset: 0; z-index: 1;
   background: url('assets/splash.png') center/cover no-repeat;
-  opacity: 0.55;
+  opacity: 0.9;
 }
 .splash-bg-dim {
   position: fixed; inset: 0; z-index: 2;
-  background:
-    linear-gradient(to bottom, #020208ee 0%, transparent 18%, transparent 78%, #020208ee 100%),
-    radial-gradient(ellipse at 50% 52%, #020208bb 0%, #020208cc 45%, #020208f5 100%);
+  background: radial-gradient(ellipse at 50% 100%, #020208cc 0%, transparent 60%);
 }
 
 /* Race background — fades in when a deck is selected */
@@ -427,17 +425,9 @@ body {
   <div class="corner corner-bl"></div>
   <div class="corner corner-br"></div>
 
-  <div class="splash-eyebrow">A GAME OF CIVILIZATIONAL CONFLICT</div>
   <div class="splash-title">GALACTIC ZERO</div>
-  <div class="splash-tagline">TEN CIVILIZATIONS &nbsp;·&nbsp; ONE SECTOR</div>
-  <div class="splash-tagline2">NO ONE CHOSE THIS CONFLICT — THE SECTOR SIMPLY IS</div>
   <div class="splash-divider"></div>
   <button class="btn-enter" onclick="showDeckSelect()">ENTER THE SECTOR</button>
-
-  <div class="splash-footer">
-    <div class="splash-footer-lore">SECTOR GZ-0 &nbsp;·&nbsp; GALACTIC CORE CONVERGENCE &nbsp;·&nbsp; WHERE ALL EXPANSION ROUTES COLLIDE</div>
-    <div class="splash-version">v0.1 PROTOTYPE &nbsp;·&nbsp; GALACTIC ZERO</div>
-  </div>
 </div>
 
 <!-- SCREEN 2: DECK SELECT ──────────────────── -->
