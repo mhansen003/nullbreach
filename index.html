@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>NULL//BREACH — Prototype</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: #080810;
+  color: #e0e0e0;
+  font-family: 'Courier New', monospace;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  user-select: none;
+}
+
+/* HEADER */
+.header {
+  background: linear-gradient(90deg, #0a0a1a, #160a28);
+  border-bottom: 1px solid #00ffcc44;
+  padding: 6px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+}
+.title { color: #00ffcc; font-size: 17px; letter-spacing: 5px; text-shadow: 0 0 12px #00ffcc88; }
+.score-bar { display: flex; gap: 14px; align-items: center; }
+.score-p { color: #00ffcc; font-size: 15px; font-weight: bold; text-shadow: 0 0 8px #00ffcc; }
+.score-a { color: #ff0080; font-size: 15px; font-weight: bold; text-shadow: 0 0 8px #ff0080; }
+.score-lbl { font-size: 9px; color: #444; letter-spacing: 2px; }
+.turn-tag { font-size: 10px; letter-spacing: 2px; padding: 3px 10px; border-radius: 3px; }
+.turn-tag.player { color: #00ffcc; border: 1px solid #00ffcc44; }
+.turn-tag.ai     { color: #ff0080; border: 1px solid #ff008044; }
+
+/* AI TOP BAR */
+.ai-area {
+  display: flex; align-items: center; gap: 14px;
+  padding: 7px 20px 4px;
+  flex-shrink: 0;
+  border-bottom: 1px solid #111120;
+}
+.ai-portrait {
+  display: flex; align-items: center; gap: 10px;
+  background: #0e0e1e; border: 1px solid #ff008033;
+  border-radius: 5px; padding: 6px 12px; min-width: 185px;
+}
+.ai-avatar {
+  width: 42px; height: 42px;
+  background: linear-gradient(135deg, #2a0d0d, #180a18);
+  border: 1px solid #ff008044; border-radius: 3px;
+  display: flex; align-items: center; justify-content: center; font-size: 22px;
+}
+.ai-name  { color: #ff0080; font-size: 11px; letter-spacing: 2px; }
+.ai-sub   { color: #444; font-size: 8px; letter-spacing: 1px; margin-top: 2px; }
+.ai-quote { color: #333; font-size: 8px; font-style: italic; margin-top: 3px; }
+.ai-hand-row { display: flex; gap: 6px; align-items: center; }
+.hand-lbl-v { font-size: 8px; color: #333; letter-spacing: 2px; writing-mode: vertical-lr; transform: rotate(180deg); }
+.facedown {
+  width: 50px; height: 66px; border-radius: 3px;
+  background: repeating-linear-gradient(45deg,#110820,#110820 4px,#160a28 4px,#160a28 8px);
+  border: 1px solid #ff008022;
+  display: flex; align-items: center; justify-content: center;
+  color: #ff008033; font-size: 18px; transition: opacity 0.3s;
+}
+.facedown.used { opacity: 0.18; }
+
+/* MAIN AREA */
+.main-area { flex: 1; display: flex; overflow: hidden; }
+
+/* BOARD WRAP */
+.board-wrap {
+  flex: 1;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 6px 10px;
+}
+.board-dir-row {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 4px;
+  width: 100%; max-width: 730px; justify-content: space-between;
+  padding: 0 88px 0 0;
+}
+.dir-lbl { font-size: 9px; letter-spacing: 2px; }
+
+/* Board + row scores side by side */
+.board-and-scores {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+/* Column scores below grid */
+.col-score-row {
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
+}
+.col-score-badge {
+  width: 118px; height: 44px;
+  border-radius: 3px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 2px; font-size: 8px; letter-spacing: 1px;
+  flex-shrink: 0;
+}
+.col-score-badge.p-win  { background:#00ffcc0d; border:1px solid #00ffcc55; }
+.col-score-badge.a-win  { background:#ff00800d; border:1px solid #ff008055; }
+.col-score-badge.tie    { background:#111120; border:1px solid #1a1a2a; color:#444; }
+.csb-row { display: flex; gap: 6px; align-items: center; font-size: 9px; }
+.csb-winner { font-size: 8px; letter-spacing: 1px; font-weight: bold; }
+
+/* Row scores column */
+.row-scores {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.row-score-badge {
+  width: 96px; height: 118px;
+  border-radius: 3px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 5px;
+}
+.row-score-badge.p-win  { background:#00ffcc0d; border:1px solid #00ffcc55; }
+.row-score-badge.a-win  { background:#ff00800d; border:1px solid #ff008055; }
+.row-score-badge.tie    { background:#111120; border:1px solid #1a1a2a; }
+.rsb-line { display: flex; justify-content: space-between; align-items: center; width: 80px; }
+.rsb-who  { font-size: 9px; letter-spacing: 1px; }
+.rsb-pts  { font-size: 14px; font-weight: bold; }
+.rsb-pts.p { color: #00ffcc; text-shadow: 0 0 6px #00ffcc66; }
+.rsb-pts.a { color: #ff0080; text-shadow: 0 0 6px #ff008066; }
+.rsb-pts.dim { color: #2a2a3a; }
+.rsb-divider { width: 80px; height: 1px; background: #1a1a2a; }
+.rsb-winner-tag { font-size: 8px; font-weight: bold; letter-spacing: 2px; padding: 2px 6px; border-radius: 2px; }
+.rsb-winner-tag.p { color: #00ffcc; background: #00ffcc11; }
+.rsb-winner-tag.a { color: #ff0080; background: #ff008011; }
+.rsb-winner-tag.t { color: #444; }
+
+/* GRID */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(5, 118px);
+  grid-template-rows: repeat(5, 118px);
+  gap: 6px;
+  position: relative;
+  flex-shrink: 0;
+}
+
+/* CELLS */
+.cell {
+  width: 118px; height: 118px;
+  border-radius: 4px;
+  position: relative;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  transition: all 0.15s;
+}
+.cell.empty { background: #0b0b17; border: 1px dashed #1a1a2e; }
+.cell.valid { background: #0e1a10; border: 2px dashed #00ffcc55; cursor: pointer; }
+.cell.valid:hover { background: #0e2214; border-color: #00ffcc; box-shadow: 0 0 16px #00ffcc22; }
+.cell.player { background: linear-gradient(145deg, #0a1c16, #08151e); border: 2px solid #00ffcc; box-shadow: 0 0 8px #00ffcc22; }
+.cell.ai     { background: linear-gradient(145deg, #1c0a0a, #150818); border: 2px solid #ff0080; box-shadow: 0 0 8px #ff008022; }
+.cell.just-placed { animation: placePulse 0.35s ease; }
+@keyframes placePulse { 0%{transform:scale(0.8);opacity:0.4} 100%{transform:scale(1);opacity:1} }
+
+/* Card face -- edges at 4 sides, power in center, no power-badge corner */
+.edge { position: absolute; font-size: 17px; font-weight: bold; line-height: 1; }
+.edge.n { top: 5px; left: 50%; transform: translateX(-50%); }
+.edge.s { bottom: 5px; left: 50%; transform: translateX(-50%); }
+.edge.w { left: 7px; top: 50%; transform: translateY(-50%); }
+.edge.e { right: 7px; top: 50%; transform: translateY(-50%); }
+
+/* Center content block (power + name) sits in flex flow */
+.cell-center { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.cell-power  { font-size: 22px; font-weight: bold; line-height: 1; }
+.cell-name   { font-size: 8px; letter-spacing: 1px; opacity: 0.55; }
+.tier-badge  { position: absolute; top: 4px; right: 5px; font-size: 9px; font-weight: bold; opacity: 0.4; }
+.ability-tag { position: absolute; bottom: 18px; left: 50%; transform: translateX(-50%); font-size: 7px; letter-spacing: 1px; opacity: 0.55; white-space: nowrap; }
+
+/* HAND CARD -- mini board card layout, all absolute positioned */
+.hand-card {
+  width: 80px; height: 104px; border-radius: 4px; position: relative;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+  background: linear-gradient(145deg, #0c1e16, #09181e);
+  border: 1px solid #00ffcc44;
+  flex-shrink: 0;
+}
+.hand-card:hover  { transform: translateY(-8px); }
+.hand-card.selected {
+  border: 2px solid #00ffcc; box-shadow: 0 0 20px #00ffcc55;
+  transform: translateY(-14px);
+  background: linear-gradient(145deg, #0c2e1e, #092028);
+}
+.hand-card.used   { opacity: 0.18; cursor: default; pointer-events: none; }
+
+/* Hand card edge labels in cardinal positions */
+.hc-e-n { position: absolute; top: 4px; left: 50%; transform: translateX(-50%); font-size: 14px; font-weight: bold; color: #00ffcc; }
+.hc-e-s { position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%); font-size: 14px; font-weight: bold; color: #00ffcc; }
+.hc-e-w { position: absolute; left: 5px; top: 50%; transform: translateY(-50%); font-size: 14px; font-weight: bold; color: #00ffcc; }
+.hc-e-e { position: absolute; right: 5px; top: 50%; transform: translateY(-50%); font-size: 14px; font-weight: bold; color: #00ffcc; }
+
+/* Hand card center block */
+.hc-center {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+}
+.hc-power-center { font-size: 20px; font-weight: bold; line-height: 1; color: #00ffcc; }
+.hc-name-small   { font-size: 7px; letter-spacing: 1px; opacity: 0.55; color: #00ffcc; }
+
+/* Hand card badges */
+.hc-tier-badge   { position: absolute; top: 3px; right: 5px; font-size: 9px; font-weight: bold; opacity: 0.4; color: #00ffcc; }
+.hc-ability-tag  { position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%); font-size: 7px; letter-spacing: 1px; opacity: 0.55; color: #00ffcc; white-space: nowrap; }
+
+/* BATTLE INDICATOR in gap between adjacent enemy cards */
+.bti {
+  position: absolute;
+  z-index: 10;
+  pointer-events: none;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: bold; border-radius: 2px;
+  text-shadow: 0 0 6px currentColor;
+}
+
+/* FLASH popup on comparison */
+.flash {
+  position: absolute;
+  z-index: 20; pointer-events: none;
+  font-size: 10px; letter-spacing: 1px; padding: 3px 8px;
+  border-radius: 3px; font-weight: bold;
+  animation: flashFade 1.8s ease forwards;
+}
+@keyframes flashFade {
+  0%   { opacity:1; transform:translateY(0) scale(1); }
+  60%  { opacity:1; transform:translateY(-10px) scale(1.05); }
+  100% { opacity:0; transform:translateY(-20px) scale(0.9); }
+}
+
+/* LOG */
+.log-panel {
+  width: 200px; background: #09091a; border-left: 1px solid #111128;
+  display: flex; flex-direction: column;
+  padding: 10px; overflow: hidden; flex-shrink: 0;
+}
+.log-title { font-size: 9px; color: #444; letter-spacing: 2px; margin-bottom: 8px; }
+.log-entries { flex:1; overflow:hidden; display:flex; flex-direction:column-reverse; gap:4px; }
+.log-entry { font-size: 9px; color:#555; letter-spacing:0.5px; line-height:1.4; padding:3px 5px; border-left:2px solid #1a1a2e; }
+.log-entry.system  { color:#666; border-left-color:#333; }
+.log-entry.player  { color:#00ffcc99; border-left-color:#00ffcc44; }
+.log-entry.ai      { color:#ff008099; border-left-color:#ff008044; }
+.log-entry.compare { color:#aaa; border-left-color:#333; }
+.log-entry.shield  { color:#aaaaff99; border-left-color:#aaaaff44; }
+
+/* PLAYER AREA */
+.player-area {
+  background: #090912; border-top: 1px solid #131320;
+  padding: 8px 20px;
+  display: flex; align-items: flex-end; gap: 12px; flex-shrink: 0;
+}
+.player-portrait {
+  display: flex; align-items: center; gap: 10px;
+  background: #0e0e1e; border: 1px solid #00ffcc22;
+  border-radius: 5px; padding: 6px 12px; min-width: 165px; align-self: center;
+}
+.player-avatar {
+  width: 38px; height: 38px;
+  background: linear-gradient(135deg, #0d2a1a, #0a1820);
+  border: 1px solid #00ffcc33; border-radius: 3px;
+  display: flex; align-items: center; justify-content: center; font-size: 18px;
+}
+.player-name  { color: #00ffcc; font-size: 10px; letter-spacing: 2px; }
+.player-sub   { color: #444; font-size: 8px; letter-spacing: 1px; margin-top: 2px; }
+.hand-cards { display: flex; gap: 8px; align-items: flex-end; }
+
+/* DRAG CARD -- follows cursor */
+#dragCard {
+  position: fixed;
+  pointer-events: none;
+  z-index: 999;
+  width: 100px;
+  height: 130px;
+  border-radius: 5px;
+  background: linear-gradient(145deg, #0c2e1e, #092028);
+  border: 2px solid #00ffcc;
+  box-shadow: 0 0 20px #00ffcc66, 0 0 40px #00ffcc22;
+  display: none;
+}
+/* Drag card edge labels */
+.dc-e-n { position: absolute; top: 5px; left: 50%; transform: translateX(-50%); font-size: 15px; font-weight: bold; color: #00ffcc; }
+.dc-e-s { position: absolute; bottom: 5px; left: 50%; transform: translateX(-50%); font-size: 15px; font-weight: bold; color: #00ffcc; }
+.dc-e-w { position: absolute; left: 6px; top: 50%; transform: translateY(-50%); font-size: 15px; font-weight: bold; color: #00ffcc; }
+.dc-e-e { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); font-size: 15px; font-weight: bold; color: #00ffcc; }
+.dc-center {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+}
+.dc-power { font-size: 22px; font-weight: bold; line-height: 1; color: #00ffcc; }
+.dc-name  { font-size: 7px; letter-spacing: 1px; opacity: 0.6; color: #00ffcc; }
+.dc-tier  { position: absolute; top: 4px; right: 6px; font-size: 9px; font-weight: bold; opacity: 0.4; color: #00ffcc; }
+
+/* WIN OVERLAY */
+.overlay { display:none; position:fixed; inset:0; background:#000000cc;
+  align-items:center; justify-content:center; flex-direction:column; gap:20px; z-index:100; }
+.overlay.show { display:flex; }
+.overlay-title { font-size:36px; letter-spacing:6px; font-weight:bold; }
+.overlay-title.win  { color:#00ffcc; text-shadow:0 0 30px #00ffcc; }
+.overlay-title.lose { color:#ff0080; text-shadow:0 0 30px #ff0080; }
+.overlay-title.draw { color:#888; }
+.overlay-sub  { color:#888; font-size:13px; letter-spacing:3px; }
+.overlay-breakdown { display:flex; gap:30px; margin-top:8px; }
+.ob-col { text-align:center; }
+.ob-label { font-size:9px; color:#444; letter-spacing:2px; margin-bottom:4px; }
+.ob-val   { font-size:22px; font-weight:bold; }
+.btn-restart {
+  background:#0e1e16; border:1px solid #00ffcc; color:#00ffcc;
+  padding:10px 30px; font-family:inherit; font-size:11px; letter-spacing:3px;
+  cursor:pointer; border-radius:3px; margin-top:10px; transition:background 0.2s;
+}
+.btn-restart:hover { background:#1a3a26; }
+
+/* TOOLTIP */
+.tooltip {
+  display:none; position:fixed;
+  background:#0e0e1e; border:1px solid #00ffcc44;
+  border-radius:4px; padding:8px 12px;
+  font-size:9px; color:#aaa; letter-spacing:1px; line-height:1.6;
+  z-index:50; pointer-events:none; max-width:170px;
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="title">NULL//BREACH</div>
+  <div class="score-bar">
+    <span class="score-lbl">TOTAL PTS:</span>
+    <span class="score-p" id="scoreP">0</span>
+    <span style="color:#333;font-size:18px">&mdash;</span>
+    <span class="score-a" id="scoreA">0</span>
+    <span class="score-lbl" id="linesLbl">| LINES: 0/10</span>
+    <div class="turn-tag player" id="turnTag">YOUR TURN</div>
+  </div>
+</div>
+
+<div class="ai-area">
+  <div class="ai-portrait">
+    <div class="ai-avatar">&#x26A1;</div>
+    <div>
+      <div class="ai-name">SENTINEL-4</div>
+      <div class="ai-sub">FLOOR 2 BOSS</div>
+      <div class="ai-quote" id="aiQuote">"Your breach ends here."</div>
+    </div>
+  </div>
+  <div class="ai-hand-row">
+    <div class="hand-lbl-v">AI HAND</div>
+    <div class="facedown" id="fd0">?</div>
+    <div class="facedown" id="fd1">?</div>
+    <div class="facedown" id="fd2">?</div>
+    <div class="facedown" id="fd3">?</div>
+    <div class="facedown" id="fd4">?</div>
+    <div class="facedown" id="fd5">?</div>
+    <div class="facedown" id="fd6">?</div>
+    <div class="facedown" id="fd7">?</div>
+    <div class="facedown" id="fd8">?</div>
+    <div class="facedown" id="fd9">?</div>
+    <div class="facedown" id="fd10">?</div>
+    <div class="facedown" id="fd11">?</div>
+  </div>
+</div>
+
+<div class="main-area">
+  <div class="board-wrap">
+    <div class="board-dir-row">
+      <span class="dir-lbl" style="color:#ff008055">&#x25BC; AI FROM TOP (ROW 0)</span>
+      <span class="dir-lbl" style="color:#00ffcc55">&#x25B2; YOU FROM BOTTOM (ROW 4)</span>
+    </div>
+    <div class="board-and-scores">
+      <!-- GRID -->
+      <div>
+        <div class="grid" id="grid"></div>
+        <!-- COLUMN SCORES -->
+        <div class="col-score-row" id="colScores"></div>
+      </div>
+      <!-- ROW SCORES -->
+      <div class="row-scores" id="rowScores"></div>
+    </div>
+  </div>
+
+  <!-- LOG -->
+  <div class="log-panel">
+    <div class="log-title">BATTLE LOG</div>
+    <div class="log-entries" id="logEntries"></div>
+  </div>
+</div>
+
+<div class="player-area">
+  <div class="player-portrait">
+    <div class="player-avatar">&#x1F916;</div>
+    <div>
+      <div class="player-name">NETRUNNER_7</div>
+      <div class="player-sub">CLICK CARD &rsaquo; CLICK VALID CELL</div>
+    </div>
+  </div>
+  <div class="hand-lbl-v" style="transform:rotate(180deg);font-size:8px;color:#333;letter-spacing:2px;">YOUR HAND</div>
+  <div class="hand-cards" id="handCards"></div>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="overlay-title" id="overlayTitle">BREACH COMPLETE</div>
+  <div class="overlay-sub" id="overlaySub"></div>
+  <div class="overlay-breakdown" id="overlayBreakdown"></div>
+  <button class="btn-restart" onclick="initGame()">PLAY AGAIN</button>
+</div>
+<div class="tooltip" id="tooltip"></div>
+
+<!-- Drag card: created once, reused on every card selection -->
+<div id="dragCard">
+  <span class="dc-e-n" id="dc-n"></span>
+  <span class="dc-e-s" id="dc-s"></span>
+  <span class="dc-e-w" id="dc-w"></span>
+  <span class="dc-e-e" id="dc-e"></span>
+  <div class="dc-center">
+    <span class="dc-power" id="dc-power"></span>
+    <span class="dc-name" id="dc-name"></span>
+  </div>
+  <span class="dc-tier" id="dc-tier"></span>
+</div>
+
+<script>
+// ── CARD DEFINITIONS ──────────────────────────
+const PLAYER_CARDS = [
+  { id:'p1',  name:'LANCE',   tier:'I',   edges:{n:5,s:3,e:6,w:4}, power:2, ability:null,            abilityText:'Basic card' },
+  { id:'p2',  name:'LANCE',   tier:'I',   edges:{n:4,s:4,e:5,w:3}, power:2, ability:null,            abilityText:'Basic card' },
+  { id:'p3',  name:'LANCE',   tier:'I',   edges:{n:5,s:4,e:4,w:5}, power:2, ability:null,            abilityText:'Basic card' },
+  { id:'p4',  name:'WALL',    tier:'I',   edges:{n:6,s:6,e:2,w:2}, power:1, ability:'shield',        abilityText:'SHIELD: Ignores first comparison loss' },
+  { id:'p5',  name:'GHOST',   tier:'I',   edges:{n:3,s:4,e:5,w:4}, power:1, ability:'phantom',       abilityText:'PHANTOM: Place anywhere in rows 3-4' },
+  { id:'p6',  name:'BREAKER', tier:'I',   edges:{n:4,s:3,e:6,w:5}, power:2, ability:'double_strike', abilityText:'DOUBLE STRIKE: Comparison reaches 2 deep' },
+  { id:'p7',  name:'SPIKE',   tier:'I',   edges:{n:5,s:4,e:4,w:6}, power:2, ability:null,            abilityText:'Basic card' },
+  { id:'p8',  name:'DAGGER',  tier:'I',   edges:{n:3,s:5,e:6,w:4}, power:2, ability:null,            abilityText:'Basic card' },
+  { id:'p9',  name:'GUARD',   tier:'I',   edges:{n:6,s:5,e:3,w:3}, power:1, ability:null,            abilityText:'Basic card' },
+  { id:'p10', name:'BLADE',   tier:'II',  edges:{n:7,s:6,e:8,w:7}, power:4, ability:'chain',         abilityText:'CHAIN: Win flashes cascade to next cell' },
+  { id:'p11', name:'STRIKER', tier:'II',  edges:{n:6,s:7,e:7,w:6}, power:4, ability:null,            abilityText:'High-power Tier II' },
+  { id:'p12', name:'BULWARK', tier:'II',  edges:{n:8,s:5,e:6,w:7}, power:3, ability:null,            abilityText:'High-power Tier II' },
+];
+const AI_CARDS = [
+  { id:'a1',  name:'FANG',    tier:'I',   edges:{n:3,s:5,e:4,w:5}, power:2, ability:null,            abilityText:'Basic card' },
+  { id:'a2',  name:'FANG',    tier:'I',   edges:{n:4,s:5,e:3,w:6}, power:2, ability:null,            abilityText:'Basic card' },
+  { id:'a3',  name:'FANG',    tier:'I',   edges:{n:5,s:4,e:5,w:4}, power:2, ability:null,            abilityText:'Basic card' },
+  { id:'a4',  name:'TOWER',   tier:'I',   edges:{n:2,s:2,e:6,w:6}, power:1, ability:'shield',        abilityText:'SHIELD: Ignores first comparison loss' },
+  { id:'a5',  name:'SHADE',   tier:'I',   edges:{n:4,s:3,e:4,w:5}, power:1, ability:'phantom',       abilityText:'PHANTOM: Place anywhere in rows 0-1' },
+  { id:'a6',  name:'CRUSH',   tier:'I',   edges:{n:3,s:4,e:5,w:6}, power:2, ability:'double_strike', abilityText:'DOUBLE STRIKE: Comparison reaches 2 deep' },
+  { id:'a7',  name:'THORN',   tier:'I',   edges:{n:4,s:5,e:6,w:4}, power:2, ability:null,            abilityText:'Basic card' },
+  { id:'a8',  name:'CLAW',    tier:'I',   edges:{n:5,s:3,e:4,w:6}, power:2, ability:null,            abilityText:'Basic card' },
+  { id:'a9',  name:'BASTION', tier:'I',   edges:{n:5,s:6,e:3,w:3}, power:1, ability:null,            abilityText:'Basic card' },
+  { id:'a10', name:'CLEAVE',  tier:'II',  edges:{n:6,s:7,e:7,w:8}, power:4, ability:'chain',         abilityText:'CHAIN: Win flashes cascade to next cell' },
+  { id:'a11', name:'RAZOR',   tier:'II',  edges:{n:7,s:6,e:6,w:7}, power:4, ability:null,            abilityText:'High-power Tier II' },
+  { id:'a12', name:'AEGIS',   tier:'II',  edges:{n:5,s:8,e:7,w:6}, power:3, ability:null,            abilityText:'High-power Tier II' },
+];
+
+// ── STATE ─────────────────────────────────────
+let G = {};   // game state shorthand
+
+function initGame() {
+  G = {
+    grid: Array(5).fill(null).map(() =>
+      Array(5).fill(null).map(() => ({ card: null, owner: null }))
+    ),
+    playerHand: PLAYER_CARDS.map(c => ({...c, shieldExpended: false, used: false})),
+    aiHand:     AI_CARDS.map(c =>     ({...c, shieldExpended: false, used: false})),
+    turn:         'player',
+    selectedCard: null,
+    gameOver:     false,
+    log:          [],
+  };
+  document.getElementById('overlay').classList.remove('show');
+  hideDragCard();
+  document.body.style.cursor = 'default';
+  renderAll();
+  addLog('system', 'GAME START -- place from your home row');
+}
+
+// ── SCORING ───────────────────────────────────
+function computeScores() {
+  const rows = Array(5).fill(null).map(() => ({ p:0, a:0 }));
+  const cols = Array(5).fill(null).map(() => ({ p:0, a:0 }));
+
+  for (let r = 0; r < 5; r++)
+    for (let c = 0; c < 5; c++) {
+      const cell = G.grid[r][c];
+      if (!cell.card) continue;
+      if (cell.owner === 'player') { rows[r].p += cell.card.power; cols[c].p += cell.card.power; }
+      else                         { rows[r].a += cell.card.power; cols[c].a += cell.card.power; }
+    }
+
+  let pWins = 0, aWins = 0;
+  const rowResults = rows.map(r => r.p > r.a ? 'p' : r.a > r.p ? 'a' : 'tie');
+  const colResults = cols.map(c => c.p > c.a ? 'p' : c.a > c.p ? 'a' : 'tie');
+  rowResults.forEach(r => { if(r==='p')pWins++; if(r==='a')aWins++; });
+  colResults.forEach(c => { if(c==='p')pWins++; if(c==='a')aWins++; });
+
+  return { rows, cols, rowResults, colResults, pWins, aWins };
+}
+
+// ── RENDERING ─────────────────────────────────
+const CS = 124;  // cell + gap = 118 + 6
+
+function renderAll() {
+  renderGrid();
+  renderHand();
+  renderScoreBadges();
+  renderScoreHeader();
+  renderAiHand();
+}
+
+function renderGrid() {
+  const el = document.getElementById('grid');
+  el.innerHTML = '';
+  const valid = (G.turn === 'player' && G.selectedCard)
+    ? getValidPlacements('player', G.selectedCard) : [];
+
+  for (let r = 0; r < 5; r++) {
+    for (let c = 0; c < 5; c++) {
+      const cell = G.grid[r][c];
+      const div  = document.createElement('div');
+      div.className = 'cell';
+      div.dataset.r = r; div.dataset.c = c;
+
+      if (cell.card) {
+        div.classList.add(cell.owner);
+        const col = cell.owner === 'player' ? '#00ffcc' : '#ff0080';
+        div.innerHTML = `
+          <span class="edge n" style="color:${col}">${cell.card.edges.n}</span>
+          <span class="edge s" style="color:${col}">${cell.card.edges.s}</span>
+          <span class="edge w" style="color:${col}">${cell.card.edges.w}</span>
+          <span class="edge e" style="color:${col}">${cell.card.edges.e}</span>
+          <span class="tier-badge" style="color:${col}">${cell.card.tier}</span>
+          <div class="cell-center">
+            <span class="cell-power" style="color:${col}">${cell.card.power}</span>
+            <span class="cell-name" style="color:${col}cc">${cell.card.name}</span>
+          </div>
+          ${cell.card.ability ? `<span class="ability-tag" style="color:${col}55">${ab(cell.card.ability)}</span>` : ''}
+        `;
+      } else {
+        div.classList.add('empty');
+        if (valid.some(v => v.r===r && v.c===c)) {
+          div.classList.add('valid');
+          div.onclick = () => onCellClick(r, c);
+        }
+      }
+      el.appendChild(div);
+    }
+  }
+
+  // Battle comparison indicators in gaps
+  renderBattleIndicators(el);
+}
+
+function ab(a) {
+  return {shield:'SHD', phantom:'PHT', chain:'CHN', double_strike:'DBL'}[a] || '';
+}
+
+function renderBattleIndicators(el) {
+  const pairs = [
+    {dr:1,dc:0,myE:'s',theirE:'n',axis:'v'},
+    {dr:0,dc:1,myE:'e',theirE:'w',axis:'h'},
+  ];
+  for (let r = 0; r < 5; r++) for (let c = 0; c < 5; c++) {
+    const cell = G.grid[r][c];
+    if (!cell.card) continue;
+    for (const d of pairs) {
+      const nr = r+d.dr, nc = c+d.dc;
+      if (nr>=5||nc>=5) continue;
+      const nb = G.grid[nr][nc];
+      if (!nb.card || nb.owner === cell.owner) continue;
+
+      const mv = cell.card.edges[d.myE], tv = nb.card.edges[d.theirE];
+      const winner = mv>tv ? cell.owner : tv>mv ? nb.owner : null;
+      const col = winner==='player'?'#00ffcc': winner==='ai'?'#ff0080':'#444';
+      let sym;
+      if (d.axis === 'v') sym = mv>tv?'&#x25BC;': tv>mv?'&#x25B2;': '&#x2550;';
+      else                sym = mv>tv?'&#x25BA;': tv>mv?'&#x25C4;': '&#x2016;';
+
+      const ind = document.createElement('div');
+      ind.className = 'bti';
+      if (d.axis === 'v') {
+        ind.style.cssText = `top:${r*CS+118-1}px;left:${c*CS+46}px;width:26px;height:8px;color:${col};background:${col}18;font-size:9px;`;
+      } else {
+        ind.style.cssText = `top:${r*CS+46}px;left:${c*CS+118-1}px;width:8px;height:26px;color:${col};background:${col}18;font-size:9px;writing-mode:vertical-lr;`;
+      }
+      ind.innerHTML = sym;
+      el.appendChild(ind);
+    }
+  }
+}
+
+function renderScoreBadges() {
+  const s = computeScores();
+
+  // ROW score badges — show both totals + winner
+  const rowEl = document.getElementById('rowScores');
+  rowEl.innerHTML = '';
+  for (let r = 0; r < 5; r++) {
+    const {p,a} = s.rows[r];
+    const res = s.rowResults[r];
+    const badge = document.createElement('div');
+    badge.className = `row-score-badge ${res==='p'?'p-win':res==='a'?'a-win':'tie'}`;
+    const wtag = res==='p'
+      ? `<span class="rsb-winner-tag p">YOU &#x25B6;</span>`
+      : res==='a'
+      ? `<span class="rsb-winner-tag a">&#x25C0; AI</span>`
+      : `<span class="rsb-winner-tag t">TIE</span>`;
+    badge.innerHTML = `
+      <div class="rsb-line">
+        <span class="rsb-who" style="color:#00ffcc88">YOU</span>
+        <span class="rsb-pts p">${p}</span>
+      </div>
+      <div class="rsb-divider"></div>
+      <div class="rsb-line">
+        <span class="rsb-who" style="color:#ff008088">AI</span>
+        <span class="rsb-pts a">${a}</span>
+      </div>
+      ${wtag}
+    `;
+    rowEl.appendChild(badge);
+  }
+
+  // COL score badges — show both totals + winner
+  const colEl = document.getElementById('colScores');
+  colEl.innerHTML = '';
+  for (let c = 0; c < 5; c++) {
+    const {p,a} = s.cols[c];
+    const res = s.colResults[c];
+    const badge = document.createElement('div');
+    badge.className = `col-score-badge ${res==='p'?'p-win':res==='a'?'a-win':'tie'}`;
+    const winner = res==='p'
+      ? `<span style="color:#00ffcc;font-weight:bold;font-size:9px">YOU &#x25B2;</span>`
+      : res==='a'
+      ? `<span style="color:#ff0080;font-weight:bold;font-size:9px">AI &#x25BC;</span>`
+      : `<span style="color:#444;font-size:9px">TIE</span>`;
+    badge.innerHTML = `
+      <div class="csb-row">
+        <span style="color:#00ffcc;font-size:11px;font-weight:bold">${p}</span>
+        <span style="color:#444">vs</span>
+        <span style="color:#ff0080;font-size:11px;font-weight:bold">${a}</span>
+      </div>
+      ${winner}
+    `;
+    colEl.appendChild(badge);
+  }
+}
+
+function renderScoreHeader() {
+  const s = computeScores();
+  // Total points on board for each player
+  let totalP = 0, totalA = 0;
+  for (let r=0;r<5;r++) for (let c=0;c<5;c++) {
+    const cell = G.grid[r][c];
+    if (!cell.card) continue;
+    if (cell.owner==='player') totalP += cell.card.power;
+    else totalA += cell.card.power;
+  }
+  document.getElementById('scoreP').textContent = totalP + 'pt';
+  document.getElementById('scoreA').textContent = totalA + 'pt';
+  document.getElementById('linesLbl').textContent = `| LINES WON: ${s.pWins}/10`;
+
+  const tag = document.getElementById('turnTag');
+  tag.textContent = G.turn==='player' ? 'YOUR TURN' : 'AI THINKING...';
+  tag.className   = 'turn-tag ' + G.turn;
+
+  const q = document.getElementById('aiQuote');
+  if (s.aWins > s.pWins+1) q.textContent = '"Predictable. You are nothing."';
+  else if (s.pWins > s.aWins+1) q.textContent = '"Impossible... recalculating."';
+  else q.textContent = '"Your breach ends here."';
+}
+
+function renderHand() {
+  const el = document.getElementById('handCards');
+  el.innerHTML = '';
+  G.playerHand.forEach(card => {
+    const div = document.createElement('div');
+    const isSelected = G.selectedCard === card;
+    const isUsed = card.used;
+    div.className = 'hand-card' + (isUsed ? ' used' : '') + (isSelected ? ' selected' : '');
+
+    div.innerHTML = `
+      <span class="hc-e-n">${card.edges.n}</span>
+      <span class="hc-e-s">${card.edges.s}</span>
+      <span class="hc-e-w">${card.edges.w}</span>
+      <span class="hc-e-e">${card.edges.e}</span>
+      <span class="hc-tier-badge">${card.tier}</span>
+      <div class="hc-center">
+        <span class="hc-power-center">${card.power}</span>
+        <span class="hc-name-small">${card.name}</span>
+      </div>
+      ${card.ability ? `<span class="hc-ability-tag">${ab(card.ability)}</span>` : ''}
+    `;
+
+    if (!isUsed) {
+      div.onclick = () => onCardSelect(card);
+      div.onmouseenter = e => showTip(e, card);
+      div.onmouseleave = hideTip;
+    }
+    el.appendChild(div);
+  });
+}
+
+function renderAiHand() {
+  for (let i = 0; i < 12; i++) {
+    const el = document.getElementById(`fd${i}`);
+    if (el && G.aiHand[i]) el.classList.toggle('used', G.aiHand[i].used);
+  }
+}
+
+// ── DRAG CARD HELPERS ─────────────────────────
+function showDragCard(card, x, y) {
+  const dc = document.getElementById('dragCard');
+  document.getElementById('dc-n').textContent = card.edges.n;
+  document.getElementById('dc-s').textContent = card.edges.s;
+  document.getElementById('dc-w').textContent = card.edges.w;
+  document.getElementById('dc-e').textContent = card.edges.e;
+  document.getElementById('dc-power').textContent = card.power;
+  document.getElementById('dc-name').textContent = card.name;
+  document.getElementById('dc-tier').textContent = card.tier;
+  dc.style.display = 'block';
+  dc.style.left = (x + 6) + 'px';
+  dc.style.top  = (y + 6) + 'px';
+}
+
+function updateDragCard(x, y) {
+  const dc = document.getElementById('dragCard');
+  if (dc.style.display !== 'none') {
+    dc.style.left = (x + 6) + 'px';
+    dc.style.top  = (y + 6) + 'px';
+  }
+}
+
+function hideDragCard() {
+  document.getElementById('dragCard').style.display = 'none';
+}
+
+// ── FLASH ─────────────────────────────────────
+function showFlash(r1, c1, r2, c2, myVal, theirVal, iWin) {
+  const el  = document.getElementById('grid');
+  const midY = ((r1+r2)/2)*CS + 50;
+  const midX = ((c1+c2)/2)*CS + 30;
+  const f   = document.createElement('div');
+  f.className = 'flash';
+  const col = iWin ? '#00ffcc' : '#ff4455';
+  f.style.cssText = `top:${midY}px;left:${midX}px;color:${col};background:${col}22;border:1px solid ${col}44;`;
+  f.textContent   = iWin ? `${myVal} > ${theirVal} WIN` : `${myVal} < ${theirVal} LOSE`;
+  el.appendChild(f);
+  setTimeout(() => f.remove(), 1900);
+}
+
+// ── PLACEMENT RULES ───────────────────────────
+function getValidPlacements(owner, card) {
+  // PHANTOM: free placement within OWN 2 home rows
+  if (card.ability === 'phantom') {
+    const [minR, maxR] = owner === 'player' ? [3,4] : [0,1];
+    const cells = [];
+    for (let r = minR; r <= maxR; r++)
+      for (let c = 0; c < 5; c++)
+        if (!G.grid[r][c].card) cells.push({r,c});
+    return cells;
+  }
+
+  const homeRow = owner === 'player' ? 4 : 0;
+  const set = new Set();
+
+  // Always can place in home row
+  for (let c = 0; c < 5; c++)
+    if (!G.grid[homeRow][c].card)
+      set.add(`${homeRow},${c}`);
+
+  // Adjacent to own cards
+  const dirs = [[-1,0],[1,0],[0,-1],[0,1]];
+  for (let r = 0; r < 5; r++)
+    for (let c = 0; c < 5; c++)
+      if (G.grid[r][c].owner === owner)
+        for (const [dr,dc] of dirs) {
+          const nr=r+dr, nc=c+dc;
+          if (nr>=0&&nr<5&&nc>=0&&nc<5&&!G.grid[nr][nc].card)
+            set.add(`${nr},${nc}`);
+        }
+
+  return [...set].map(s => { const [r,c]=s.split(',').map(Number); return{r,c}; });
+}
+
+// ── COMPARISON FLASH (no ownership change) ───
+const DIRS4 = [
+  {dr:-1,dc:0,myE:'n',theirE:'s',lbl:'north'},
+  {dr: 1,dc:0,myE:'s',theirE:'n',lbl:'south'},
+  {dr: 0,dc:1,myE:'e',theirE:'w',lbl:'east'},
+  {dr: 0,dc:-1,myE:'w',theirE:'e',lbl:'west'},
+];
+
+function doComparisons(r, c, owner, card, depth=0) {
+  if (depth > 3) return;
+  const enemy = owner==='player'?'ai':'player';
+
+  for (const d of DIRS4) {
+    const nr=r+d.dr, nc=c+d.dc;
+    if (nr<0||nr>=5||nc<0||nc>=5) continue;
+    const target = G.grid[nr][nc];
+    if (!target.card || target.owner !== enemy) continue;
+
+    // Shield: absorbs first comparison
+    if (target.card.ability==='shield' && !target.card.shieldExpended) {
+      target.card.shieldExpended = true;
+      addLog('shield', `${target.card.name} SHIELD absorbs comparison`);
+      showFlash(r,c,nr,nc, card.edges[d.myE], target.card.edges[d.theirE], false);
+      continue;
+    }
+
+    const mv = card.edges[d.myE], tv = target.card.edges[d.theirE];
+    const iWin = mv > tv;
+    showFlash(r, c, nr, nc, mv, tv, iWin);
+
+    addLog('compare', `${card.name} ${mv}${iWin?'>':'<'}${tv} vs ${target.card.name} (${d.lbl})`);
+
+    // CHAIN: cascade comparison from adjacent cell
+    if (card.ability==='chain' && iWin && depth===0) {
+      addLog('compare', `CHAIN from ${card.name}...`);
+      doComparisons(nr, nc, owner, target.card, depth+1);
+    }
+
+    // DOUBLE STRIKE: also compare one step further in same direction
+    if (card.ability==='double_strike' && iWin) {
+      const nr2=nr+d.dr, nc2=nc+d.dc;
+      if (nr2>=0&&nr2<5&&nc2>=0&&nc2<5) {
+        const t2 = G.grid[nr2][nc2];
+        if (t2.card && t2.owner===enemy) {
+          const mv2=mv, tv2=t2.card.edges[d.theirE];
+          showFlash(nr,nc,nr2,nc2,mv2,tv2,mv2>tv2);
+          addLog('compare', `DOUBLE STRIKE: ${mv2}${mv2>tv2?'>':'<='}${tv2} vs ${t2.card.name}`);
+        }
+      }
+    }
+  }
+}
+
+// ── PLACE CARD ────────────────────────────────
+function placeCard(card, r, c, owner) {
+  G.grid[r][c] = { card, owner };   // owner NEVER changes after this
+  card.used = true;
+  addLog(owner==='player'?'player':'ai',
+    `${owner==='player'?'YOU':'AI'} place ${card.name}[${card.tier}] at [${r},${c}]`);
+
+  doComparisons(r, c, owner, card);
+  renderAll();
+
+  setTimeout(() => {
+    const cells = document.querySelectorAll('.cell');
+    if (cells[r*5+c]) cells[r*5+c].classList.add('just-placed');
+  }, 10);
+
+  checkWin();
+}
+
+// ── AI TURN ───────────────────────────────────
+function aiTurn() {
+  const avail = G.aiHand.filter(c => !c.used);
+  if (!avail.length) { checkWin(); return; }
+
+  let best = -Infinity, bestCard = null, bestR = -1, bestC = -1;
+
+  for (const card of avail) {
+    for (const {r,c} of getValidPlacements('ai', card)) {
+      let score = card.power;
+      const s = computeScores();
+      if (s.rowResults[r] !== 'a') score += 2;
+      if (s.colResults[c] !== 'a') score += 2;
+      for (const d of DIRS4) {
+        const nr=r+d.dr, nc=c+d.dc;
+        if (nr<0||nr>=5||nc<0||nc>=5) continue;
+        const t = G.grid[nr][nc];
+        if (t.card && t.owner==='player' && card.edges[d.myE] > t.card.edges[d.theirE])
+          score += 1;
+      }
+      score += r * 0.2 + (2-Math.abs(2-c)) * 0.1 + Math.random()*0.5;
+      if (score > best) { best=score; bestCard=card; bestR=r; bestC=c; }
+    }
+  }
+
+  if (bestCard && bestR >= 0) placeCard(bestCard, bestR, bestC, 'ai');
+  G.turn = 'player';
+  renderScoreHeader();
+}
+
+// ── WIN CHECK ─────────────────────────────────
+function checkWin() {
+  if (G.gameOver) return;
+  const allDone = G.playerHand.every(c=>c.used) && G.aiHand.every(c=>c.used);
+  if (!allDone) return;
+
+  G.gameOver = true;
+  const s = computeScores();
+  const overlay = document.getElementById('overlay');
+  const title   = document.getElementById('overlayTitle');
+  const sub     = document.getElementById('overlaySub');
+  const bkdn    = document.getElementById('overlayBreakdown');
+
+  overlay.classList.add('show');
+
+  if (s.pWins > s.aWins) {
+    title.className = 'overlay-title win';
+    title.textContent = 'BREACH COMPLETE';
+    sub.textContent   = `You dominated ${s.pWins} of 10 lines`;
+  } else if (s.aWins > s.pWins) {
+    title.className = 'overlay-title lose';
+    title.textContent = 'BREACH FAILED';
+    sub.textContent   = `AI dominated ${s.aWins} of 10 lines`;
+  } else {
+    title.className = 'overlay-title draw';
+    title.textContent = 'STALEMATE';
+    sub.textContent   = `${s.pWins} lines each`;
+  }
+
+  const rowW_p = s.rowResults.filter(r=>r==='p').length;
+  const rowW_a = s.rowResults.filter(r=>r==='a').length;
+  const colW_p = s.colResults.filter(c=>c==='p').length;
+  const colW_a = s.colResults.filter(c=>c==='a').length;
+
+  bkdn.innerHTML = `
+    <div class="ob-col">
+      <div class="ob-label">ROWS WON</div>
+      <div class="ob-val" style="color:#00ffcc">${rowW_p}</div>
+    </div>
+    <div class="ob-col">
+      <div class="ob-label">COLS WON</div>
+      <div class="ob-val" style="color:#00ffcc">${colW_p}</div>
+    </div>
+    <div class="ob-col">
+      <div class="ob-label">TOTAL</div>
+      <div class="ob-val" style="color:#00ffcc">${s.pWins}/10</div>
+    </div>
+  `;
+}
+
+// ── EVENTS ────────────────────────────────────
+function onCardSelect(card) {
+  if (G.turn !== 'player' || G.gameOver) return;
+
+  // Toggle off if already selected
+  if (G.selectedCard === card) {
+    G.selectedCard = null;
+    hideDragCard();
+    document.body.style.cursor = 'default';
+  } else {
+    G.selectedCard = card;
+    document.body.style.cursor = 'none';
+    // Drag card will be positioned on the next mousemove; show it at a default pos for now
+    showDragCard(card, -200, -200);
+  }
+  renderGrid();
+  renderHand();
+}
+
+function onCellClick(r, c) {
+  if (!G.selectedCard || G.turn !== 'player' || G.gameOver) return;
+  if (!getValidPlacements('player', G.selectedCard).some(v=>v.r===r&&v.c===c)) return;
+
+  placeCard(G.selectedCard, r, c, 'player');
+  G.selectedCard = null;
+  hideDragCard();
+  document.body.style.cursor = 'default';
+  G.turn = 'ai';
+  renderScoreHeader();
+
+  if (!G.aiHand.every(c=>c.used))
+    setTimeout(aiTurn, 1200);
+  else
+    checkWin();
+}
+
+function addLog(type, msg) {
+  G.log.unshift({type, msg});
+  document.getElementById('logEntries').innerHTML =
+    G.log.slice(0,18).map(e=>`<div class="log-entry ${e.type}">${e.msg}</div>`).join('');
+}
+
+function showTip(e, card) {
+  const tt = document.getElementById('tooltip');
+  tt.innerHTML = `<strong style="color:#00ffcc">${card.name} [${card.tier}]</strong><br>
+    N:${card.edges.n} S:${card.edges.s} E:${card.edges.e} W:${card.edges.w}<br>
+    Power: ${card.power}pt | ${card.abilityText}`;
+  tt.style.display = 'block';
+  tt.style.left = (e.clientX+14)+'px';
+  tt.style.top  = (e.clientY-65)+'px';
+}
+function hideTip() { document.getElementById('tooltip').style.display='none'; }
+
+// ── GLOBAL MOUSE / KEYBOARD ───────────────────
+document.addEventListener('mousemove', e => {
+  if (G.selectedCard) {
+    updateDragCard(e.clientX, e.clientY);
+  }
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && G.selectedCard) {
+    G.selectedCard = null;
+    hideDragCard();
+    document.body.style.cursor = 'default';
+    renderGrid();
+    renderHand();
+  }
+});
+
+// Click on a non-valid area (board background) deselects
+document.addEventListener('click', e => {
+  if (!G.selectedCard) return;
+  // Only deselect if target is not a valid cell, not a hand card, not the drag card
+  const target = e.target;
+  const isValidCell = target.closest && target.closest('.cell.valid');
+  const isHandCard  = target.closest && target.closest('.hand-card');
+  const isDragCard  = target.closest && target.closest('#dragCard');
+  if (!isValidCell && !isHandCard && !isDragCard) {
+    G.selectedCard = null;
+    hideDragCard();
+    document.body.style.cursor = 'default';
+    renderGrid();
+    renderHand();
+  }
+}, true);
+
+// ── START ─────────────────────────────────────
+initGame();
+</script>
+</body>
+</html>
