@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>GALACTIC ZERO</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #020208;
+  color: #e0e0e0;
+  font-family: 'Courier New', monospace;
+  height: 100vh;
+  overflow: hidden;
+  user-select: none;
+}
+
+/* ── STARFIELD ── */
+#starfield {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+}
+
+/* ── SHARED SCREEN LAYER ── */
+.screen {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+.screen.hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.97);
+}
+
+/* ── GALACTIC CORE GLOW (background effect) ── */
+.core-glow {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  background: radial-gradient(ellipse at 50% 52%,
+    #0d0820 0%,
+    #070414 35%,
+    #020208 70%,
+    transparent 100%
+  );
+}
+.core-glow-ring {
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 600px; height: 600px;
+  z-index: 1;
+  background: radial-gradient(ellipse,
+    #1a0a3a44 0%,
+    #0d0620 30%,
+    transparent 70%
+  );
+  animation: corePulse 6s ease-in-out infinite;
+}
+@keyframes corePulse {
+  0%, 100% { opacity: 0.5; transform: translate(-50%,-50%) scale(1); }
+  50%       { opacity: 0.9; transform: translate(-50%,-50%) scale(1.08); }
+}
+
+/* ── SCREEN 1: SPLASH ── */
+#splash {
+  gap: 0;
+  text-align: center;
+}
+
+.splash-eyebrow {
+  font-size: 11px;
+  letter-spacing: 6px;
+  color: #5a4a7a;
+  margin-bottom: 18px;
+  text-transform: uppercase;
+}
+
+.splash-title {
+  font-size: clamp(52px, 7vw, 88px);
+  font-weight: bold;
+  letter-spacing: 16px;
+  color: #fff;
+  text-shadow:
+    0 0 30px #8855ff88,
+    0 0 80px #4422aa44,
+    0 0 140px #22118822;
+  animation: titleGlow 4s ease-in-out infinite;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+@keyframes titleGlow {
+  0%, 100% { text-shadow: 0 0 30px #8855ff88, 0 0 80px #4422aa44; }
+  50%       { text-shadow: 0 0 50px #aa77ffaa, 0 0 120px #6633cc66, 0 0 200px #33119944; }
+}
+
+.splash-divider {
+  width: 120px; height: 1px;
+  background: linear-gradient(90deg, transparent, #7755bb, transparent);
+  margin: 20px auto;
+  animation: dividerPulse 3s ease-in-out infinite;
+}
+@keyframes dividerPulse {
+  0%, 100% { width: 120px; opacity: 0.6; }
+  50%       { width: 200px; opacity: 1; }
+}
+
+.splash-sub {
+  font-size: 12px;
+  letter-spacing: 5px;
+  color: #8877aa;
+  margin-bottom: 8px;
+}
+.splash-sub2 {
+  font-size: 10px;
+  letter-spacing: 4px;
+  color: #443366;
+  margin-bottom: 48px;
+}
+
+.btn-primary {
+  background: transparent;
+  border: 1px solid #8855ff66;
+  color: #c9aaff;
+  font-family: inherit;
+  font-size: 12px;
+  letter-spacing: 5px;
+  padding: 14px 44px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s;
+  text-transform: uppercase;
+}
+.btn-primary::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, #8855ff22, transparent);
+  transform: translateX(-100%);
+  transition: transform 0.4s;
+}
+.btn-primary:hover {
+  border-color: #aa77ff;
+  color: #fff;
+  box-shadow: 0 0 20px #8855ff44, 0 0 40px #4422aa22;
+}
+.btn-primary:hover::before { transform: translateX(100%); }
+.btn-primary:active { transform: scale(0.98); }
+
+.splash-lore {
+  position: absolute;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: #332255;
+  text-align: center;
+  line-height: 2;
+}
+
+.splash-version {
+  position: absolute;
+  bottom: 16px;
+  right: 24px;
+  font-size: 8px;
+  color: #221144;
+  letter-spacing: 2px;
+}
+
+/* ── SCREEN 2: DECK SELECT ── */
+#deckselect {
+  justify-content: flex-start;
+  padding: 28px 40px 24px;
+  overflow: hidden;
+}
+
+.ds-header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+  flex-shrink: 0;
+}
+.ds-title {
+  font-size: 13px;
+  letter-spacing: 6px;
+  color: #fff;
+  text-shadow: 0 0 20px #8855ff66;
+}
+.ds-logo {
+  font-size: 10px;
+  letter-spacing: 4px;
+  color: #443366;
+}
+.btn-back {
+  background: transparent;
+  border: 1px solid #332255;
+  color: #554477;
+  font-family: inherit;
+  font-size: 9px;
+  letter-spacing: 3px;
+  padding: 5px 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-back:hover { border-color: #8855ff; color: #aa77ff; }
+
+.ds-instruction {
+  font-size: 9px;
+  letter-spacing: 4px;
+  color: #443366;
+  margin-bottom: 20px;
+  flex-shrink: 0;
+}
+
+.ds-divider {
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #7755bb33, transparent);
+  margin-bottom: 20px;
+  flex-shrink: 0;
+}
+
+/* Race grid */
+.race-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px;
+  width: 100%;
+  max-width: 980px;
+  margin: 0 auto;
+  flex-shrink: 0;
+}
+
+.race-tile {
+  border-radius: 5px;
+  padding: 12px 8px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  transition: transform 0.2s, box-shadow 0.2s;
+  position: relative;
+  text-align: center;
+  background: #07060f;
+  border: 1px solid #1a1428;
+}
+.race-tile:hover {
+  transform: translateY(-4px) scale(1.03);
+}
+.race-tile.selected {
+  transform: translateY(-4px) scale(1.03);
+}
+.race-avatar {
+  font-size: 28px;
+  line-height: 1;
+}
+.race-name {
+  font-size: 8px;
+  letter-spacing: 1.5px;
+  line-height: 1.3;
+  font-weight: bold;
+}
+.race-sub {
+  font-size: 7px;
+  letter-spacing: 0.5px;
+  opacity: 0.5;
+  line-height: 1.3;
+}
+.race-abilities {
+  font-size: 7px;
+  letter-spacing: 0.5px;
+  opacity: 0;
+  transition: opacity 0.2s;
+  color: #888;
+  line-height: 1.5;
+}
+.race-tile:hover .race-abilities,
+.race-tile.selected .race-abilities {
+  opacity: 0.7;
+}
+
+/* Bottom selection panel */
+.ds-selection-panel {
+  width: 100%;
+  max-width: 980px;
+  margin: 16px auto 0;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-shrink: 0;
+  min-height: 64px;
+  transition: opacity 0.3s;
+}
+.ds-selection-panel.hidden { opacity: 0; pointer-events: none; }
+
+.ds-selected-info { flex: 1; }
+.ds-selected-name {
+  font-size: 14px;
+  letter-spacing: 3px;
+  font-weight: bold;
+  margin-bottom: 3px;
+}
+.ds-selected-sub {
+  font-size: 9px;
+  letter-spacing: 2px;
+  opacity: 0.5;
+  margin-bottom: 4px;
+}
+.ds-selected-quote {
+  font-size: 9px;
+  letter-spacing: 1px;
+  opacity: 0.4;
+  font-style: italic;
+}
+
+.btn-deploy {
+  background: transparent;
+  font-family: inherit;
+  font-size: 11px;
+  letter-spacing: 4px;
+  padding: 12px 30px;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 0.3s;
+  flex-shrink: 0;
+}
+.btn-deploy:hover {
+  box-shadow: 0 0 20px currentColor, 0 0 40px currentColor;
+  opacity: 0.8;
+}
+.btn-deploy:active { transform: scale(0.97); }
+
+/* Lore footer */
+.ds-lore {
+  position: absolute;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 8px;
+  letter-spacing: 3px;
+  color: #221133;
+  text-align: center;
+}
+</style>
+</head>
+<body>
+
+<!-- STARFIELD -->
+<canvas id="starfield"></canvas>
+<div class="core-glow"></div>
+<div class="core-glow-ring"></div>
+
+<!-- SCREEN 1: SPLASH -->
+<div class="screen" id="splash">
+  <div class="splash-eyebrow">A GAME OF CIVILIZATIONAL CONFLICT</div>
+  <div class="splash-title">GALACTIC ZERO</div>
+  <div class="splash-divider"></div>
+  <div class="splash-sub">TEN CIVILIZATIONS &nbsp;·&nbsp; ONE SECTOR</div>
+  <div class="splash-sub2">NO ONE CHOSE THIS CONFLICT — THE SECTOR SIMPLY IS</div>
+  <button class="btn-primary" onclick="showDeckSelect()">ENTER THE SECTOR</button>
+  <div class="splash-lore">
+    SECTOR GZ-0 — GALACTIC CORE CONVERGENCE POINT<br>
+    WHERE TEN EXPANSION ROUTES COLLIDE
+  </div>
+  <div class="splash-version">v0.1 PROTOTYPE</div>
+</div>
+
+<!-- SCREEN 2: DECK SELECT -->
+<div class="screen hidden" id="deckselect">
+  <div class="ds-header">
+    <div>
+      <div class="ds-title">SELECT YOUR CIVILIZATION</div>
+      <div class="ds-instruction">CHOOSE THE RACE YOU WILL COMMAND AT GALACTIC ZERO</div>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+      <div class="ds-logo">GALACTIC ZERO</div>
+      <button class="btn-back" onclick="showSplash()">← BACK</button>
+    </div>
+  </div>
+
+  <div class="ds-divider"></div>
+
+  <div class="race-grid" id="raceGrid"></div>
+
+  <div class="ds-selection-panel hidden" id="selectionPanel">
+    <div class="ds-selected-info" id="selectedInfo"></div>
+    <button class="btn-deploy" id="deployBtn" onclick="startGame()">
+      DEPLOY FLEET →
+    </button>
+  </div>
+
+  <div class="ds-lore">
+    ROWS = TRANSIT CORRIDORS &nbsp;·&nbsp; COLUMNS = RESOURCE STREAMS &nbsp;·&nbsp; WIN 6 OF 10 LINES
+  </div>
+</div>
+
+<script>
+// ── STARFIELD ───────────────────────────────────────
+const canvas = document.getElementById('starfield');
+const ctx = canvas.getContext('2d');
+let stars = [];
+
+function resizeCanvas() {
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+
+function initStars(count = 320) {
+  stars = [];
+  for (let i = 0; i < count; i++) {
+    stars.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      r: Math.random() * 1.4 + 0.2,
+      alpha: Math.random() * 0.7 + 0.1,
+      speed: Math.random() * 0.012 + 0.003,
+      phase: Math.random() * Math.PI * 2,
+    });
+  }
+}
+
+function animateStars() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const t = Date.now() * 0.001;
+  for (const s of stars) {
+    const a = s.alpha * (0.6 + 0.4 * Math.sin(t * s.speed * 10 + s.phase));
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(200,190,255,${a})`;
+    ctx.fill();
+  }
+  requestAnimationFrame(animateStars);
+}
+
+window.addEventListener('resize', () => { resizeCanvas(); initStars(); });
+resizeCanvas();
+initStars();
+animateStars();
+
+// ── RACE DATA ─────────────────────────────────────
+const RACES = [
+  {
+    id: 'terran',
+    name: 'THE TERRAN ACCORD',
+    sub: 'UNITED COLONIAL FEDERATION',
+    color: '#7ab8e8',
+    avatar: '★',
+    quote: '"We are many worlds, one purpose."',
+    abilities: 'COMMANDER · BOOST · SURGE',
+    starter: true
+  },
+  {
+    id: 'crystallis',
+    name: 'THE CRYSTALLIS',
+    sub: 'SILICON LATTICE CIVILIZATION',
+    color: '#a8d8ff',
+    avatar: '💎',
+    quote: '"You will fracture against us."',
+    abilities: 'FORTRESS · BASTION · REFLECT'
+  },
+  {
+    id: 'mycos',
+    name: 'THE MYCOS DRIFT',
+    sub: 'DISTRIBUTED FUNGAL INTELLIGENCE',
+    color: '#9dcf6e',
+    avatar: '🍄',
+    quote: '"We have already begun."',
+    abilities: 'CORROSIVE · CHAIN · MOMENTUM'
+  },
+  {
+    id: 'veil',
+    name: 'THE VEIL',
+    sub: 'COHERENT LIGHT ENTITIES',
+    color: '#fff5a0',
+    avatar: '✦',
+    quote: '"You cannot strike what you cannot see."',
+    abilities: 'PHANTOM · PHASE · AMBUSH'
+  },
+  {
+    id: 'entropy',
+    name: 'THE ENTROPY CULT',
+    sub: 'ANCIENT DECAY WORSHIPPERS',
+    color: '#c4723a',
+    avatar: '☄',
+    quote: '"Everything ends. We simply hasten it."',
+    abilities: 'DRAIN · SUNDER · MIRROR'
+  },
+  {
+    id: 'brood',
+    name: 'THE BROOD SOVEREIGN',
+    sub: 'INSECTOID HIVE-MIND',
+    color: '#88cc44',
+    avatar: '🪲',
+    quote: '"The Sovereign sees through ten thousand eyes."',
+    abilities: 'COMMANDER · SWEEP · RUSH'
+  },
+  {
+    id: 'void',
+    name: 'THE VOID HUNTERS',
+    sub: 'DARK MATTER PREDATORS',
+    color: '#9b59b6',
+    avatar: '▪',
+    quote: '"We come from the dark between stars."',
+    abilities: 'DOUBLE STRIKE · PIERCE · FLANK'
+  },
+  {
+    id: 'gas',
+    name: 'THE GAS NOMADS',
+    sub: 'PLASMA STORM BEINGS',
+    color: '#ffd700',
+    avatar: '⚡',
+    quote: '"You have angered the storm."',
+    abilities: 'BERSERK · SURGE · LAST STAND'
+  },
+  {
+    id: 'lithos',
+    name: 'THE LITHOS',
+    sub: 'GEOLOGICAL ANCIENTS',
+    color: '#a0896a',
+    avatar: '⬡',
+    quote: '"We were here before your stars ignited."',
+    abilities: 'IMMOVABLE · FORTRESS · WARD'
+  },
+  {
+    id: 'quantum',
+    name: 'THE QUANTUM THREAD',
+    sub: 'SUPERPOSITION ENTITIES',
+    color: '#ff69b4',
+    avatar: '◈',
+    quote: '"We are all possibilities at once."',
+    abilities: 'WILDCARD · ADAPTIVE · AMBUSH'
+  },
+  {
+    id: 'choir',
+    name: 'THE CHOIR',
+    sub: 'RESONANT FREQUENCY ENTITIES',
+    color: '#c8c8ff',
+    avatar: '〜',
+    quote: '"The note that breaks everything."',
+    abilities: 'SWEEP · SIDE SWIPE · REFLECT'
+  },
+];
+
+let selectedRace = null;
+
+// ── BUILD RACE GRID ────────────────────────────────
+function buildRaceGrid() {
+  const grid = document.getElementById('raceGrid');
+  grid.innerHTML = '';
+  RACES.forEach(race => {
+    const tile = document.createElement('div');
+    tile.className = 'race-tile' + (race.starter ? ' starter' : '');
+    tile.dataset.id = race.id;
+    tile.style.cssText = `
+      border-color: ${race.color}33;
+    `;
+    tile.innerHTML = `
+      <div class="race-avatar">${race.avatar}</div>
+      <div class="race-name" style="color:${race.color}">${race.name}</div>
+      <div class="race-sub">${race.sub}</div>
+      <div class="race-abilities">${race.abilities}</div>
+    `;
+    tile.addEventListener('click', () => selectRace(race, tile));
+    tile.addEventListener('mouseenter', () => {
+      tile.style.boxShadow = `0 0 16px ${race.color}33, 0 0 30px ${race.color}11`;
+      tile.style.borderColor = `${race.color}77`;
+    });
+    tile.addEventListener('mouseleave', () => {
+      if (selectedRace?.id !== race.id) {
+        tile.style.boxShadow = '';
+        tile.style.borderColor = `${race.color}33`;
+      }
+    });
+    grid.appendChild(tile);
+  });
+}
+
+function selectRace(race, tileEl) {
+  // Deselect previous
+  document.querySelectorAll('.race-tile.selected').forEach(t => {
+    const r = RACES.find(r => r.id === t.dataset.id);
+    if (r) {
+      t.style.boxShadow = '';
+      t.style.borderColor = `${r.color}33`;
+    }
+    t.classList.remove('selected');
+  });
+
+  selectedRace = race;
+  tileEl.classList.add('selected');
+  tileEl.style.boxShadow = `0 0 24px ${race.color}55, 0 0 60px ${race.color}22`;
+  tileEl.style.borderColor = `${race.color}`;
+
+  // Update info panel
+  const panel = document.getElementById('selectionPanel');
+  const info  = document.getElementById('selectedInfo');
+  const btn   = document.getElementById('deployBtn');
+
+  info.innerHTML = `
+    <div class="ds-selected-name" style="color:${race.color}">${race.name}</div>
+    <div class="ds-selected-sub">${race.sub}</div>
+    <div class="ds-selected-quote">${race.quote}</div>
+  `;
+  btn.style.cssText = `
+    background: transparent;
+    font-family: inherit;
+    font-size: 11px;
+    letter-spacing: 4px;
+    padding: 12px 30px;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: all 0.3s;
+    flex-shrink: 0;
+    border: 1px solid ${race.color}88;
+    color: ${race.color};
+  `;
+  panel.classList.remove('hidden');
+}
+
+// ── SCREEN TRANSITIONS ─────────────────────────────
+function showDeckSelect() {
+  document.getElementById('splash').classList.add('hidden');
+  setTimeout(() => {
+    document.getElementById('deckselect').classList.remove('hidden');
+  }, 100);
+}
+
+function showSplash() {
+  document.getElementById('deckselect').classList.add('hidden');
+  setTimeout(() => {
+    document.getElementById('splash').classList.remove('hidden');
+  }, 100);
+}
+
+function startGame() {
+  if (!selectedRace) return;
+  // TODO: launch game with selectedRace
+  alert(`Launching with ${selectedRace.name}...\n(Game board integration coming next)`);
+}
+
+// ── INIT ──────────────────────────────────────────
+buildRaceGrid();
+</script>
+</body>
+</html>
