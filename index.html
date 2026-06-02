@@ -812,8 +812,9 @@ function selectRace(race, tileEl) {
 
   selectedRace = race;
   tileEl.classList.add('selected');
-  tileEl.style.borderColor = race.color;
-  tileEl.style.boxShadow = `0 12px 50px ${race.color}66, 0 0 80px ${race.color}33`;
+  // Yellow border to clearly mark the selected deck
+  tileEl.style.borderColor = '#ffdd00';
+  tileEl.style.boxShadow = `0 0 24px #ffdd0066, 0 0 48px #ffdd0033, 0 12px 40px ${race.color}44`;
 
   // Use lore background — clip it to start at the bottom of the conveyor belt
   const bg = document.getElementById('race-bg');

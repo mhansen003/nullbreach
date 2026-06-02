@@ -41,6 +41,24 @@ body {
 .ai-area > *, .player-area > * { position: relative; z-index: 1; }
 
 
+/* Board card art overlay — gradient keeps edge values readable */
+.cell.player::after, .cell.ai::after {
+  content: ''; position: absolute; inset: 0; z-index: 0;
+  background: linear-gradient(to top, #000000cc 0%, #00000077 38%, transparent 70%);
+  pointer-events: none;
+}
+.cell.player .edge, .cell.ai .edge,
+.cell.player .tier-badge, .cell.ai .tier-badge,
+.cell.player .cell-center, .cell.ai .cell-center,
+.cell.player .ability-tag, .cell.ai .ability-tag {
+  position: relative; z-index: 1;
+}
+
+/* Ensure layout areas sit above fixed lore backgrounds */
+.header, .ai-area, .main-area, .player-area {
+  position: relative; z-index: 10;
+}
+
 /* HEADER */
 .header {
   background: linear-gradient(90deg, #0a0a1a, #160a28);
@@ -100,7 +118,8 @@ body {
   flex: 1;
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
-  padding: 6px 10px;
+  padding: 8px;
+  overflow: hidden;
 }
 .board-dir-row {
   display: flex; align-items: center; gap: 8px; margin-bottom: 4px;
@@ -123,7 +142,7 @@ body {
   margin-top: 4px;
 }
 .col-score-badge {
-  width: 118px; height: 44px;
+  width: 118px; height: 50px;
   border-radius: 3px;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   gap: 2px; font-size: 8px; letter-spacing: 1px;
@@ -142,7 +161,7 @@ body {
   gap: 6px;
 }
 .row-score-badge {
-  width: 96px; height: 118px;
+  width: 100px; height: 118px;
   border-radius: 3px;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   gap: 5px;
@@ -203,10 +222,12 @@ body {
 .tier-badge  { position: absolute; top: 4px; right: 5px; font-size: 9px; font-weight: bold; opacity: 0.4; }
 .ability-tag { position: absolute; bottom: 18px; left: 50%; transform: translateX(-50%); font-size: 7px; letter-spacing: 1px; opacity: 0.55; white-space: nowrap; }
 
-/* HAND CARD -- mini board card layout, all absolute positioned */
+/* HAND CARD -- card art as background, overlay shows stats */
 .hand-card {
   width: 80px; height: 104px; border-radius: 4px; position: relative;
   cursor: pointer;
+  background-size: cover; background-position: center;
+  background-color: #06050e;
   transition: transform 0.15s, box-shadow 0.15s;
   background: linear-gradient(145deg, #0c1e16, #09181e);
   border: 1px solid #00ffcc44;
@@ -378,6 +399,9 @@ body {
   ">🔊</div>
 </div>
 
+<div id="game-top-bg" style="position:fixed;top:0;left:0;right:0;height:50%;background-size:cover;background-position:center top;z-index:0;opacity:0;transition:opacity 1s;pointer-events:none;mask-image:linear-gradient(to bottom,black 0%,black 50%,transparent 100%);-webkit-mask-image:linear-gradient(to bottom,black 0%,black 50%,transparent 100%);"></div>
+<div id="game-bottom-bg" style="position:fixed;bottom:0;left:0;right:0;height:50%;background-size:cover;background-position:center bottom;z-index:0;opacity:0;transition:opacity 1s;pointer-events:none;mask-image:linear-gradient(to top,black 0%,black 50%,transparent 100%);-webkit-mask-image:linear-gradient(to top,black 0%,black 50%,transparent 100%);"></div>
+
 <div class="header">
   <div class="title">GALACTIC ZERO</div>
   <div class="score-bar">
@@ -387,15 +411,64 @@ body {
     <span class="score-a" id="scoreA">0</span>
     <span class="score-lbl" id="linesLbl">| LINES: 0/10</span>
     <div class="turn-tag player" id="turnTag">YOUR TURN</div>
+    <div id="totalScore" style="font-size:11px;letter-spacing:2px;display:flex;gap:16px;align-items:center;font-family:'Courier New',monospace;">
+      <span id="totalP" style="color:#00ffcc;font-size:14px;font-weight:bold;">YOU: 0/10 lines</span>
+      <span style="color:#333">vs</span>
+      <span id="totalA" style="color:#ff0080;font-size:14px;font-weight:bold;">AI: 0/10 lines</span>
+    </div>
   </div>
-  <button onclick="goToMenu()" style="
-    background:#000000aa;border:1px solid #334;color:#668;
-    font-family:inherit;font-size:9px;letter-spacing:3px;
-    padding:5px 14px;cursor:pointer;border-radius:3px;transition:all 0.2s;
-  " onmouseenter="this.style.borderColor='#8855ff';this.style.color='#aa88ff'"
-     onmouseleave="this.style.borderColor='#334';this.style.color='#668'">
-    &#x2190; MENU
-  </button>
+  <!-- Hamburger menu button -->
+  <div onclick="toggleMenu()" style="
+    background:#000000aa;border:1px solid #8855ff44;color:#aa88ff;
+    font-size:18px;width:36px;height:30px;cursor:pointer;border-radius:3px;
+    display:flex;align-items:center;justify-content:center;transition:all 0.2s;
+  " title="Menu">☰</div>
+
+  <!-- Dropdown menu -->
+  <div id="gameMenu" style="
+    display:none;position:fixed;top:44px;right:16px;z-index:500;
+    background:#09090fee;border:1px solid #8855ff44;border-radius:6px;
+    padding:12px;min-width:200px;font-family:'Courier New',monospace;
+    box-shadow:0 8px 32px #00000088;
+  ">
+    <div style="font-size:9px;letter-spacing:3px;color:#554477;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid #1a1428;">MENU</div>
+
+    <!-- Volume -->
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+      <span style="font-size:9px;color:#888;letter-spacing:1px;white-space:nowrap;">🔊 VOL</span>
+      <input id="volSlider2" type="range" min="0" max="100" value="40"
+        oninput="setVolume(this.value)"
+        style="flex:1;accent-color:#8855ff;cursor:pointer;">
+    </div>
+
+    <!-- Menu buttons -->
+    <div style="display:flex;flex-direction:column;gap:6px;">
+      <button onclick="toggleGameMusic();updateMuteLabel()" id="muteMenuBtn" style="
+        background:transparent;border:1px solid #2a1a44;color:#7755aa;
+        font-family:inherit;font-size:9px;letter-spacing:2px;padding:7px 12px;
+        cursor:pointer;border-radius:3px;text-align:left;transition:all 0.2s;
+      " onmouseenter="this.style.borderColor='#8855ff';this.style.color='#cc99ff'"
+         onmouseleave="this.style.borderColor='#2a1a44';this.style.color='#7755aa'">
+        🔊 MUTE / UNMUTE
+      </button>
+      <button onclick="initGame();closeMenu()" style="
+        background:transparent;border:1px solid #2a1a44;color:#7755aa;
+        font-family:inherit;font-size:9px;letter-spacing:2px;padding:7px 12px;
+        cursor:pointer;border-radius:3px;text-align:left;transition:all 0.2s;
+      " onmouseenter="this.style.borderColor='#00ffcc44';this.style.color='#00ffcc'"
+         onmouseleave="this.style.borderColor='#2a1a44';this.style.color='#7755aa'">
+        ↺ RESTART GAME
+      </button>
+      <button onclick="goToMenu()" style="
+        background:transparent;border:1px solid #2a1a44;color:#7755aa;
+        font-family:inherit;font-size:9px;letter-spacing:2px;padding:7px 12px;
+        cursor:pointer;border-radius:3px;text-align:left;transition:all 0.2s;
+      " onmouseenter="this.style.borderColor='#8855ff44';this.style.color='#aa88ff'"
+         onmouseleave="this.style.borderColor='#2a1a44';this.style.color='#7755aa'">
+        ← CHANGE DECK
+      </button>
+    </div>
+  </div>
 </div>
 
 <div class="ai-area">
@@ -512,11 +585,16 @@ function initRaceTheme() {
   const player = RACE_DATA[raceId]   || RACE_DATA.terran;
   const ai     = RACE_DATA[aiRaceId] || RACE_DATA.entropy;
 
-  // Apply lore backgrounds directly to the deck/hand bars
-  const aiBar     = document.querySelector('.ai-area');
+  // Apply lore backgrounds to fixed full-screen top/bottom divs
+  const topBg = document.getElementById('game-top-bg');
+  const botBg = document.getElementById('game-bottom-bg');
+  if (topBg) { topBg.style.backgroundImage = `url('${ai.loreBg}')`; topBg.style.opacity = '0.75'; }
+  if (botBg) { botBg.style.backgroundImage = `url('${player.loreBg}')`; botBg.style.opacity = '0.75'; }
+  // Remove background from ai-area and player-area
+  const aiBar = document.querySelector('.ai-area');
   const playerBar = document.querySelector('.player-area');
-  if (aiBar)     aiBar.style.backgroundImage     = `url('${ai.loreBg}')`;
-  if (playerBar) playerBar.style.backgroundImage = `url('${player.loreBg}')`;
+  if (aiBar) aiBar.style.backgroundImage = '';
+  if (playerBar) playerBar.style.backgroundImage = '';
 
   // Update player color throughout
   const pColor = player.color;
@@ -540,20 +618,24 @@ function initRaceTheme() {
   return { player, ai, raceId, aiRaceId };
 }
 
-// ── CARD DEFINITIONS ──────────────────────────
+// ── CARD DEFINITIONS — TERRAN ACCORD (starter deck) ───────────────
 const PLAYER_CARDS = [
-  { id:'p1',  name:'LANCE',   tier:'I',   edges:{n:5,s:3,e:6,w:4}, power:2, ability:null,            abilityText:'Basic card' },
-  { id:'p2',  name:'LANCE',   tier:'I',   edges:{n:4,s:4,e:5,w:3}, power:2, ability:null,            abilityText:'Basic card' },
-  { id:'p3',  name:'LANCE',   tier:'I',   edges:{n:5,s:4,e:4,w:5}, power:2, ability:null,            abilityText:'Basic card' },
-  { id:'p4',  name:'WALL',    tier:'I',   edges:{n:6,s:6,e:2,w:2}, power:1, ability:'shield',        abilityText:'SHIELD: Ignores first comparison loss' },
-  { id:'p5',  name:'GHOST',   tier:'I',   edges:{n:3,s:4,e:5,w:4}, power:1, ability:'phantom',       abilityText:'PHANTOM: Place anywhere in rows 3-4' },
-  { id:'p6',  name:'BREAKER', tier:'I',   edges:{n:4,s:3,e:6,w:5}, power:2, ability:'double_strike', abilityText:'DOUBLE STRIKE: Comparison reaches 2 deep' },
-  { id:'p7',  name:'SPIKE',   tier:'I',   edges:{n:5,s:4,e:4,w:6}, power:2, ability:null,            abilityText:'Basic card' },
-  { id:'p8',  name:'DAGGER',  tier:'I',   edges:{n:3,s:5,e:6,w:4}, power:2, ability:null,            abilityText:'Basic card' },
-  { id:'p9',  name:'GUARD',   tier:'I',   edges:{n:6,s:5,e:3,w:3}, power:1, ability:null,            abilityText:'Basic card' },
-  { id:'p10', name:'BLADE',   tier:'II',  edges:{n:7,s:6,e:8,w:7}, power:4, ability:'chain',         abilityText:'CHAIN: Win flashes cascade to next cell' },
-  { id:'p11', name:'STRIKER', tier:'II',  edges:{n:6,s:7,e:7,w:6}, power:4, ability:null,            abilityText:'High-power Tier II' },
-  { id:'p12', name:'BULWARK', tier:'II',  edges:{n:8,s:5,e:6,w:7}, power:3, ability:null,            abilityText:'High-power Tier II' },
+  // T1 — COLONY WORLD (5 cards, 3 share art)
+  { id:'ta_t1a', name:'COLONY WORLD',  tier:'I',  tierLabel:'COLONY WORLD', edges:{n:4,s:5,e:5,w:4}, power:1, ability:null,            abilityText:'Basic Colony World', art:'assets/cards/terran/colony-world.png' },
+  { id:'ta_t1b', name:'COLONY WORLD',  tier:'I',  tierLabel:'COLONY WORLD', edges:{n:5,s:4,e:4,w:5}, power:1, ability:null,            abilityText:'Basic Colony World', art:'assets/cards/terran/colony-world.png' },
+  { id:'ta_t1c', name:'COLONY WORLD',  tier:'I',  tierLabel:'COLONY WORLD', edges:{n:5,s:5,e:4,w:4}, power:1, ability:null,            abilityText:'Basic Colony World', art:'assets/cards/terran/colony-world.png' },
+  { id:'ta_t1d', name:'FRONTIER POST', tier:'I',  tierLabel:'COLONY WORLD', edges:{n:6,s:5,e:4,w:4}, power:1, ability:'shield',        abilityText:'SHIELD: Ignores first comparison loss', art:'assets/cards/terran/frontier-post.png' },
+  { id:'ta_t1e', name:'SUPPLY HUB',    tier:'I',  tierLabel:'COLONY WORLD', edges:{n:5,s:5,e:5,w:5}, power:2, ability:'boost',         abilityText:'BOOST: Adjacent friendly cards +1 all edges', art:'assets/cards/terran/supply-hub.png' },
+  // T2 — BATTLE GROUP (3 cards)
+  { id:'ta_t2a', name:'BATTLE GROUP',  tier:'II', tierLabel:'BATTLE GROUP', edges:{n:6,s:5,e:7,w:5}, power:3, ability:'commander',     abilityText:'COMMANDER: Same-tier adjacents +2 all edges', art:'assets/cards/terran/battle-group.png' },
+  { id:'ta_t2b', name:'CARRIER WING',  tier:'II', tierLabel:'BATTLE GROUP', edges:{n:7,s:5,e:6,w:5}, power:3, ability:'boost',         abilityText:'BOOST: Adjacent friendly cards +1 all edges', art:'assets/cards/terran/carrier-wing.png' },
+  { id:'ta_t2c', name:'STRIKE FORCE',  tier:'II', tierLabel:'BATTLE GROUP', edges:{n:6,s:6,e:7,w:5}, power:2, ability:'double_strike', abilityText:'DOUBLE STRIKE: Comparison reaches 2 deep', art:'assets/cards/terran/strike-force.png' },
+  // T3 — STRIKE CRAFT (3 cards)
+  { id:'ta_t3a', name:'INTERCEPTOR',   tier:'III',tierLabel:'STRIKE CRAFT', edges:{n:8,s:3,e:7,w:4}, power:3, ability:'double_strike', abilityText:'DOUBLE STRIKE: Comparison reaches 2 deep', art:'assets/cards/terran/interceptor.png' },
+  { id:'ta_t3b', name:'FAST RUNNER',   tier:'III',tierLabel:'STRIKE CRAFT', edges:{n:7,s:3,e:8,w:4}, power:2, ability:'surge',         abilityText:'SURGE: Losing rows? +3 to all edges', art:'assets/cards/terran/fast-runner.png' },
+  { id:'ta_t3c', name:'FLANKER',       tier:'III',tierLabel:'STRIKE CRAFT', edges:{n:7,s:3,e:7,w:4}, power:2, ability:'pierce',        abilityText:'PIERCE: Ties count as wins', art:'assets/cards/terran/flanker.png' },
+  // T4 — DREADNAUGHT (1 card)
+  { id:'ta_t4',  name:'THE ACCORD',    tier:'IV', tierLabel:'DREADNAUGHT',  edges:{n:8,s:8,e:8,w:7}, power:4, ability:'chain',         abilityText:'CHAIN: Wins cascade to adjacent enemies', art:'assets/cards/terran/the-accord.png' },
 ];
 const AI_CARDS = [
   { id:'a1',  name:'FANG',    tier:'I',   edges:{n:3,s:5,e:4,w:5}, power:2, ability:null,            abilityText:'Basic card' },
@@ -693,6 +775,9 @@ function renderGrid() {
 
       if (cell.card) {
         div.classList.add(cell.owner);
+        div.style.backgroundImage = `url('${cell.card.art || ''}')`;
+        div.style.backgroundSize = 'cover';
+        div.style.backgroundPosition = 'center';
         const col = cell.owner === 'player' ? '#00ffcc' : '#ff0080';
         const bat = cell.battle || { h: 'none', v: 'none' };
 
@@ -775,6 +860,12 @@ function renderBattleIndicators(el) {
 
 function renderScoreBadges() {
   const s = computeScores();
+
+  // Update total score display
+  const tP = document.getElementById('totalP');
+  const tA = document.getElementById('totalA');
+  if (tP) tP.textContent = `YOU: ${s.pWins}/10 lines`;
+  if (tA) tA.textContent = `AI: ${s.aWins}/10 lines`;
 
   // ROW score badges — show both totals + winner
   const rowEl = document.getElementById('rowScores');
@@ -862,17 +953,21 @@ function renderHand() {
     const isUsed = card.used;
     div.className = 'hand-card' + (isUsed ? ' used' : '') + (isSelected ? ' selected' : '');
 
+    // Set card art as background
+    if (card.art) div.style.backgroundImage = `url('${card.art}')`;
+
+    const col = '#00ffcc';
     div.innerHTML = `
-      <span class="hc-e-n">${card.edges.n}</span>
-      <span class="hc-e-s">${card.edges.s}</span>
-      <span class="hc-e-w">${card.edges.w}</span>
-      <span class="hc-e-e">${card.edges.e}</span>
-      <span class="hc-tier-badge">${card.tier}</span>
+      <span class="hc-e-n" style="color:${col}">${card.edges.n}</span>
+      <span class="hc-e-s" style="color:${col}">${card.edges.s}</span>
+      <span class="hc-e-w" style="color:${col}">${card.edges.w}</span>
+      <span class="hc-e-e" style="color:${col}">${card.edges.e}</span>
+      <span class="hc-tier-badge" style="color:${col}">${card.tierLabel || card.tier}</span>
       <div class="hc-center">
-        <span class="hc-power-center">${card.power}</span>
-        <span class="hc-name-small">${card.name}</span>
+        <span class="hc-power-center" style="color:${col}">${card.power}</span>
+        <span class="hc-name-small" style="color:${col}">${card.name}</span>
       </div>
-      ${card.ability ? `<span class="hc-ability-tag">${ab(card.ability)}</span>` : ''}
+      ${card.ability ? `<span class="hc-ability-tag" style="color:${col}">${ab(card.ability)}</span>` : ''}
     `;
 
     if (!isUsed) {
@@ -1019,6 +1114,12 @@ function doComparisons(r, c, owner, card, depth=0) {
   }
 }
 
+// ── NO-VALID-MOVES PASS RULE ──────────────────
+function hasAnyMoves(owner) {
+  const hand = owner === 'player' ? G.playerHand : G.aiHand;
+  return hand.filter(c => !c.used).some(card => getValidPlacements(owner, card).length > 0);
+}
+
 // ── PLACE CARD ────────────────────────────────
 function playCardSfx() {
   const sfx = document.getElementById('cardSfx');
@@ -1030,7 +1131,15 @@ function playCardSfx() {
 function placeCard(card, r, c, owner) {
   G.grid[r][c] = { card, owner };   // owner NEVER changes after this
   card.used = true;
-  if (owner === 'player') playCardSfx();
+  // Play card placement sound for both players (AI slightly softer + delayed)
+  if (owner === 'player') {
+    playCardSfx();
+  } else {
+    setTimeout(() => {
+      const sfx = document.getElementById('cardSfx');
+      if (sfx) { sfx.currentTime = 0; sfx.volume = 0.35; sfx.play().catch(()=>{}); }
+    }, 400);
+  }
   addLog(owner==='player'?'player':'ai',
     `${owner==='player'?'YOU':'AI'} place ${card.name}[${card.tier}] at [${r},${c}]`);
 
@@ -1071,8 +1180,16 @@ function aiTurn() {
   }
 
   if (bestCard && bestR >= 0) placeCard(bestCard, bestR, bestC, 'ai');
+  if (G.gameOver) return;
   G.turn = 'player';
   renderScoreHeader();
+
+  if (!hasAnyMoves('player')) {
+    G.turn = 'ai';
+    addLog('system', 'You have no moves -- AI goes again');
+    setTimeout(aiTurn, 1200);
+    return;
+  }
 }
 
 // ── WIN CHECK ─────────────────────────────────
@@ -1162,6 +1279,15 @@ function onCellClick(r, c) {
   document.body.style.cursor = 'default';
   G.turn = 'ai';
   renderScoreHeader();
+
+  if (G.gameOver) return;
+
+  if (!hasAnyMoves('ai')) {
+    G.turn = 'player';
+    addLog('system', 'AI has no moves -- your turn again');
+    renderScoreHeader();
+    return;
+  }
 
   if (!G.aiHand.every(c=>c.used))
     setTimeout(aiTurn, 1200);
@@ -1262,7 +1388,34 @@ function startGameMusic() {
 function setVolume(val) {
   const audio = document.getElementById('bgTrack');
   if (audio) audio.volume = val / 100;
+  // Sync both sliders
+  const s1 = document.getElementById('volSlider');
+  const s2 = document.getElementById('volSlider2');
+  if (s1) s1.value = val;
+  if (s2) s2.value = val;
 }
+
+function toggleMenu() {
+  const m = document.getElementById('gameMenu');
+  if (m) m.style.display = m.style.display === 'none' ? 'block' : 'none';
+}
+function closeMenu() {
+  const m = document.getElementById('gameMenu');
+  if (m) m.style.display = 'none';
+}
+function updateMuteLabel() {
+  const btn = document.getElementById('muteMenuBtn');
+  if (btn) btn.textContent = musicMuted ? '🔇 UNMUTE' : '🔊 MUTE';
+}
+// Close menu when clicking outside
+document.addEventListener('click', e => {
+  const menu = document.getElementById('gameMenu');
+  if (menu && menu.style.display !== 'none') {
+    if (!e.target.closest('#gameMenu') && !e.target.closest('[onclick*="toggleMenu"]')) {
+      closeMenu();
+    }
+  }
+});
 
 function goToMenu() {
   // Navigate back to deck select screen
