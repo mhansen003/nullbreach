@@ -213,6 +213,9 @@ body {
 /* ── CONVEYOR BELT ── */
 .conveyor-section {
   position: relative; flex-shrink: 0; z-index: 20;
+  border-top: 1px solid #8855ff33;
+  border-bottom: 1px solid #8855ff33;
+  background: linear-gradient(to bottom, #020208aa, transparent 20%, transparent 80%, #020208aa);
 }
 .conveyor-wrap {
   width: 100%;
@@ -667,24 +670,36 @@ const ABILITY_DESC = {
 let selectedRace = null;
 
 // ── CONVEYOR — JS-based infinite loop ─────────────────
-const TILE_PITCH   = 240 + 22; // card width + gap
-const TILE_COUNT   = 11;       // unique races
-const CV_LOOP_PX   = TILE_COUNT * TILE_PITCH; // exact loop length
-const AUTO_SPEED   = 1.4;      // pixels/frame auto-scroll
+const TILE_COUNT   = 11;
+const AUTO_SPEED   = 1.4;
 
 let cvPos          = 0;
 let cvSpeed        = AUTO_SPEED;
-let cvHoverPaused  = false;  // paused by hover
-let cvWheeling     = false;  // wheel overrides hover pause
+let cvHoverPaused  = false;
+let cvWheeling     = false;
 let cvWheelTimer   = null;
+let CV_LOOP_PX     = 0; // measured from DOM after tiles render — avoids padding mismatch
+
+function measureLoopWidth() {
+  const track = document.getElementById('conveyorTrack');
+  if (!track) return;
+  const tiles = track.querySelectorAll('.race-tile');
+  if (tiles.length < TILE_COUNT + 1) return;
+  // Exact distance from tile[0] left edge to tile[TILE_COUNT] left edge
+  const a = tiles[0].getBoundingClientRect().left;
+  const b = tiles[TILE_COUNT].getBoundingClientRect().left;
+  CV_LOOP_PX = Math.abs(b - a);
+}
 
 function runConveyor() {
   const track = document.getElementById('conveyorTrack');
   if (!track) { requestAnimationFrame(runConveyor); return; }
 
-  if (!cvHoverPaused || cvWheeling) {
+  // Try to measure if not yet done
+  if (!CV_LOOP_PX) measureLoopWidth();
+
+  if ((!cvHoverPaused || cvWheeling) && CV_LOOP_PX > 0) {
     cvPos += cvSpeed;
-    // Seamless loop using exact tile pitch (not scrollWidth)
     if (cvPos >= CV_LOOP_PX) cvPos -= CV_LOOP_PX;
     if (cvPos < 0)           cvPos += CV_LOOP_PX;
     track.style.transform = `translateX(${-cvPos}px)`;
@@ -723,7 +738,10 @@ function initConveyorWheel() {
   }
 }
 
-function resetConveyorHalf() {} // kept for compatibility
+function resetConveyorHalf() {
+  // Re-measure loop width once the screen is visible and tiles are laid out
+  setTimeout(measureLoopWidth, 150);
+}
 
 // ── BUILD CONVEYOR BELT ────────────────────────────
 function buildRaceGrid() {
