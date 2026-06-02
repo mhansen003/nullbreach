@@ -1243,7 +1243,6 @@ function getValidPlacements(owner, card) {
 
   // Tier placement: T1 = home row ONLY (planets anchor the base)
   //                T2/III/IV = anywhere EXCEPT the home row
-  const homeRow = owner === 'player' ? 4 : 0;
   let minAllowed, maxAllowed;
   if (card.tier === 'I') {
     // T1 only in home row
