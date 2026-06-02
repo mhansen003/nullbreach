@@ -460,7 +460,7 @@ body {
 // ── RACE DATA ─────────────────────────────────────
 const RACES = [
   {
-    id: 'terran', cover: 'assets/deck_terran.png',
+    id: 'terran', cover: 'assets/deck_terran.png', loreBg: 'assets/lore_terran.png',
     name: 'THE TERRAN ACCORD', sub: 'UNITED COLONIAL FEDERATION',
     color: '#7ab8e8', avatar: '★', starter: true,
     quote: '"We are many worlds, one purpose."',
@@ -471,7 +471,7 @@ const RACES = [
     counter: 'Lithos high-edge walls absorb their standard attacks. Veil phase abilities bypass formation tactics.'
   },
   {
-    id: 'crystallis', cover: 'assets/deck_crystallis.png',
+    id: 'crystallis', cover: 'assets/deck_crystallis.png', loreBg: 'assets/lore_crystallis.png',
     name: 'THE CRYSTALLIS', sub: 'SILICON LATTICE CIVILIZATION',
     color: '#a8d8ff', avatar: '💎',
     quote: '"You will fracture against us."',
@@ -482,7 +482,7 @@ const RACES = [
     counter: 'Drain and Sunder permanently reduce their edge values. Mycos corrosive spread erodes even IMMOVABLE nodes.'
   },
   {
-    id: 'mycos', cover: 'assets/deck_mycos.png',
+    id: 'mycos', cover: 'assets/deck_mycos.png', loreBg: 'assets/lore_mycos.png',
     name: 'THE MYCOS DRIFT', sub: 'DISTRIBUTED FUNGAL INTELLIGENCE',
     color: '#9dcf6e', avatar: '🍄',
     quote: '"We have already begun."',
@@ -493,7 +493,7 @@ const RACES = [
     counter: 'Rush strategies strike before Corrosive spreads. Ward cards resist their ability-based corrosion.'
   },
   {
-    id: 'veil', cover: 'assets/deck_veil.png',
+    id: 'veil', cover: 'assets/deck_veil.png', loreBg: 'assets/lore_veil.png',
     name: 'THE VEIL', sub: 'COHERENT LIGHT ENTITIES',
     color: '#fff5a0', avatar: '✦',
     quote: '"You cannot strike what you cannot see."',
@@ -504,7 +504,7 @@ const RACES = [
     counter: 'Fortress and Immovable cards cannot be phased away. Predictable decks make Adaptive abilities weaker.'
   },
   {
-    id: 'entropy', cover: 'assets/deck_entropy.png',
+    id: 'entropy', cover: 'assets/deck_entropy.png', loreBg: 'assets/lore_entropy.png',
     name: 'THE ENTROPY CULT', sub: 'ANCIENT DECAY WORSHIPPERS',
     color: '#c4723a', avatar: '☄',
     quote: '"Everything ends. We simply hasten it."',
@@ -515,7 +515,7 @@ const RACES = [
     counter: 'Ward and Immovable abilities resist Drain and Sunder. Quantum Wildcard randomness counters their deterministic decay.'
   },
   {
-    id: 'brood', cover: 'assets/deck_brood.png',
+    id: 'brood', cover: 'assets/deck_brood.png', loreBg: 'assets/lore_brood.png',
     name: 'THE BROOD SOVEREIGN', sub: 'INSECTOID HIVE-MIND',
     color: '#88cc44', avatar: '🪲',
     quote: '"The Sovereign sees through ten thousand eyes."',
@@ -526,7 +526,7 @@ const RACES = [
     counter: "Isolate their clusters before they mass. The Sovereign's COMMANDER bonuses require adjacency."
   },
   {
-    id: 'void', cover: 'assets/deck_void.png',
+    id: 'void', cover: 'assets/deck_void.png', loreBg: 'assets/lore_void.png',
     name: 'THE VOID HUNTERS', sub: 'DARK MATTER PREDATORS',
     color: '#9b59b6', avatar: '▪',
     quote: '"We come from the dark between stars."',
@@ -537,7 +537,7 @@ const RACES = [
     counter: 'High defensive edge values (Lithos, Crystallis) absorb their strikes. Shield abilities block their critical first comparisons.'
   },
   {
-    id: 'gas', cover: 'assets/deck_gas.png',
+    id: 'gas', cover: 'assets/deck_gas.png', loreBg: 'assets/lore_gas.png',
     name: 'THE GAS NOMADS', sub: 'PLASMA STORM BEINGS',
     color: '#ffd700', avatar: '⚡',
     quote: '"You have angered the storm."',
@@ -548,7 +548,7 @@ const RACES = [
     counter: "Strike early before Berserk stacks accumulate. Spread cards to avoid triggering Last Stand bonuses."
   },
   {
-    id: 'lithos', cover: 'assets/deck_lithos.png',
+    id: 'lithos', cover: 'assets/deck_lithos.png', loreBg: 'assets/lore_lithos.png',
     name: 'THE LITHOS', sub: 'GEOLOGICAL ANCIENTS',
     color: '#a0896a', avatar: '⬡',
     quote: '"We were here before your stars ignited."',
@@ -559,7 +559,7 @@ const RACES = [
     counter: 'Corrosive and Sunder abilities permanently reduce even Immovable edge values. Momentum scoring outpaces their slow power accumulation.'
   },
   {
-    id: 'quantum', cover: 'assets/deck_quantum.png',
+    id: 'quantum', cover: 'assets/deck_quantum.png', loreBg: 'assets/lore_quantum.png',
     name: 'THE QUANTUM THREAD', sub: 'SUPERPOSITION ENTITIES',
     color: '#ff69b4', avatar: '◈',
     quote: '"We are all possibilities at once."',
@@ -570,7 +570,7 @@ const RACES = [
     counter: 'Consistent, predictable decks make Adaptive weaker. Fortress cards resist their phase and displacement attacks.'
   },
   {
-    id: 'choir', cover: 'assets/deck_choir.png',
+    id: 'choir', cover: 'assets/deck_choir.png', loreBg: 'assets/lore_choir.png',
     name: 'THE CHOIR', sub: 'RESONANT FREQUENCY ENTITIES',
     color: '#c8c8ff', avatar: '〜',
     quote: '"The note that breaks everything."',
@@ -645,11 +645,11 @@ function selectRace(race, tileEl) {
   tileEl.style.borderColor = race.color;
   tileEl.style.boxShadow = `0 12px 50px ${race.color}66, 0 0 80px ${race.color}33`;
 
-  // Background image
+  // Use lore background image (atmospheric environment) for full-screen bg
   const bg = document.getElementById('race-bg');
   const ov = document.getElementById('race-bg-overlay');
-  bg.style.backgroundImage = `url('${race.cover}')`;
-  bg.style.opacity = '0.6';
+  bg.style.backgroundImage = `url('${race.loreBg || race.cover}')`;
+  bg.style.opacity = '0.65';
   ov.style.opacity = '1';
 
   // Update lore panel
