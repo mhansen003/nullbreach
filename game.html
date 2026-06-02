@@ -185,7 +185,7 @@ body {
 /* GRID */
 .grid {
   display: grid;
-  grid-template-columns: repeat(6, 108px);
+  grid-template-columns: repeat(7, 108px);
   grid-template-rows: repeat(5, 144px);
   gap: 6px;
   position: relative;
@@ -462,47 +462,47 @@ body {
     display:flex;align-items:center;justify-content:center;transition:all 0.2s;
   " title="Menu">☰</div>
 
-  <!-- Dropdown menu -->
+  <!-- Dropdown menu — solid background, bright readable text -->
   <div id="gameMenu" style="
-    display:none;position:fixed;top:44px;right:16px;z-index:500;
-    background:#09090fee;border:1px solid #8855ff44;border-radius:6px;
-    padding:12px;min-width:200px;font-family:'Courier New',monospace;
-    box-shadow:0 8px 32px #00000088;
+    display:none;position:fixed;top:44px;right:16px;z-index:9999;
+    background:#0a0a18;border:1px solid #8855ffaa;border-radius:6px;
+    padding:14px;min-width:220px;font-family:'Courier New',monospace;
+    box-shadow:0 8px 40px #000000cc, 0 0 20px #8855ff22;
   ">
-    <div style="font-size:9px;letter-spacing:3px;color:#554477;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid #1a1428;">MENU</div>
+    <div style="font-size:10px;letter-spacing:3px;color:#aa88ff;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid #2a1a44;">⚙ MENU</div>
 
     <!-- Volume -->
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
-      <span style="font-size:9px;color:#888;letter-spacing:1px;white-space:nowrap;">🔊 VOL</span>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+      <span style="font-size:10px;color:#aaa;letter-spacing:1px;white-space:nowrap;min-width:32px;">🔊</span>
       <input id="volSlider2" type="range" min="0" max="100" value="40"
         oninput="setVolume(this.value)"
         style="flex:1;accent-color:#8855ff;cursor:pointer;">
     </div>
 
-    <!-- Menu buttons -->
-    <div style="display:flex;flex-direction:column;gap:6px;">
+    <!-- Menu buttons — bright white text on dark bg -->
+    <div style="display:flex;flex-direction:column;gap:8px;">
       <button onclick="toggleGameMusic();updateMuteLabel()" id="muteMenuBtn" style="
-        background:transparent;border:1px solid #443366;color:#ccaaee;
-        font-family:inherit;font-size:9px;letter-spacing:2px;padding:7px 12px;
-        cursor:pointer;border-radius:3px;text-align:left;transition:all 0.2s;
-      " onmouseenter="this.style.borderColor='#8855ff';this.style.color='#cc99ff'"
-         onmouseleave="this.style.borderColor='#443366';this.style.color='#ccaaee'">
+        background:#1a0a2e;border:1px solid #6644aa;color:#ffffff;
+        font-family:inherit;font-size:11px;letter-spacing:2px;padding:9px 14px;
+        cursor:pointer;border-radius:4px;text-align:left;width:100%;transition:all 0.2s;
+      " onmouseenter="this.style.background='#2a1040';this.style.borderColor='#aa77ff'"
+         onmouseleave="this.style.background='#1a0a2e';this.style.borderColor='#6644aa'">
         🔊 MUTE / UNMUTE
       </button>
       <button onclick="initGame();closeMenu()" style="
-        background:transparent;border:1px solid #443366;color:#ccaaee;
-        font-family:inherit;font-size:9px;letter-spacing:2px;padding:7px 12px;
-        cursor:pointer;border-radius:3px;text-align:left;transition:all 0.2s;
-      " onmouseenter="this.style.borderColor='#00ffcc44';this.style.color='#00ffcc'"
-         onmouseleave="this.style.borderColor='#443366';this.style.color='#ccaaee'">
+        background:#0a1a14;border:1px solid #226644;color:#ffffff;
+        font-family:inherit;font-size:11px;letter-spacing:2px;padding:9px 14px;
+        cursor:pointer;border-radius:4px;text-align:left;width:100%;transition:all 0.2s;
+      " onmouseenter="this.style.background='#0e2a1e';this.style.borderColor='#00ffcc'"
+         onmouseleave="this.style.background='#0a1a14';this.style.borderColor='#226644'">
         ↺ RESTART GAME
       </button>
-      <button onclick="goToMenu()" style="
-        background:transparent;border:1px solid #443366;color:#ccaaee;
-        font-family:inherit;font-size:9px;letter-spacing:2px;padding:7px 12px;
-        cursor:pointer;border-radius:3px;text-align:left;transition:all 0.2s;
-      " onmouseenter="this.style.borderColor='#8855ff44';this.style.color='#aa88ff'"
-         onmouseleave="this.style.borderColor='#443366';this.style.color='#ccaaee'">
+      <button onclick="goToMenuNow()" style="
+        background:#1a0a2e;border:1px solid #6644aa;color:#ffffff;
+        font-family:inherit;font-size:11px;letter-spacing:2px;padding:9px 14px;
+        cursor:pointer;border-radius:4px;text-align:left;width:100%;transition:all 0.2s;
+      " onmouseenter="this.style.background='#2a1040';this.style.borderColor='#aa77ff'"
+         onmouseleave="this.style.background='#1a0a2e';this.style.borderColor='#6644aa'">
         ← CHANGE DECK
       </button>
     </div>
@@ -760,7 +760,7 @@ let G = {};   // game state shorthand
 function initGame() {
   G = {
     grid: Array(5).fill(null).map(() =>
-      Array(6).fill(null).map(() => ({ card: null, owner: null }))
+      Array(7).fill(null).map(() => ({ card: null, owner: null }))
     ),
     playerHand: PLAYER_CARDS.map(c => ({...c, shieldExpended: false, used: false})),
     aiHand:     AI_CARDS.map(c =>     ({...c, shieldExpended: false, used: false})),
@@ -786,16 +786,16 @@ function initGame() {
 function computeBattleResults() {
   // battle[r][c] = { h: 'win'|'lose'|'tie'|'none', v: 'win'|'lose'|'tie'|'none' }
   const b = Array(5).fill(null).map(() =>
-    Array(6).fill(null).map(() => ({ h: 'none', v: 'none' }))
+    Array(7).fill(null).map(() => ({ h: 'none', v: 'none' }))
   );
 
   for (let r = 0; r < 5; r++) {
-    for (let c = 0; c < 6; c++) {
+    for (let c = 0; c < 7; c++) {
       const cell = G.grid[r][c];
       if (!cell.card) continue;
 
       // H battle: this cell vs East neighbor
-      if (c < 5) {
+      if (c < 6) {
         const east = G.grid[r][c+1];
         if (east.card && east.owner !== cell.owner) {
           // SURGE: +3 if currently losing more rows (uses stored surge state)
@@ -849,14 +849,14 @@ function computeScores() {
   const battles = computeBattleResults();
   // Store on grid for rendering
   for (let r = 0; r < 5; r++)
-    for (let c = 0; c < 6; c++)
+    for (let c = 0; c < 7; c++)
       if (G.grid[r][c].card) G.grid[r][c].battle = battles[r][c];
 
   const rows = Array(5).fill(null).map(() => ({ p:0, a:0 }));
-  const cols = Array(6).fill(null).map(() => ({ p:0, a:0 }));
+  const cols = Array(7).fill(null).map(() => ({ p:0, a:0 }));
 
   for (let r = 0; r < 5; r++) {
-    for (let c = 0; c < 6; c++) {
+    for (let c = 0; c < 7; c++) {
       const cell = G.grid[r][c];
       if (!cell.card) continue;
       const bat = battles[r][c];
@@ -899,7 +899,7 @@ function renderGrid() {
     ? getValidPlacements('player', G.selectedCard) : [];
 
   for (let r = 0; r < 5; r++) {
-    for (let c = 0; c < 6; c++) {
+    for (let c = 0; c < 7; c++) {
       const cell = G.grid[r][c];
       const div  = document.createElement('div');
       div.className = 'cell';
@@ -1001,7 +1001,7 @@ function renderBattleIndicators(el) {
     {dr:1,dc:0,myE:'s',theirE:'n',axis:'v'},
     {dr:0,dc:1,myE:'e',theirE:'w',axis:'h'},
   ];
-  for (let r = 0; r < 5; r++) for (let c = 0; c < 6; c++) {
+  for (let r = 0; r < 5; r++) for (let c = 0; c < 7; c++) {
     const cell = G.grid[r][c];
     if (!cell.card) continue;
     for (const d of pairs) {
@@ -1039,8 +1039,8 @@ function renderScoreBadges() {
   const tA = document.getElementById('totalA');
   const pLabel = window.playerFactionName || 'YOU';
   const aLabel = window.aiFactionName    || 'AI';
-  if (tP) tP.textContent = `${pLabel}: ${s.pWins}/11 lines`;
-  if (tA) tA.textContent = `${aLabel}: ${s.aWins}/11 lines`;
+  if (tP) tP.textContent = `${pLabel}: ${s.pWins}/12 lines`;
+  if (tA) tA.textContent = `${aLabel}: ${s.aWins}/12 lines`;
 
   // ROW score badges — show both totals + winner
   const rowEl = document.getElementById('rowScores');
@@ -1071,10 +1071,10 @@ function renderScoreBadges() {
     rowEl.appendChild(badge);
   }
 
-  // COL score badges — show both totals + winner (6 cols)
+  // COL score badges — show both totals + winner (7 cols)
   const colEl = document.getElementById('colScores');
   colEl.innerHTML = '';
-  for (let c = 0; c < 6; c++) {
+  for (let c = 0; c < 7; c++) {
     const {p,a} = s.cols[c];
     const res = s.colResults[c];
     const badge = document.createElement('div');
@@ -1112,7 +1112,7 @@ function renderScoreHeader() {
   }
   document.getElementById('scoreP').textContent = totalP + 'pt';
   document.getElementById('scoreA').textContent = totalA + 'pt';
-  document.getElementById('linesLbl').textContent = `| LINES WON: ${s.pWins}/11`;
+  document.getElementById('linesLbl').textContent = `| LINES WON: ${s.pWins}/12`;
 
   const tag = document.getElementById('turnTag');
   tag.textContent = G.turn==='player' ? 'YOUR TURN' : 'AI THINKING...';
@@ -1284,7 +1284,7 @@ function getValidPlacements(owner, card) {
     const [minR, maxR] = owner === 'player' ? [3,4] : [0,1];
     const cells = [];
     for (let r = minR; r <= maxR; r++)
-      for (let c = 0; c < 6; c++)
+      for (let c = 0; c < 7; c++)
         if (!G.grid[r][c].card) cells.push({r,c});
     return cells;
   }
@@ -1294,12 +1294,12 @@ function getValidPlacements(owner, card) {
   const set     = new Set();
 
   // Home row is always available
-  for (let c = 0; c < 6; c++)
+  for (let c = 0; c < 7; c++)
     if (!G.grid[homeRow][c].card) set.add(`${homeRow},${c}`);
 
   // Zone expansion from each placed friendly card
   for (let r = 0; r < 5; r++) {
-    for (let c = 0; c < 6; c++) {
+    for (let c = 0; c < 7; c++) {
       const cell = G.grid[r][c];
       if (cell.owner !== owner || !cell.card) continue;
 
@@ -1310,7 +1310,7 @@ function getValidPlacements(owner, card) {
         // Mirror dr for player (forward = up = -1) vs AI (forward = down = +1)
         const nr = r + dr * fwd;
         const nc = c + dc;
-        if (nr >= 0 && nr < 5 && nc >= 0 && nc < 6 && !G.grid[nr][nc].card)
+        if (nr >= 0 && nr < 5 && nc >= 0 && nc < 7 && !G.grid[nr][nc].card)
           set.add(`${nr},${nc}`);
       }
     }
@@ -1341,7 +1341,7 @@ function getZonePreview(r, c, card, owner) {
   const cells = [];
   for (const {dr, dc} of zoneOffsets) {
     const nr = r + dr * fwd, nc = c + dc;
-    if (nr >= 0 && nr < 5 && nc >= 0 && nc < 6 && !G.grid[nr][nc].card)
+    if (nr >= 0 && nr < 5 && nc >= 0 && nc < 7 && !G.grid[nr][nc].card)
       cells.push({r: nr, c: nc});
   }
   return cells;
@@ -1506,9 +1506,9 @@ function aiTurn() {
 // ── WIN CHECK ─────────────────────────────────
 function checkWin() {
   if (G.gameOver) return;
-  // Early win: majority of 30 cells (17+) controlled by one side
+  // Early win: majority of 35 cells (18+) controlled by one side
   let pCells = 0, aCells = 0;
-  for (let r = 0; r < 5; r++) for (let c = 0; c < 6; c++) {
+  for (let r = 0; r < 5; r++) for (let c = 0; c < 7; c++) {
     const cell = G.grid[r][c];
     if (cell.owner === 'player') pCells++;
     else if (cell.owner === 'ai') aCells++;
@@ -1559,7 +1559,7 @@ function checkWin() {
     </div>
     <div class="ob-col">
       <div class="ob-label">TOTAL</div>
-      <div class="ob-val" style="color:#00ffcc">${s.pWins}/11</div>
+      <div class="ob-val" style="color:#00ffcc">${s.pWins}/12</div>
     </div>
   `;
 }
@@ -1834,9 +1834,11 @@ document.addEventListener('click', e => {
 });
 
 function goToMenu() {
-  // Navigate back to deck select screen
+  G.gameOver = true; // allow navigation without beforeunload warning
   window.location.href = 'index.html?screen=deck';
 }
+// Alias used by hamburger menu button
+function goToMenuNow() { closeMenu(); goToMenu(); }
 
 function toggleGameMusic() {
   const audio = document.getElementById('bgTrack');
