@@ -467,14 +467,15 @@ body {
           border:2px solid #ffffff22;
           background:#06050e;
         "></div>
-        <div style="flex:1;">
+        <div style="flex:1;display:flex;flex-direction:column;gap:10px;">
           <div class="ds-race-name" id="loreName">—</div>
           <div class="ds-race-sub" id="loreSub">—</div>
           <div class="ds-race-quote" id="loreQuote">—</div>
+          <div class="ds-abilities-row" id="loreAbilities"></div>
+          <div class="ability-cards-row" id="abilityCards"></div>
         </div>
       </div>
-      <div class="ds-abilities-row" id="loreAbilities"></div>
-      <div class="ability-cards-row" id="abilityCards"></div>
+      <div id="tierCardPreview" style="display:none;flex-direction:row;gap:10px;margin-top:8px;"></div>
       <div class="lore-divider" id="loreDivider"></div>
       <div class="lore-cols">
         <div class="lore-col">
@@ -664,11 +665,11 @@ const RACES = [
 // Ability descriptions for the showcase cards in lore panel
 const ABILITY_DESC = {
   'COMMANDER':     'Adjacent friendly cards of the same tier get +2 to all edges',
-  'BOOST':         'Adjacent friendly cards get +1 to all edges on placement',
-  'SURGE':         'If losing more rows than opponent, this card gets +3 to all edges',
-  'CHAIN':         'On a win, the flipped card re-evaluates its own adjacencies (cascade)',
+  'BOOST':         'Adjacent friendly cards get +1 to all edge values when this card is placed',
+  'SURGE':         'If you are currently losing more rows than your opponent, this card gets +3 to all edges',
+  'CHAIN':         'When this card wins a comparison, the cascade continues to adjacent enemies',
   'DOUBLE STRIKE': 'On a comparison win, also compare one more cell in the same direction',
-  'PIERCE':        'Tie results count as wins for this card',
+  'PIERCE':        'Tie results count as wins for this card — neutrality becomes victory',
   'SWEEP':         'Contests all 4 adjacent cells simultaneously on placement',
   'FLANK':         'Also contests the 4 diagonal neighbors, not just cardinal directions',
   'SIDE SWIPE':    'On placement, reduces adjacent enemy E and W edges by 1 permanently',
@@ -680,7 +681,8 @@ const ABILITY_DESC = {
   'FORTRESS':      'Cannot be compared while 2+ adjacent friendly cards exist',
   'WARD':          'Enemy ability effects cannot target this card',
   'IMMOVABLE':     'Cannot be affected by any ability — only direct edge comparison applies',
-  'PHANTOM':       'No adjacency required — free placement anywhere in your home 2 rows',
+  'SHIELD':        'The first comparison loss is blocked — card survives the initial attack',
+  'PHANTOM':       'Can be placed anywhere in your home 2 rows without adjacency requirements',
   'AMBUSH':        'Placed face-down, edges hidden until an enemy card is placed adjacent',
   'ORACLE':        'Reveal the next 2 cards in the AI\'s play order',
   'WILDCARD':      'Randomly gains one of 5 abilities when placed — unknown until played',
@@ -887,6 +889,41 @@ function selectRace(race, tileEl) {
         <div class="absc-desc">${ABILITY_DESC[a] || '—'}</div>
       </div>
     `).join('');
+
+    // Tier card previews — show one card per tier for this race
+    const tcp = document.getElementById('tierCardPreview');
+    if (tcp) {
+      // Define sample cards per tier per race (only Terran has art currently)
+      const TIER_SAMPLES = {
+        terran: [
+          { tier:'I',   art:'assets/cards/terran/colony-world-a.png', name:'COLONY WORLD',  power:1 },
+          { tier:'II',  art:'assets/cards/terran/battle-group.png',   name:'BATTLE GROUP',  power:3 },
+          { tier:'III', art:'assets/cards/terran/interceptor.png',     name:'INTERCEPTOR',   power:3 },
+          { tier:'IV',  art:'assets/cards/terran/the-accord.png',      name:'THE ACCORD',    power:4 },
+        ],
+      };
+      const samples = TIER_SAMPLES[race.id] || [];
+      if (samples.length > 0) {
+        const TIER_COLORS_LORE = {'I':'#d0d0d0','II':'#44cc66','III':'#4488ff','IV':'#aa44ff'};
+        tcp.innerHTML = samples.map(s => `
+          <div style="
+            width:90px;height:120px;border-radius:5px;
+            background:url('${s.art}') center/cover;
+            border:2px solid ${TIER_COLORS_LORE[s.tier]}88;
+            position:relative;overflow:hidden;flex-shrink:0;
+          ">
+            <div style="position:absolute;bottom:0;left:0;right:0;background:#000000cc;padding:4px 5px;">
+              <div style="font-size:7px;letter-spacing:1px;color:${TIER_COLORS_LORE[s.tier]};">${s.name}</div>
+              <div style="font-size:11px;font-weight:bold;color:${TIER_COLORS_LORE[s.tier]};">${s.power}pt</div>
+            </div>
+            <div style="position:absolute;top:4px;left:4px;font-size:7px;letter-spacing:1px;color:${TIER_COLORS_LORE[s.tier]};font-weight:bold;">${s.tier}</div>
+          </div>
+        `).join('');
+        tcp.style.display = 'flex';
+      } else {
+        tcp.style.display = 'none';
+      }
+    }
 
     const btn = document.getElementById('deployBtn');
     btn.style.cssText = `

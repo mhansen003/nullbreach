@@ -947,6 +947,19 @@ function renderGrid() {
           </div>
           ${cell.card.ability ? `<span class="ability-tag" style="color:${factionCol}88">${ab(cell.card.ability)}</span>` : ''}
         `;
+
+        // Show tooltip on placed board cards (shows card info + buff status)
+        div.onmouseenter = (ev) => {
+          const cardWithBuf = {...cell.card};
+          // Include current edge modifiers in displayed values
+          if (cell.battle) {
+            const hStr = cell.battle.h === 'win' ? '✓ H WIN' : cell.battle.h === 'lose' ? '✗ H LOSE' : cell.battle.h === 'tie' ? '= TIE' : '';
+            const vStr = cell.battle.v === 'win' ? '✓ V WIN' : cell.battle.v === 'lose' ? '✗ V LOSE' : cell.battle.v === 'tie' ? '= TIE' : '';
+            cardWithBuf._battleStatus = `${hStr}  ${vStr}`.trim();
+          }
+          showTip(ev, cardWithBuf);
+        };
+        div.onmouseleave = hideTip;
       } else {
         div.classList.add('empty');
         if (valid.some(v => v.r===r && v.c===c)) {
@@ -1698,7 +1711,8 @@ function showTip(e, card) {
       <div style="font-size:11px;color:#ddd;line-height:1.6;">${card.abilityText}</div>
     </div>
     ` : `<div style="font-size:10px;color:#444;margin-bottom:8px;letter-spacing:1px;">No special ability — pure positioning</div>`}
-    ${card.zone ? buildZoneGrid(card) : ''}
+    ${card._battleStatus ? `<div style="margin-top:6px;font-size:10px;letter-spacing:1px;color:#aaa;">${card._battleStatus}</div>` : ''}
+    ${!card._battleStatus && card.zone ? buildZoneGrid(card) : ''}
   `;
   tt.style.display = 'block';
   // Smart positioning: flip up if tooltip would go off bottom of screen
