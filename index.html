@@ -32,13 +32,12 @@ body {
   position: fixed; inset: 0; z-index: 1;
   background: url('assets/splash.png') center/cover no-repeat;
   opacity: 0.9;
-  /* Slowly rotate the galaxy */
-  animation: galaxySpin 180s linear infinite;
-  transform-origin: center center;
 }
-@keyframes galaxySpin {
-  from { transform: rotate(0deg) scale(1.15); }
-  to   { transform: rotate(360deg) scale(1.15); }
+/* Galaxy video loop — replaces static image once generated */
+#galaxyVideo {
+  position: fixed; inset: 0; z-index: 1;
+  width: 100%; height: 100%; object-fit: cover;
+  opacity: 0.9; display: none;
 }
 .splash-bg-dim {
   position: fixed; inset: 0; z-index: 2;
@@ -302,27 +301,40 @@ body {
 
 .ds-race-name {
   font-family: 'Orbitron', monospace;
-  font-size: 22px; letter-spacing: 3px; font-weight: 700; line-height: 1.1;
-  text-shadow: 0 0 20px currentColor;
+  font-size: 28px; letter-spacing: 3px; font-weight: 700; line-height: 1.1;
+  text-shadow: 0 0 24px currentColor;
 }
-.ds-race-sub { font-size: 11px; letter-spacing: 3px; color: #ffffffcc; margin-top: 2px; }
+.ds-race-sub { font-size: 13px; letter-spacing: 3px; color: #ffffffcc; margin-top: 4px; }
 .ds-race-quote {
-  font-size: 13px; letter-spacing: 0.5px; color: #ffffffdd;
-  font-style: italic; line-height: 1.6; padding-left: 14px;
-  border-left: 3px solid currentColor; margin: 4px 0 4px;
+  font-size: 16px; letter-spacing: 0.5px; color: #ffffffee;
+  font-style: italic; line-height: 1.6; padding-left: 16px;
+  border-left: 3px solid currentColor; margin: 6px 0 6px;
 }
-.ds-abilities-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.ds-abilities-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 4px; }
 .ability-pill {
-  font-size: 9px; letter-spacing: 2px;
-  padding: 5px 12px; border-radius: 2px;
-  border: 1px solid currentColor; opacity: 0.8;
+  font-size: 11px; letter-spacing: 2px;
+  padding: 6px 14px; border-radius: 2px;
+  border: 1px solid currentColor; opacity: 0.85;
 }
-.lore-divider { height: 1px; flex-shrink: 0; opacity: 0.25; }
-.lore-cols { display: flex; gap: 28px; flex: 1; overflow: hidden; }
-.lore-col { flex: 1; display: flex; flex-direction: column; gap: 6px; overflow: hidden; }
-.lore-label { font-size: 10px; letter-spacing: 3px; opacity: 0.7; text-transform: uppercase; }
-.lore-text { font-size: 12px; letter-spacing: 0.2px; color: #ffffffee; line-height: 1.85; }
-.lore-weakness { font-size: 11px; letter-spacing: 0.2px; color: #ffffff99; line-height: 1.8; font-style: italic; }
+
+/* Ability showcase cards */
+.ability-cards-row { display: flex; gap: 10px; flex-shrink: 0; margin: 6px 0 4px; }
+.ability-showcase {
+  flex: 1; min-width: 0;
+  background: #000000aa; border-radius: 5px;
+  border: 1px solid currentColor;
+  padding: 10px 12px; display: flex; flex-direction: column; gap: 4px;
+}
+.absc-title { font-size: 10px; letter-spacing: 2px; font-weight: bold; opacity: 0.9; }
+.absc-desc  { font-size: 10px; letter-spacing: 0.3px; color: #ffffffcc; line-height: 1.5; opacity: 0.8; }
+
+.lore-divider { height: 1px; flex-shrink: 0; opacity: 0.3; }
+/* Single column layout — all lore stacked vertically */
+.lore-cols { display: flex; flex-direction: column; gap: 12px; flex: 1; overflow: hidden; }
+.lore-col { display: flex; flex-direction: column; gap: 5px; }
+.lore-label { font-size: 12px; letter-spacing: 3px; opacity: 0.8; text-transform: uppercase; margin-bottom: 3px; }
+.lore-text { font-size: 16px; letter-spacing: 0.2px; color: #ffffff; line-height: 1.85; }
+.lore-weakness { font-size: 15px; letter-spacing: 0.2px; color: #ffffffbb; line-height: 1.8; font-style: italic; }
 
 .ds-deploy-wrap { padding-top: 8px; display: none; }
 .ds-deploy-wrap.visible { display: block; }
@@ -368,7 +380,12 @@ body {
 <!-- STARFIELD -->
 <canvas id="starfield"></canvas>
 
-<!-- SPLASH BG -->
+<!-- GALAXY VIDEO (replaces static bg once generated) -->
+<video id="galaxyVideo" autoplay loop muted playsinline>
+  <source src="assets/galaxy-loop.mp4" type="video/mp4">
+</video>
+
+<!-- SPLASH BG (static fallback while video generates) -->
 <div class="splash-bg-img" id="splashBg"></div>
 <div class="splash-bg-dim" id="splashDim"></div>
 
@@ -421,6 +438,7 @@ body {
         <div class="ds-race-quote" id="loreQuote">—</div>
       </div>
       <div class="ds-abilities-row" id="loreAbilities"></div>
+      <div class="ability-cards-row" id="abilityCards"></div>
       <div class="lore-divider" id="loreDivider"></div>
       <div class="lore-cols">
         <div class="lore-col">
@@ -430,11 +448,13 @@ body {
         <div class="lore-col">
           <div class="lore-label" id="loreLabel2">HISTORY AT SECTOR GZ-0</div>
           <div class="lore-text" id="loreText2">—</div>
-          <div class="lore-label" id="loreLabel3" style="margin-top:8px">WEAKNESS</div>
+        </div>
+        <div class="lore-col">
+          <div class="lore-label" id="loreLabel3">WEAKNESS</div>
           <div class="lore-weakness" id="loreText3">—</div>
-          <div class="ds-deploy-wrap" id="deployWrap">
-            <button class="btn-deploy" id="deployBtn" onclick="startGame()">DEPLOY FLEET &#x2192;</button>
-          </div>
+        </div>
+        <div class="ds-deploy-wrap" id="deployWrap">
+          <button class="btn-deploy" id="deployBtn" onclick="startGame()">DEPLOY FLEET &#x2192;</button>
         </div>
       </div>
     </div>
@@ -608,16 +628,58 @@ const RACES = [
   },
 ];
 
+// Ability descriptions for the showcase cards in lore panel
+const ABILITY_DESC = {
+  'COMMANDER':     'Adjacent friendly cards of the same tier get +2 to all edges',
+  'BOOST':         'Adjacent friendly cards get +1 to all edges on placement',
+  'SURGE':         'If losing more rows than opponent, this card gets +3 to all edges',
+  'CHAIN':         'On a win, the flipped card re-evaluates its own adjacencies (cascade)',
+  'DOUBLE STRIKE': 'On a comparison win, also compare one more cell in the same direction',
+  'PIERCE':        'Tie results count as wins for this card',
+  'SWEEP':         'Contests all 4 adjacent cells simultaneously on placement',
+  'FLANK':         'Also contests the 4 diagonal neighbors, not just cardinal directions',
+  'SIDE SWIPE':    'On placement, reduces adjacent enemy E and W edges by 1 permanently',
+  'SUNDER':        'On a win, the losing card\'s highest edge drops to 1 permanently',
+  'DRAIN':         'On a win, the losing card\'s best edge reduces by 1 permanently',
+  'CORROSIVE':     'All adjacent enemy cards lose 1 from every edge on placement',
+  'MIRROR':        'When opponent wins a comparison against this card, their attacking edge -2',
+  'REFLECT':       'If beaten by 3+, the attacker\'s edge permanently loses 1',
+  'FORTRESS':      'Cannot be compared while 2+ adjacent friendly cards exist',
+  'WARD':          'Enemy ability effects cannot target this card',
+  'IMMOVABLE':     'Cannot be affected by any ability — only direct edge comparison applies',
+  'PHANTOM':       'No adjacency required — free placement anywhere in your home 2 rows',
+  'AMBUSH':        'Placed face-down, edges hidden until an enemy card is placed adjacent',
+  'ORACLE':        'Reveal the next 2 cards in the AI\'s play order',
+  'WILDCARD':      'Randomly gains one of 5 abilities when placed — unknown until played',
+  'ADAPTIVE':      'This card\'s weakest edge copies the highest adjacent enemy edge',
+  'BERSERK':       'Each comparison loss permanently increases this card\'s edges by +1',
+  'LAST STAND':    'If the only friendly card in its row, gets +4 to all edges',
+  'MOMENTUM':      'Each turn this card stays on board, its score value increases by +1',
+  'RUSH':          'Can be placed adjacent to any enemy card, ignoring territory rules',
+  'SYNERGY':       'Gets +1 to all edges for each adjacent friendly card on placement',
+};
+
 let selectedRace = null;
 
 // ── CONVEYOR SPEED CONTROL ─────────────────────────
-const SPEEDS = [120, 60, 30, 15]; // seconds per full loop
-let speedIdx = 1; // start at 60s
+const SPEEDS = [120, 80, 55, 35, 20, 10]; // seconds per full loop
+let speedIdx = 2; // start at 55s
 
 function shiftSpeed(dir) {
   speedIdx = Math.max(0, Math.min(SPEEDS.length - 1, speedIdx + dir));
   const track = document.getElementById('conveyorTrack');
   if (track) track.style.animationDuration = SPEEDS[speedIdx] + 's';
+}
+
+// Mouse wheel on conveyor = speed up/down
+function initConveyorWheel() {
+  const wrap = document.getElementById('conveyorWrap');
+  if (!wrap) return;
+  wrap.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    // Scroll up (deltaY < 0) = speed up, scroll down = slow down
+    shiftSpeed(e.deltaY < 0 ? 1 : -1);
+  }, { passive: false });
 }
 
 // ── BUILD CONVEYOR BELT ────────────────────────────
@@ -675,7 +737,7 @@ function selectRace(race, tileEl) {
   const bg = document.getElementById('race-bg');
   const ov = document.getElementById('race-bg-overlay');
   bg.style.backgroundImage = `url('${race.loreBg || race.cover}')`;
-  bg.style.opacity = '0.65';
+  bg.style.opacity = '0.88';
   ov.style.opacity = '1';
 
   // Update lore panel
@@ -702,6 +764,15 @@ function selectRace(race, tileEl) {
       `<span class="ability-pill" style="color:${race.color};border-color:${race.color}44">${a}</span>`
     ).join('');
 
+    // Ability showcase cards — show first 3 unique abilities with descriptions
+    const ac = document.getElementById('abilityCards');
+    ac.innerHTML = race.abilities.slice(0, 3).map(a => `
+      <div class="ability-showcase" style="color:${race.color};border-color:${race.color}44;background:${race.color}08">
+        <div class="absc-title">${a}</div>
+        <div class="absc-desc">${ABILITY_DESC[a] || '—'}</div>
+      </div>
+    `).join('');
+
     const btn = document.getElementById('deployBtn');
     btn.style.cssText = `
       background:transparent;font-family:'Orbitron',monospace;font-size:10px;letter-spacing:5px;
@@ -712,6 +783,14 @@ function selectRace(race, tileEl) {
     lc.classList.add('visible');
   }, 60);
 }
+
+// ── GALAXY VIDEO ───────────────────────────────────
+const gv = document.getElementById('galaxyVideo');
+gv.addEventListener('loadeddata', () => {
+  gv.style.display = 'block';
+  document.getElementById('splashBg').style.opacity = '0';
+});
+gv.addEventListener('error', () => { /* fallback to static image */ });
 
 // ── MUSIC ──────────────────────────────────────────
 let musicStarted = false;
@@ -790,12 +869,19 @@ function showSplash() {
 
 function startGame() {
   if (!selectedRace) return;
-  // Transition to game board
-  alert(`Launching as ${selectedRace.name}...\n(Game board integration coming next)`);
+  playClick();
+  // Navigate to game board with selected race parameters
+  const params = new URLSearchParams({
+    race:  selectedRace.id,
+    color: selectedRace.color,
+    name:  selectedRace.name,
+  });
+  window.location.href = `game.html?${params.toString()}`;
 }
 
 // ── INIT ──────────────────────────────────────────
 buildRaceGrid();
+initConveyorWheel();
 </script>
 </body>
 </html>

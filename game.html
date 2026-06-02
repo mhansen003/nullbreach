@@ -335,6 +335,9 @@ body {
 </head>
 <body>
 
+<!-- AUDIO -->
+<audio id="cardSfx" preload="auto"><source src="assets/card-place.mp3" type="audio/mpeg"></audio>
+
 <div class="header">
   <div class="title">NULL//BREACH</div>
   <div class="score-bar">
@@ -845,9 +848,17 @@ function doComparisons(r, c, owner, card, depth=0) {
 }
 
 // ── PLACE CARD ────────────────────────────────
+function playCardSfx() {
+  const sfx = document.getElementById('cardSfx');
+  if (!sfx) return;
+  sfx.currentTime = 0; sfx.volume = 0.7;
+  sfx.play().catch(() => {});
+}
+
 function placeCard(card, r, c, owner) {
   G.grid[r][c] = { card, owner };   // owner NEVER changes after this
   card.used = true;
+  if (owner === 'player') playCardSfx();
   addLog(owner==='player'?'player':'ai',
     `${owner==='player'?'YOU':'AI'} place ${card.name}[${card.tier}] at [${r},${c}]`);
 
