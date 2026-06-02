@@ -32,6 +32,13 @@ body {
   position: fixed; inset: 0; z-index: 1;
   background: url('assets/splash.png') center/cover no-repeat;
   opacity: 0.9;
+  /* Slowly rotate the galaxy */
+  animation: galaxySpin 180s linear infinite;
+  transform-origin: center center;
+}
+@keyframes galaxySpin {
+  from { transform: rotate(0deg) scale(1.15); }
+  to   { transform: rotate(360deg) scale(1.15); }
 }
 .splash-bg-dim {
   position: fixed; inset: 0; z-index: 2;
@@ -342,6 +349,9 @@ body {
 <!-- AUDIO -->
 <audio id="bgMusic" loop preload="auto">
   <source src="assets/void-horizon.mp3" type="audio/mpeg">
+</audio>
+<audio id="clickSfx" preload="auto">
+  <source src="assets/click.mp3" type="audio/mpeg">
 </audio>
 
 <!-- MUTE TOGGLE — top right, always visible -->
@@ -724,8 +734,28 @@ function toggleMute() {
   if (!musicStarted && !muted) startMusic();
 }
 
+// Click sound — plays on every button and card click
+function playClick() {
+  const sfx = document.getElementById('clickSfx');
+  if (!sfx) return;
+  sfx.currentTime = 0;
+  sfx.volume = 0.6;
+  sfx.play().catch(() => {});
+}
+
 // Start music on first ANY interaction with the page
 document.addEventListener('click', () => startMusic(), { once: true });
+
+// Wire click sound to buttons and race tiles (using event delegation)
+document.addEventListener('click', e => {
+  const t = e.target;
+  if (
+    t.closest('button') ||
+    t.closest('.race-tile') ||
+    t.closest('.conveyor-arrow') ||
+    t.closest('#muteBtn')
+  ) playClick();
+});
 
 // ── SCREEN TRANSITIONS ─────────────────────────────
 function showDeckSelect() {
