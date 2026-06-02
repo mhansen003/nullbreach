@@ -696,10 +696,10 @@ function initRaceTheme() {
       : player.avatar;
     pAvEl.style.borderColor = player.color + '88';
   }
-  const pName = document.querySelector('.player-name');
-  const pTitle = document.querySelector('.player-sub');
-  if (pName)  { pName.textContent = player.name; pName.style.color = player.color; }
-  if (pTitle) pTitle.textContent = player.sub;
+  const pNameEl = document.querySelector('.player-name');
+  const pTitleEl = document.querySelector('.player-sub');
+  if (pNameEl)  { pNameEl.textContent = player.name; pNameEl.style.color = player.color; }
+  if (pTitleEl) pTitleEl.textContent = player.sub;
 
   const aiAvEl = document.querySelector('.ai-avatar');
   const aiNmEl = document.querySelector('.ai-name');
@@ -817,10 +817,35 @@ function computeBattleResults() {
       if (c < 5) {
         const east = G.grid[r][c+1];
         if (east.card && east.owner !== cell.owner) {
-          const me = cell.card.edges.e, them = east.card.edges.w;
-          if (me > them)      { b[r][c].h = 'win';  if (b[r][c+1].h !== 'win')  b[r][c+1].h = 'lose'; }
-          else if (me < them) { b[r][c+1].h = 'win'; if (b[r][c].h   !== 'win')  b[r][c].h   = 'lose'; }
-          else                { b[r][c].h = 'tie'; b[r][c+1].h = 'tie'; }
+          // SURGE: +3 if currently losing more rows (uses stored surge state)
+          const surgeBonus = (cell.card.ability === 'surge' && G.surgeTrigger?.[cell.owner]) ? 3 : 0;
+          const me = (cell.card.edges.e + (cell.card.edgeMod?.e || 0) + surgeBonus);
+          const them = (east.card.edges.w + (east.card.edgeMod?.w || 0));
+          // PIERCE: ties go to this card
+          const pierce = cell.card.ability === 'pierce';
+          const pierceThem = east.card.ability === 'pierce';
+          if (me > them || (me === them && pierce && !pierceThem)) {
+            b[r][c].h = 'win';
+            if (b[r][c+1].h !== 'win') b[r][c+1].h = 'lose';
+            // DOUBLE STRIKE: also contest the cell beyond the beaten card
+            if (cell.card.ability === 'double_strike' && c < 4) {
+              const far = G.grid[r][c+2];
+              if (far.card && far.owner !== cell.owner) {
+                const me2 = me, them2 = (far.card.edges.w + (far.card.edgeMod?.w || 0));
+                if (me2 > them2) { if (b[r][c+2].h !== 'win') b[r][c+2].h = 'lose'; }
+              }
+            }
+          } else if (them > me || (me === them && pierceThem && !pierce)) {
+            b[r][c+1].h = 'win';
+            if (b[r][c].h !== 'win') b[r][c].h = 'lose';
+            if (east.card.ability === 'double_strike' && c > 0) {
+              const far = G.grid[r][c-1];
+              if (far.card && far.owner !== east.owner) {
+                const me2 = them, them2 = (far.card.edges.e + (far.card.edgeMod?.e || 0));
+                if (me2 > them2) { if (b[r][c-1].h !== 'win') b[r][c-1].h = 'lose'; }
+              }
+            }
+          } else { b[r][c].h = 'tie'; b[r][c+1].h = 'tie'; }
         }
       }
 
@@ -1382,9 +1407,34 @@ function playCardSfx() {
   sfx.play().catch(() => {});
 }
 
+// Apply ability effects when a card is placed on the board
+function applyPlacementAbility(card, r, c, owner) {
+  const dirs = [{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}];
+  if (card.ability === 'boost' || card.ability === 'commander') {
+    const bonus = card.ability === 'commander' ? 2 : 1;
+    dirs.forEach(({dr,dc}) => {
+      const nr=r+dr, nc=c+dc;
+      if (nr<0||nr>=5||nc<0||nc>=6) return;
+      const nb = G.grid[nr][nc];
+      if (nb.card && nb.owner === owner) {
+        if (card.ability === 'commander' && nb.card.tier !== card.tier) return;
+        nb.card.edgeMod = nb.card.edgeMod || {n:0,s:0,e:0,w:0};
+        nb.card.edgeMod.n += bonus; nb.card.edgeMod.s += bonus;
+        nb.card.edgeMod.e += bonus; nb.card.edgeMod.w += bonus;
+      }
+    });
+  }
+  // Update surge trigger state (used in computeBattleResults)
+  if (!G.surgeTrigger) G.surgeTrigger = {player:false, ai:false};
+  const s = computeScores();
+  G.surgeTrigger.player = s.rowResults.filter(r=>r==='a').length > s.rowResults.filter(r=>r==='p').length;
+  G.surgeTrigger.ai     = s.rowResults.filter(r=>r==='p').length > s.rowResults.filter(r=>r==='a').length;
+}
+
 function placeCard(card, r, c, owner) {
   G.grid[r][c] = { card, owner };   // owner NEVER changes after this
   card.used = true;
+  applyPlacementAbility(card, r, c, owner);
   // Play card placement sound for both players (AI slightly softer + delayed)
   if (owner === 'player') {
     playCardSfx();
@@ -1607,14 +1657,55 @@ function buildZoneGrid(card) {
   return html;
 }
 
+// Ability visual icons and colors for the tooltip
+const ABILITY_ICONS = {
+  double_strike: { icon:'⚡⚡', color:'#ffdd00', label:'DOUBLE STRIKE' },
+  pierce:        { icon:'▶▶',  color:'#ff8844', label:'PIERCE'        },
+  chain:         { icon:'🔗',  color:'#ff44ff', label:'CHAIN'         },
+  boost:         { icon:'⬆',   color:'#44ffcc', label:'BOOST'         },
+  commander:     { icon:'★★',  color:'#ffcc00', label:'COMMANDER'     },
+  surge:         { icon:'⚡+',  color:'#ff6600', label:'SURGE'         },
+  shield:        { icon:'🛡',   color:'#aaaaff', label:'SHIELD'        },
+  sweep:         { icon:'↔↕',  color:'#ff88ff', label:'SWEEP'         },
+  phantom:       { icon:'◈',   color:'#88ffff', label:'PHANTOM'       },
+  drain:         { icon:'▼▼',  color:'#ff4444', label:'DRAIN'         },
+};
+
 function showTip(e, card) {
-  const tt  = document.getElementById('tooltip');
+  const tt      = document.getElementById('tooltip');
   const tierCol = TIER_COLORS[card.tier] || '#888';
+  const abi     = card.ability ? (ABILITY_ICONS[card.ability] || {icon:'✦', color:tierCol, label:card.ability.toUpperCase()}) : null;
+  const mod     = card.edgeMod;
+  const n = card.edges.n + (mod?.n||0), s = card.edges.s + (mod?.s||0);
+  const e_ = card.edges.e + (mod?.e||0), w = card.edges.w + (mod?.w||0);
+
   tt.innerHTML = `
-    <strong style="color:${tierCol}">${card.name}</strong>
-    <span style="color:${tierCol}88;font-size:11px;margin-left:8px;">[${card.tierLabel || card.tier}]</span><br>
-    <div class="tip-edges">N:${card.edges.n} &nbsp; S:${card.edges.s} &nbsp; E:${card.edges.e} &nbsp; W:${card.edges.w} &nbsp;&nbsp; Power: <strong style="color:${tierCol}">${card.power}pt</strong></div>
-    ${card.ability ? `<div class="tip-ability">✦ ${card.abilityText}</div>` : ''}
+    <div style="display:flex;gap:12px;margin-bottom:10px;">
+      ${card.art ? `<img src="${card.art}" style="width:72px;height:96px;object-fit:cover;object-position:center top;border-radius:4px;border:2px solid ${tierCol}55;flex-shrink:0;">` : ''}
+      <div style="flex:1;min-width:0;">
+        <div style="font-family:'Orbitron',monospace;color:${tierCol};font-size:13px;letter-spacing:1px;font-weight:700;line-height:1.2;">${card.name}</div>
+        <div style="color:${tierCol}88;font-size:10px;letter-spacing:2px;margin-bottom:6px;">${card.tierLabel || card.tier}</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:3px;margin-bottom:4px;">
+          <div style="text-align:center;background:#0e0c18;border-radius:3px;padding:3px;"><div style="font-size:8px;color:#555;letter-spacing:1px;">NORTH</div><div style="font-size:16px;font-weight:bold;color:${tierCol}">${n}</div></div>
+          <div style="text-align:center;background:#0e0c18;border-radius:3px;padding:3px;"><div style="font-size:8px;color:#555;letter-spacing:1px;">SOUTH</div><div style="font-size:16px;font-weight:bold;color:${tierCol}">${s}</div></div>
+          <div style="text-align:center;background:#0e0c18;border-radius:3px;padding:3px;"><div style="font-size:8px;color:#555;letter-spacing:1px;">WEST</div><div style="font-size:16px;font-weight:bold;color:${tierCol}">${w}</div></div>
+          <div style="text-align:center;background:#0e0c18;border-radius:3px;padding:3px;"><div style="font-size:8px;color:#555;letter-spacing:1px;">EAST</div><div style="font-size:16px;font-weight:bold;color:${tierCol}">${e_}</div></div>
+        </div>
+        <div style="background:#0e0c18;border-radius:3px;padding:4px 8px;text-align:center;">
+          <span style="font-size:9px;color:#555;letter-spacing:1px;">POWER SCORE</span>
+          <span style="font-size:18px;font-weight:bold;color:${tierCol};margin-left:8px;">${card.power}</span>
+        </div>
+      </div>
+    </div>
+    ${abi ? `
+    <div style="background:${abi.color}18;border:1px solid ${abi.color}44;border-radius:4px;padding:8px 10px;margin-bottom:8px;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+        <span style="font-size:16px;">${abi.icon}</span>
+        <strong style="color:${abi.color};font-size:11px;letter-spacing:2px;">${abi.label}</strong>
+      </div>
+      <div style="font-size:11px;color:#ddd;line-height:1.6;">${card.abilityText}</div>
+    </div>
+    ` : `<div style="font-size:10px;color:#444;margin-bottom:8px;letter-spacing:1px;">No special ability — pure positioning</div>`}
     ${card.zone ? buildZoneGrid(card) : ''}
   `;
   tt.style.display = 'block';
