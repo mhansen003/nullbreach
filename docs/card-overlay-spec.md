@@ -171,5 +171,107 @@ The overlay will fit any art that follows the spec.
 
 ---
 
+## H/V Battle Scoring Mechanic
+
+Each card fights in **two independent directions** every turn:
+
+- **H battle** (horizontal / row) — compares East vs West edges with adjacent enemy cards
+- **V battle** (vertical / column) — compares South vs North edges with adjacent enemy cards
+
+### Rules per direction:
+| Result | Condition | Effect |
+|--------|-----------|--------|
+| **WIN** | My edge > enemy's opposing edge | My power counts toward this row/col score |
+| **LOSE** | My edge < enemy's opposing edge | My power does NOT count (shown as X on that edge) |
+| **TIE** | My edge = enemy's opposing edge | BOTH cards are cancelled — neither power counts (X on both) |
+| **UNCONTESTED** | No enemy adjacent in that direction | Power always counts (no battle on that side) |
+
+### Visual indicators:
+- **WIN direction**: edge value glows bright, contributes to row/col
+- **LOSE direction**: edge value dims with a small `✗` marker
+- **TIE direction**: both edges show `✗`, small horizontal bar between them in gap
+
+### Scoring:
+```
+Row score = sum of power values of cards that WON their H battle (or were uncontested)
+Col score = sum of power values of cards that WON their V battle (or were uncontested)
+```
+
+A card can WIN horizontally and LOSE vertically — it contributes to its row but not its column.
+Placement strategy: place cards where they win BOTH H and V for maximum contribution.
+
+---
+
+## Zone Expansion ("Adjacent Power") Mechanic
+
+### Core Rule:
+- **Home row is always free** — player can always place in row 4 (AI in row 0), no prerequisites
+- **Every other row is LOCKED** unless at least one placed card's zone pattern opens it
+- Standard "adjacent to any friendly card" is replaced by "within a specific card's zone"
+
+This makes placement **restrictive and strategic** — you must plan which zones to open before you need them.
+
+### Zone Patterns:
+
+Each card has a `zone` property that defines the exact cells it opens for future placement. These cells light up in **yellow** when hovering the card over a valid placement.
+
+```
+Player advances UP (row 4→0). Zones shown relative to card position.
+[▲] = direction toward enemy
+```
+
+| Zone type | Pattern | Opens | Strategic use |
+|-----------|---------|-------|--------------|
+| `cross` | `+ shape` | 1 cell in all 4 directions | Balanced — open any direction |
+| `lance` | `↑↑ forward` | 2 cells directly forward | Penetrate deep into enemy territory |
+| `wall` | `←←←↑→→→` | 3 horizontal + 1 forward | Claim a wide row without advancing much |
+| `flanker` | `↖↑↗` | 1 forward + 2 diagonals | Surround and flank |
+| `column` | `↑↑↑` | 3 cells forward in same column | Column domination path |
+| `command` | `↖↑↗ + ↑↑` | 5 cells (wide front advance) | Commanding territorial expansion |
+| `phantom` | `home half` | All cells in own 2 rows | Free placement — no zone needed |
+| `dreadnaught` | `⊕ wide` | 2 cells in all 4 directions | Massive expansion, flagship power |
+
+### Placement Resolution:
+```
+Valid cells for next card = HOME ROW
+  UNION any cells opened by zone of already-placed friendly cards
+```
+
+### Visual (hover to preview):
+- **Green cells**: where the currently selected card CAN be placed RIGHT NOW
+- **Yellow cells**: cells that would become available for FUTURE cards if you place here
+
+This preview lets players visualize their strategic options 1 move ahead.
+
+### Zone on Card Face:
+The influence pattern icon (3×3 mini-grid, bottom-right of card) shows the zone pattern visually.
+Players learn to read the icon and plan accordingly.
+
+### Implementation:
+```javascript
+// Zone definitions per card type
+const ZONES = {
+  cross:       [{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}],
+  lance:       [{dr:-1,dc:0},{dr:-2,dc:0}],
+  wall:        [{dr:-1,dc:0},{dr:0,dc:-1},{dr:0,dc:-2},{dr:0,dc:-3},{dr:0,dc:1},{dr:0,dc:2},{dr:0,dc:3}],
+  flanker:     [{dr:-1,dc:0},{dr:-1,dc:-1},{dr:-1,dc:1}],
+  column:      [{dr:-1,dc:0},{dr:-2,dc:0},{dr:-3,dc:0}],
+  command:     [{dr:-1,dc:-1},{dr:-1,dc:0},{dr:-1,dc:1},{dr:-2,dc:0}],
+  dreadnaught: [{dr:-1,dc:0},{dr:-2,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1},{dr:0,dc:-2},{dr:0,dc:2}],
+};
+// Note: zones are mirrored for AI (dr directions flipped)
+
+function getZoneOpenings(r, c, zoneType, owner) {
+  const dirs = owner === 'player'
+    ? ZONES[zoneType]
+    : ZONES[zoneType].map(d => ({dr: -d.dr, dc: d.dc})); // AI mirrors vertically
+  return dirs
+    .map(d => ({r: r + d.dr, c: c + d.dc}))
+    .filter(p => p.r >= 0 && p.r < 5 && p.c >= 0 && p.c < 5);
+}
+```
+
+---
+
 *Last updated: 2026-06-02*
 *Source: `C:\GitHub\nullbreach\docs\card-overlay-spec.md`*

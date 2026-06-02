@@ -497,18 +497,71 @@ function initGame() {
   addLog('system', 'GAME START -- place from your home row');
 }
 
-// ── SCORING ───────────────────────────────────
-function computeScores() {
-  const rows = Array(5).fill(null).map(() => ({ p:0, a:0 }));
-  const cols = Array(5).fill(null).map(() => ({ p:0, a:0 }));
+// ── H/V BATTLE SCORING ────────────────────────
+// Each card fights in 2 directions independently.
+// WIN   = power counts for that row/col
+// LOSE  = power does NOT count (show ✗)
+// TIE   = both cards cancel, neither counts (show ✗ on both)
+// NONE  = uncontested, always counts
 
-  for (let r = 0; r < 5; r++)
+function computeBattleResults() {
+  // battle[r][c] = { h: 'win'|'lose'|'tie'|'none', v: 'win'|'lose'|'tie'|'none' }
+  const b = Array(5).fill(null).map(() =>
+    Array(5).fill(null).map(() => ({ h: 'none', v: 'none' }))
+  );
+
+  for (let r = 0; r < 5; r++) {
     for (let c = 0; c < 5; c++) {
       const cell = G.grid[r][c];
       if (!cell.card) continue;
-      if (cell.owner === 'player') { rows[r].p += cell.card.power; cols[c].p += cell.card.power; }
-      else                         { rows[r].a += cell.card.power; cols[c].a += cell.card.power; }
+
+      // H battle: this cell vs East neighbor
+      if (c < 4) {
+        const east = G.grid[r][c+1];
+        if (east.card && east.owner !== cell.owner) {
+          const me = cell.card.edges.e, them = east.card.edges.w;
+          if (me > them)      { b[r][c].h = 'win';  if (b[r][c+1].h !== 'win')  b[r][c+1].h = 'lose'; }
+          else if (me < them) { b[r][c+1].h = 'win'; if (b[r][c].h   !== 'win')  b[r][c].h   = 'lose'; }
+          else                { b[r][c].h = 'tie'; b[r][c+1].h = 'tie'; }
+        }
+      }
+
+      // V battle: this cell vs South neighbor
+      if (r < 4) {
+        const south = G.grid[r+1][c];
+        if (south.card && south.owner !== cell.owner) {
+          const me = cell.card.edges.s, them = south.card.edges.n;
+          if (me > them)      { b[r][c].v = 'win';  if (b[r+1][c].v !== 'win')  b[r+1][c].v = 'lose'; }
+          else if (me < them) { b[r+1][c].v = 'win'; if (b[r][c].v   !== 'win')  b[r][c].v   = 'lose'; }
+          else                { b[r][c].v = 'tie'; b[r+1][c].v = 'tie'; }
+        }
+      }
     }
+  }
+  return b;
+}
+
+function computeScores() {
+  const battles = computeBattleResults();
+  // Store on grid for rendering
+  for (let r = 0; r < 5; r++)
+    for (let c = 0; c < 5; c++)
+      if (G.grid[r][c].card) G.grid[r][c].battle = battles[r][c];
+
+  const rows = Array(5).fill(null).map(() => ({ p:0, a:0 }));
+  const cols = Array(5).fill(null).map(() => ({ p:0, a:0 }));
+
+  for (let r = 0; r < 5; r++) {
+    for (let c = 0; c < 5; c++) {
+      const cell = G.grid[r][c];
+      if (!cell.card) continue;
+      const bat = battles[r][c];
+      const countsH = bat.h === 'win' || bat.h === 'none';
+      const countsV = bat.v === 'win' || bat.v === 'none';
+      if (countsH) { if (cell.owner==='player') rows[r].p += cell.card.power; else rows[r].a += cell.card.power; }
+      if (countsV) { if (cell.owner==='player') cols[c].p += cell.card.power; else cols[c].a += cell.card.power; }
+    }
+  }
 
   let pWins = 0, aWins = 0;
   const rowResults = rows.map(r => r.p > r.a ? 'p' : r.a > r.p ? 'a' : 'tie');
@@ -546,14 +599,28 @@ function renderGrid() {
       if (cell.card) {
         div.classList.add(cell.owner);
         const col = cell.owner === 'player' ? '#00ffcc' : '#ff0080';
+        const bat = cell.battle || { h: 'none', v: 'none' };
+
+        // Edge opacity: dim + show X if losing/tied in that direction
+        const hLost = bat.h === 'lose' || bat.h === 'tie';
+        const vLost = bat.v === 'lose' || bat.v === 'tie';
+        const hDim  = hLost ? '33' : 'ff';
+        const vDim  = vLost ? '33' : 'ff';
+        const hMark = hLost ? ' ✗' : '';
+        const vMark = vLost ? ' ✗' : '';
+
+        // Power dims if BOTH directions are lost
+        const bothLost = hLost && vLost;
+        const pwrColor = bothLost ? col + '44' : col;
+
         div.innerHTML = `
-          <span class="edge n" style="color:${col}">${cell.card.edges.n}</span>
-          <span class="edge s" style="color:${col}">${cell.card.edges.s}</span>
-          <span class="edge w" style="color:${col}">${cell.card.edges.w}</span>
-          <span class="edge e" style="color:${col}">${cell.card.edges.e}</span>
+          <span class="edge n" style="color:${col}${vDim}">${cell.card.edges.n}${vMark}</span>
+          <span class="edge s" style="color:${col}${vDim}">${cell.card.edges.s}${vMark}</span>
+          <span class="edge w" style="color:${col}${hDim}">${cell.card.edges.w}${hMark}</span>
+          <span class="edge e" style="color:${col}${hDim}">${cell.card.edges.e}${hMark}</span>
           <span class="tier-badge" style="color:${col}">${cell.card.tier}</span>
           <div class="cell-center">
-            <span class="cell-power" style="color:${col}">${cell.card.power}</span>
+            <span class="cell-power" style="color:${pwrColor}">${cell.card.power}</span>
             <span class="cell-name" style="color:${col}cc">${cell.card.name}</span>
           </div>
           ${cell.card.ability ? `<span class="ability-tag" style="color:${col}55">${ab(cell.card.ability)}</span>` : ''}
