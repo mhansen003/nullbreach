@@ -143,7 +143,7 @@ body {
   margin-top: 4px;
 }
 .col-score-badge {
-  width: 118px; height: 50px;
+  width: 142px; height: 50px;
   border-radius: 3px;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   gap: 2px; font-size: 8px; letter-spacing: 1px;
@@ -185,7 +185,7 @@ body {
 /* GRID */
 .grid {
   display: grid;
-  grid-template-columns: repeat(5, 142px);
+  grid-template-columns: repeat(6, 142px);
   grid-template-rows: repeat(5, 142px);
   gap: 6px;
   position: relative;
@@ -204,6 +204,7 @@ body {
 .cell.empty { background: #0b0b17; border: 1px dashed #1a1a2e; }
 .cell.valid { background: #0e1a10; border: 2px dashed #00ffcc55; cursor: pointer; }
 .cell.valid:hover { background: #0e2214; border-color: #00ffcc; box-shadow: 0 0 16px #00ffcc22; }
+.cell.future-valid { border: 2px dashed #ffdd0077; background: #ffdd0008; }
 .cell.player { background: linear-gradient(145deg, #0a1c16, #08151e); border: 2px solid #00ffcc; box-shadow: 0 0 8px #00ffcc22; }
 .cell.ai     { background: linear-gradient(145deg, #1c0a0a, #150818); border: 2px solid #ff0080; box-shadow: 0 0 8px #ff008022; }
 .cell.just-placed { animation: placePulse 0.35s ease; }
@@ -247,6 +248,7 @@ body {
 .hand-card:hover  { transform: translateY(-8px); }
 .hand-card.selected { transform: translateY(-14px); }
 .hand-card.used   { opacity: 0.18; cursor: default; pointer-events: none; }
+.hand-card.tier-blocked { opacity: 0.35; cursor: not-allowed; filter: grayscale(0.8); pointer-events: none; }
 
 /* Hand card edge labels in cardinal positions */
 .hc-e-n { position: absolute; top: 4px; left: 50%; transform: translateX(-50%); font-size: 14px; font-weight: bold; color: #00ffcc; }
@@ -377,14 +379,34 @@ body {
 }
 .btn-restart:hover { background:#1a3a26; }
 
-/* TOOLTIP */
+/* TOOLTIP — bigger, clearer */
 .tooltip {
   display:none; position:fixed;
-  background:#0e0e1e; border:1px solid #00ffcc44;
-  border-radius:4px; padding:8px 12px;
-  font-size:9px; color:#aaa; letter-spacing:1px; line-height:1.6;
-  z-index:50; pointer-events:none; max-width:170px;
+  background:#07070f; border:1px solid #8855ff44;
+  border-radius:6px; padding:14px 18px;
+  font-size:13px; color:#e0e0e0; letter-spacing:0.5px; line-height:1.8;
+  z-index:50; pointer-events:none; max-width:260px;
+  box-shadow: 0 8px 24px #00000088, 0 0 20px #8855ff22;
 }
+.tooltip strong { font-size:15px; letter-spacing:2px; }
+.tooltip .tip-edges { font-size:12px; color:#888; margin: 4px 0; }
+.tooltip .tip-ability { font-size:12px; color:#aa88ff; margin-top:6px; }
+.tooltip .tip-zone { font-size:11px; color:#888899; margin-top:3px; font-style:italic; }
+
+/* Tier row labels on left side of board */
+.tier-row-labels {
+  display: flex; flex-direction: column; gap: 6px;
+  margin-right: 8px; justify-content: flex-start;
+}
+.tier-row-label {
+  width: 60px; height: 142px;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 4px; border-radius: 4px;
+  background: #06050e; border: 1px solid #1a1428;
+}
+.trl-tier { font-size: 11px; font-weight: bold; letter-spacing: 1px; }
+.trl-min  { font-size: 7px; letter-spacing: 1px; color: #555; }
 </style>
 </head>
 <body>
@@ -481,7 +503,10 @@ body {
 
 <div class="ai-area">
   <div class="ai-portrait">
-    <div class="ai-avatar">&#x26A1;</div>
+    <div style="display:flex;flex-direction:column;align-items:center;">
+      <div class="ai-avatar">&#x26A1;</div>
+      <div class="ai-faction-label" id="aiFactionLabel" style="font-size:8px;letter-spacing:1px;color:#ff008088;text-align:center;margin-top:3px;max-width:96px;"></div>
+    </div>
     <div>
       <div class="ai-name">SENTINEL-4</div>
       <div class="ai-sub">FLOOR 2 BOSS</div>
@@ -512,6 +537,14 @@ body {
       <span class="dir-lbl" style="color:#00ffcc55">&#x25B2; YOU FROM BOTTOM (ROW 4)</span>
     </div>
     <div class="board-and-scores">
+      <!-- TIER ROW LABELS (left of grid) -->
+      <div class="tier-row-labels">
+        <div class="tier-row-label"><span class="trl-tier" style="color:#aa44ff">T3+</span><span class="trl-min">FIGHTER</span></div>
+        <div class="tier-row-label"><span class="trl-tier" style="color:#4488ff">T2+</span><span class="trl-min">FLEET</span></div>
+        <div class="tier-row-label"><span class="trl-tier" style="color:#44cc66">T2+</span><span class="trl-min">FLEET</span></div>
+        <div class="tier-row-label"><span class="trl-tier" style="color:#d0d0d0">T1+</span><span class="trl-min">WORLD</span></div>
+        <div class="tier-row-label"><span class="trl-tier" style="color:#d0d0d0">T1+</span><span class="trl-min">HOME</span></div>
+      </div>
       <!-- GRID -->
       <div>
         <div class="grid" id="grid"></div>
@@ -532,7 +565,10 @@ body {
 
 <div class="player-area">
   <div class="player-portrait">
-    <div class="player-avatar">&#x1F916;</div>
+    <div style="display:flex;flex-direction:column;align-items:center;">
+      <div class="player-avatar">&#x1F916;</div>
+      <div class="player-faction-label" id="playerFactionLabel" style="font-size:8px;letter-spacing:1px;color:#00ffcc88;text-align:center;margin-top:3px;max-width:80px;"></div>
+    </div>
     <div>
       <div class="player-name">NETRUNNER_7</div>
       <div class="player-sub">CLICK CARD &rsaquo; CLICK VALID CELL</div>
@@ -641,16 +677,27 @@ function initRaceTheme() {
   const aiQuoteEl = document.getElementById('aiQuote');
   if (aiQuoteEl) aiQuoteEl.textContent = ai.quote;
 
+  // Store short faction names (first 2 words) for score badge display
+  const playerWords = player.name.replace(/^THE /, '').split(' ');
+  const aiWords     = ai.name.replace(/^THE /, '').split(' ');
+  window.playerFactionName = playerWords.slice(0, 2).join(' ');
+  window.aiFactionName     = aiWords.slice(0, 2).join(' ');
+
+  // Update faction labels below avatars
+  const aiFactionLbl = document.getElementById('aiFactionLabel');
+  const playerFactionLbl = document.getElementById('playerFactionLabel');
+  if (aiFactionLbl) { aiFactionLbl.textContent = window.aiFactionName; aiFactionLbl.style.color = ai.color + '88'; }
+  if (playerFactionLbl) { playerFactionLbl.textContent = window.playerFactionName; playerFactionLbl.style.color = player.color + '88'; }
+
   return { player, ai, raceId, aiRaceId };
 }
 
 // ── CARD DEFINITIONS — TERRAN ACCORD (starter deck) ───────────────
 const PLAYER_CARDS = [
-  // T1 — COLONY WORLD (5 cards, 3 share art)
-  // zone = expansion pattern this card opens for future placements
-  { id:'ta_t1a', name:'COLONY WORLD',  tier:'I',  tierLabel:'COLONY WORLD', zone:'wide_cross',  edges:{n:4,s:5,e:5,w:4}, power:1, ability:null,            abilityText:'Basic Colony World', art:'assets/cards/terran/colony-world.png' },
-  { id:'ta_t1b', name:'COLONY WORLD',  tier:'I',  tierLabel:'COLONY WORLD', zone:'wide_cross',  edges:{n:5,s:4,e:4,w:5}, power:1, ability:null,            abilityText:'Basic Colony World', art:'assets/cards/terran/colony-world.png' },
-  { id:'ta_t1c', name:'COLONY WORLD',  tier:'I',  tierLabel:'COLONY WORLD', zone:'wide_cross',  edges:{n:5,s:5,e:4,w:4}, power:1, ability:null,            abilityText:'Basic Colony World', art:'assets/cards/terran/colony-world.png' },
+  // T1 — COLONY WORLD (5 cards — 3 unique planet art pieces)
+  { id:'ta_t1a', name:'COLONY WORLD A', tier:'I',  tierLabel:'COLONY WORLD', zone:'wide_cross',  edges:{n:4,s:5,e:5,w:4}, power:1, ability:null,            abilityText:'Basic Colony World', art:'assets/cards/terran/colony-world-a.png' },
+  { id:'ta_t1b', name:'COLONY WORLD B', tier:'I',  tierLabel:'COLONY WORLD', zone:'wide_cross',  edges:{n:5,s:4,e:4,w:5}, power:1, ability:null,            abilityText:'Basic Colony World', art:'assets/cards/terran/colony-world-b.png' },
+  { id:'ta_t1c', name:'COLONY WORLD C', tier:'I',  tierLabel:'COLONY WORLD', zone:'wide_cross',  edges:{n:5,s:5,e:4,w:4}, power:1, ability:null,            abilityText:'Basic Colony World', art:'assets/cards/terran/colony-world-c.png' },
   { id:'ta_t1d', name:'FRONTIER POST', tier:'I',  tierLabel:'COLONY WORLD', zone:'wall',        edges:{n:6,s:5,e:4,w:4}, power:1, ability:'shield',        abilityText:'SHIELD: Ignores first comparison loss', art:'assets/cards/terran/frontier-post.png' },
   { id:'ta_t1e', name:'SUPPLY HUB',    tier:'I',  tierLabel:'COLONY WORLD', zone:'full_ring',   edges:{n:5,s:5,e:5,w:5}, power:2, ability:'boost',         abilityText:'BOOST: Adjacent friendly cards +1 all edges', art:'assets/cards/terran/supply-hub.png' },
   // T2 — BATTLE GROUP (3 cards)
@@ -685,7 +732,7 @@ let G = {};   // game state shorthand
 function initGame() {
   G = {
     grid: Array(5).fill(null).map(() =>
-      Array(5).fill(null).map(() => ({ card: null, owner: null }))
+      Array(6).fill(null).map(() => ({ card: null, owner: null }))
     ),
     playerHand: PLAYER_CARDS.map(c => ({...c, shieldExpended: false, used: false})),
     aiHand:     AI_CARDS.map(c =>     ({...c, shieldExpended: false, used: false})),
@@ -711,16 +758,16 @@ function initGame() {
 function computeBattleResults() {
   // battle[r][c] = { h: 'win'|'lose'|'tie'|'none', v: 'win'|'lose'|'tie'|'none' }
   const b = Array(5).fill(null).map(() =>
-    Array(5).fill(null).map(() => ({ h: 'none', v: 'none' }))
+    Array(6).fill(null).map(() => ({ h: 'none', v: 'none' }))
   );
 
   for (let r = 0; r < 5; r++) {
-    for (let c = 0; c < 5; c++) {
+    for (let c = 0; c < 6; c++) {
       const cell = G.grid[r][c];
       if (!cell.card) continue;
 
       // H battle: this cell vs East neighbor
-      if (c < 4) {
+      if (c < 5) {
         const east = G.grid[r][c+1];
         if (east.card && east.owner !== cell.owner) {
           const me = cell.card.edges.e, them = east.card.edges.w;
@@ -749,14 +796,14 @@ function computeScores() {
   const battles = computeBattleResults();
   // Store on grid for rendering
   for (let r = 0; r < 5; r++)
-    for (let c = 0; c < 5; c++)
+    for (let c = 0; c < 6; c++)
       if (G.grid[r][c].card) G.grid[r][c].battle = battles[r][c];
 
   const rows = Array(5).fill(null).map(() => ({ p:0, a:0 }));
-  const cols = Array(5).fill(null).map(() => ({ p:0, a:0 }));
+  const cols = Array(6).fill(null).map(() => ({ p:0, a:0 }));
 
   for (let r = 0; r < 5; r++) {
-    for (let c = 0; c < 5; c++) {
+    for (let c = 0; c < 6; c++) {
       const cell = G.grid[r][c];
       if (!cell.card) continue;
       const bat = battles[r][c];
@@ -797,7 +844,7 @@ function renderGrid() {
     ? getValidPlacements('player', G.selectedCard) : [];
 
   for (let r = 0; r < 5; r++) {
-    for (let c = 0; c < 5; c++) {
+    for (let c = 0; c < 6; c++) {
       const cell = G.grid[r][c];
       const div  = document.createElement('div');
       div.className = 'cell';
@@ -844,6 +891,21 @@ function renderGrid() {
         if (valid.some(v => v.r===r && v.c===c)) {
           div.classList.add('valid');
           div.onclick = () => onCellClick(r, c);
+          // Zone preview: show future valid cells on hover
+          if (G.selectedCard) {
+            const preview = getZonePreview(r, c, G.selectedCard, 'player');
+            div.onmouseenter = () => {
+              preview.forEach(({r: pr, c: pc}) => {
+                const targetCell = document.querySelector(`.cell[data-r="${pr}"][data-c="${pc}"]`);
+                if (targetCell && !targetCell.classList.contains('valid')) {
+                  targetCell.classList.add('future-valid');
+                }
+              });
+            };
+            div.onmouseleave = () => {
+              document.querySelectorAll('.cell.future-valid').forEach(el => el.classList.remove('future-valid'));
+            };
+          }
         }
       }
       el.appendChild(div);
@@ -863,12 +925,12 @@ function renderBattleIndicators(el) {
     {dr:1,dc:0,myE:'s',theirE:'n',axis:'v'},
     {dr:0,dc:1,myE:'e',theirE:'w',axis:'h'},
   ];
-  for (let r = 0; r < 5; r++) for (let c = 0; c < 5; c++) {
+  for (let r = 0; r < 5; r++) for (let c = 0; c < 6; c++) {
     const cell = G.grid[r][c];
     if (!cell.card) continue;
     for (const d of pairs) {
       const nr = r+d.dr, nc = c+d.dc;
-      if (nr>=5||nc>=5) continue;
+      if (nr>=5||nc>=6) continue;
       const nb = G.grid[nr][nc];
       if (!nb.card || nb.owner === cell.owner) continue;
 
@@ -898,8 +960,10 @@ function renderScoreBadges() {
   // Update total score display
   const tP = document.getElementById('totalP');
   const tA = document.getElementById('totalA');
-  if (tP) tP.textContent = `YOU: ${s.pWins}/10 lines`;
-  if (tA) tA.textContent = `AI: ${s.aWins}/10 lines`;
+  const pLabel = window.playerFactionName || 'YOU';
+  const aLabel = window.aiFactionName    || 'AI';
+  if (tP) tP.textContent = `${pLabel}: ${s.pWins}/11 lines`;
+  if (tA) tA.textContent = `${aLabel}: ${s.aWins}/11 lines`;
 
   // ROW score badges — show both totals + winner
   const rowEl = document.getElementById('rowScores');
@@ -910,18 +974,18 @@ function renderScoreBadges() {
     const badge = document.createElement('div');
     badge.className = `row-score-badge ${res==='p'?'p-win':res==='a'?'a-win':'tie'}`;
     const wtag = res==='p'
-      ? `<span class="rsb-winner-tag p">YOU &#x25B6;</span>`
+      ? `<span class="rsb-winner-tag p">${pLabel} &#x25B6;</span>`
       : res==='a'
-      ? `<span class="rsb-winner-tag a">&#x25C0; AI</span>`
+      ? `<span class="rsb-winner-tag a">&#x25C0; ${aLabel}</span>`
       : `<span class="rsb-winner-tag t">TIE</span>`;
     badge.innerHTML = `
       <div class="rsb-line">
-        <span class="rsb-who" style="color:#00ffcc88">YOU</span>
+        <span class="rsb-who" style="color:#00ffcc88">${pLabel}</span>
         <span class="rsb-pts p">${p}</span>
       </div>
       <div class="rsb-divider"></div>
       <div class="rsb-line">
-        <span class="rsb-who" style="color:#ff008088">AI</span>
+        <span class="rsb-who" style="color:#ff008088">${aLabel}</span>
         <span class="rsb-pts a">${a}</span>
       </div>
       ${wtag}
@@ -929,18 +993,18 @@ function renderScoreBadges() {
     rowEl.appendChild(badge);
   }
 
-  // COL score badges — show both totals + winner
+  // COL score badges — show both totals + winner (6 cols)
   const colEl = document.getElementById('colScores');
   colEl.innerHTML = '';
-  for (let c = 0; c < 5; c++) {
+  for (let c = 0; c < 6; c++) {
     const {p,a} = s.cols[c];
     const res = s.colResults[c];
     const badge = document.createElement('div');
     badge.className = `col-score-badge ${res==='p'?'p-win':res==='a'?'a-win':'tie'}`;
     const winner = res==='p'
-      ? `<span style="color:#00ffcc;font-weight:bold;font-size:9px">YOU &#x25B2;</span>`
+      ? `<span style="color:#00ffcc;font-weight:bold;font-size:9px">${pLabel} &#x25B2;</span>`
       : res==='a'
-      ? `<span style="color:#ff0080;font-weight:bold;font-size:9px">AI &#x25BC;</span>`
+      ? `<span style="color:#ff0080;font-weight:bold;font-size:9px">${aLabel} &#x25BC;</span>`
       : `<span style="color:#444;font-size:9px">TIE</span>`;
     badge.innerHTML = `
       <div class="csb-row">
@@ -958,7 +1022,7 @@ function renderScoreHeader() {
   const s = computeScores();
   // Total points on board for each player
   let totalP = 0, totalA = 0;
-  for (let r=0;r<5;r++) for (let c=0;c<5;c++) {
+  for (let r=0;r<5;r++) for (let c=0;c<6;c++) {
     const cell = G.grid[r][c];
     if (!cell.card) continue;
     if (cell.owner==='player') totalP += cell.card.power;
@@ -966,7 +1030,7 @@ function renderScoreHeader() {
   }
   document.getElementById('scoreP').textContent = totalP + 'pt';
   document.getElementById('scoreA').textContent = totalA + 'pt';
-  document.getElementById('linesLbl').textContent = `| LINES WON: ${s.pWins}/10`;
+  document.getElementById('linesLbl').textContent = `| LINES WON: ${s.pWins}/11`;
 
   const tag = document.getElementById('turnTag');
   tag.textContent = G.turn==='player' ? 'YOUR TURN' : 'AI THINKING...';
@@ -978,6 +1042,14 @@ function renderScoreHeader() {
   else q.textContent = '"Your breach ends here."';
 }
 
+// Helper: has the player placed at least one card of the given tier on the board?
+function hasPlacedTier(tier) {
+  return G.playerHand.some(c =>
+    c.tier === tier && c.used &&
+    G.grid.flat().some(cell => cell.card?.id === c.id && cell.owner === 'player')
+  );
+}
+
 function renderHand() {
   const el = document.getElementById('handCards');
   el.innerHTML = '';
@@ -985,7 +1057,25 @@ function renderHand() {
     const div = document.createElement('div');
     const isSelected = G.selectedCard === card;
     const isUsed = card.used;
-    div.className = 'hand-card' + (isUsed ? ' used' : '') + (isSelected ? ' selected' : '');
+
+    // Tier prerequisite check
+    let isBlocked = false;
+    let blockedTitle = '';
+    if (!isUsed) {
+      if (card.tier === 'II' && !hasPlacedTier('I')) {
+        isBlocked = true;
+        blockedTitle = 'Requires a Tier I card to be placed first';
+      } else if (card.tier === 'III' && !hasPlacedTier('II')) {
+        isBlocked = true;
+        blockedTitle = 'Requires a Tier II card to be placed first';
+      } else if (card.tier === 'IV' && !hasPlacedTier('III')) {
+        isBlocked = true;
+        blockedTitle = 'Requires a Tier III card to be placed first';
+      }
+    }
+
+    div.className = 'hand-card' + (isUsed ? ' used' : '') + (isSelected ? ' selected' : '') + (isBlocked ? ' tier-blocked' : '');
+    if (isBlocked) div.title = blockedTitle;
 
     // Card art background + tier border color
     if (card.art) div.style.backgroundImage = `url('${card.art}')`;
@@ -1035,6 +1125,18 @@ function showDragCard(card, x, y) {
   document.getElementById('dc-power').textContent = card.power;
   document.getElementById('dc-name').textContent = card.name;
   document.getElementById('dc-tier').textContent = card.tier;
+  // Show card art on the drag card — feels like physically picking it up
+  if (card.art) {
+    dc.style.backgroundImage = `url('${card.art}')`;
+    dc.style.backgroundSize  = 'cover';
+    dc.style.backgroundPosition = 'center top';
+    dc.style.backgroundColor = '#06050e';
+  } else {
+    dc.style.backgroundImage = '';
+  }
+  const tierCol = TIER_COLORS[card.tier] || '#888';
+  dc.style.borderColor = tierCol;
+  dc.style.boxShadow = `0 0 20px ${tierCol}88, 0 4px 20px #00000088`;
   dc.style.display = 'block';
   dc.style.left = (x + 6) + 'px';
   dc.style.top  = (y + 6) + 'px';
@@ -1095,7 +1197,7 @@ function getValidPlacements(owner, card) {
     const [minR, maxR] = owner === 'player' ? [3,4] : [0,1];
     const cells = [];
     for (let r = minR; r <= maxR; r++)
-      for (let c = 0; c < 5; c++)
+      for (let c = 0; c < 6; c++)
         if (!G.grid[r][c].card) cells.push({r,c});
     return cells;
   }
@@ -1105,12 +1207,12 @@ function getValidPlacements(owner, card) {
   const set     = new Set();
 
   // Home row is always available
-  for (let c = 0; c < 5; c++)
+  for (let c = 0; c < 6; c++)
     if (!G.grid[homeRow][c].card) set.add(`${homeRow},${c}`);
 
   // Zone expansion from each placed friendly card
   for (let r = 0; r < 5; r++) {
-    for (let c = 0; c < 5; c++) {
+    for (let c = 0; c < 6; c++) {
       const cell = G.grid[r][c];
       if (cell.owner !== owner || !cell.card) continue;
 
@@ -1121,7 +1223,7 @@ function getValidPlacements(owner, card) {
         // Mirror dr for player (forward = up = -1) vs AI (forward = down = +1)
         const nr = r + dr * fwd;
         const nc = c + dc;
-        if (nr >= 0 && nr < 5 && nc >= 0 && nc < 5 && !G.grid[nr][nc].card)
+        if (nr >= 0 && nr < 5 && nc >= 0 && nc < 6 && !G.grid[nr][nc].card)
           set.add(`${nr},${nc}`);
       }
     }
@@ -1149,7 +1251,7 @@ function getZonePreview(r, c, card, owner) {
   const cells = [];
   for (const {dr, dc} of zoneOffsets) {
     const nr = r + dr * fwd, nc = c + dc;
-    if (nr >= 0 && nr < 5 && nc >= 0 && nc < 5 && !G.grid[nr][nc].card)
+    if (nr >= 0 && nr < 5 && nc >= 0 && nc < 6 && !G.grid[nr][nc].card)
       cells.push({r: nr, c: nc});
   }
   return cells;
@@ -1169,7 +1271,7 @@ function doComparisons(r, c, owner, card, depth=0) {
 
   for (const d of DIRS4) {
     const nr=r+d.dr, nc=c+d.dc;
-    if (nr<0||nr>=5||nc<0||nc>=5) continue;
+    if (nr<0||nr>=5||nc<0||nc>=6) continue;
     const target = G.grid[nr][nc];
     if (!target.card || target.owner !== enemy) continue;
 
@@ -1196,7 +1298,7 @@ function doComparisons(r, c, owner, card, depth=0) {
     // DOUBLE STRIKE: also compare one step further in same direction
     if (card.ability==='double_strike' && iWin) {
       const nr2=nr+d.dr, nc2=nc+d.dc;
-      if (nr2>=0&&nr2<5&&nc2>=0&&nc2<5) {
+      if (nr2>=0&&nr2<5&&nc2>=0&&nc2<6) {
         const t2 = G.grid[nr2][nc2];
         if (t2.card && t2.owner===enemy) {
           const mv2=mv, tv2=t2.card.edges[d.theirE];
@@ -1242,7 +1344,7 @@ function placeCard(card, r, c, owner) {
 
   setTimeout(() => {
     const cells = document.querySelectorAll('.cell');
-    if (cells[r*5+c]) cells[r*5+c].classList.add('just-placed');
+    if (cells[r*6+c]) cells[r*6+c].classList.add('just-placed');
   }, 10);
 
   checkWin();
@@ -1263,12 +1365,12 @@ function aiTurn() {
       if (s.colResults[c] !== 'a') score += 2;
       for (const d of DIRS4) {
         const nr=r+d.dr, nc=c+d.dc;
-        if (nr<0||nr>=5||nc<0||nc>=5) continue;
+        if (nr<0||nr>=5||nc<0||nc>=6) continue;
         const t = G.grid[nr][nc];
         if (t.card && t.owner==='player' && card.edges[d.myE] > t.card.edges[d.theirE])
           score += 1;
       }
-      score += r * 0.2 + (2-Math.abs(2-c)) * 0.1 + Math.random()*0.5;
+      score += r * 0.2 + (2.5-Math.abs(2.5-c)) * 0.1 + Math.random()*0.5;
       if (score > best) { best=score; bestCard=card; bestR=r; bestC=c; }
     }
   }
@@ -1289,8 +1391,19 @@ function aiTurn() {
 // ── WIN CHECK ─────────────────────────────────
 function checkWin() {
   if (G.gameOver) return;
-  const allDone = G.playerHand.every(c=>c.used) && G.aiHand.every(c=>c.used);
-  if (!allDone) return;
+  // Early win: majority of 30 cells (17+) controlled by one side
+  let pCells = 0, aCells = 0;
+  for (let r = 0; r < 5; r++) for (let c = 0; c < 6; c++) {
+    const cell = G.grid[r][c];
+    if (cell.owner === 'player') pCells++;
+    else if (cell.owner === 'ai') aCells++;
+  }
+  if (pCells >= 17 || aCells >= 17) {
+    // fall through to show result
+  } else {
+    const allDone = G.playerHand.every(c=>c.used) && G.aiHand.every(c=>c.used);
+    if (!allDone) return;
+  }
 
   G.gameOver = true;
   const s = computeScores();
@@ -1304,11 +1417,11 @@ function checkWin() {
   if (s.pWins > s.aWins) {
     title.className = 'overlay-title win';
     title.textContent = 'BREACH COMPLETE';
-    sub.textContent   = `You dominated ${s.pWins} of 10 lines`;
+    sub.textContent   = `You dominated ${s.pWins} of 11 lines`;
   } else if (s.aWins > s.pWins) {
     title.className = 'overlay-title lose';
     title.textContent = 'BREACH FAILED';
-    sub.textContent   = `AI dominated ${s.aWins} of 10 lines`;
+    sub.textContent   = `AI dominated ${s.aWins} of 11 lines`;
   } else {
     title.className = 'overlay-title draw';
     title.textContent = 'STALEMATE';
@@ -1331,7 +1444,7 @@ function checkWin() {
     </div>
     <div class="ob-col">
       <div class="ob-label">TOTAL</div>
-      <div class="ob-val" style="color:#00ffcc">${s.pWins}/10</div>
+      <div class="ob-val" style="color:#00ffcc">${s.pWins}/11</div>
     </div>
   `;
 }
@@ -1396,10 +1509,16 @@ function addLog(type, msg) {
 }
 
 function showTip(e, card) {
-  const tt = document.getElementById('tooltip');
-  tt.innerHTML = `<strong style="color:#00ffcc">${card.name} [${card.tier}]</strong><br>
-    N:${card.edges.n} S:${card.edges.s} E:${card.edges.e} W:${card.edges.w}<br>
-    Power: ${card.power}pt | ${card.abilityText}`;
+  const tt  = document.getElementById('tooltip');
+  const tierCol = TIER_COLORS[card.tier] || '#888';
+  const zoneDesc = { wide_cross:'Opens wide territory around placement', full_ring:'Opens all adjacent cells', wall:'Opens horizontal spread + 1 forward', command:'Opens wide 2-deep forward', launch:'Opens forward lanes for fighters', lance:'Opens 2 cells directly forward', flanker:'Opens forward + diagonals', dreadnaught:'Opens 2 cells in all directions' };
+  tt.innerHTML = `
+    <strong style="color:${tierCol}">${card.name}</strong>
+    <span style="color:${tierCol}88;font-size:11px;margin-left:8px;">[${card.tierLabel || card.tier}]</span><br>
+    <div class="tip-edges">N:${card.edges.n} &nbsp; S:${card.edges.s} &nbsp; E:${card.edges.e} &nbsp; W:${card.edges.w} &nbsp;&nbsp; Power: <strong style="color:${tierCol}">${card.power}pt</strong></div>
+    ${card.ability ? `<div class="tip-ability">✦ ${card.abilityText}</div>` : ''}
+    ${card.zone ? `<div class="tip-zone">Zone: ${zoneDesc[card.zone] || card.zone}</div>` : ''}
+  `;
   tt.style.display = 'block';
   tt.style.left = (e.clientX+14)+'px';
   tt.style.top  = (e.clientY-65)+'px';
