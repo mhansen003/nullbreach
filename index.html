@@ -747,7 +747,10 @@ function resetConveyorHalf() {
 function buildRaceGrid() {
   const track = document.getElementById('conveyorTrack');
   track.innerHTML = '';
-  [0, 1].forEach(() => RACES.forEach(race => track.appendChild(createTile(race))));
+  // 3 full sets — provides an extra buffer so seam is never visible
+  [0, 1, 2].forEach(() => RACES.forEach(race => track.appendChild(createTile(race))));
+  // CV_LOOP_PX = distance across exactly ONE set (measured after layout)
+  requestAnimationFrame(() => requestAnimationFrame(measureLoopWidth));
 }
 
 function createTile(race) {
@@ -951,14 +954,20 @@ function startGame() {
 }
 
 // ── INIT ──────────────────────────────────────────
-buildRaceGrid();
 initConveyorWheel();
 
-// Preload all race deck cover images so the loop is seamless from first render
-RACES.forEach(r => { const img = new Image(); img.src = r.cover; });
-
-// Start the conveyor loop
-runConveyor();
+// Preload ALL cover images first, then build tiles and start conveyor
+// This guarantees zero blank tiles — every image is cached before tiles render
+Promise.all(
+  RACES.map(r => new Promise(res => {
+    const img = new Image();
+    img.onload = img.onerror = res;
+    img.src = r.cover;
+  }))
+).then(() => {
+  buildRaceGrid();
+  runConveyor();
+});
 </script>
 </body>
 </html>
