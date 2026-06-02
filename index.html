@@ -335,15 +335,33 @@ body {
 .lore-text { font-size: 16px; letter-spacing: 0.2px; color: #ffffff; line-height: 1.85; }
 .lore-weakness { font-size: 15px; letter-spacing: 0.2px; color: #ffffffbb; line-height: 1.8; font-style: italic; }
 
-.ds-deploy-wrap { padding-top: 8px; display: none; }
+.ds-deploy-wrap { padding-top: 14px; display: none; }
 .ds-deploy-wrap.visible { display: block; }
 .btn-deploy {
   background: transparent; font-family: 'Orbitron', monospace;
-  font-size: 11px; letter-spacing: 5px; padding: 14px 42px;
-  cursor: pointer; text-transform: uppercase; transition: all 0.3s; border-radius: 2px;
+  font-size: 13px; letter-spacing: 5px; padding: 16px 52px;
+  cursor: pointer; text-transform: uppercase; transition: letter-spacing 0.3s;
+  border-radius: 3px; position: relative;
+  animation: deployPulse 2s ease-in-out infinite;
 }
-.btn-deploy:hover { box-shadow: 0 0 30px currentColor, 0 0 60px currentColor; letter-spacing: 7px; }
-.btn-deploy:active { transform: scale(0.98); }
+@keyframes deployPulse {
+  0%,100% {
+    box-shadow: 0 0 12px currentColor, 0 0 24px currentColor,
+                inset 0 0 8px transparent;
+    opacity: 1;
+  }
+  50% {
+    box-shadow: 0 0 28px currentColor, 0 0 56px currentColor,
+                0 0 80px currentColor, inset 0 0 12px currentColor;
+    opacity: 0.88;
+  }
+}
+.btn-deploy:hover {
+  letter-spacing: 8px;
+  animation: none;
+  box-shadow: 0 0 40px currentColor, 0 0 80px currentColor, 0 0 120px currentColor;
+}
+.btn-deploy:active { transform: scale(0.97); }
 .ds-footer {
   flex-shrink: 0; padding: 8px 36px; border-top: 1px solid #1a1428;
   display: flex; justify-content: space-between; align-items: center;
@@ -843,9 +861,9 @@ function selectRace(race, tileEl) {
 
     const btn = document.getElementById('deployBtn');
     btn.style.cssText = `
-      background:transparent;font-family:'Orbitron',monospace;font-size:10px;letter-spacing:5px;
-      padding:14px 40px;cursor:pointer;text-transform:uppercase;transition:all 0.3s;border-radius:2px;
-      border:1px solid ${race.color}88;color:${race.color};
+      font-family:'Orbitron',monospace;font-size:13px;letter-spacing:5px;
+      padding:16px 52px;cursor:pointer;text-transform:uppercase;border-radius:3px;
+      border:2px solid ${race.color};color:${race.color};background:${race.color}11;
     `;
     document.getElementById('deployWrap').classList.add('visible');
     lc.classList.add('visible');
