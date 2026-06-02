@@ -180,226 +180,134 @@ body {
 /* ══════════════════════════════════════
    SCREEN 2 — DECK SELECT
 ══════════════════════════════════════ */
-#deckselect {
-  justify-content: flex-start;
-  padding: 0;
-  overflow: hidden;
-}
+#deckselect { justify-content:flex-start; padding:0; overflow:hidden; }
 
 .ds-header {
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  padding: 22px 36px 12px;
-  border-bottom: 1px solid #1a1428;
-  flex-shrink: 0;
+  width: 100%; display: flex; justify-content: space-between; align-items: center;
+  padding: 16px 36px 10px; flex-shrink: 0;
   background: linear-gradient(to bottom, #020208ee, transparent);
+  position: relative; z-index: 20;
 }
-.ds-header-left {}
 .ds-title {
   font-family: 'Orbitron', monospace;
-  font-size: 11px; letter-spacing: 6px; color: #fff;
+  font-size: 12px; letter-spacing: 6px; color: #fff;
   text-shadow: 0 0 16px #8855ff66;
-  margin-bottom: 4px;
 }
-.ds-subtitle { font-size: 8px; letter-spacing: 4px; color: #332255; }
-.ds-header-right { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
-.ds-logo {
-  font-family: 'Orbitron', monospace;
-  font-size: 9px; letter-spacing: 4px; color: #2a1a44;
-}
+.ds-header-right { display: flex; gap: 12px; align-items: center; }
+.ds-logo { font-family:'Orbitron',monospace; font-size:9px; letter-spacing:4px; color:#443366; }
 .btn-back {
-  background: transparent; border: 1px solid #221133;
-  color: #443366; font-family: inherit;
+  background: transparent; border: 1px solid #332255;
+  color: #664488; font-family: inherit;
   font-size: 8px; letter-spacing: 3px;
   padding: 5px 14px; cursor: pointer; transition: all 0.2s;
 }
 .btn-back:hover { border-color: #8855ff; color: #aa77ff; }
 
-/* Main deck select body — two column layout */
-.ds-body {
-  flex: 1;
-  display: flex;
-  overflow: hidden;
-  width: 100%;
+/* ── CONVEYOR BELT ── */
+.conveyor-wrap {
+  width: 100%; overflow: hidden; flex-shrink: 0;
+  padding: 10px 0 18px; position: relative; z-index: 20;
+}
+.conveyor-wrap:hover .conveyor-track { animation-play-state: paused; }
+.conveyor-track {
+  display: flex; gap: 18px; width: max-content;
+  padding: 8px 24px;
+  animation: conveyorScroll 55s linear infinite;
+}
+@keyframes conveyorScroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
 }
 
-/* Left — race grid */
-.ds-left {
-  width: 580px;
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  padding: 16px 20px 16px 36px;
-  overflow-y: auto;
-  scrollbar-width: none;
-}
-.ds-left::-webkit-scrollbar { display: none; }
-
-.race-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
-}
-
+/* ── RACE TILES ── */
 .race-tile {
-  border-radius: 5px;
-  cursor: pointer;
-  height: 148px;
+  width: 195px; height: 262px; flex-shrink: 0;
+  border-radius: 8px; cursor: pointer;
   background: #06050e center/cover no-repeat;
-  border: 1px solid transparent;
-  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+  border: 2px solid transparent;
+  transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.3s, border-color 0.2s;
   position: relative; overflow: hidden;
 }
-/* Gradient overlay — dark at bottom so text reads clearly */
 .race-tile::after {
-  content: '';
-  position: absolute; inset: 0;
-  background: linear-gradient(
-    to top,
-    #020208f0 0%,
-    #020208cc 40%,
-    #02020866 65%,
-    transparent 100%
-  );
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(to top, #000000f2 0%, #000000bb 36%, #00000066 62%, transparent 100%);
   z-index: 0;
-  transition: opacity 0.2s;
 }
-.race-tile:hover { transform: translateY(-4px) scale(1.03); }
-.race-tile:hover::after { opacity: 0.85; }
-.race-tile.selected { transform: translateY(-4px) scale(1.03); }
-.race-tile.selected::after { opacity: 0.8; }
-
-/* Text group anchored to tile bottom */
+.race-tile:hover { transform: translateY(-20px) scale(1.12); z-index: 20; }
+.race-tile.selected { transform: translateY(-12px) scale(1.07); }
 .rt-text-group {
   position: absolute; bottom: 0; left: 0; right: 0;
-  padding: 8px 8px 7px;
-  z-index: 2;
-  display: flex; flex-direction: column; gap: 2px;
+  padding: 14px 12px 12px; z-index: 2;
+  display: flex; flex-direction: column; gap: 4px;
 }
 .rt-name {
-  font-size: 8px; letter-spacing: 1.5px; line-height: 1.2;
-  font-weight: bold;
+  font-size: 14px; letter-spacing: 1px; line-height: 1.2; font-weight: bold;
+  text-shadow: 0 0 14px #000, 0 2px 4px #000;
 }
 .rt-sub {
-  font-size: 6.5px; letter-spacing: 0.5px; opacity: 0.55; line-height: 1.3;
+  font-size: 10px; letter-spacing: 0.5px; color: #ffffffcc; line-height: 1.3;
+  text-shadow: 0 0 10px #000, 0 1px 2px #000;
 }
-.rt-abilities {
-  font-size: 6.5px; letter-spacing: 0.5px; opacity: 0;
-  transition: opacity 0.2s; color: #aaa; line-height: 1.5; margin-top: 1px;
-}
-.race-tile:hover .rt-abilities,
-.race-tile.selected .rt-abilities { opacity: 0.75; }
-
 .rt-starter-badge {
-  position: absolute; top: 6px; right: 6px; z-index: 3;
-  font-size: 6px; letter-spacing: 1px;
-  opacity: 0.8; padding: 2px 5px; border-radius: 2px;
+  position: absolute; top: 8px; right: 8px; z-index: 3;
+  font-size: 7px; letter-spacing: 2px; padding: 3px 7px; border-radius: 2px;
 }
 
-/* Right — lore panel */
-.ds-right {
-  flex: 1;
-  padding: 20px 36px 20px 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-  overflow: hidden;
-  position: relative;
+/* ── LORE PANEL (below conveyor) ── */
+.ds-lore-panel {
+  flex: 1; display: flex; padding: 16px 40px 14px;
+  overflow: hidden; position: relative; z-index: 10;
 }
-
-/* Empty state */
 .ds-empty {
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
-  height: 100%; gap: 14px; opacity: 0.3;
-  transition: opacity 0.3s;
+  width: 100%; gap: 14px; opacity: 0.3;
 }
-.ds-empty.hidden { opacity: 0; pointer-events: none; display: none; }
-.ds-empty-icon { font-size: 40px; }
-.ds-empty-text { font-size: 9px; letter-spacing: 3px; }
+.ds-empty.hidden { display: none; }
+.ds-empty-icon { font-size: 36px; }
+.ds-empty-text { font-size: 10px; letter-spacing: 4px; }
+.ds-lore-content { display: none; flex-direction: column; gap: 8px; width: 100%; }
+.ds-lore-content.visible { display: flex; animation: loreIn 0.4s ease; }
+@keyframes loreIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
 
-/* Lore content */
-.ds-lore-content {
-  display: none; flex-direction: column; gap: 12px; height: 100%;
-}
-.ds-lore-content.visible { display: flex; animation: loreIn 0.5s ease; }
-@keyframes loreIn {
-  from { opacity: 0; transform: translateX(12px); }
-  to   { opacity: 1; transform: translateX(0); }
-}
-
-.ds-race-header { margin-bottom: 4px; }
 .ds-race-name {
   font-family: 'Orbitron', monospace;
-  font-size: 18px; letter-spacing: 3px; font-weight: 700;
-  line-height: 1.1; margin-bottom: 4px;
+  font-size: 22px; letter-spacing: 3px; font-weight: 700; line-height: 1.1;
+  text-shadow: 0 0 20px currentColor;
 }
-.ds-race-sub { font-size: 10px; letter-spacing: 3px; opacity: 0.75; margin-bottom: 10px; }
+.ds-race-sub { font-size: 11px; letter-spacing: 3px; color: #ffffffcc; margin-top: 2px; }
 .ds-race-quote {
-  font-size: 12px; letter-spacing: 1px; opacity: 0.9;
-  font-style: italic; line-height: 1.6; padding-left: 12px;
-  border-left: 2px solid currentColor;
+  font-size: 13px; letter-spacing: 0.5px; color: #ffffffdd;
+  font-style: italic; line-height: 1.6; padding-left: 14px;
+  border-left: 3px solid currentColor; margin: 4px 0 4px;
 }
-
-.ds-abilities-row {
-  display: flex; gap: 6px; flex-wrap: wrap;
-}
+.ds-abilities-row { display: flex; gap: 8px; flex-wrap: wrap; }
 .ability-pill {
-  font-size: 7.5px; letter-spacing: 2px;
-  padding: 4px 10px; border-radius: 2px;
-  border: 1px solid currentColor; opacity: 0.7;
+  font-size: 9px; letter-spacing: 2px;
+  padding: 5px 12px; border-radius: 2px;
+  border: 1px solid currentColor; opacity: 0.8;
 }
+.lore-divider { height: 1px; flex-shrink: 0; opacity: 0.25; }
+.lore-cols { display: flex; gap: 28px; flex: 1; overflow: hidden; }
+.lore-col { flex: 1; display: flex; flex-direction: column; gap: 6px; overflow: hidden; }
+.lore-label { font-size: 10px; letter-spacing: 3px; opacity: 0.7; text-transform: uppercase; }
+.lore-text { font-size: 12px; letter-spacing: 0.2px; color: #ffffffee; line-height: 1.85; }
+.lore-weakness { font-size: 11px; letter-spacing: 0.2px; color: #ffffff99; line-height: 1.8; font-style: italic; }
 
-.lore-divider {
-  height: 1px; background: linear-gradient(90deg, currentColor, transparent);
-  opacity: 0.2; flex-shrink: 0;
-}
-
-.lore-cols { display: flex; gap: 20px; flex: 1; overflow: hidden; }
-.lore-col { flex: 1; display: flex; flex-direction: column; gap: 10px; overflow: hidden; }
-.lore-label {
-  font-size: 9px; letter-spacing: 3px; opacity: 0.65;
-  text-transform: uppercase; margin-bottom: 6px;
-}
-.lore-text {
-  font-size: 11px; letter-spacing: 0.3px;
-  opacity: 0.88; line-height: 1.9;
-}
-.lore-weakness {
-  font-size: 10px; letter-spacing: 0.3px;
-  opacity: 0.7; line-height: 1.8; font-style: italic;
-}
-
-/* Deploy button */
-.ds-deploy-wrap {
-  margin-top: auto; padding-top: 14px; flex-shrink: 0;
-  display: none;
-}
+.ds-deploy-wrap { padding-top: 8px; display: none; }
 .ds-deploy-wrap.visible { display: block; }
 .btn-deploy {
   background: transparent; font-family: 'Orbitron', monospace;
-  font-size: 10px; letter-spacing: 5px;
-  padding: 14px 40px; cursor: pointer; text-transform: uppercase;
-  transition: all 0.3s; border-radius: 2px;
+  font-size: 11px; letter-spacing: 5px; padding: 14px 42px;
+  cursor: pointer; text-transform: uppercase; transition: all 0.3s; border-radius: 2px;
 }
-.btn-deploy:hover {
-  box-shadow: 0 0 30px currentColor, 0 0 60px currentColor;
-  letter-spacing: 7px;
-}
+.btn-deploy:hover { box-shadow: 0 0 30px currentColor, 0 0 60px currentColor; letter-spacing: 7px; }
 .btn-deploy:active { transform: scale(0.98); }
-
-/* Footer bar */
 .ds-footer {
-  flex-shrink: 0;
-  padding: 8px 36px;
-  border-top: 1px solid #0e0c1a;
+  flex-shrink: 0; padding: 6px 36px; border-top: 1px solid #0e0c1a;
   display: flex; justify-content: space-between; align-items: center;
-  background: linear-gradient(to top, #020208, transparent);
 }
-.ds-footer-lore { font-size: 7.5px; letter-spacing: 3px; color: #1a0d2a; }
-.ds-race-count { font-size: 7.5px; letter-spacing: 2px; color: #221133; }
+.ds-footer-lore { font-size: 8px; letter-spacing: 3px; color: #554477; }
 
 /* ── ANIMATIONS ── */
 @keyframes fadeIn { from{opacity:0} to{opacity:1} }
@@ -434,72 +342,52 @@ body {
 <div class="screen hidden" id="deckselect">
 
   <div class="ds-header">
-    <div class="ds-header-left">
-      <div class="ds-title">SELECT YOUR CIVILIZATION</div>
-      <div class="ds-subtitle">CHOOSE THE RACE YOU WILL COMMAND AT SECTOR GZ-0</div>
-    </div>
+    <div class="ds-title">SELECT YOUR CIVILIZATION</div>
     <div class="ds-header-right">
       <div class="ds-logo">GALACTIC ZERO</div>
       <button class="btn-back" onclick="showSplash()">&#x2190; BACK</button>
     </div>
   </div>
 
-  <div class="ds-body">
+  <!-- CONVEYOR BELT -->
+  <div class="conveyor-wrap" id="conveyorWrap">
+    <div class="conveyor-track" id="conveyorTrack"></div>
+  </div>
 
-    <!-- LEFT: Race tiles -->
-    <div class="ds-left">
-      <div class="race-grid" id="raceGrid"></div>
+  <!-- LORE PANEL -->
+  <div class="ds-lore-panel">
+    <div class="ds-empty" id="dsEmpty">
+      <div class="ds-empty-icon">✦</div>
+      <div class="ds-empty-text">HOVER TO BROWSE — CLICK TO SELECT</div>
     </div>
-
-    <!-- RIGHT: Lore panel -->
-    <div class="ds-right">
-
-      <div class="ds-empty" id="dsEmpty">
-        <div class="ds-empty-icon">✦</div>
-        <div class="ds-empty-text">SELECT A CIVILIZATION</div>
+    <div class="ds-lore-content" id="loreContent">
+      <div>
+        <div class="ds-race-name" id="loreName">—</div>
+        <div class="ds-race-sub" id="loreSub">—</div>
+        <div class="ds-race-quote" id="loreQuote">—</div>
       </div>
-
-      <div class="ds-lore-content" id="loreContent">
-        <div class="ds-race-header">
-          <div class="ds-race-name" id="loreName">—</div>
-          <div class="ds-race-sub" id="loreSub">—</div>
-          <div class="ds-race-quote" id="loreQuote">—</div>
+      <div class="ds-abilities-row" id="loreAbilities"></div>
+      <div class="lore-divider" id="loreDivider"></div>
+      <div class="lore-cols">
+        <div class="lore-col">
+          <div class="lore-label" id="loreLabel1">CIVILIZATION</div>
+          <div class="lore-text" id="loreText1">—</div>
         </div>
-
-        <div class="ds-abilities-row" id="loreAbilities"></div>
-
-        <div class="lore-divider" id="loreDivider"></div>
-
-        <div class="lore-cols">
-          <div class="lore-col">
-            <div>
-              <div class="lore-label" id="loreLabel1">CIVILIZATION</div>
-              <div class="lore-text" id="loreText1">—</div>
-            </div>
-          </div>
-          <div class="lore-col">
-            <div>
-              <div class="lore-label" id="loreLabel2">HISTORY AT SECTOR GZ-0</div>
-              <div class="lore-text" id="loreText2">—</div>
-            </div>
-            <div>
-              <div class="lore-label" id="loreLabel3">WEAKNESS</div>
-              <div class="lore-weakness" id="loreText3">—</div>
-            </div>
+        <div class="lore-col">
+          <div class="lore-label" id="loreLabel2">HISTORY AT SECTOR GZ-0</div>
+          <div class="lore-text" id="loreText2">—</div>
+          <div class="lore-label" id="loreLabel3" style="margin-top:8px">WEAKNESS</div>
+          <div class="lore-weakness" id="loreText3">—</div>
+          <div class="ds-deploy-wrap" id="deployWrap">
+            <button class="btn-deploy" id="deployBtn" onclick="startGame()">DEPLOY FLEET &#x2192;</button>
           </div>
         </div>
-
-        <div class="ds-deploy-wrap" id="deployWrap">
-          <button class="btn-deploy" id="deployBtn" onclick="startGame()">DEPLOY FLEET &#x2192;</button>
-        </div>
       </div>
-
     </div>
   </div>
 
   <div class="ds-footer">
     <div class="ds-footer-lore">ROWS = TRANSIT CORRIDORS &nbsp;·&nbsp; COLUMNS = RESOURCE STREAMS &nbsp;·&nbsp; WIN 6 OF 10 LINES</div>
-    <div class="ds-race-count" id="raceCount">11 CIVILIZATIONS</div>
   </div>
 
 </div>
@@ -668,39 +556,38 @@ const RACES = [
 
 let selectedRace = null;
 
-// ── BUILD RACE GRID ────────────────────────────────
+// ── BUILD CONVEYOR BELT ────────────────────────────
 function buildRaceGrid() {
-  const grid = document.getElementById('raceGrid');
-  grid.innerHTML = '';
-  RACES.forEach(race => {
-    const tile = document.createElement('div');
-    tile.className = 'race-tile';
-    tile.dataset.id = race.id;
-    tile.style.backgroundImage = `url('${race.cover}')`;
-    tile.style.borderColor = race.color + '28';
-    tile.innerHTML = `
-      ${race.starter ? `<div class="rt-starter-badge" style="color:${race.color};border:1px solid ${race.color}55;background:#000000aa">STARTER</div>` : ''}
-      <div class="rt-text-group">
-        <div class="rt-name" style="color:${race.color}">${race.name}</div>
-        <div class="rt-sub">${race.sub}</div>
-        <div class="rt-abilities">${race.abilities.slice(0,3).join(' · ')}</div>
-      </div>
-    `;
-    tile.addEventListener('click', () => selectRace(race, tile));
-    tile.addEventListener('mouseenter', () => {
-      if (selectedRace?.id !== race.id) {
-        tile.style.borderColor = race.color + '66';
-        tile.style.boxShadow = `0 0 14px ${race.color}33`;
-      }
-    });
-    tile.addEventListener('mouseleave', () => {
-      if (selectedRace?.id !== race.id) {
-        tile.style.borderColor = race.color + '28';
-        tile.style.boxShadow = '';
-      }
-    });
-    grid.appendChild(tile);
+  const track = document.getElementById('conveyorTrack');
+  track.innerHTML = '';
+  [0, 1].forEach(() => RACES.forEach(race => track.appendChild(createTile(race))));
+}
+
+function createTile(race) {
+  const tile = document.createElement('div');
+  tile.className = 'race-tile';
+  tile.dataset.id = race.id;
+  tile.style.backgroundImage = `url('${race.cover}')`;
+  tile.style.borderColor = race.color + '33';
+  tile.innerHTML = `
+    ${race.starter ? `<div class="rt-starter-badge" style="color:${race.color};border:1px solid ${race.color}66;background:#00000099">STARTER</div>` : ''}
+    <div class="rt-text-group">
+      <div class="rt-name" style="color:${race.color}">${race.name}</div>
+      <div class="rt-sub">${race.sub}</div>
+    </div>
+  `;
+  tile.addEventListener('click', () => selectRace(race, tile));
+  tile.addEventListener('mouseenter', () => {
+    tile.style.borderColor = race.color + '99';
+    tile.style.boxShadow = `0 12px 50px ${race.color}55, 0 0 80px ${race.color}22`;
   });
+  tile.addEventListener('mouseleave', () => {
+    if (selectedRace?.id !== race.id) {
+      tile.style.borderColor = race.color + '33';
+      tile.style.boxShadow = '';
+    }
+  });
+  return tile;
 }
 
 function selectRace(race, tileEl) {
@@ -718,8 +605,7 @@ function selectRace(race, tileEl) {
   selectedRace = race;
   tileEl.classList.add('selected');
   tileEl.style.borderColor = race.color;
-  tileEl.style.boxShadow = `0 0 20px ${race.color}44, 0 0 40px ${race.color}18`;
-  tileEl.style.background = race.color + '10';
+  tileEl.style.boxShadow = `0 12px 50px ${race.color}66, 0 0 80px ${race.color}33`;
 
   // Background image
   const bg = document.getElementById('race-bg');
