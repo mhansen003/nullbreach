@@ -537,13 +537,13 @@ body {
       <span class="dir-lbl" style="color:#00ffcc55">&#x25B2; YOU FROM BOTTOM (ROW 4)</span>
     </div>
     <div class="board-and-scores">
-      <!-- TIER ROW LABELS (left of grid) -->
+      <!-- TIER ROW LABELS (left of grid) — T1 home row only, T2+ advance -->
       <div class="tier-row-labels">
-        <div class="tier-row-label"><span class="trl-tier" style="color:#aa44ff">T3+</span><span class="trl-min">FIGHTER</span></div>
+        <div class="tier-row-label"><span class="trl-tier" style="color:#aa44ff">T2+</span><span class="trl-min">FIGHTER</span></div>
         <div class="tier-row-label"><span class="trl-tier" style="color:#4488ff">T2+</span><span class="trl-min">FLEET</span></div>
-        <div class="tier-row-label"><span class="trl-tier" style="color:#44cc66">T2+</span><span class="trl-min">FLEET</span></div>
-        <div class="tier-row-label"><span class="trl-tier" style="color:#d0d0d0">T1+</span><span class="trl-min">WORLD</span></div>
-        <div class="tier-row-label"><span class="trl-tier" style="color:#d0d0d0">T1+</span><span class="trl-min">HOME</span></div>
+        <div class="tier-row-label"><span class="trl-tier" style="color:#44cc66">T2+</span><span class="trl-min">ADVANCE</span></div>
+        <div class="tier-row-label"><span class="trl-tier" style="color:#44cc66">T2+</span><span class="trl-min">PUSH</span></div>
+        <div class="tier-row-label" style="border-color:#d0d0d066;background:#0d0d0d;"><span class="trl-tier" style="color:#d0d0d0">T1</span><span class="trl-min" style="color:#888">HOME</span></div>
       </div>
       <!-- GRID -->
       <div>
@@ -1229,14 +1229,18 @@ function getValidPlacements(owner, card) {
     }
   }
 
-  // Tier-based row restriction: planets must stay near home, fighters can go anywhere
-  const tierRowLimits = {
-    'I':   owner === 'player' ? [3, 4] : [0, 1],   // Tier I = home 2 rows only
-    'II':  owner === 'player' ? [2, 4] : [0, 2],   // Tier II = bottom/top 3 rows
-    'III': [0, 4],                                  // Tier III = anywhere
-    'IV':  [0, 4],                                  // Tier IV = anywhere
-  };
-  const [minAllowed, maxAllowed] = tierRowLimits[card.tier] || [0, 4];
+  // Tier placement: T1 = home row ONLY (planets anchor the base)
+  //                T2/III/IV = anywhere EXCEPT the home row
+  const homeRow = owner === 'player' ? 4 : 0;
+  let minAllowed, maxAllowed;
+  if (card.tier === 'I') {
+    // T1 only in home row
+    minAllowed = homeRow; maxAllowed = homeRow;
+  } else {
+    // T2+ cannot be placed in the home row (must advance)
+    minAllowed = owner === 'player' ? 0 : 1;
+    maxAllowed = owner === 'player' ? 3 : 4;
+  }
 
   return [...set]
     .map(s => { const [r,c] = s.split(',').map(Number); return {r,c}; })
@@ -1649,6 +1653,14 @@ document.addEventListener('click', startGameMusic, { once: true });
 
 // Disable right-click context menu on game board
 document.addEventListener('contextmenu', e => e.preventDefault());
+
+// F5 / Ctrl+R refresh confirmation — stay in game or confirm restart
+window.addEventListener('beforeunload', e => {
+  if (!G.gameOver) {
+    e.preventDefault();
+    e.returnValue = '';  // triggers browser's built-in "Leave page?" dialog
+  }
+});
 
 // ── START ─────────────────────────────────────
 initRaceTheme();
