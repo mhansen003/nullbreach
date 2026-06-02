@@ -344,15 +344,16 @@ body {
   <source src="assets/void-horizon.mp3" type="audio/mpeg">
 </audio>
 
-<!-- MUTE TOGGLE -->
+<!-- MUTE TOGGLE — top right, always visible -->
 <div id="muteBtn" onclick="toggleMute()" style="
-  position:fixed;bottom:16px;right:16px;z-index:100;
-  width:36px;height:36px;border-radius:50%;
-  background:#000000bb;border:1px solid #8855ff44;
-  color:#8855ff;font-size:16px;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;
+  position:fixed;top:12px;right:16px;z-index:200;
+  padding:6px 14px;border-radius:4px;
+  background:#000000cc;border:1px solid #ffffff33;
+  color:#ffffffcc;font-size:11px;letter-spacing:2px;
+  cursor:pointer;display:flex;align-items:center;gap:8px;
+  font-family:'Courier New',monospace;
   transition:all 0.2s;
-" title="Toggle music">🔊</div>
+" title="Toggle music">🔊 <span id="muteLbl">MUSIC</span></div>
 
 <!-- STARFIELD -->
 <canvas id="starfield"></canvas>
@@ -715,13 +716,16 @@ function startMusic() {
 
 function toggleMute() {
   const audio = document.getElementById('bgMusic');
-  const btn = document.getElementById('muteBtn');
   muted = !muted;
   audio.muted = muted;
-  btn.textContent = muted ? '🔇' : '🔊';
-  btn.style.opacity = muted ? '0.4' : '1';
+  document.getElementById('muteBtn').innerHTML =
+    (muted ? '🔇' : '🔊') + ' <span id="muteLbl">' + (muted ? 'MUTED' : 'MUSIC') + '</span>';
+  document.getElementById('muteBtn').style.opacity = muted ? '0.5' : '1';
   if (!musicStarted && !muted) startMusic();
 }
+
+// Start music on first ANY interaction with the page
+document.addEventListener('click', () => startMusic(), { once: true });
 
 // ── SCREEN TRANSITIONS ─────────────────────────────
 function showDeckSelect() {
