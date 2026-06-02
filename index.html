@@ -217,13 +217,13 @@ body {
 .conveyor-wrap {
   width: 100%;
   overflow: hidden;
-  padding: 32px 0 20px; /* top padding = room for hover jump */
+  /* Top padding gives room for the hover jump without clipping */
+  padding: 56px 0 20px;
 }
-/* Hover pause handled by JS */
 .conveyor-track {
   display: flex; gap: 22px; width: max-content;
   padding: 0 28px;
-  will-change: transform; /* GPU hint for smooth animation */
+  will-change: transform;
 }
 
 /* Navigation arrows */
@@ -662,54 +662,64 @@ const ABILITY_DESC = {
 
 let selectedRace = null;
 
-// ── CONVEYOR — JS-based animation (no restart on speed change) ────
-let cvPos    = 0;      // current scroll offset in pixels
-let cvSpeed  = 1.0;   // pixels per frame (default ~60fps = 55s per loop at ~3300px)
-let cvPaused = false;
-let cvHalf   = 0;      // half the track width — computed after build
-let cvRafId  = null;
+// ── CONVEYOR — JS-based infinite loop ─────────────────
+const TILE_PITCH   = 240 + 22; // card width + gap
+const TILE_COUNT   = 11;       // unique races
+const CV_LOOP_PX   = TILE_COUNT * TILE_PITCH; // exact loop length
+const AUTO_SPEED   = 1.4;      // pixels/frame auto-scroll
 
-const SPEED_LEVELS = [0.2, 0.4, 0.8, 1.5, 3.0, 6.0];
-let speedIdx = 2; // start at 0.8
+let cvPos          = 0;
+let cvSpeed        = AUTO_SPEED;
+let cvHoverPaused  = false;  // paused by hover
+let cvWheeling     = false;  // wheel overrides hover pause
+let cvWheelTimer   = null;
 
 function runConveyor() {
   const track = document.getElementById('conveyorTrack');
-  if (!track) return;
-  if (!cvHalf) cvHalf = track.scrollWidth / 2;
-  if (!cvPaused) {
+  if (!track) { requestAnimationFrame(runConveyor); return; }
+
+  if (!cvHoverPaused || cvWheeling) {
     cvPos += cvSpeed;
-    if (cvPos >= cvHalf) cvPos -= cvHalf; // seamless loop
+    // Seamless loop using exact tile pitch (not scrollWidth)
+    if (cvPos >= CV_LOOP_PX) cvPos -= CV_LOOP_PX;
+    if (cvPos < 0)           cvPos += CV_LOOP_PX;
     track.style.transform = `translateX(${-cvPos}px)`;
   }
-  cvRafId = requestAnimationFrame(runConveyor);
+  requestAnimationFrame(runConveyor);
 }
 
+// Arrow buttons step speed
+const SPEED_STEPS = [0.4, 0.8, 1.4, 2.5, 5.0];
+let speedIdx = 2; // default = AUTO_SPEED step
+
 function shiftSpeed(dir) {
-  speedIdx = Math.max(0, Math.min(SPEED_LEVELS.length - 1, speedIdx + dir));
-  cvSpeed = SPEED_LEVELS[speedIdx];
+  speedIdx = Math.max(0, Math.min(SPEED_STEPS.length - 1, speedIdx + dir));
+  cvSpeed = SPEED_STEPS[speedIdx];
 }
 
 function initConveyorWheel() {
-  // Attach wheel to deckselect screen for wider target area
   const screen = document.getElementById('deckselect');
   if (!screen) return;
   screen.addEventListener('wheel', (e) => {
     e.preventDefault();
-    shiftSpeed(e.deltaY < 0 ? 1 : -1);
+    // Wheel scrolls in both directions, overrides hover pause
+    cvWheeling = true;
+    cvSpeed = e.deltaY > 0 ? 5.0 : -5.0;
+    clearTimeout(cvWheelTimer);
+    cvWheelTimer = setTimeout(() => {
+      cvWheeling = false;
+      cvSpeed = Math.abs(cvSpeed) === 5.0 ? AUTO_SPEED : cvSpeed; // revert to auto
+    }, 600);
   }, { passive: false });
-  // Hover pause on the wrap itself
+
   const wrap = document.getElementById('conveyorWrap');
   if (wrap) {
-    wrap.addEventListener('mouseenter', () => { cvPaused = true; });
-    wrap.addEventListener('mouseleave', () => { cvPaused = false; });
+    wrap.addEventListener('mouseenter', () => { cvHoverPaused = true; });
+    wrap.addEventListener('mouseleave', () => { cvHoverPaused = false; });
   }
 }
 
-// Recompute cvHalf when deck select becomes visible
-function resetConveyorHalf() {
-  const track = document.getElementById('conveyorTrack');
-  if (track) cvHalf = track.scrollWidth / 2;
-}
+function resetConveyorHalf() {} // kept for compatibility
 
 // ── BUILD CONVEYOR BELT ────────────────────────────
 function buildRaceGrid() {
@@ -762,10 +772,14 @@ function selectRace(race, tileEl) {
   tileEl.style.borderColor = race.color;
   tileEl.style.boxShadow = `0 12px 50px ${race.color}66, 0 0 80px ${race.color}33`;
 
-  // Use lore background image (atmospheric environment) for full-screen bg
+  // Use lore background — clip it to start at the bottom of the conveyor belt
   const bg = document.getElementById('race-bg');
   const ov = document.getElementById('race-bg-overlay');
+  const cvSection = document.querySelector('.conveyor-section');
+  const clipTop = cvSection ? Math.round(cvSection.getBoundingClientRect().bottom) : 380;
   bg.style.backgroundImage = `url('${race.loreBg || race.cover}')`;
+  bg.style.clipPath  = `inset(${clipTop}px 0 0 0)`;
+  ov.style.clipPath  = `inset(${clipTop}px 0 0 0)`;
   bg.style.opacity = '0.88';
   ov.style.opacity = '1';
 
@@ -887,8 +901,10 @@ function showSplash() {
   // Reset race bg
   const bg = document.getElementById('race-bg');
   const ov = document.getElementById('race-bg-overlay');
-  bg.style.opacity = '0';
-  ov.style.opacity = '0';
+  bg.style.opacity  = '0';
+  ov.style.opacity  = '0';
+  bg.style.clipPath = '';
+  ov.style.clipPath = '';
   const splashBg = document.getElementById('splashBg');
   const splashDim = document.getElementById('splashDim');
   splashBg.style.opacity = '0.55';
@@ -915,8 +931,12 @@ function startGame() {
 // ── INIT ──────────────────────────────────────────
 buildRaceGrid();
 initConveyorWheel();
-// Start JS conveyor after tiles render
-requestAnimationFrame(() => { cvSpeed = SPEED_LEVELS[speedIdx]; runConveyor(); });
+
+// Preload all race deck cover images so the loop is seamless from first render
+RACES.forEach(r => { const img = new Image(); img.src = r.cover; });
+
+// Start the conveyor loop
+runConveyor();
 </script>
 </body>
 </html>
