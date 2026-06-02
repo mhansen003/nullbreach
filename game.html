@@ -444,27 +444,27 @@ body {
     <!-- Menu buttons -->
     <div style="display:flex;flex-direction:column;gap:6px;">
       <button onclick="toggleGameMusic();updateMuteLabel()" id="muteMenuBtn" style="
-        background:transparent;border:1px solid #2a1a44;color:#7755aa;
+        background:transparent;border:1px solid #443366;color:#ccaaee;
         font-family:inherit;font-size:9px;letter-spacing:2px;padding:7px 12px;
         cursor:pointer;border-radius:3px;text-align:left;transition:all 0.2s;
       " onmouseenter="this.style.borderColor='#8855ff';this.style.color='#cc99ff'"
-         onmouseleave="this.style.borderColor='#2a1a44';this.style.color='#7755aa'">
+         onmouseleave="this.style.borderColor='#443366';this.style.color='#ccaaee'">
         🔊 MUTE / UNMUTE
       </button>
       <button onclick="initGame();closeMenu()" style="
-        background:transparent;border:1px solid #2a1a44;color:#7755aa;
+        background:transparent;border:1px solid #443366;color:#ccaaee;
         font-family:inherit;font-size:9px;letter-spacing:2px;padding:7px 12px;
         cursor:pointer;border-radius:3px;text-align:left;transition:all 0.2s;
       " onmouseenter="this.style.borderColor='#00ffcc44';this.style.color='#00ffcc'"
-         onmouseleave="this.style.borderColor='#2a1a44';this.style.color='#7755aa'">
+         onmouseleave="this.style.borderColor='#443366';this.style.color='#ccaaee'">
         ↺ RESTART GAME
       </button>
       <button onclick="goToMenu()" style="
-        background:transparent;border:1px solid #2a1a44;color:#7755aa;
+        background:transparent;border:1px solid #443366;color:#ccaaee;
         font-family:inherit;font-size:9px;letter-spacing:2px;padding:7px 12px;
         cursor:pointer;border-radius:3px;text-align:left;transition:all 0.2s;
       " onmouseenter="this.style.borderColor='#8855ff44';this.style.color='#aa88ff'"
-         onmouseleave="this.style.borderColor='#2a1a44';this.style.color='#7755aa'">
+         onmouseleave="this.style.borderColor='#443366';this.style.color='#ccaaee'">
         ← CHANGE DECK
       </button>
     </div>
@@ -580,7 +580,12 @@ function initRaceTheme() {
   const params   = new URLSearchParams(window.location.search);
   const raceId   = params.get('race') || 'terran';
   const allRaces = Object.keys(RACE_DATA);
-  const aiRaceId = allRaces.filter(r => r !== raceId)[Math.floor(Math.random() * (allRaces.length - 1))];
+  // Persist AI race across refreshes — only randomize on first visit or change deck
+  let aiRaceId = sessionStorage.getItem('gz_ai_race');
+  if (!aiRaceId || aiRaceId === raceId) {
+    aiRaceId = allRaces.filter(r => r !== raceId)[Math.floor(Math.random() * (allRaces.length - 1))];
+    sessionStorage.setItem('gz_ai_race', aiRaceId);
+  }
 
   const player = RACE_DATA[raceId]   || RACE_DATA.terran;
   const ai     = RACE_DATA[aiRaceId] || RACE_DATA.entropy;
@@ -1507,6 +1512,9 @@ function toggleGameMusic() {
 
 // Start on first click (browser autoplay policy)
 document.addEventListener('click', startGameMusic, { once: true });
+
+// Disable right-click context menu on game board
+document.addEventListener('contextmenu', e => e.preventDefault());
 
 // ── START ─────────────────────────────────────
 initRaceTheme();
