@@ -336,8 +336,9 @@ body {
 <body>
 
 <!-- AUDIO -->
-<audio id="cardSfx" preload="auto"><source src="assets/card-place.mp3" type="audio/mpeg"></audio>
-<audio id="bgTrack" preload="none"></audio>
+<audio id="cardSfx"    preload="auto"><source src="assets/card-place.mp3"   type="audio/mpeg"></audio>
+<audio id="selectSfx"  preload="auto"><source src="assets/deploy-click.mp3" type="audio/mpeg"></audio>
+<audio id="bgTrack"    preload="none"></audio>
 
 <!-- Game music mute toggle -->
 <div id="gameMuteBtn" onclick="toggleGameMusic()" style="
@@ -963,6 +964,13 @@ function checkWin() {
 }
 
 // ── EVENTS ────────────────────────────────────
+function playSelectSfx() {
+  const sfx = document.getElementById('selectSfx');
+  if (!sfx) return;
+  sfx.currentTime = 0; sfx.volume = 0.65;
+  sfx.play().catch(() => {});
+}
+
 function onCardSelect(card) {
   if (G.turn !== 'player' || G.gameOver) return;
 
@@ -972,6 +980,7 @@ function onCardSelect(card) {
     hideDragCard();
     document.body.style.cursor = 'default';
   } else {
+    playSelectSfx(); // ← plays alt-button-click when picking a card
     G.selectedCard = card;
     document.body.style.cursor = 'none';
     // Drag card will be positioned on the next mousemove; show it at a default pos for now
