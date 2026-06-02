@@ -337,6 +337,15 @@ body {
 
 <!-- AUDIO -->
 <audio id="cardSfx" preload="auto"><source src="assets/card-place.mp3" type="audio/mpeg"></audio>
+<audio id="bgTrack" preload="none"></audio>
+
+<!-- Game music mute toggle -->
+<div id="gameMuteBtn" onclick="toggleGameMusic()" style="
+  position:fixed;bottom:16px;right:16px;z-index:100;
+  padding:5px 12px;border-radius:4px;background:#000000bb;
+  border:1px solid #00ffcc33;color:#00ffcc99;font-size:10px;
+  letter-spacing:2px;cursor:pointer;font-family:inherit;
+">🔊</div>
 
 <div class="header">
   <div class="title">NULL//BREACH</div>
@@ -1039,6 +1048,57 @@ document.addEventListener('click', e => {
     renderHand();
   }
 }, true);
+
+// ── GAMEPLAY MUSIC — random rotating playlist ─────────────
+const PLAYLIST = [
+  'assets/music1.mp3',
+  'assets/music2.mp3',
+  'assets/music3.mp3',
+  'assets/music4.mp3',
+];
+let playlistOrder = [];
+let trackIdx = 0;
+let musicStarted = false;
+let musicMuted = false;
+
+function shufflePlaylist() {
+  playlistOrder = [...PLAYLIST];
+  for (let i = playlistOrder.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [playlistOrder[i], playlistOrder[j]] = [playlistOrder[j], playlistOrder[i]];
+  }
+  trackIdx = 0;
+}
+
+function playNextTrack() {
+  if (musicMuted) return;
+  if (trackIdx >= playlistOrder.length) shufflePlaylist();
+  const audio = document.getElementById('bgTrack');
+  audio.src = playlistOrder[trackIdx++];
+  audio.volume = 0.4;
+  audio.play().catch(() => {});
+}
+
+function startGameMusic() {
+  if (musicStarted) return;
+  musicStarted = true;
+  shufflePlaylist();
+  const audio = document.getElementById('bgTrack');
+  audio.addEventListener('ended', playNextTrack);
+  playNextTrack();
+}
+
+function toggleGameMusic() {
+  const audio = document.getElementById('bgTrack');
+  const btn   = document.getElementById('gameMuteBtn');
+  musicMuted = !musicMuted;
+  audio.muted = musicMuted;
+  if (btn) btn.textContent = musicMuted ? '🔇' : '🔊';
+  if (!musicStarted && !musicMuted) startGameMusic();
+}
+
+// Start on first click (browser autoplay policy)
+document.addEventListener('click', startGameMusic, { once: true });
 
 // ── START ─────────────────────────────────────
 initGame();
