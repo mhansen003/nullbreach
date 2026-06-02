@@ -16,44 +16,28 @@ body {
   user-select: none;
 }
 
-/* Lore backgrounds — AI at top, player at bottom, fully bright at edge, fade to center */
-#game-top-bg, #game-bottom-bg {
-  position: fixed; left: 0; right: 0; z-index: 0;
+/* Lore backgrounds — contained to AI bar and player hand bar only */
+.ai-area, .player-area {
   background-size: cover;
-  pointer-events: none; opacity: 0;
-  transition: opacity 1.2s ease;
+  background-position: center;
+  position: relative;
+  transition: background-image 0.8s ease;
 }
-#game-top-bg {
-  top: 0; height: 50%;
-  background-position: center top;
-  mask-image: linear-gradient(to bottom,
-    black 0%,
-    black 45%,
-    transparent 100%
-  );
-  -webkit-mask-image: linear-gradient(to bottom,
-    black 0%,
-    black 45%,
-    transparent 100%
-  );
+/* Dark overlay on the UI areas so content stays readable */
+.ai-area::before, .player-area::before {
+  content: '';
+  position: absolute; inset: 0; z-index: 0;
+  pointer-events: none;
 }
-#game-bottom-bg {
-  bottom: 0; height: 50%;
-  background-position: center bottom;
-  mask-image: linear-gradient(to top,
-    black 0%,
-    black 45%,
-    transparent 100%
-  );
-  -webkit-mask-image: linear-gradient(to top,
-    black 0%,
-    black 45%,
-    transparent 100%
-  );
+.ai-area::before {
+  background: linear-gradient(to bottom, #020208cc 0%, #020208aa 100%);
 }
+.player-area::before {
+  background: linear-gradient(to top, #020208cc 0%, #020208aa 100%);
+}
+/* Ensure all children sit above the overlay */
+.ai-area > *, .player-area > * { position: relative; z-index: 1; }
 
-/* Ensure all UI sits above backgrounds */
-.header, .ai-area, .main-area, .player-area { position: relative; z-index: 10; }
 
 /* HEADER */
 .header {
@@ -374,10 +358,6 @@ body {
 </head>
 <body>
 
-<!-- LORE BACKGROUNDS -->
-<div id="game-top-bg"></div>
-<div id="game-bottom-bg"></div>
-
 <!-- AUDIO -->
 <audio id="cardSfx"    preload="auto"><source src="assets/card-place.mp3"   type="audio/mpeg"></audio>
 <audio id="selectSfx"  preload="auto"><source src="assets/deploy-click.mp3" type="audio/mpeg"></audio>
@@ -530,11 +510,11 @@ function initRaceTheme() {
   const player = RACE_DATA[raceId]   || RACE_DATA.terran;
   const ai     = RACE_DATA[aiRaceId] || RACE_DATA.entropy;
 
-  // Set lore backgrounds
-  const topBg = document.getElementById('game-top-bg');
-  const botBg = document.getElementById('game-bottom-bg');
-  if (topBg) { topBg.style.backgroundImage = `url('${ai.loreBg}')`; topBg.style.opacity = '1'; }
-  if (botBg) { botBg.style.backgroundImage = `url('${player.loreBg}')`; botBg.style.opacity = '1'; }
+  // Apply lore backgrounds directly to the deck/hand bars
+  const aiBar     = document.querySelector('.ai-area');
+  const playerBar = document.querySelector('.player-area');
+  if (aiBar)     aiBar.style.backgroundImage     = `url('${ai.loreBg}')`;
+  if (playerBar) playerBar.style.backgroundImage = `url('${player.loreBg}')`;
 
   // Update player color throughout
   const pColor = player.color;
