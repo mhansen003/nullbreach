@@ -35,8 +35,9 @@ body {
 }
 .splash-bg-dim {
   position: fixed; inset: 0; z-index: 2;
-  background: radial-gradient(ellipse at 50% 55%,
-    transparent 0%, #020208cc 55%, #020208f5 100%);
+  background:
+    linear-gradient(to bottom, #020208ee 0%, transparent 18%, transparent 78%, #020208ee 100%),
+    radial-gradient(ellipse at 50% 52%, #020208bb 0%, #020208cc 45%, #020208f5 100%);
 }
 
 /* Race background — fades in when a deck is selected */
@@ -76,8 +77,9 @@ body {
 
 .splash-eyebrow {
   font-size: 10px; letter-spacing: 8px;
-  color: #9977cc; margin-bottom: 24px;
+  color: #ffffffbb; margin-bottom: 24px;
   text-transform: uppercase;
+  text-shadow: 0 0 12px #000000cc, 0 1px 3px #000000;
 }
 
 .splash-title {
@@ -106,12 +108,14 @@ body {
 
 .splash-tagline {
   font-size: 12px; letter-spacing: 6px;
-  color: #cc99ff; margin-bottom: 5px;
+  color: #ffffffee; margin-bottom: 5px;
   animation: fadeIn 2s ease forwards;
+  text-shadow: 0 0 14px #000000cc, 0 1px 3px #000000;
 }
 .splash-tagline2 {
   font-size: 10px; letter-spacing: 4px;
-  color: #9977bb; margin-bottom: 52px;
+  color: #ffffffaa; margin-bottom: 52px;
+  text-shadow: 0 0 10px #000000cc, 0 1px 2px #000000;
 }
 
 /* Scanning line */
@@ -128,9 +132,9 @@ body {
 
 .btn-enter {
   position: relative;
-  background: transparent;
-  border: 1px solid #8855ff66;
-  color: #c9aaff;
+  background: #000000cc;
+  border: 1px solid #ffffff88;
+  color: #ffffff;
   font-family: inherit;
   font-size: 11px; letter-spacing: 6px;
   padding: 16px 52px;
@@ -170,9 +174,10 @@ body {
   text-align: center;
 }
 .splash-footer-lore {
-  font-size: 9px; letter-spacing: 3px; color: #8866bb; margin-bottom: 4px;
+  font-size: 9px; letter-spacing: 3px; color: #ffffffbb; margin-bottom: 4px;
+  text-shadow: 0 0 10px #000000, 0 1px 2px #000000cc;
 }
-.splash-version { font-size: 8px; color: #6655aa; letter-spacing: 2px; }
+.splash-version { font-size: 8px; color: #ffffff88; letter-spacing: 2px; text-shadow: 0 0 8px #000000; }
 
 /* ══════════════════════════════════════
    SCREEN 2 — DECK SELECT
