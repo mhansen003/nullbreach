@@ -190,18 +190,18 @@ body {
 }
 .ds-title {
   font-family: 'Orbitron', monospace;
-  font-size: 12px; letter-spacing: 6px; color: #fff;
-  text-shadow: 0 0 16px #8855ff66;
+  font-size: 16px; letter-spacing: 6px; color: #fff;
+  text-shadow: 0 0 20px #8855ffaa, 0 2px 4px #000000aa;
 }
 .ds-header-right { display: flex; gap: 12px; align-items: center; }
-.ds-logo { font-family:'Orbitron',monospace; font-size:9px; letter-spacing:4px; color:#443366; }
+.ds-logo { font-family:'Orbitron',monospace; font-size:9px; letter-spacing:4px; color:#7755aa; }
 .btn-back {
-  background: transparent; border: 1px solid #332255;
-  color: #664488; font-family: inherit;
-  font-size: 8px; letter-spacing: 3px;
-  padding: 5px 14px; cursor: pointer; transition: all 0.2s;
+  background: #00000066; border: 1px solid #8855ff66;
+  color: #aa88ff; font-family: inherit;
+  font-size: 9px; letter-spacing: 3px;
+  padding: 6px 16px; cursor: pointer; transition: all 0.2s;
 }
-.btn-back:hover { border-color: #8855ff; color: #aa77ff; }
+.btn-back:hover { border-color: #aa77ff; color: #fff; }
 
 /* ── CONVEYOR BELT ── */
 .conveyor-wrap {
@@ -261,11 +261,14 @@ body {
 .ds-empty {
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
-  width: 100%; gap: 14px; opacity: 0.3;
+  width: 100%; gap: 14px;
 }
 .ds-empty.hidden { display: none; }
-.ds-empty-icon { font-size: 36px; }
-.ds-empty-text { font-size: 10px; letter-spacing: 4px; }
+.ds-empty-icon { font-size: 40px; opacity: 0.5; }
+.ds-empty-text {
+  font-size: 13px; letter-spacing: 5px; color: #ffffffaa;
+  text-shadow: 0 0 12px #000000cc;
+}
 .ds-lore-content { display: none; flex-direction: column; gap: 8px; width: 100%; }
 .ds-lore-content.visible { display: flex; animation: loreIn 0.4s ease; }
 @keyframes loreIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
@@ -304,10 +307,11 @@ body {
 .btn-deploy:hover { box-shadow: 0 0 30px currentColor, 0 0 60px currentColor; letter-spacing: 7px; }
 .btn-deploy:active { transform: scale(0.98); }
 .ds-footer {
-  flex-shrink: 0; padding: 6px 36px; border-top: 1px solid #0e0c1a;
+  flex-shrink: 0; padding: 8px 36px; border-top: 1px solid #1a1428;
   display: flex; justify-content: space-between; align-items: center;
+  background: linear-gradient(to top, #020208cc, transparent);
 }
-.ds-footer-lore { font-size: 8px; letter-spacing: 3px; color: #554477; }
+.ds-footer-lore { font-size: 9px; letter-spacing: 3px; color: #9977bb; text-shadow: 0 0 8px #000000aa; }
 
 /* ── ANIMATIONS ── */
 @keyframes fadeIn { from{opacity:0} to{opacity:1} }
