@@ -184,8 +184,8 @@ body {
 /* GRID */
 .grid {
   display: grid;
-  grid-template-columns: repeat(5, 118px);
-  grid-template-rows: repeat(5, 118px);
+  grid-template-columns: repeat(5, 142px);
+  grid-template-rows: repeat(5, 142px);
   gap: 6px;
   position: relative;
   flex-shrink: 0;
@@ -193,8 +193,8 @@ body {
 
 /* CELLS */
 .cell {
-  width: 118px; height: 118px;
-  border-radius: 4px;
+  width: 142px; height: 142px;
+  border-radius: 5px;
   position: relative;
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
@@ -224,7 +224,7 @@ body {
 
 /* HAND CARD -- card art as background, overlay shows stats */
 .hand-card {
-  width: 80px; height: 104px; border-radius: 4px; position: relative;
+  width: 106px; height: 140px; border-radius: 6px; position: relative;
   cursor: pointer;
   background-size: cover; background-position: center;
   background-color: #06050e;
@@ -563,17 +563,17 @@ body {
 <script>
 // ── RACE LOOKUP (for lore backgrounds + portraits) ────────────────
 const RACE_DATA = {
-  terran:     { name:'THE TERRAN ACCORD',      sub:'UNITED COLONIAL FEDERATION',    color:'#7ab8e8', avatar:'★',  quote:'"We are many worlds, one purpose."',            loreBg:'assets/lore_terran.png'    },
-  crystallis: { name:'THE CRYSTALLIS',          sub:'SILICON LATTICE CIVILIZATION',  color:'#a8d8ff', avatar:'💎', quote:'"You will fracture against us."',                loreBg:'assets/lore_crystallis.png' },
-  mycos:      { name:'THE MYCOS DRIFT',         sub:'DISTRIBUTED FUNGAL INTELLIGENCE',color:'#9dcf6e', avatar:'🍄', quote:'"We have already begun."',                      loreBg:'assets/lore_mycos.png'      },
-  veil:       { name:'THE VEIL',                sub:'COHERENT LIGHT ENTITIES',       color:'#fff5a0', avatar:'✦',  quote:'"You cannot strike what you cannot see."',       loreBg:'assets/lore_veil.png'       },
-  entropy:    { name:'THE ENTROPY CULT',        sub:'ANCIENT DECAY WORSHIPPERS',     color:'#c4723a', avatar:'☄',  quote:'"Everything ends. We simply hasten it."',        loreBg:'assets/lore_entropy.png'    },
-  brood:      { name:'THE BROOD SOVEREIGN',     sub:'INSECTOID HIVE-MIND',           color:'#88cc44', avatar:'🪲', quote:'"The Sovereign sees through ten thousand eyes."', loreBg:'assets/lore_brood.png'      },
-  void:       { name:'THE VOID HUNTERS',        sub:'DARK MATTER PREDATORS',         color:'#9b59b6', avatar:'▪',  quote:'"We come from the dark between stars."',         loreBg:'assets/lore_void.png'       },
-  gas:        { name:'THE GAS NOMADS',          sub:'PLASMA STORM BEINGS',           color:'#ffd700', avatar:'⚡', quote:'"You have angered the storm."',                  loreBg:'assets/lore_gas.png'        },
-  lithos:     { name:'THE LITHOS',              sub:'GEOLOGICAL ANCIENTS',           color:'#a0896a', avatar:'⬡',  quote:'"We were here before your stars ignited."',      loreBg:'assets/lore_lithos.png'     },
-  quantum:    { name:'THE QUANTUM THREAD',      sub:'SUPERPOSITION ENTITIES',        color:'#ff69b4', avatar:'◈',  quote:'"We are all possibilities at once."',            loreBg:'assets/lore_quantum.png'    },
-  choir:      { name:'THE CHOIR',               sub:'RESONANT FREQUENCY ENTITIES',   color:'#c8c8ff', avatar:'〜', quote:'"The note that breaks everything."',             loreBg:'assets/lore_choir.png'      },
+  terran:     { name:'THE TERRAN ACCORD',      sub:'UNITED COLONIAL FEDERATION',     color:'#7ab8e8', avatar:'★',  avatarImg:'assets/avatars/terran.png',    quote:'"We are many worlds, one purpose."',            loreBg:'assets/lore_terran.png'     },
+  crystallis: { name:'THE CRYSTALLIS',          sub:'SILICON LATTICE CIVILIZATION',   color:'#a8d8ff', avatar:'💎', avatarImg:'assets/avatars/crystallis.png', quote:'"You will fracture against us."',                loreBg:'assets/lore_crystallis.png' },
+  mycos:      { name:'THE MYCOS DRIFT',         sub:'DISTRIBUTED FUNGAL INTELLIGENCE',color:'#9dcf6e', avatar:'🍄', avatarImg:'assets/avatars/mycos.png',      quote:'"We have already begun."',                      loreBg:'assets/lore_mycos.png'      },
+  veil:       { name:'THE VEIL',                sub:'COHERENT LIGHT ENTITIES',        color:'#fff5a0', avatar:'✦',  avatarImg:'assets/avatars/veil.png',       quote:'"You cannot strike what you cannot see."',       loreBg:'assets/lore_veil.png'       },
+  entropy:    { name:'THE ENTROPY CULT',        sub:'ANCIENT DECAY WORSHIPPERS',      color:'#c4723a', avatar:'☄',  avatarImg:'assets/avatars/entropy.png',    quote:'"Everything ends. We simply hasten it."',        loreBg:'assets/lore_entropy.png'    },
+  brood:      { name:'THE BROOD SOVEREIGN',     sub:'INSECTOID HIVE-MIND',            color:'#88cc44', avatar:'🪲', avatarImg:'assets/avatars/brood.png',      quote:'"The Sovereign sees through ten thousand eyes."', loreBg:'assets/lore_brood.png'      },
+  void:       { name:'THE VOID HUNTERS',        sub:'DARK MATTER PREDATORS',          color:'#9b59b6', avatar:'▪',  avatarImg:'assets/avatars/void.png',       quote:'"We come from the dark between stars."',         loreBg:'assets/lore_void.png'       },
+  gas:        { name:'THE GAS NOMADS',          sub:'PLASMA STORM BEINGS',            color:'#ffd700', avatar:'⚡', avatarImg:'assets/avatars/gas.png',        quote:'"You have angered the storm."',                  loreBg:'assets/lore_gas.png'        },
+  lithos:     { name:'THE LITHOS',              sub:'GEOLOGICAL ANCIENTS',            color:'#a0896a', avatar:'⬡',  avatarImg:'assets/avatars/lithos.png',     quote:'"We were here before your stars ignited."',      loreBg:'assets/lore_lithos.png'     },
+  quantum:    { name:'THE QUANTUM THREAD',      sub:'SUPERPOSITION ENTITIES',         color:'#ff69b4', avatar:'◈',  avatarImg:'assets/avatars/quantum.png',    quote:'"We are all possibilities at once."',            loreBg:'assets/lore_quantum.png'    },
+  choir:      { name:'THE CHOIR',               sub:'RESONANT FREQUENCY ENTITIES',    color:'#c8c8ff', avatar:'〜', avatarImg:'assets/avatars/choir.png',      quote:'"The note that breaks everything."',             loreBg:'assets/lore_choir.png'      },
 };
 
 function initRaceTheme() {
@@ -609,7 +609,13 @@ function initRaceTheme() {
   const aiAvEl = document.querySelector('.ai-avatar');
   const aiNmEl = document.querySelector('.ai-name');
   const aiSubEl = document.querySelector('.ai-sub');
-  if (aiAvEl)  aiAvEl.textContent  = ai.avatar;
+  if (aiAvEl) {
+    // Use generated avatar portrait image if available
+    aiAvEl.innerHTML = ai.avatarImg
+      ? `<img src="${ai.avatarImg}" style="width:100%;height:100%;object-fit:cover;border-radius:2px;">`
+      : ai.avatar;
+    aiAvEl.style.borderColor = ai.color + '88';
+  }
   if (aiNmEl)  { aiNmEl.textContent = ai.name; aiNmEl.style.color = ai.color; }
   if (aiSubEl) aiSubEl.textContent = ai.sub;
   const aiQuoteEl = document.getElementById('aiQuote');
@@ -621,21 +627,22 @@ function initRaceTheme() {
 // ── CARD DEFINITIONS — TERRAN ACCORD (starter deck) ───────────────
 const PLAYER_CARDS = [
   // T1 — COLONY WORLD (5 cards, 3 share art)
-  { id:'ta_t1a', name:'COLONY WORLD',  tier:'I',  tierLabel:'COLONY WORLD', edges:{n:4,s:5,e:5,w:4}, power:1, ability:null,            abilityText:'Basic Colony World', art:'assets/cards/terran/colony-world.png' },
-  { id:'ta_t1b', name:'COLONY WORLD',  tier:'I',  tierLabel:'COLONY WORLD', edges:{n:5,s:4,e:4,w:5}, power:1, ability:null,            abilityText:'Basic Colony World', art:'assets/cards/terran/colony-world.png' },
-  { id:'ta_t1c', name:'COLONY WORLD',  tier:'I',  tierLabel:'COLONY WORLD', edges:{n:5,s:5,e:4,w:4}, power:1, ability:null,            abilityText:'Basic Colony World', art:'assets/cards/terran/colony-world.png' },
-  { id:'ta_t1d', name:'FRONTIER POST', tier:'I',  tierLabel:'COLONY WORLD', edges:{n:6,s:5,e:4,w:4}, power:1, ability:'shield',        abilityText:'SHIELD: Ignores first comparison loss', art:'assets/cards/terran/frontier-post.png' },
-  { id:'ta_t1e', name:'SUPPLY HUB',    tier:'I',  tierLabel:'COLONY WORLD', edges:{n:5,s:5,e:5,w:5}, power:2, ability:'boost',         abilityText:'BOOST: Adjacent friendly cards +1 all edges', art:'assets/cards/terran/supply-hub.png' },
+  // zone = expansion pattern this card opens for future placements
+  { id:'ta_t1a', name:'COLONY WORLD',  tier:'I',  tierLabel:'COLONY WORLD', zone:'wide_cross',  edges:{n:4,s:5,e:5,w:4}, power:1, ability:null,            abilityText:'Basic Colony World', art:'assets/cards/terran/colony-world.png' },
+  { id:'ta_t1b', name:'COLONY WORLD',  tier:'I',  tierLabel:'COLONY WORLD', zone:'wide_cross',  edges:{n:5,s:4,e:4,w:5}, power:1, ability:null,            abilityText:'Basic Colony World', art:'assets/cards/terran/colony-world.png' },
+  { id:'ta_t1c', name:'COLONY WORLD',  tier:'I',  tierLabel:'COLONY WORLD', zone:'wide_cross',  edges:{n:5,s:5,e:4,w:4}, power:1, ability:null,            abilityText:'Basic Colony World', art:'assets/cards/terran/colony-world.png' },
+  { id:'ta_t1d', name:'FRONTIER POST', tier:'I',  tierLabel:'COLONY WORLD', zone:'wall',        edges:{n:6,s:5,e:4,w:4}, power:1, ability:'shield',        abilityText:'SHIELD: Ignores first comparison loss', art:'assets/cards/terran/frontier-post.png' },
+  { id:'ta_t1e', name:'SUPPLY HUB',    tier:'I',  tierLabel:'COLONY WORLD', zone:'full_ring',   edges:{n:5,s:5,e:5,w:5}, power:2, ability:'boost',         abilityText:'BOOST: Adjacent friendly cards +1 all edges', art:'assets/cards/terran/supply-hub.png' },
   // T2 — BATTLE GROUP (3 cards)
-  { id:'ta_t2a', name:'BATTLE GROUP',  tier:'II', tierLabel:'BATTLE GROUP', edges:{n:6,s:5,e:7,w:5}, power:3, ability:'commander',     abilityText:'COMMANDER: Same-tier adjacents +2 all edges', art:'assets/cards/terran/battle-group.png' },
-  { id:'ta_t2b', name:'CARRIER WING',  tier:'II', tierLabel:'BATTLE GROUP', edges:{n:7,s:5,e:6,w:5}, power:3, ability:'boost',         abilityText:'BOOST: Adjacent friendly cards +1 all edges', art:'assets/cards/terran/carrier-wing.png' },
-  { id:'ta_t2c', name:'STRIKE FORCE',  tier:'II', tierLabel:'BATTLE GROUP', edges:{n:6,s:6,e:7,w:5}, power:2, ability:'double_strike', abilityText:'DOUBLE STRIKE: Comparison reaches 2 deep', art:'assets/cards/terran/strike-force.png' },
+  { id:'ta_t2a', name:'BATTLE GROUP',  tier:'II', tierLabel:'BATTLE GROUP', zone:'command',     edges:{n:6,s:5,e:7,w:5}, power:3, ability:'commander',     abilityText:'COMMANDER: Same-tier adjacents +2 all edges', art:'assets/cards/terran/battle-group.png' },
+  { id:'ta_t2b', name:'CARRIER WING',  tier:'II', tierLabel:'BATTLE GROUP', zone:'launch',      edges:{n:7,s:5,e:6,w:5}, power:3, ability:'boost',         abilityText:'BOOST: Adjacent friendly cards +1 all edges', art:'assets/cards/terran/carrier-wing.png' },
+  { id:'ta_t2c', name:'STRIKE FORCE',  tier:'II', tierLabel:'BATTLE GROUP', zone:'lance',       edges:{n:6,s:6,e:7,w:5}, power:2, ability:'double_strike', abilityText:'DOUBLE STRIKE: Comparison reaches 2 deep', art:'assets/cards/terran/strike-force.png' },
   // T3 — STRIKE CRAFT (3 cards)
-  { id:'ta_t3a', name:'INTERCEPTOR',   tier:'III',tierLabel:'STRIKE CRAFT', edges:{n:8,s:3,e:7,w:4}, power:3, ability:'double_strike', abilityText:'DOUBLE STRIKE: Comparison reaches 2 deep', art:'assets/cards/terran/interceptor.png' },
-  { id:'ta_t3b', name:'FAST RUNNER',   tier:'III',tierLabel:'STRIKE CRAFT', edges:{n:7,s:3,e:8,w:4}, power:2, ability:'surge',         abilityText:'SURGE: Losing rows? +3 to all edges', art:'assets/cards/terran/fast-runner.png' },
-  { id:'ta_t3c', name:'FLANKER',       tier:'III',tierLabel:'STRIKE CRAFT', edges:{n:7,s:3,e:7,w:4}, power:2, ability:'pierce',        abilityText:'PIERCE: Ties count as wins', art:'assets/cards/terran/flanker.png' },
+  { id:'ta_t3a', name:'INTERCEPTOR',   tier:'III',tierLabel:'STRIKE CRAFT', zone:'lance',       edges:{n:8,s:3,e:7,w:4}, power:3, ability:'double_strike', abilityText:'DOUBLE STRIKE: Comparison reaches 2 deep', art:'assets/cards/terran/interceptor.png' },
+  { id:'ta_t3b', name:'FAST RUNNER',   tier:'III',tierLabel:'STRIKE CRAFT', zone:'flanker',     edges:{n:7,s:3,e:8,w:4}, power:2, ability:'surge',         abilityText:'SURGE: Losing rows? +3 to all edges', art:'assets/cards/terran/fast-runner.png' },
+  { id:'ta_t3c', name:'FLANKER',       tier:'III',tierLabel:'STRIKE CRAFT', zone:'flanker',     edges:{n:7,s:3,e:7,w:4}, power:2, ability:'pierce',        abilityText:'PIERCE: Ties count as wins', art:'assets/cards/terran/flanker.png' },
   // T4 — DREADNAUGHT (1 card)
-  { id:'ta_t4',  name:'THE ACCORD',    tier:'IV', tierLabel:'DREADNAUGHT',  edges:{n:8,s:8,e:8,w:7}, power:4, ability:'chain',         abilityText:'CHAIN: Wins cascade to adjacent enemies', art:'assets/cards/terran/the-accord.png' },
+  { id:'ta_t4',  name:'THE ACCORD',    tier:'IV', tierLabel:'DREADNAUGHT',  zone:'dreadnaught', edges:{n:8,s:8,e:8,w:7}, power:4, ability:'chain',         abilityText:'CHAIN: Wins cascade to adjacent enemies', art:'assets/cards/terran/the-accord.png' },
 ];
 const AI_CARDS = [
   { id:'a1',  name:'FANG',    tier:'I',   edges:{n:3,s:5,e:4,w:5}, power:2, ability:null,            abilityText:'Basic card' },
@@ -750,7 +757,10 @@ function computeScores() {
 }
 
 // ── RENDERING ─────────────────────────────────
-const CS = 124;  // cell + gap = 118 + 6
+const CS = 148;  // cell + gap = 142 + 6
+
+// Tier border colors — immediately readable at a glance
+const TIER_COLORS = { 'I':'#d0d0d0', 'II':'#44cc66', 'III':'#4488ff', 'IV':'#aa44ff' };
 
 function renderAll() {
   renderGrid();
@@ -778,6 +788,10 @@ function renderGrid() {
         div.style.backgroundImage = `url('${cell.card.art || ''}')`;
         div.style.backgroundSize = 'cover';
         div.style.backgroundPosition = 'center';
+        // Tier border color: white=I, green=II, blue=III, purple=IV
+        const tierCol = TIER_COLORS[cell.card.tier] || '#888';
+        div.style.borderColor = tierCol;
+        div.style.boxShadow = `0 0 10px ${tierCol}55`;
         const col = cell.owner === 'player' ? '#00ffcc' : '#ff0080';
         const bat = cell.battle || { h: 'none', v: 'none' };
 
@@ -953,8 +967,13 @@ function renderHand() {
     const isUsed = card.used;
     div.className = 'hand-card' + (isUsed ? ' used' : '') + (isSelected ? ' selected' : '');
 
-    // Set card art as background
+    // Card art background + tier border color
     if (card.art) div.style.backgroundImage = `url('${card.art}')`;
+    const tierCol = TIER_COLORS[card.tier] || '#888888';
+    div.style.borderColor = tierCol;
+    div.style.boxShadow = isSelected
+      ? `0 0 22px ${tierCol}88, 0 0 44px ${tierCol}44`
+      : `0 0 8px ${tierCol}33`;
 
     const col = '#00ffcc';
     div.innerHTML = `
@@ -1027,6 +1046,28 @@ function showFlash(r1, c1, r2, c2, myVal, theirVal, iWin) {
   setTimeout(() => f.remove(), 1900);
 }
 
+// ── ZONE EXPANSION PATTERNS ────────────────────
+// dr = forward/back (player: -1=forward, +1=backward; AI mirrors)
+// dc = sideways (same for both)
+const ZONES = {
+  // Tier 1 WORLDS — liberal, open territory in all directions
+  wide_cross:  [{dr:-1,dc:0},{dr:-1,dc:-1},{dr:-1,dc:1},{dr:0,dc:-1},{dr:0,dc:1},{dr:1,dc:0},{dr:-2,dc:0}],
+  // Supply hub — full ring around the card (most open)
+  full_ring:   [{dr:-1,dc:-1},{dr:-1,dc:0},{dr:-1,dc:1},{dr:0,dc:-1},{dr:0,dc:1},{dr:1,dc:-1},{dr:1,dc:0},{dr:1,dc:1}],
+  // Frontier post — holds ground, opens horizontal spread + 1 forward
+  wall:        [{dr:-1,dc:0},{dr:0,dc:-1},{dr:0,dc:-2},{dr:0,dc:1},{dr:0,dc:2},{dr:1,dc:0}],
+  // Battle group — opens wide front (2 wide × 2 deep forward)
+  command:     [{dr:-1,dc:-1},{dr:-1,dc:0},{dr:-1,dc:1},{dr:-2,dc:0},{dr:-2,dc:-1},{dr:-2,dc:1}],
+  // Carrier wing — forward lanes for fighters to launch through
+  launch:      [{dr:-1,dc:0},{dr:-2,dc:0},{dr:-1,dc:-1},{dr:-1,dc:1},{dr:-3,dc:0}],
+  // Strike force / interceptor — punches directly forward, 2 deep
+  lance:       [{dr:-1,dc:0},{dr:-2,dc:0}],
+  // Flanker / fast runner — forward + diagonals
+  flanker:     [{dr:-1,dc:0},{dr:-1,dc:-1},{dr:-1,dc:1},{dr:-2,dc:0}],
+  // Dreadnaught — expands everywhere, 2 deep in all directions
+  dreadnaught: [{dr:-1,dc:0},{dr:-2,dc:0},{dr:0,dc:-1},{dr:0,dc:1},{dr:-1,dc:-1},{dr:-1,dc:1},{dr:1,dc:0}],
+};
+
 // ── PLACEMENT RULES ───────────────────────────
 function getValidPlacements(owner, card) {
   // PHANTOM: free placement within OWN 2 home rows
@@ -1040,25 +1081,58 @@ function getValidPlacements(owner, card) {
   }
 
   const homeRow = owner === 'player' ? 4 : 0;
-  const set = new Set();
+  const fwd     = owner === 'player' ? -1 : 1; // forward direction
+  const set     = new Set();
 
-  // Always can place in home row
+  // Home row is always available
   for (let c = 0; c < 5; c++)
-    if (!G.grid[homeRow][c].card)
-      set.add(`${homeRow},${c}`);
+    if (!G.grid[homeRow][c].card) set.add(`${homeRow},${c}`);
 
-  // Adjacent to own cards
-  const dirs = [[-1,0],[1,0],[0,-1],[0,1]];
-  for (let r = 0; r < 5; r++)
-    for (let c = 0; c < 5; c++)
-      if (G.grid[r][c].owner === owner)
-        for (const [dr,dc] of dirs) {
-          const nr=r+dr, nc=c+dc;
-          if (nr>=0&&nr<5&&nc>=0&&nc<5&&!G.grid[nr][nc].card)
-            set.add(`${nr},${nc}`);
-        }
+  // Zone expansion from each placed friendly card
+  for (let r = 0; r < 5; r++) {
+    for (let c = 0; c < 5; c++) {
+      const cell = G.grid[r][c];
+      if (cell.owner !== owner || !cell.card) continue;
 
-  return [...set].map(s => { const [r,c]=s.split(',').map(Number); return{r,c}; });
+      const zoneKey   = cell.card.zone || 'wide_cross';
+      const zoneOffsets = ZONES[zoneKey] || ZONES.wide_cross;
+
+      for (const {dr, dc} of zoneOffsets) {
+        // Mirror dr for player (forward = up = -1) vs AI (forward = down = +1)
+        const nr = r + dr * fwd;
+        const nc = c + dc;
+        if (nr >= 0 && nr < 5 && nc >= 0 && nc < 5 && !G.grid[nr][nc].card)
+          set.add(`${nr},${nc}`);
+      }
+    }
+  }
+
+  // Tier-based row restriction: planets must stay near home, fighters can go anywhere
+  const tierRowLimits = {
+    'I':   owner === 'player' ? [3, 4] : [0, 1],   // Tier I = home 2 rows only
+    'II':  owner === 'player' ? [2, 4] : [0, 2],   // Tier II = bottom/top 3 rows
+    'III': [0, 4],                                  // Tier III = anywhere
+    'IV':  [0, 4],                                  // Tier IV = anywhere
+  };
+  const [minAllowed, maxAllowed] = tierRowLimits[card.tier] || [0, 4];
+
+  return [...set]
+    .map(s => { const [r,c] = s.split(',').map(Number); return {r,c}; })
+    .filter(({r}) => r >= minAllowed && r <= maxAllowed);
+}
+
+// ── ZONE PREVIEW (yellow cells showing future placements if placed here) ───
+function getZonePreview(r, c, card, owner) {
+  const zoneKey   = card.zone || 'wide_cross';
+  const zoneOffsets = ZONES[zoneKey] || ZONES.wide_cross;
+  const fwd = owner === 'player' ? -1 : 1;
+  const cells = [];
+  for (const {dr, dc} of zoneOffsets) {
+    const nr = r + dr * fwd, nc = c + dc;
+    if (nr >= 0 && nr < 5 && nc >= 0 && nc < 5 && !G.grid[nr][nc].card)
+      cells.push({r: nr, c: nc});
+  }
+  return cells;
 }
 
 // ── COMPARISON FLASH (no ownership change) ───

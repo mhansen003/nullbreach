@@ -937,7 +937,11 @@ function showDeckSelect() {
   setTimeout(resetConveyorHalf, 100);
   setTimeout(() => {
     document.getElementById('deckselect').classList.remove('hidden');
-  }, 150);
+    // Auto-select Terran AFTER deck select is visible (avoids lore bg on splash)
+    const terranRace = RACES.find(r => r.id === 'terran');
+    const terranTile = document.querySelector('.race-tile[data-id="terran"]');
+    if (terranRace && terranTile) selectRace(terranRace, terranTile);
+  }, 160);
 }
 
 function showSplash() {
@@ -979,6 +983,12 @@ if (new URLSearchParams(window.location.search).get('screen') === 'deck') {
   document.getElementById('splashBg').style.opacity = '0';
   document.getElementById('splashDim').style.opacity = '0';
   document.getElementById('deckselect').classList.remove('hidden');
+  // Auto-select Terran when arriving from game
+  setTimeout(() => {
+    const terranRace = RACES.find(r => r.id === 'terran');
+    const terranTile = document.querySelector('.race-tile[data-id="terran"]');
+    if (terranRace && terranTile) selectRace(terranRace, terranTile);
+  }, 200);
 }
 
 initConveyorWheel();
@@ -994,10 +1004,7 @@ Promise.all(
 ).then(() => {
   buildRaceGrid();
   runConveyor();
-  // Auto-select Terran Accord as default
-  const terranRace = RACES.find(r => r.id === 'terran');
-  const terranTile = document.querySelector('.race-tile[data-id="terran"]');
-  if (terranRace && terranTile) selectRace(terranRace, terranTile);
+  // Auto-select Terran fires in showDeckSelect, not here (prevents lore bg on splash)
 });
 </script>
 </body>
