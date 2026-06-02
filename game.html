@@ -16,24 +16,40 @@ body {
   user-select: none;
 }
 
-/* Lore backgrounds — AI at top, player at bottom, fade toward center */
+/* Lore backgrounds — AI at top, player at bottom, fully bright at edge, fade to center */
 #game-top-bg, #game-bottom-bg {
   position: fixed; left: 0; right: 0; z-index: 0;
-  background-size: cover; background-position: center;
+  background-size: cover;
   pointer-events: none; opacity: 0;
-  transition: opacity 1s ease;
+  transition: opacity 1.2s ease;
 }
 #game-top-bg {
-  top: 0; height: 45%;
+  top: 0; height: 50%;
   background-position: center top;
-  mask-image: linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, transparent 100%);
-  -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, transparent 100%);
+  mask-image: linear-gradient(to bottom,
+    black 0%,
+    black 45%,
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(to bottom,
+    black 0%,
+    black 45%,
+    transparent 100%
+  );
 }
 #game-bottom-bg {
-  bottom: 0; height: 45%;
+  bottom: 0; height: 50%;
   background-position: center bottom;
-  mask-image: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 100%);
-  -webkit-mask-image: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 100%);
+  mask-image: linear-gradient(to top,
+    black 0%,
+    black 45%,
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(to top,
+    black 0%,
+    black 45%,
+    transparent 100%
+  );
 }
 
 /* Ensure all UI sits above backgrounds */
