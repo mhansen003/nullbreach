@@ -211,19 +211,25 @@ body {
 .cell.just-placed { animation: placePulse 0.35s ease; }
 @keyframes placePulse { 0%{transform:scale(0.8);opacity:0.4} 100%{transform:scale(1);opacity:1} }
 
-/* Card face -- edges at 4 sides, power in center, no power-badge corner */
-.edge { position: absolute; font-size: 17px; font-weight: bold; line-height: 1; }
-.edge.n { top: 5px; left: 50%; transform: translateX(-50%); }
-.edge.s { bottom: 5px; left: 50%; transform: translateX(-50%); }
-.edge.w { left: 7px; top: 50%; transform: translateY(-50%); }
-.edge.e { right: 7px; top: 50%; transform: translateY(-50%); }
+/* Card face -- all elements absolutely positioned, zero overlap */
+.edge { position: absolute; font-size: 16px; font-weight: bold; line-height: 1; z-index: 2;
+        text-shadow: 0 0 6px #000, 0 1px 3px #000; }
+.edge.n { top: 6px;    left: 50%; transform: translateX(-50%); }
+.edge.s { bottom: 6px; left: 50%; transform: translateX(-50%); }
+.edge.w { left: 6px;   top: 50%;  transform: translateY(-50%); }
+.edge.e { right: 6px;  top: 50%;  transform: translateY(-50%); }
 
-/* Center content block (power + name) sits in flex flow */
-.cell-center { display: flex; flex-direction: column; align-items: center; gap: 2px; }
-.cell-power  { font-size: 22px; font-weight: bold; line-height: 1; }
-.cell-name   { font-size: 8px; letter-spacing: 1px; opacity: 0.55; }
-.tier-badge  { position: absolute; top: 4px; right: 5px; font-size: 9px; font-weight: bold; opacity: 0.4; }
-.ability-tag { position: absolute; bottom: 18px; left: 50%; transform: translateX(-50%); font-size: 7px; letter-spacing: 1px; opacity: 0.55; white-space: nowrap; }
+/* Power in absolute center, name removed from board cards */
+.cell-center {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex; flex-direction: column; align-items: center; z-index: 2;
+}
+.cell-power  { font-size: 24px; font-weight: bold; line-height: 1;
+               text-shadow: 0 0 8px #000, 0 2px 4px #000; }
+.cell-name   { display: none; } /* name shown in tooltip only — too small on board */
+.tier-badge  { position: absolute; top: 5px; right: 6px; font-size: 9px; font-weight: bold; opacity: 0.45; z-index: 2; }
+.ability-tag { position: absolute; bottom: 5px; left: 6px; font-size: 7px; letter-spacing: 1px; opacity: 0.6; white-space: nowrap; z-index: 2; }
 
 /* HAND CARD -- card art as background, overlay shows stats */
 .hand-card {
@@ -539,17 +545,6 @@ body {
       <span class="dir-lbl" style="color:#00ffcc55">&#x25B2; YOU FROM BOTTOM (ROW 4)</span>
     </div>
     <div class="board-and-scores">
-      <!-- PLAYER PORTRAIT PANEL (left, tall) -->
-      <div id="playerPanel" style="
-        width:90px;flex-shrink:0;display:flex;flex-direction:column;
-        align-items:center;gap:8px;align-self:stretch;
-        background:#06050e;border:1px solid #00ffcc22;border-radius:5px;
-        padding:8px 4px;overflow:hidden;
-      ">
-        <img id="playerPanelImg" src="" style="width:82px;height:220px;object-fit:cover;object-position:center top;border-radius:4px;display:none;">
-        <div id="playerPanelName" style="font-size:8px;letter-spacing:1px;color:#00ffcc;text-align:center;word-break:break-word;line-height:1.4;"></div>
-      </div>
-
       <!-- TIER ROW LABELS (left of grid) — T1 home row only, T2+ advance -->
       <div class="tier-row-labels">
         <div class="tier-row-label"><span class="trl-tier" style="color:#aa44ff">T2+</span><span class="trl-min">FIGHTER</span></div>
@@ -567,16 +562,6 @@ body {
       <!-- ROW SCORES -->
       <div class="row-scores" id="rowScores"></div>
 
-      <!-- AI PORTRAIT PANEL (right, tall) -->
-      <div id="aiPanel" style="
-        width:90px;flex-shrink:0;display:flex;flex-direction:column;
-        align-items:center;gap:8px;align-self:stretch;
-        background:#06050e;border:1px solid #ff008022;border-radius:5px;
-        padding:8px 4px;overflow:hidden;
-      ">
-        <img id="aiPanelImg" src="" style="width:82px;height:220px;object-fit:cover;object-position:center top;border-radius:4px;display:none;">
-        <div id="aiPanelName" style="font-size:8px;letter-spacing:1px;color:#ff0080;text-align:center;word-break:break-word;line-height:1.4;"></div>
-      </div>
     </div>
   </div>
 
@@ -669,20 +654,7 @@ function initRaceTheme() {
   if (aiBar) aiBar.style.backgroundImage = '';
   if (playerBar) playerBar.style.backgroundImage = '';
 
-  // Wire tall avatar portrait panels
-  const pPanel = document.getElementById('playerPanel');
-  const pImg   = document.getElementById('playerPanelImg');
-  const pName  = document.getElementById('playerPanelName');
-  if (pPanel) pPanel.style.borderColor = player.color + '44';
-  if (pImg && player.avatarImg) { pImg.src = player.avatarImg; pImg.style.display='block'; }
-  if (pName) { pName.textContent = player.name.replace('THE ',''); pName.style.color = player.color; }
-
-  const aPanel = document.getElementById('aiPanel');
-  const aImg   = document.getElementById('aiPanelImg');
-  const aName  = document.getElementById('aiPanelName');
-  if (aPanel) aPanel.style.borderColor = ai.color + '44';
-  if (aImg && ai.avatarImg) { aImg.src = ai.avatarImg; aImg.style.display='block'; }
-  if (aName) { aName.textContent = ai.name.replace('THE ',''); aName.style.color = ai.color; }
+  // Panels removed — portraits live in ai-area/player-area headers
 
   // Update player color throughout
   const pColor = player.color;
@@ -1133,10 +1105,11 @@ function hasPlacedTier(tier) {
 function renderHand() {
   const el = document.getElementById('handCards');
   el.innerHTML = '';
-  G.playerHand.forEach(card => {
+  // Only render UNUSED cards — used cards disappear from hand, shrinking it
+  G.playerHand.filter(c => !c.used).forEach(card => {
     const div = document.createElement('div');
     const isSelected = G.selectedCard === card;
-    const isUsed = card.used;
+    const isUsed = false; // filtered above
 
     // Tier prerequisite check
     let isBlocked = false;

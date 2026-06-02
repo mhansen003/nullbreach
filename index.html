@@ -384,6 +384,8 @@ body {
 <audio id="deploySfx" preload="auto">
   <source src="assets/deploy-click.mp3" type="audio/mpeg">
 </audio>
+<!-- Civilization voice intro — plays on deck selection -->
+<audio id="civVoice" preload="none"></audio>
 
 <!-- MUTE TOGGLE — bottom right, never conflicts with headers -->
 <div id="muteBtn" onclick="toggleMute()" style="
@@ -1036,7 +1038,7 @@ Promise.all(
   }))
 ).then(() => {
   buildRaceGrid();
-  runConveyor();
+  requestAnimationFrame(runConveyor); // must use rAF to pass timestamp, else NaN delta
   // Auto-select Terran fires in showDeckSelect, not here (prevents lore bg on splash)
 });
 </script>
