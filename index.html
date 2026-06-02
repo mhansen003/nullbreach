@@ -242,41 +242,57 @@ body {
 
 .race-tile {
   border-radius: 5px;
-  padding: 10px 8px 8px;
   cursor: pointer;
-  display: flex; flex-direction: column; align-items: center;
-  gap: 5px; text-align: center;
-  background: #06050e;
+  height: 148px;
+  background: #06050e center/cover no-repeat;
   border: 1px solid transparent;
-  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s, background 0.2s;
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
   position: relative; overflow: hidden;
 }
-.race-tile::before {
+/* Gradient overlay — dark at bottom so text reads clearly */
+.race-tile::after {
   content: '';
   position: absolute; inset: 0;
-  background: linear-gradient(135deg, currentColor 0%, transparent 60%);
-  opacity: 0; transition: opacity 0.2s;
+  background: linear-gradient(
+    to top,
+    #020208f0 0%,
+    #020208cc 40%,
+    #02020866 65%,
+    transparent 100%
+  );
+  z-index: 0;
+  transition: opacity 0.2s;
 }
-.race-tile:hover { transform: translateY(-3px) scale(1.02); }
-.race-tile:hover::before { opacity: 0.04; }
-.race-tile.selected { transform: translateY(-3px) scale(1.02); }
-.race-tile.selected::before { opacity: 0.06; }
+.race-tile:hover { transform: translateY(-4px) scale(1.03); }
+.race-tile:hover::after { opacity: 0.85; }
+.race-tile.selected { transform: translateY(-4px) scale(1.03); }
+.race-tile.selected::after { opacity: 0.8; }
 
-.rt-avatar { font-size: 26px; line-height: 1; position: relative; z-index: 1; }
-.rt-name { font-size: 7.5px; letter-spacing: 1px; line-height: 1.3; font-weight: bold; position: relative; z-index: 1; }
-.rt-sub { font-size: 6.5px; letter-spacing: 0.5px; opacity: 0.4; line-height: 1.3; position: relative; z-index: 1; }
+/* Text group anchored to tile bottom */
+.rt-text-group {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  padding: 8px 8px 7px;
+  z-index: 2;
+  display: flex; flex-direction: column; gap: 2px;
+}
+.rt-name {
+  font-size: 8px; letter-spacing: 1.5px; line-height: 1.2;
+  font-weight: bold;
+}
+.rt-sub {
+  font-size: 6.5px; letter-spacing: 0.5px; opacity: 0.55; line-height: 1.3;
+}
 .rt-abilities {
   font-size: 6.5px; letter-spacing: 0.5px; opacity: 0;
-  transition: opacity 0.2s; color: #888; line-height: 1.5;
-  position: relative; z-index: 1;
+  transition: opacity 0.2s; color: #aaa; line-height: 1.5; margin-top: 1px;
 }
 .race-tile:hover .rt-abilities,
-.race-tile.selected .rt-abilities { opacity: 0.65; }
+.race-tile.selected .rt-abilities { opacity: 0.75; }
 
 .rt-starter-badge {
-  position: absolute; top: 5px; right: 5px;
+  position: absolute; top: 6px; right: 6px; z-index: 3;
   font-size: 6px; letter-spacing: 1px;
-  opacity: 0.5; padding: 1px 4px; border-radius: 2px;
+  opacity: 0.8; padding: 2px 5px; border-radius: 2px;
 }
 
 /* Right — lore panel */
@@ -665,28 +681,27 @@ function buildRaceGrid() {
     const tile = document.createElement('div');
     tile.className = 'race-tile';
     tile.dataset.id = race.id;
-    tile.style.color = race.color;
+    tile.style.backgroundImage = `url('${race.cover}')`;
     tile.style.borderColor = race.color + '28';
     tile.innerHTML = `
-      ${race.starter ? `<div class="rt-starter-badge" style="color:${race.color};border:1px solid ${race.color}44;background:${race.color}11">STARTER</div>` : ''}
-      <div class="rt-avatar">${race.avatar}</div>
-      <div class="rt-name" style="color:${race.color}">${race.name.replace('THE ', '')}</div>
-      <div class="rt-sub">${race.sub}</div>
-      <div class="rt-abilities">${race.abilities.slice(0,3).join(' · ')}</div>
+      ${race.starter ? `<div class="rt-starter-badge" style="color:${race.color};border:1px solid ${race.color}55;background:#000000aa">STARTER</div>` : ''}
+      <div class="rt-text-group">
+        <div class="rt-name" style="color:${race.color}">${race.name}</div>
+        <div class="rt-sub">${race.sub}</div>
+        <div class="rt-abilities">${race.abilities.slice(0,3).join(' · ')}</div>
+      </div>
     `;
     tile.addEventListener('click', () => selectRace(race, tile));
     tile.addEventListener('mouseenter', () => {
       if (selectedRace?.id !== race.id) {
-        tile.style.borderColor = race.color + '55';
-        tile.style.boxShadow = `0 0 14px ${race.color}22`;
-        tile.style.background = race.color + '08';
+        tile.style.borderColor = race.color + '66';
+        tile.style.boxShadow = `0 0 14px ${race.color}33`;
       }
     });
     tile.addEventListener('mouseleave', () => {
       if (selectedRace?.id !== race.id) {
         tile.style.borderColor = race.color + '28';
         tile.style.boxShadow = '';
-        tile.style.background = '';
       }
     });
     grid.appendChild(tile);
