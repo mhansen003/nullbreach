@@ -53,11 +53,12 @@ body {
 #race-bg-overlay {
   position: fixed; inset: 0; z-index: 2;
   background: linear-gradient(
-    105deg,
-    #020208f0 0%,
-    #020208cc 45%,
-    #02020888 75%,
-    transparent 100%
+    to bottom,
+    transparent 0%,
+    transparent 38%,
+    #020208aa 55%,
+    #020208ee 75%,
+    #020208f8 100%
   );
   opacity: 0; transition: opacity 0.8s ease;
 }
@@ -364,9 +365,9 @@ body {
   <source src="assets/deploy-click.mp3" type="audio/mpeg">
 </audio>
 
-<!-- MUTE TOGGLE — top right, always visible -->
+<!-- MUTE TOGGLE — bottom right, never conflicts with headers -->
 <div id="muteBtn" onclick="toggleMute()" style="
-  position:fixed;top:12px;right:16px;z-index:200;
+  position:fixed;bottom:20px;right:20px;z-index:200;
   padding:6px 14px;border-radius:4px;
   background:#000000cc;border:1px solid #ffffff33;
   color:#ffffffcc;font-size:11px;letter-spacing:2px;
@@ -689,16 +690,25 @@ function shiftSpeed(dir) {
 }
 
 function initConveyorWheel() {
-  const wrap = document.getElementById('conveyorWrap');
-  if (!wrap) return;
-  // Mouse wheel changes speed
-  wrap.addEventListener('wheel', (e) => {
+  // Attach wheel to deckselect screen for wider target area
+  const screen = document.getElementById('deckselect');
+  if (!screen) return;
+  screen.addEventListener('wheel', (e) => {
     e.preventDefault();
     shiftSpeed(e.deltaY < 0 ? 1 : -1);
   }, { passive: false });
-  // Hover pauses
-  wrap.addEventListener('mouseenter', () => { cvPaused = true; });
-  wrap.addEventListener('mouseleave', () => { cvPaused = false; });
+  // Hover pause on the wrap itself
+  const wrap = document.getElementById('conveyorWrap');
+  if (wrap) {
+    wrap.addEventListener('mouseenter', () => { cvPaused = true; });
+    wrap.addEventListener('mouseleave', () => { cvPaused = false; });
+  }
+}
+
+// Recompute cvHalf when deck select becomes visible
+function resetConveyorHalf() {
+  const track = document.getElementById('conveyorTrack');
+  if (track) cvHalf = track.scrollWidth / 2;
 }
 
 // ── BUILD CONVEYOR BELT ────────────────────────────
@@ -742,7 +752,7 @@ function selectRace(race, tileEl) {
     if (r) {
       t.style.borderColor = r.color + '28';
       t.style.boxShadow = '';
-      t.style.background = '';
+      // DO NOT clear background — it contains the deck cover backgroundImage
     }
     t.classList.remove('selected');
   });
@@ -865,6 +875,8 @@ function showDeckSelect() {
   splashBg.style.transition = 'opacity 0.7s';
   splashBg.style.opacity = '0';
   splashDim.style.opacity = '0';
+  // Compute conveyor half-width now that it's visible
+  setTimeout(resetConveyorHalf, 100);
   setTimeout(() => {
     document.getElementById('deckselect').classList.remove('hidden');
   }, 150);
