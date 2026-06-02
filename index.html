@@ -213,9 +213,8 @@ body {
 /* ── CONVEYOR BELT ── */
 .conveyor-section {
   position: relative; flex-shrink: 0; z-index: 20;
-  border-top: 1px solid #8855ff33;
   border-bottom: 1px solid #8855ff33;
-  background: linear-gradient(to bottom, #020208aa, transparent 20%, transparent 80%, #020208aa);
+  background: linear-gradient(to bottom, transparent 0%, transparent 80%, #020208aa);
 }
 .conveyor-wrap {
   width: 100%;
@@ -820,10 +819,12 @@ function selectRace(race, tileEl) {
   });
 
   selectedRace = race;
-  tileEl.classList.add('selected');
-  // Yellow border to clearly mark the selected deck
-  tileEl.style.borderColor = '#ffdd00';
-  tileEl.style.boxShadow = `0 0 24px #ffdd0066, 0 0 48px #ffdd0033, 0 12px 40px ${race.color}44`;
+  // Apply yellow border to ALL copies of this tile in the conveyor (3 sets)
+  document.querySelectorAll(`.race-tile[data-id="${race.id}"]`).forEach(t => {
+    t.classList.add('selected');
+    t.style.borderColor = '#ffdd00';
+    t.style.boxShadow = `0 0 24px #ffdd0066, 0 0 48px #ffdd0033, 0 12px 40px ${race.color}44`;
+  });
 
   // Use lore background — clip it to start at the bottom of the conveyor belt
   const bg = document.getElementById('race-bg');
