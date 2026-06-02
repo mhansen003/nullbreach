@@ -758,11 +758,13 @@ function initConveyorWheel() {
     e.preventDefault();
     // Wheel scrolls in both directions, overrides hover pause
     cvWheeling = true;
-    cvSpeed = e.deltaY > 0 ? 5.0 : -5.0;
+    // Speed proportional to deltaY magnitude for more responsive scroll
+    const magnitude = Math.min(Math.abs(e.deltaY) * 0.08, 12.0);
+    cvSpeed = e.deltaY > 0 ? magnitude : -magnitude;
     clearTimeout(cvWheelTimer);
     cvWheelTimer = setTimeout(() => {
       cvWheeling = false;
-      cvSpeed = Math.abs(cvSpeed) === 5.0 ? AUTO_SPEED : cvSpeed; // revert to auto
+      cvSpeed = AUTO_SPEED; // revert to auto
     }, 600);
   }, { passive: false });
 
@@ -895,7 +897,23 @@ function selectRace(race, tileEl) {
     `;
     document.getElementById('deployWrap').classList.add('visible');
     lc.classList.add('visible');
+
+    // Play civilization voice intro
+    playCivVoice(race.id);
   }, 60);
+}
+
+function playCivVoice(raceId) {
+  const v = document.getElementById('civVoice');
+  if (!v) return;
+  v.pause();
+  v.src = `assets/voices/${raceId}.mp3`;
+  v.volume = 0.85;
+  v.play().catch(() => {});
+}
+function stopCivVoice() {
+  const v = document.getElementById('civVoice');
+  if (v) { v.pause(); v.currentTime = 0; }
 }
 
 // ── GALAXY VIDEO — play once, freeze on last frame ───────────────────
@@ -977,6 +995,7 @@ function showDeckSelect() {
 }
 
 function showSplash() {
+  stopCivVoice(); // Stop voice when going back to splash
   document.getElementById('deckselect').classList.add('hidden');
   // Reset race bg
   const bg = document.getElementById('race-bg');
@@ -996,7 +1015,8 @@ function showSplash() {
 
 function startGame() {
   if (!selectedRace) return;
-  // Play deploy sound instead of regular click
+  stopCivVoice(); // Stop civilization narration when entering game
+  // Play deploy sound
   const dep = document.getElementById('deploySfx');
   if (dep) { dep.currentTime = 0; dep.volume = 0.8; dep.play().catch(()=>{}); }
   // Navigate to game board with selected race parameters

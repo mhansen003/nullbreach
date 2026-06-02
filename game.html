@@ -230,6 +230,9 @@ body {
 .cell-name   { display: none; } /* name shown in tooltip only — too small on board */
 .tier-badge  { position: absolute; top: 5px; right: 6px; font-size: 9px; font-weight: bold; opacity: 0.45; z-index: 2; }
 .ability-tag { position: absolute; bottom: 5px; left: 6px; font-size: 7px; letter-spacing: 1px; opacity: 0.6; white-space: nowrap; z-index: 2; }
+/* Tier dot indicators — replace border color as tier signal */
+.tier-dots { position: absolute; top: 6px; left: 6px; display: flex; gap: 3px; z-index: 2; }
+.tier-dot  { width: 7px; height: 7px; border-radius: 50%; display: inline-block; box-shadow: 0 0 4px currentColor; }
 
 /* HAND CARD -- card art as background, overlay shows stats */
 .hand-card {
@@ -700,6 +703,10 @@ function initRaceTheme() {
   if (aiFactionLbl) { aiFactionLbl.textContent = window.aiFactionName; aiFactionLbl.style.color = ai.color + '88'; }
   if (playerFactionLbl) { playerFactionLbl.textContent = window.playerFactionName; playerFactionLbl.style.color = player.color + '88'; }
 
+  // Store faction colors globally for use in renderGrid
+  window.playerFactionColor = player.color;
+  window.aiFactionColor     = ai.color;
+
   return { player, ai, raceId, aiRaceId };
 }
 
@@ -901,10 +908,14 @@ function renderGrid() {
         div.style.backgroundImage = `url('${cell.card.art || ''}')`;
         div.style.backgroundSize = 'cover';
         div.style.backgroundPosition = 'center';
-        // Tier border color: white=I, green=II, blue=III, purple=IV
-        const tierCol = TIER_COLORS[cell.card.tier] || '#888';
-        div.style.borderColor = tierCol;
-        div.style.boxShadow = `0 0 10px ${tierCol}55`;
+        // Border = faction color (whose card), dots = tier indicator
+        const factionCol = cell.owner === 'player'
+          ? (window.playerFactionColor || '#00ffcc')
+          : (window.aiFactionColor     || '#ff0080');
+        div.style.borderColor = factionCol;
+        div.style.boxShadow = `0 0 10px ${factionCol}44`;
+        const tierDotCol = TIER_COLORS[cell.card.tier] || '#888';
+        const tierNum    = {'I':1,'II':2,'III':3,'IV':4}[cell.card.tier] || 1;
         const col = cell.owner === 'player' ? '#00ffcc' : '#ff0080';
         const bat = cell.battle || { h: 'none', v: 'none' };
 
@@ -925,12 +936,16 @@ function renderGrid() {
           <span class="edge s" style="color:${col}${vDim}">${cell.card.edges.s}${vMark}</span>
           <span class="edge w" style="color:${col}${hDim}">${cell.card.edges.w}${hMark}</span>
           <span class="edge e" style="color:${col}${hDim}">${cell.card.edges.e}${hMark}</span>
-          <span class="tier-badge" style="color:${col}">${cell.card.tier}</span>
+          <!-- Tier dots: top-left, color = tier, count = tier number -->
+          <div class="tier-dots">
+            ${Array.from({length: tierNum}, () =>
+              `<span class="tier-dot" style="background:${tierDotCol};color:${tierDotCol};"></span>`
+            ).join('')}
+          </div>
           <div class="cell-center">
             <span class="cell-power" style="color:${pwrColor}">${cell.card.power}</span>
-            <span class="cell-name" style="color:${col}cc">${cell.card.name}</span>
           </div>
-          ${cell.card.ability ? `<span class="ability-tag" style="color:${col}55">${ab(cell.card.ability)}</span>` : ''}
+          ${cell.card.ability ? `<span class="ability-tag" style="color:${factionCol}88">${ab(cell.card.ability)}</span>` : ''}
         `;
       } else {
         div.classList.add('empty');
@@ -1105,8 +1120,11 @@ function hasPlacedTier(tier) {
 function renderHand() {
   const el = document.getElementById('handCards');
   el.innerHTML = '';
-  // Only render UNUSED cards — used cards disappear from hand, shrinking it
-  G.playerHand.filter(c => !c.used).forEach(card => {
+  // Only render UNUSED cards, sorted by tier (T1→T2→T3→T4)
+  const TIER_ORDER = {'I':1,'II':2,'III':3,'IV':4};
+  const sortedHand = G.playerHand.filter(c => !c.used)
+    .sort((a,b) => (TIER_ORDER[a.tier]||9) - (TIER_ORDER[b.tier]||9));
+  sortedHand.forEach(card => {
     const div = document.createElement('div');
     const isSelected = G.selectedCard === card;
     const isUsed = false; // filtered above
@@ -1130,13 +1148,14 @@ function renderHand() {
     div.className = 'hand-card' + (isUsed ? ' used' : '') + (isSelected ? ' selected' : '') + (isBlocked ? ' tier-blocked' : '');
     if (isBlocked) div.title = blockedTitle;
 
-    // Card art background + tier border color
+    // Card art background — border = player faction color, dots on card show tier
     if (card.art) div.style.backgroundImage = `url('${card.art}')`;
-    const tierCol = TIER_COLORS[card.tier] || '#888888';
-    div.style.borderColor = tierCol;
+    const factionC = window.playerFactionColor || '#00ffcc';
+    const tierDotC = TIER_COLORS[card.tier] || '#888888';
+    div.style.borderColor = factionC;
     div.style.boxShadow = isSelected
-      ? `0 0 22px ${tierCol}88, 0 0 44px ${tierCol}44`
-      : `0 0 8px ${tierCol}33`;
+      ? `0 0 22px ${factionC}88, 0 0 44px ${factionC}44`
+      : `0 0 8px ${factionC}33`;
 
     const col = '#00ffcc';
     div.innerHTML = `
