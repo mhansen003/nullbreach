@@ -16,6 +16,29 @@ body {
   user-select: none;
 }
 
+/* Lore backgrounds — AI at top, player at bottom, fade toward center */
+#game-top-bg, #game-bottom-bg {
+  position: fixed; left: 0; right: 0; z-index: 0;
+  background-size: cover; background-position: center;
+  pointer-events: none; opacity: 0;
+  transition: opacity 1s ease;
+}
+#game-top-bg {
+  top: 0; height: 45%;
+  background-position: center top;
+  mask-image: linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, transparent 100%);
+}
+#game-bottom-bg {
+  bottom: 0; height: 45%;
+  background-position: center bottom;
+  mask-image: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 100%);
+}
+
+/* Ensure all UI sits above backgrounds */
+.header, .ai-area, .main-area, .player-area { position: relative; z-index: 10; }
+
 /* HEADER */
 .header {
   background: linear-gradient(90deg, #0a0a1a, #160a28);
@@ -335,6 +358,10 @@ body {
 </head>
 <body>
 
+<!-- LORE BACKGROUNDS -->
+<div id="game-top-bg"></div>
+<div id="game-bottom-bg"></div>
+
 <!-- AUDIO -->
 <audio id="cardSfx"    preload="auto"><source src="assets/card-place.mp3"   type="audio/mpeg"></audio>
 <audio id="selectSfx"  preload="auto"><source src="assets/deploy-click.mp3" type="audio/mpeg"></audio>
@@ -463,6 +490,58 @@ body {
 </div>
 
 <script>
+// ── RACE LOOKUP (for lore backgrounds + portraits) ────────────────
+const RACE_DATA = {
+  terran:     { name:'THE TERRAN ACCORD',      sub:'UNITED COLONIAL FEDERATION',    color:'#7ab8e8', avatar:'★',  quote:'"We are many worlds, one purpose."',            loreBg:'assets/lore_terran.png'    },
+  crystallis: { name:'THE CRYSTALLIS',          sub:'SILICON LATTICE CIVILIZATION',  color:'#a8d8ff', avatar:'💎', quote:'"You will fracture against us."',                loreBg:'assets/lore_crystallis.png' },
+  mycos:      { name:'THE MYCOS DRIFT',         sub:'DISTRIBUTED FUNGAL INTELLIGENCE',color:'#9dcf6e', avatar:'🍄', quote:'"We have already begun."',                      loreBg:'assets/lore_mycos.png'      },
+  veil:       { name:'THE VEIL',                sub:'COHERENT LIGHT ENTITIES',       color:'#fff5a0', avatar:'✦',  quote:'"You cannot strike what you cannot see."',       loreBg:'assets/lore_veil.png'       },
+  entropy:    { name:'THE ENTROPY CULT',        sub:'ANCIENT DECAY WORSHIPPERS',     color:'#c4723a', avatar:'☄',  quote:'"Everything ends. We simply hasten it."',        loreBg:'assets/lore_entropy.png'    },
+  brood:      { name:'THE BROOD SOVEREIGN',     sub:'INSECTOID HIVE-MIND',           color:'#88cc44', avatar:'🪲', quote:'"The Sovereign sees through ten thousand eyes."', loreBg:'assets/lore_brood.png'      },
+  void:       { name:'THE VOID HUNTERS',        sub:'DARK MATTER PREDATORS',         color:'#9b59b6', avatar:'▪',  quote:'"We come from the dark between stars."',         loreBg:'assets/lore_void.png'       },
+  gas:        { name:'THE GAS NOMADS',          sub:'PLASMA STORM BEINGS',           color:'#ffd700', avatar:'⚡', quote:'"You have angered the storm."',                  loreBg:'assets/lore_gas.png'        },
+  lithos:     { name:'THE LITHOS',              sub:'GEOLOGICAL ANCIENTS',           color:'#a0896a', avatar:'⬡',  quote:'"We were here before your stars ignited."',      loreBg:'assets/lore_lithos.png'     },
+  quantum:    { name:'THE QUANTUM THREAD',      sub:'SUPERPOSITION ENTITIES',        color:'#ff69b4', avatar:'◈',  quote:'"We are all possibilities at once."',            loreBg:'assets/lore_quantum.png'    },
+  choir:      { name:'THE CHOIR',               sub:'RESONANT FREQUENCY ENTITIES',   color:'#c8c8ff', avatar:'〜', quote:'"The note that breaks everything."',             loreBg:'assets/lore_choir.png'      },
+};
+
+function initRaceTheme() {
+  const params   = new URLSearchParams(window.location.search);
+  const raceId   = params.get('race') || 'terran';
+  const allRaces = Object.keys(RACE_DATA);
+  const aiRaceId = allRaces.filter(r => r !== raceId)[Math.floor(Math.random() * (allRaces.length - 1))];
+
+  const player = RACE_DATA[raceId]   || RACE_DATA.terran;
+  const ai     = RACE_DATA[aiRaceId] || RACE_DATA.entropy;
+
+  // Set lore backgrounds
+  const topBg = document.getElementById('game-top-bg');
+  const botBg = document.getElementById('game-bottom-bg');
+  if (topBg) { topBg.style.backgroundImage = `url('${ai.loreBg}')`; topBg.style.opacity = '1'; }
+  if (botBg) { botBg.style.backgroundImage = `url('${player.loreBg}')`; botBg.style.opacity = '1'; }
+
+  // Update player color throughout
+  const pColor = player.color;
+  document.documentElement.style.setProperty('--player-color', pColor);
+
+  // Update portrait labels
+  const pName = document.querySelector('.player-name');
+  const pTitle = document.querySelector('.player-title');
+  if (pName)  pName.textContent  = player.name;
+  if (pTitle) pTitle.textContent = player.sub;
+
+  const aiAvEl = document.querySelector('.ai-avatar');
+  const aiNmEl = document.querySelector('.ai-name');
+  const aiSubEl = document.querySelector('.ai-sub');
+  if (aiAvEl)  aiAvEl.textContent  = ai.avatar;
+  if (aiNmEl)  { aiNmEl.textContent = ai.name; aiNmEl.style.color = ai.color; }
+  if (aiSubEl) aiSubEl.textContent = ai.sub;
+  const aiQuoteEl = document.getElementById('aiQuote');
+  if (aiQuoteEl) aiQuoteEl.textContent = ai.quote;
+
+  return { player, ai, raceId, aiRaceId };
+}
+
 // ── CARD DEFINITIONS ──────────────────────────
 const PLAYER_CARDS = [
   { id:'p1',  name:'LANCE',   tier:'I',   edges:{n:5,s:3,e:6,w:4}, power:2, ability:null,            abilityText:'Basic card' },
@@ -1205,6 +1284,7 @@ function toggleGameMusic() {
 document.addEventListener('click', startGameMusic, { once: true });
 
 // ── START ─────────────────────────────────────
+initRaceTheme();
 initGame();
 </script>
 </body>
