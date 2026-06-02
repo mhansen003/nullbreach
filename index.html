@@ -277,11 +277,15 @@ body {
   font-size: 8px; letter-spacing: 2px; padding: 4px 8px; border-radius: 2px;
 }
 
-/* ── LORE PANEL (below conveyor) ── */
+/* ── LORE PANEL (below conveyor) — scrollable so full content is reachable */
 .ds-lore-panel {
   flex: 1; display: flex; padding: 16px 40px 14px;
-  overflow: hidden; position: relative; z-index: 10;
+  overflow-y: auto; position: relative; z-index: 10;
+  scrollbar-width: thin; scrollbar-color: #8855ff33 transparent;
 }
+.ds-lore-panel::-webkit-scrollbar { width: 4px; }
+.ds-lore-panel::-webkit-scrollbar-track { background: transparent; }
+.ds-lore-panel::-webkit-scrollbar-thumb { background: #8855ff44; border-radius: 2px; }
 .ds-empty {
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
@@ -468,23 +472,36 @@ body {
       <div class="ds-empty-text">HOVER TO BROWSE — CLICK TO SELECT</div>
     </div>
     <div class="ds-lore-content" id="loreContent">
-      <!-- Race header: avatar portrait + name/quote -->
+      <!-- Race header: avatar | name+abilities | tier card previews (right) -->
       <div style="display:flex;gap:18px;align-items:flex-start;">
+        <!-- Avatar -->
         <div id="loreAvatar" style="
           width:240px;height:240px;flex-shrink:0;
           border-radius:8px;overflow:hidden;
-          border:2px solid #ffffff22;
-          background:#06050e;
+          border:2px solid #ffffff22;background:#06050e;
         "></div>
+        <!-- Name + abilities + deploy (all visible without scroll) -->
         <div style="flex:1;display:flex;flex-direction:column;gap:10px;">
-          <div class="ds-race-name" id="loreName">—</div>
-          <div class="ds-race-sub" id="loreSub">—</div>
+          <!-- Title row: faction name + Deploy Fleet button -->
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;">
+            <div style="flex:1;">
+              <div class="ds-race-name" id="loreName">—</div>
+              <div class="ds-race-sub" id="loreSub">—</div>
+            </div>
+            <!-- Deploy Fleet right of title — always visible, no scroll needed -->
+            <div class="ds-deploy-wrap" id="deployWrap" style="flex-shrink:0;padding-top:6px;">
+              <button class="btn-deploy" id="deployBtn" onclick="startGame()" style="
+                padding:12px 28px;font-size:12px;letter-spacing:4px;width:auto;
+              ">DEPLOY &#x2197;</button>
+            </div>
+          </div>
           <div class="ds-race-quote" id="loreQuote">—</div>
           <div class="ds-abilities-row" id="loreAbilities"></div>
           <div class="ability-cards-row" id="abilityCards"></div>
         </div>
+        <!-- Tier card previews — RIGHT side, stacked vertically, taller cards -->
+        <div id="tierCardPreview" style="display:none;flex-direction:column;gap:8px;flex-shrink:0;width:120px;"></div>
       </div>
-      <div id="tierCardPreview" style="display:none;flex-direction:row;gap:10px;margin-top:8px;"></div>
       <div class="lore-divider" id="loreDivider"></div>
       <div class="lore-cols">
         <div class="lore-col">
@@ -498,9 +515,6 @@ body {
         <div class="lore-col">
           <div class="lore-label" id="loreLabel3">WEAKNESS</div>
           <div class="lore-weakness" id="loreText3">—</div>
-        </div>
-        <div class="ds-deploy-wrap" id="deployWrap">
-          <button class="btn-deploy" id="deployBtn" onclick="startGame()">DEPLOY FLEET &#x2192;</button>
         </div>
       </div>
     </div>
