@@ -91,10 +91,11 @@ body {
   border-radius: 5px; padding: 6px 12px; min-width: 185px;
 }
 .ai-avatar {
-  width: 42px; height: 42px;
+  width: 96px; height: 96px; flex-shrink: 0;
   background: linear-gradient(135deg, #2a0d0d, #180a18);
-  border: 1px solid #ff008044; border-radius: 3px;
-  display: flex; align-items: center; justify-content: center; font-size: 22px;
+  border: 1px solid #ff008066; border-radius: 5px;
+  display: flex; align-items: center; justify-content: center; font-size: 36px;
+  overflow: hidden;
 }
 .ai-name  { color: #ff0080; font-size: 11px; letter-spacing: 2px; }
 .ai-sub   { color: #444; font-size: 8px; letter-spacing: 1px; margin-top: 2px; }
@@ -225,20 +226,26 @@ body {
 /* HAND CARD -- card art as background, overlay shows stats */
 .hand-card {
   width: 106px; height: 140px; border-radius: 6px; position: relative;
-  cursor: pointer;
-  background-size: cover; background-position: center;
+  cursor: pointer; flex-shrink: 0; overflow: hidden;
+  /* DO NOT use background shorthand here — it wipes backgroundImage set by JS */
   background-color: #06050e;
+  background-size: cover;
+  background-position: center top;
+  border: 1px solid #555;
   transition: transform 0.15s, box-shadow 0.15s;
-  background: linear-gradient(145deg, #0c1e16, #09181e);
-  border: 1px solid #00ffcc44;
-  flex-shrink: 0;
+}
+/* Subtle dark overlay for readability, over the art */
+.hand-card::before {
+  content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background: linear-gradient(to top, #000000cc 0%, #00000066 50%, transparent 100%);
+}
+/* All stat text floats above the overlay */
+.hand-card .hc-e-n, .hand-card .hc-e-s, .hand-card .hc-e-w, .hand-card .hc-e-e,
+.hand-card .hc-center, .hand-card .hc-tier-badge, .hand-card .hc-ability-tag {
+  position: absolute; z-index: 2;
 }
 .hand-card:hover  { transform: translateY(-8px); }
-.hand-card.selected {
-  border: 2px solid #00ffcc; box-shadow: 0 0 20px #00ffcc55;
-  transform: translateY(-14px);
-  background: linear-gradient(145deg, #0c2e1e, #092028);
-}
+.hand-card.selected { transform: translateY(-14px); }
 .hand-card.used   { opacity: 0.18; cursor: default; pointer-events: none; }
 
 /* Hand card edge labels in cardinal positions */
@@ -312,10 +319,11 @@ body {
   border-radius: 5px; padding: 6px 12px; min-width: 165px; align-self: center;
 }
 .player-avatar {
-  width: 38px; height: 38px;
+  width: 80px; height: 80px; flex-shrink: 0;
   background: linear-gradient(135deg, #0d2a1a, #0a1820);
-  border: 1px solid #00ffcc33; border-radius: 3px;
-  display: flex; align-items: center; justify-content: center; font-size: 18px;
+  border: 1px solid #00ffcc44; border-radius: 5px;
+  display: flex; align-items: center; justify-content: center; font-size: 32px;
+  overflow: hidden;
 }
 .player-name  { color: #00ffcc; font-size: 10px; letter-spacing: 2px; }
 .player-sub   { color: #444; font-size: 8px; letter-spacing: 1px; margin-top: 2px; }
@@ -605,10 +613,17 @@ function initRaceTheme() {
   const pColor = player.color;
   document.documentElement.style.setProperty('--player-color', pColor);
 
-  // Update portrait labels
+  // Update player portrait — avatar image + labels
+  const pAvEl = document.querySelector('.player-avatar');
+  if (pAvEl) {
+    pAvEl.innerHTML = player.avatarImg
+      ? `<img src="${player.avatarImg}" style="width:100%;height:100%;object-fit:cover;border-radius:4px;">`
+      : player.avatar;
+    pAvEl.style.borderColor = player.color + '88';
+  }
   const pName = document.querySelector('.player-name');
-  const pTitle = document.querySelector('.player-title');
-  if (pName)  pName.textContent  = player.name;
+  const pTitle = document.querySelector('.player-sub');
+  if (pName)  { pName.textContent = player.name; pName.style.color = player.color; }
   if (pTitle) pTitle.textContent = player.sub;
 
   const aiAvEl = document.querySelector('.ai-avatar');
