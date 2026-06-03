@@ -1997,6 +1997,18 @@ function renderGrid() {
           ${cell.card.shieldExpended ? `<span style="position:absolute;top:3px;right:3px;z-index:5;font-size:11px;filter:drop-shadow(0 0 4px #aaaaff);pointer-events:none;">\uD83D\uDEE1</span>` : ''}
         `;
 
+        // Orange hazard blast glow on cards adjacent to cosmic hazards
+        if (cell.owner !== 'hazard') {
+          [{dr:-1,dc:0,de:'n'},{dr:1,dc:0,de:'s'},{dr:0,dc:-1,de:'w'},{dr:0,dc:1,de:'e'}].forEach(({dr,dc,de}) => {
+            const hr=r+dr, hc=c+dc;
+            if (hr<0||hr>=5||hc<0||hc>=7||G.grid[hr][hc].owner!=='hazard') return;
+            const gradDir = {n:'to bottom',s:'to top',w:'to right',e:'to left'}[de];
+            const blast = document.createElement('div');
+            blast.style.cssText = `position:absolute;inset:0;pointer-events:none;z-index:3;border-radius:4px;background:linear-gradient(${gradDir},#ff660055 0%,#ff440022 35%,transparent 55%);`;
+            div.appendChild(blast);
+          });
+        }
+
         // Show tooltip on placed board cards (shows card info + buff status)
         div.onmouseenter = (ev) => {
           const cardWithBuf = {...cell.card};
@@ -2030,6 +2042,15 @@ function renderGrid() {
         div.innerHTML = _triHtml;
         if (valid.some(v => v.r===r && v.c===c)) {
           div.classList.add('valid');
+          // Persistent hazard warning icon on valid cells bordering a hazard
+          const _adjHz = [{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}]
+            .filter(({dr,dc})=>{const hr=r+dr,hc=c+dc;return hr>=0&&hr<5&&hc>=0&&hc<7&&G.grid[hr][hc].owner==='hazard';});
+          if (_adjHz.length > 0) {
+            const warnIcon = document.createElement('div');
+            warnIcon.style.cssText = 'position:absolute;bottom:3px;right:3px;z-index:6;font-size:10px;color:#ff6600;pointer-events:none;filter:drop-shadow(0 0 3px #ff4400);';
+            warnIcon.textContent = '⚠';
+            div.appendChild(warnIcon);
+          }
           div.onclick = () => onCellClick(r, c);
           div.addEventListener('dragover', e => { e.preventDefault(); e.dataTransfer.dropEffect='move'; });
           div.addEventListener('drop', e => { e.preventDefault(); if (G.selectedCard) onCellClick(r, c); });
@@ -2085,6 +2106,20 @@ function renderGrid() {
                   <span style="font-size:8px;color:${col}bb;">${myVal}v${theirVal}</span>`;
                 adjEl.appendChild(badge);
               });
+              // Hazard adjacency warning
+              const _hzDirs = [{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}]
+                .filter(({dr,dc})=>{const hr=_pRow+dr,hc=_pCol+dc;return hr>=0&&hr<5&&hc>=0&&hc<7&&G.grid[hr][hc].owner==='hazard';});
+              if (_hzDirs.length > 0) {
+                const wb = document.createElement('div');
+                wb.dataset.bpv = '1';
+                wb.style.cssText = 'position:absolute;z-index:14;top:4px;left:50%;transform:translateX(-50%);pointer-events:none;background:#1a0800;border:1px solid #ff660099;border-radius:4px;padding:3px 8px;font-family:\'Courier New\',monospace;white-space:nowrap;';
+                wb.innerHTML = '<span style="font-size:9px;color:#ff8800;font-weight:bold;letter-spacing:1px;">⚠ HAZARD -2VP</span>';
+                div.appendChild(wb);
+                _hzDirs.forEach(({dr,dc})=>{
+                  const hz=document.querySelector(`.cell[data-r="${_pRow+dr}"][data-c="${_pCol+dc}"]`);
+                  if (hz) { hz.dataset.hzglow='1'; hz.style.boxShadow='0 0 36px #ff660099,inset 0 0 20px #ff440055'; }
+                });
+              }
             };
             div.onmouseleave = () => {
               document.querySelectorAll('.cell.future-valid').forEach(el => el.classList.remove('future-valid'));
@@ -2092,6 +2127,10 @@ function renderGrid() {
                 el.classList.remove('bpv-win','bpv-lose','bpv-tie');
               });
               document.querySelectorAll('[data-bpv]').forEach(el => el.remove());
+              document.querySelectorAll('[data-hzglow]').forEach(el => {
+                el.removeAttribute('data-hzglow');
+                el.style.boxShadow = '0 0 18px #ff440066, inset 0 0 12px #ff220022';
+              });
             };
           }
         } else if (G.selectedCard) {
