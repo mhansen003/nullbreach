@@ -260,6 +260,16 @@
       <div class="at-desc">When placed, cancels out the topmost enemy card in this card's column — that enemy contributes 0 VP for its row until end of game. Targeted column control.</div>
       <div class="at-uses">Best for: long-range/precision factions. Devastating in columns the enemy is winning.</div>
     </div>
+    <div class="ab-tile" style="--at:#00ddff">
+      <div class="at-name">HAT TRICK <span class="at-tag new">NEW IDEA</span></div>
+      <div class="at-desc">When placed as the middle card of 3 friendly cards in a row (any direction), this card's facing-edge value toward each flanking friendly card is added evenly across that friendly card's other 3 edges. Rewards tight formation play — your flankers get stronger the more connected the line is.</div>
+      <div class="at-uses">Best for: formation-based factions (Choir? Terran?). Requires setup but turns a 3-card line into a powerhouse.</div>
+    </div>
+    <div class="ab-tile" style="--at:#ffaaff">
+      <div class="at-name">BIRTHRIGHT <span class="at-tag new">NEW IDEA</span></div>
+      <div class="at-desc">At game start, if this card is in your deck, a random 16th bonus card (tier between T2 and T3) is spawned and added to your hand. You start with one more card than normal — a structural deck advantage.</div>
+      <div class="at-uses">Best for: factions with strong mid-tier cards. Creates early-game flexibility and density advantage.</div>
+    </div>
   </div>
 </div>
 
@@ -287,13 +297,8 @@
     </div>
     <div class="ab-tile" style="--at:#cc44ff">
       <div class="at-name">MIRROR <span class="at-tag new">NEW IDEA</span></div>
-      <div class="at-desc">When this card loses an edge comparison, the attacker also loses 1 from that edge permanently (punish aggression).</div>
-      <div class="at-uses">Best for: reactive/counter-play factions (Crystallis?)</div>
-    </div>
-    <div class="ab-tile" style="--at:#ff4444">
-      <div class="at-name">DRAIN <span class="at-tag live">LIVE</span></div>
-      <div class="at-desc">When this card wins an edge comparison, the losing enemy card permanently loses 1 from that edge.</div>
-      <div class="at-uses">Best for: attrition/decay factions (Entropy?)</div>
+      <div class="at-desc">When this card is sandwiched between 2 enemy cards in the same direction (both H or both V), the attack power values of those two enemies are swapped/reversed — their facing edges get exchanged, weakening the stronger attacker.</div>
+      <div class="at-uses">Best for: counter-play factions (Crystallis?). Punishes enemies who cluster in a line.</div>
     </div>
     <div class="ab-tile" style="--at:#88cc44">
       <div class="at-name">OVERWHELM <span class="at-tag new">NEW IDEA</span></div>
@@ -330,15 +335,10 @@
       <div class="at-desc">On placement, this card's edges all normalize to its 2nd-highest value. Spreads power evenly.</div>
       <div class="at-uses">Best for: cards with extreme spike-low profiles</div>
     </div>
-    <div class="ab-tile" style="--at:#ffd700">
-      <div class="at-name">RESONATE <span class="at-tag new">NEW IDEA</span></div>
-      <div class="at-desc">Adjacent friendly cards with ANY ability get +1 to their highest edge. Chains through ability networks.</div>
-      <div class="at-uses">Best for: ability-heavy factions (Choir — sound resonance?)</div>
-    </div>
     <div class="ab-tile" style="--at:#ff6644">
       <div class="at-name">INTIMIDATE <span class="at-tag new">NEW IDEA</span></div>
-      <div class="at-desc">Adjacent enemy cards lose -1 from their highest edge on placement. Targeted debuff.</div>
-      <div class="at-uses">Best for: aggressive/dominance factions (Void?)</div>
+      <div class="at-desc">On placement, adjacent enemy cards each lose -1 from their single highest edge permanently. Targeted precision debuff.</div>
+      <div class="at-uses">Best for: aggressive/dominance factions (Void?). Shaves the enemy's sharpest weapon.</div>
     </div>
   </div>
 </div>
@@ -387,7 +387,7 @@
     <th>FLANK</th>
     <th>RUSH</th>
     <th>PIERCE</th>
-    <th>DRAIN</th>
+    <th>HAT TRICK</th>
     <th>AMBUSH</th>
     <th>SNIPER</th>
     <th>NEW</th>
@@ -487,7 +487,7 @@
     <td class="cell-check"><span class="dash">—</span></td>
     <td class="cell-check"><span class="dash">—</span></td>
     <td class="cell-check"><span style="color:#8855ff">●</span></td>
-    <td class="cell-check"><span class="tbd">DRAIN+?</span></td>
+    <td class="cell-check"><span class="tbd">HAT TRICK?</span></td>
     <td class="cell-check"><span class="dash">—</span></td>
     <td style="font-size:13px;color:#555;">Decay / Attrition</td>
   </tr>
@@ -635,7 +635,7 @@
   <div class="note-card">
     <div class="note-race" style="--nr:#c4723a">ENTROPY CULT</div>
     <div class="note-tag">"Decay, corrode, attrition"</div>
-    <div class="note-slot"><span class="slot-num">1</span><span class="slot-fill">DRAIN → "Corrode"?</span></div>
+    <div class="note-slot"><span class="slot-num">1</span><span class="slot-fill">HAT TRICK → "Linked Strike"?</span></div>
     <div class="note-slot"><span class="slot-num">2</span><span class="slot-fill">SWEEP → "Rust Equalize"?</span></div>
     <div class="note-slot"><span class="slot-num">3</span><span class="slot-fill">SHIELD → "Decay Shell"?</span></div>
     <div class="note-slot"><span class="slot-num">4</span><span class="slot-fill">DOUBLE STRIKE → "Second Rot"?</span></div>
@@ -683,7 +683,7 @@
     <div class="note-slot"><span class="slot-num">1</span><span class="slot-fill">SWEEP → "Harmonic Level"?</span></div>
     <div class="note-slot"><span class="slot-num">2</span><span class="slot-fill">BOOST → "Resonant Pulse"?</span></div>
     <div class="note-slot"><span class="slot-num">3</span><span class="slot-fill">DOUBLE STRIKE → "Overtone"?</span></div>
-    <div class="note-slot"><span class="slot-num">4</span><span class="slot-fill">RESONATE (new) → "The Crescendo"?</span></div>
+    <div class="note-slot"><span class="slot-num">4</span><span class="slot-fill">INTIMIDATE → "Sonic Domination"?</span></div>
   </div>
 
 </div>
@@ -692,11 +692,11 @@
   <div style="font-family:'Orbitron',monospace;font-size:14px;letter-spacing:3px;color:#8855ff;margin-bottom:12px;">NEW ABILITIES NEEDING IMPLEMENTATION</div>
   <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;">
     <div style="font-size:14px;color:#666;padding:8px;border:1px solid #1a1a28;border-radius:4px;border-left:3px solid #88ffff;"><b style="color:#88ffff">PHANTOM</b><br>Place in own 2 home rows freely</div>
-    <div style="font-size:14px;color:#666;padding:8px;border:1px solid #1a1a28;border-radius:4px;border-left:3px solid #cc44ff;"><b style="color:#cc44ff">MIRROR</b><br>Attacker loses 1 edge when they beat this card</div>
-    <div style="font-size:14px;color:#666;padding:8px;border:1px solid #1a1a28;border-radius:4px;border-left:3px solid #ff4444;"><b style="color:#ff4444">DRAIN</b><br>Winners strip 1 edge from loser permanently (needs full impl)</div>
+    <div style="font-size:14px;color:#666;padding:8px;border:1px solid #1a1a28;border-radius:4px;border-left:3px solid #cc44ff;"><b style="color:#cc44ff">MIRROR</b><br>Sandwiched between 2 enemies: their facing edge values are swapped</div>
+    <div style="font-size:14px;color:#666;padding:8px;border:1px solid #1a1a28;border-radius:4px;border-left:3px solid #ff4444;"><b style="color:#00ddff">HAT TRICK</b><br>Middle of 3-card row: facing edge distributes to flanker's other 3 sides</div>
     <div style="font-size:14px;color:#666;padding:8px;border:1px solid #1a1a28;border-radius:4px;border-left:3px solid #ffcc00;"><b style="color:#ff8800">SNIPER</b><br>Cancels topmost enemy card in column (0 VP)</div>
     <div style="font-size:14px;color:#666;padding:8px;border:1px solid #1a1a28;border-radius:4px;border-left:3px solid #cc44ff;"><b style="color:#cc44ff">AMBUSH</b><br>All adjacent enemies lose -1 to ALL 4 edges on placement</div>
-    <div style="font-size:14px;color:#666;padding:8px;border:1px solid #1a1a28;border-radius:4px;border-left:3px solid #ffd700;"><b style="color:#ffd700">RESONATE</b><br>Adjacent ability-cards get +1 to their highest edge</div>
+    <div style="font-size:14px;color:#666;padding:8px;border:1px solid #1a1a28;border-radius:4px;border-left:3px solid #ffd700;"><b style="color:#ffaaff">BIRTHRIGHT</b><br>Spawns a 16th T2-T3 card into hand at game start</div>
     <div style="font-size:14px;color:#666;padding:8px;border:1px solid #1a1a28;border-radius:4px;border-left:3px solid #9b59b6;"><b style="color:#9b59b6">ECHO</b><br>Double VP if row+col both won by this card</div>
   </div>
 </div>
