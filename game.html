@@ -1645,7 +1645,7 @@ function computeBattleResults() {
               cell.card.shieldBlockH = true; // permanently block H losses
             }
             if (!cell.card.shieldBlockH) b[r][c].hL++;
-            if (east.card.ability === 'double_strike' && c > 1) {
+            if (east.card.ability === 'double_strike' && c > 0) {
               const far = G.grid[r][c-1];
               if (far.card && far.owner !== east.owner) {
                 const me2 = Math.max(1, Math.floor(them / 2));
@@ -1660,8 +1660,12 @@ function computeBattleResults() {
       if (r < 4) {
         const south = G.grid[r+1][c];
         if (south.card && south.owner !== cell.owner && cell.owner !== "hazard" && south.owner !== "hazard") {
-          const me = (cell.card.edges.s + (cell.card.edgeMod?.s || 0));
-          const them = (south.card.edges.n + (south.card.edgeMod?.n || 0));
+          if (cell.card.ability === 'cloak')  cell.card.cloakRevealed = true;
+          if (south.card.ability === 'cloak') south.card.cloakRevealed = true;
+          const surgeVBonus  = (cell.card.ability === 'surge'  && G.surgeTrigger?.[cell.owner])  ? 3 : 0;
+          const surgeVBonusS = (south.card.ability === 'surge' && G.surgeTrigger?.[south.owner]) ? 3 : 0;
+          const me = (cell.card.edges.s + (cell.card.edgeMod?.s || 0) + surgeVBonus);
+          const them = (south.card.edges.n + (south.card.edgeMod?.n || 0) + surgeVBonusS);
           if (me > them) {
             b[r][c].vW++;
             const margin = me - them;
@@ -1814,7 +1818,7 @@ function computeScores() {
   // DECIDING FACTOR: player ties become player wins
   for (let r = 0; r < 5; r++) {
     if (rowResults[r] === 'tie') {
-      const hasDf = G.grid[r].some(cell => cell.card && cell.owner === 'player' && cell.card.ability === 'deciding_factor');
+      const hasDf = G.grid[r].some(cell => cell.card && cell.owner === 'player' && cell.card.ability === 'deciding_factor' && !cell.card.stonewalled && !cell.card.sniped);
       if (hasDf) rowResults[r] = 'p';
     }
   }
@@ -1823,7 +1827,7 @@ function computeScores() {
       let hasDf = false;
       for (let r = 0; r < 5; r++) {
         const cell = G.grid[r][c];
-        if (cell.card && cell.owner === 'player' && cell.card.ability === 'deciding_factor') { hasDf = true; break; }
+        if (cell.card && cell.owner === 'player' && cell.card.ability === 'deciding_factor' && !cell.card.stonewalled && !cell.card.sniped) { hasDf = true; break; }
       }
       if (hasDf) colResults[c] = 'p';
     // AI DECIDING_FACTOR
@@ -3494,6 +3498,7 @@ function onCellClick(r, c) {
   if (!G.selectedCard || G.turn !== 'player' || G.gameOver) return;
   if (!getValidPlacements('player', G.selectedCard).some(v=>v.r===r&&v.c===c)) return;
 
+  const _placedCardId = G.selectedCard?.id;  // save before null
   placeCard(G.selectedCard, r, c, 'player');
   G.selectedCard = null;
   hideDragCard();
@@ -3514,7 +3519,7 @@ function onCellClick(r, c) {
   if (_mpRoom && _mpPlayer) {
     const seed = Math.floor(Math.random() * 1000000);
     window._mpSeed = seededRand(seed);
-    mpSubmitMove(G.selectedCard?.id || 'unknown', r, c, seed).then(() => {
+    mpSubmitMove(_placedCardId || 'unknown', r, c, seed).then(() => {
       if (!G.gameOver && !G.playerHand.every(c=>c.used)) mpStartPolling();
       else checkWin();
     });
