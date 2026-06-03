@@ -427,20 +427,21 @@ body {
   box-shadow: 0 8px 24px #000000aa, 0 0 20px #ff333318;
 }
 
-/* Tier row labels on left side of board */
-.tier-row-labels {
-  display: flex; flex-direction: column; gap: 6px;
-  margin-right: 8px; justify-content: flex-start;
+/* Tier indicator dots — embedded in empty cells */
+.tri-dots {
+  position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 3px; pointer-events: none;
 }
-.tier-row-label {
-  width: 60px; height: 142px;
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  gap: 4px; border-radius: 4px;
-  background: #06050e; border: 1px solid #1a1428;
+.tri-d {
+  width: 5px; height: 5px; border-radius: 50%; transition: background 0.2s;
 }
-.trl-tier { font-size: 11px; font-weight: bold; letter-spacing: 1px; }
-.trl-min  { font-size: 7px; letter-spacing: 1px; color: #555; }
+.tri-d.white { background: #ffffff14; }
+.tri-d.green { background: #44cc6614; }
+.tri-plus    { font-size: 9px; color: #44cc6614; line-height: 1; transition: color 0.2s; }
+/* brighten when this cell is a valid drop target */
+.cell.valid .tri-d.white { background: #ffffff50; }
+.cell.valid .tri-d.green { background: #44cc6650; }
+.cell.valid .tri-plus    { color: #44cc6650; }
 
 /* ══════════════════════════════════════
    MOBILE / TABLET RESPONSIVE
@@ -537,9 +538,6 @@ button, [onclick] { touch-action: manipulation; }
   .ability-tag { font-size: 6px; bottom: 3px; left: 3px; }
   .tier-dot    { width: 5px; height: 5px; }
   .tier-dots   { gap: 2px; top: 4px; left: 4px; }
-
-  /* Hide tier row labels */
-  .tier-row-labels { display: none; }
 
   /* Hide board direction row */
   .board-dir-row { display: none; }
@@ -760,14 +758,6 @@ button, [onclick] { touch-action: manipulation; }
       <span class="dir-lbl" style="color:#00ffcc55">&#x25B2; YOU FROM BOTTOM (ROW 4)</span>
     </div>
     <div class="board-and-scores">
-      <!-- TIER ROW LABELS (left of grid) — T1 home row only, T2+ advance -->
-      <div class="tier-row-labels">
-        <div class="tier-row-label"><span class="trl-tier" style="color:#aa44ff">T2+</span><span class="trl-min">FIGHTER</span></div>
-        <div class="tier-row-label"><span class="trl-tier" style="color:#4488ff">T2+</span><span class="trl-min">FLEET</span></div>
-        <div class="tier-row-label"><span class="trl-tier" style="color:#44cc66">T2+</span><span class="trl-min">ADVANCE</span></div>
-        <div class="tier-row-label"><span class="trl-tier" style="color:#44cc66">T2+</span><span class="trl-min">PUSH</span></div>
-        <div class="tier-row-label" style="border-color:#d0d0d066;background:#0d0d0d;"><span class="trl-tier" style="color:#d0d0d0">T1</span><span class="trl-min" style="color:#888">HOME</span></div>
-      </div>
       <!-- GRID -->
       <div>
         <div class="grid" id="grid"></div>
@@ -999,7 +989,10 @@ function initGame() {
       Array(7).fill(null).map(() => ({ card: null, owner: null }))
     ),
     playerHand: (window.__activeDeck || PLAYER_CARDS).map(c => ({...c, shieldExpended: false, used: false})),
-    aiHand:     AI_CARDS.map(c =>     ({...c, shieldExpended: false, used: false})),
+    aiHand:     ((() => {
+      const factionDecks = { terran: PLAYER_CARDS, brood: BROOD_CARDS };
+      return factionDecks[window.aiRaceId] || AI_CARDS;
+    })()).map(c => ({...c, shieldExpended: false, used: false})),
     turn:         'player',
     selectedCard: null,
     gameOver:     false,
@@ -1208,6 +1201,13 @@ function renderGrid() {
         div.onmouseleave = hideTip;
       } else {
         div.classList.add('empty');
+        // Tier indicator dots — always faint, brighten when cell is valid
+        const _triHtml = r === 4
+          ? `<div class="tri-dots"><span class="tri-d white"></span></div>`
+          : r === 3
+          ? `<div class="tri-dots"><span class="tri-d green"></span><span class="tri-d green"></span></div>`
+          : `<div class="tri-dots"><span class="tri-d green"></span><span class="tri-d green"></span><span class="tri-plus">+</span></div>`;
+        div.innerHTML = _triHtml;
         if (valid.some(v => v.r===r && v.c===c)) {
           div.classList.add('valid');
           div.onclick = () => onCellClick(r, c);
@@ -1233,14 +1233,15 @@ function renderGrid() {
           div.onmouseenter = ev => {
             const homeRow = 4;
             let reason = 'No friendly card adjacent — place next to your cards';
-            if (_r < 0 || _r > 4) {
-              reason = 'Out of bounds';
-            } else if (_card.tier === 'I' && _r !== homeRow) {
-              reason = 'Tier I: home row only (row 5)';
-            } else if (_card.tier !== 'I' && _r === homeRow) {
-              reason = 'Tier II+ cannot go in the home row — advance first';
-            } else if (G.board[_r][_c] && G.board[_r][_c].owner) {
+            const tier = _card.tier;
+            if (G.grid[_r][_c] && G.grid[_r][_c].owner) {
               reason = 'Cell is occupied';
+            } else if (tier === 'I' && _r !== homeRow) {
+              reason = 'Tier I: home row only';
+            } else if (tier !== 'I' && _r === homeRow) {
+              reason = 'Tier II+ cannot go in the home row';
+            } else if ((tier === 'III' || tier === 'IV') && _r === 3) {
+              reason = 'Tier III/IV: skip the advance row — go to rows 1-3';
             }
             showErrorTip(ev, reason);
           };
@@ -1657,16 +1658,21 @@ function getValidPlacements(owner, card) {
     }
   }
 
-  // Tier placement: T1 = home row ONLY (planets anchor the base)
-  //                T2/III/IV = anywhere EXCEPT the home row
+  // Tier placement rules (player perspective: home=row4, advance=row3, deep=rows0-2)
+  //   T1 = home row only
+  //   T2 = anywhere non-home (including T2 advance row and deep)
+  //   T3/T4 = deep territory only (rows 0-2 for player; rows 2-4 for AI)
+  //           they CANNOT use the T2 advance row (row3 player / row1 AI)
   let minAllowed, maxAllowed;
   if (card.tier === 'I') {
-    // T1 only in home row
     minAllowed = homeRow; maxAllowed = homeRow;
-  } else {
-    // T2+ cannot be placed in the home row (must advance)
+  } else if (card.tier === 'II') {
     minAllowed = owner === 'player' ? 0 : 1;
     maxAllowed = owner === 'player' ? 3 : 4;
+  } else {
+    // T3/T4 — skip the T2 advance row, go deeper
+    minAllowed = owner === 'player' ? 0 : 2;
+    maxAllowed = owner === 'player' ? 2 : 4;
   }
 
   return [...set]
