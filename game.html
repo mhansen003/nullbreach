@@ -1983,16 +1983,17 @@ function renderScoreBadges() {
     const wAvg = pWin ? pAvatar : aAvatar, lAvg = pWin ? aAvatar : pAvatar;
     const wScore = pWin ? p : a, lScore = pWin ? a : p;
     const wCol = pWin ? pCol : aCol, lCol = pWin ? aCol : pCol;
+    // Row badge: vertical layout — same element sizes as col badge
     return `
       <div style="display:flex;flex-direction:column;align-items:center;gap:3px;pointer-events:none;">
-        <img src="${wAvg}" style="width:30px;height:30px;border-radius:50%;object-fit:cover;
-          object-position:top;border:2px solid ${wCol};box-shadow:0 0 10px ${wCol}66;pointer-events:none;">
-        <span style="font-size:20px;font-weight:bold;color:${wCol};line-height:1;
-          text-shadow:0 0 10px ${wCol};pointer-events:none;">${wScore}</span>
-        <span style="font-size:9px;letter-spacing:1px;color:${wCol}99;pointer-events:none;">+${wScore-lScore} VP</span>
-        <div style="width:26px;height:1px;background:#1a1a28;"></div>
-        <span style="font-size:14px;font-weight:bold;color:#888899;pointer-events:none;">${lScore}</span>
-        <img src="${lAvg}" style="width:18px;height:18px;border-radius:50%;object-fit:cover;
+        <img src="${wAvg}" style="width:26px;height:26px;border-radius:50%;object-fit:cover;
+          object-position:top;border:2px solid ${wCol};box-shadow:0 0 8px ${wCol}66;pointer-events:none;">
+        <span style="font-size:18px;font-weight:bold;color:${wCol};line-height:1;
+          text-shadow:0 0 8px ${wCol};pointer-events:none;">${wScore}</span>
+        <span style="font-size:8px;letter-spacing:1px;color:${wCol}88;pointer-events:none;">+${wScore-lScore}VP</span>
+        <div style="width:22px;height:1px;background:#1a1a28;"></div>
+        <span style="font-size:13px;font-weight:bold;color:#888899;pointer-events:none;">${lScore}</span>
+        <img src="${lAvg}" style="width:16px;height:16px;border-radius:50%;object-fit:cover;
           object-position:top;border:1px solid #2a2a3a;filter:grayscale(0.7);opacity:0.5;pointer-events:none;">
       </div>`;
   }
@@ -2006,16 +2007,17 @@ function renderScoreBadges() {
     const wAvg = pWin ? pAvatar : aAvatar, lAvg = pWin ? aAvatar : pAvatar;
     const wScore = pWin ? p : a, lScore = pWin ? a : p;
     const wCol = pWin ? pCol : aCol;
+    // Col badge: horizontal layout — same element sizes as row badge
     return `
       <div style="display:flex;align-items:center;gap:4px;pointer-events:none;">
-        <img src="${wAvg}" style="width:20px;height:20px;border-radius:50%;object-fit:cover;
+        <img src="${wAvg}" style="width:26px;height:26px;border-radius:50%;object-fit:cover;
           object-position:top;border:2px solid ${wCol};box-shadow:0 0 8px ${wCol}55;pointer-events:none;">
-        <span style="font-size:16px;font-weight:bold;color:${wCol};line-height:1;
-          text-shadow:0 0 8px ${wCol};pointer-events:none;">${wScore}</span>
-        <span style="font-size:10px;color:#2a2a3a;pointer-events:none;">–</span>
-        <span style="font-size:13px;font-weight:bold;color:#888899;pointer-events:none;">${lScore}</span>
-        <img src="${lAvg}" style="width:14px;height:14px;border-radius:50%;object-fit:cover;
-          object-position:top;border:1px solid #2a2a3a;filter:grayscale(0.8);opacity:0.45;pointer-events:none;">
+        <div style="display:flex;flex-direction:column;pointer-events:none;gap:1px;">
+          <span style="font-size:18px;font-weight:bold;color:${wCol};line-height:1;
+            text-shadow:0 0 8px ${wCol};pointer-events:none;">${wScore}</span>
+          <span style="font-size:8px;color:#2a2a3a;pointer-events:none;">${lScore}
+            <img src="${lAvg}" style="width:10px;height:10px;border-radius:50%;object-fit:cover;vertical-align:middle;opacity:0.4;filter:grayscale(1);pointer-events:none;"></span>
+        </div>
       </div>`;
   }
 
