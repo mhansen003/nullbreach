@@ -288,7 +288,7 @@ body {
 /* Subtle dark overlay for readability, over the art */
 .hand-card::before {
   content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none;
-  background: linear-gradient(to top, #000000cc 0%, #00000066 50%, transparent 100%);
+  background: linear-gradient(to top, #00000088 0%, #00000033 50%, transparent 100%);
 }
 /* All stat text floats above the overlay */
 .hand-card .hc-e-n, .hand-card .hc-e-s, .hand-card .hc-e-w, .hand-card .hc-e-e,
@@ -1919,7 +1919,7 @@ function renderGrid() {
         div.innerHTML = `
           <video autoplay loop muted playsinline preload="auto"
             poster="${_hzPng}"
-            style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;pointer-events:none;">
+            style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 60%;display:block;transform:scale(1.25);z-index:0;pointer-events:none;">
             <source src="${_hzVid}" type="video/mp4">
           </video>
           <div style="position:absolute;inset:0;background:linear-gradient(transparent 50%,#ff440022);z-index:1;pointer-events:none;"></div>
@@ -1952,6 +1952,7 @@ function renderGrid() {
         div.style.backgroundImage = `url('${cell.card.art || ''}')`;
         div.style.backgroundSize = 'cover';
         div.style.backgroundPosition = 'center';
+        div.style.filter = 'brightness(1.28)';
         // Border = faction color (whose card), dots = tier indicator
         const factionCol = cell.owner === 'player'
           ? (window.playerFactionColor || '#00ffcc')
@@ -2392,7 +2393,7 @@ function renderScoreBadges() {
           const cancelled = bat && (bat.h === 'tie' || bat.h === 'lose');
           const hazardHit = cell?.card && cell.owner !== 'hazard' && [{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}]
             .some(({dr,dc}) => { const rr=+er+dr,cc=+ec+dc; return rr>=0&&rr<5&&cc>=0&&cc<7&&G.grid[rr][cc].owner==='hazard'; });
-          el.style.outline = cell?.owner === 'hazard' ? '2px solid #ff660099' : '2px solid #ffff0099';
+          el.style.outline = cell?.owner === 'hazard' ? '2px solid #ff660099' : '2px solid #55aaff99';
           el.style.filter  = (cancelled || hazardHit) ? 'brightness(0.4) saturate(0.2)' : 'none';
           el.style.opacity = '1';
         } else {
@@ -2439,7 +2440,7 @@ function renderScoreBadges() {
           const cancelled = bat && (bat.v === 'tie' || bat.v === 'lose');
           const hazardHit = cell?.card && cell.owner !== 'hazard' && [{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}]
             .some(({dr,dc}) => { const rr=+er+dr,cc=+ec+dc; return rr>=0&&rr<5&&cc>=0&&cc<7&&G.grid[rr][cc].owner==='hazard'; });
-          el.style.outline = cell?.owner === 'hazard' ? '2px solid #ff660099' : '2px solid #ffff0099';
+          el.style.outline = cell?.owner === 'hazard' ? '2px solid #ff660099' : '2px solid #55aaff99';
           el.style.filter  = (cancelled || hazardHit) ? 'brightness(0.4) saturate(0.2)' : 'none';
           el.style.opacity = '1';
         } else {
@@ -3379,11 +3380,11 @@ function checkWin() {
     </div>`;
   overlay.classList.add('show');
 
-  if (false && s.pVP > s.aVP) {
+  if (s.pVP > s.aVP) {
     title.className = 'overlay-title win';
     title.textContent = 'BREACH COMPLETE';
     sub.textContent   = `${s.pVP} VP vs ${s.aVP} VP`;
-  } else if (false && s.aVP > s.pVP) {
+  } else if (s.aVP > s.pVP) {
     title.className = 'overlay-title lose';
     title.textContent = 'BREACH FAILED';
     sub.textContent   = `AI wins ${s.aVP} VP vs your ${s.pVP} VP`;

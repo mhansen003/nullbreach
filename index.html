@@ -1557,6 +1557,10 @@ function wizGoTo(step) {
       d.style.background = (i + 1) <= step ? '#00ffcc' : '#2a2a3a';
       d.style.width = d.style.height = (i + 1) === step ? '10px' : '8px';
     });
+    if (step === 2) {
+      const dn = document.getElementById('wizDiffNextBtn');
+      if (dn) { dn.disabled = false; dn.style.opacity='1'; dn.style.cursor='pointer'; dn.style.borderColor='#00ffcc'; dn.style.color='#00ffcc'; }
+    }
   }, 220);
 }
 function selectMode(mode) {
@@ -1565,12 +1569,14 @@ function selectMode(mode) {
   const mf = document.getElementById('modeFriend');
   if (mode === 'computer') {
     mc.style.borderColor = '#00ffcc'; mc.style.boxShadow = '0 0 28px #00ffcc55,0 0 0 1px #00ffcc44'; mc.style.transform = 'scale(1.04)'; mc.querySelector('img').style.filter = ''; mc.querySelector('.mode-check').style.display = 'flex'; mc.querySelector('div:last-child div').style.color = '#00ffcc';
-    mf.style.borderColor = '#1a1a28'; mf.style.boxShadow = 'none'; mf.style.transform = ''; mf.querySelector('img').style.filter = 'brightness(0.55)'; mf.querySelector('.mode-check').style.display = 'none'; mf.querySelector('div:last-child div').style.color = '#aaa';
+    mf.style.borderColor = '#1a1a28'; mf.style.boxShadow = 'none'; mf.style.transform = ''; mf.querySelector('img').style.filter = 'brightness(0.8)'; mf.querySelector('.mode-check').style.display = 'none'; mf.querySelector('div:last-child div').style.color = '#aaa';
     const nb = document.getElementById('wizNextBtn');
     if (nb) { nb.disabled = false; nb.style.opacity='1'; nb.style.cursor='pointer'; nb.style.borderColor='#00ffcc'; nb.style.color='#00ffcc'; }
   } else {
-    if (selectedRace) { createRoom(); return; }
-    else { alert('Please select your faction first, then choose Invite Friend.'); return; }
+    mf.style.borderColor = '#8855ff'; mf.style.boxShadow = '0 0 28px #8855ff55,0 0 0 1px #8855ff44'; mf.style.transform = 'scale(1.04)'; mf.querySelector('img').style.filter = ''; mf.querySelector('.mode-check').style.display = 'flex'; mf.querySelector('div:last-child div').style.color = '#cc99ff';
+    mc.style.borderColor = '#1a1a28'; mc.style.boxShadow = 'none'; mc.style.transform = ''; mc.querySelector('img').style.filter = 'brightness(0.8)'; mc.querySelector('.mode-check').style.display = 'none'; mc.querySelector('div:last-child div').style.color = '#aaa';
+    const nb = document.getElementById('wizNextBtn');
+    if (nb) { nb.disabled = false; nb.style.opacity='1'; nb.style.cursor='pointer'; nb.style.borderColor='#8855ff'; nb.style.color='#cc99ff'; }
   }
 }
 
@@ -1641,10 +1647,12 @@ function _resetMode() {
   });
   const mc = document.getElementById('modeComputer');
   const mf = document.getElementById('modeFriend');
-  if (mc) { mc.style.borderColor='#1a1a28'; mc.style.boxShadow='none'; mc.style.transform=''; mc.querySelector('img').style.filter='brightness(0.55)'; mc.querySelector('.mode-check').style.display='none'; }
-  if (mf) { mf.style.borderColor='#1a1a28'; mf.style.boxShadow='none'; mf.style.transform=''; mf.querySelector('img').style.filter='brightness(0.55)'; mf.querySelector('.mode-check').style.display='none'; }
+  if (mc) { mc.style.borderColor='#1a1a28'; mc.style.boxShadow='none'; mc.style.transform=''; mc.querySelector('img').style.filter='brightness(0.8)'; mc.querySelector('.mode-check').style.display='none'; mc.querySelector('div:last-child div') && (mc.querySelector('div:last-child div').style.color='#aaa'); }
+  if (mf) { mf.style.borderColor='#1a1a28'; mf.style.boxShadow='none'; mf.style.transform=''; mf.querySelector('img').style.filter='brightness(0.8)'; mf.querySelector('.mode-check').style.display='none'; mf.querySelector('div:last-child div') && (mf.querySelector('div:last-child div').style.color='#aaa'); }
   const nb = document.getElementById('wizNextBtn');
   if (nb) { nb.disabled = true; nb.style.opacity='0.4'; nb.style.cursor='not-allowed'; nb.style.borderColor='#2a3a2a'; nb.style.color='#2a4a2a'; }
+  const dn = document.getElementById('wizDiffNextBtn');
+  if (dn) { dn.disabled = true; dn.style.opacity='0.4'; dn.style.cursor='not-allowed'; dn.style.borderColor='#2a3a2a'; dn.style.color='#2a4a2a'; }
 }
 
 let _selectedDifficulty = 'balanced';
@@ -1663,7 +1671,7 @@ function setDiff(d) {
     const lbl = tile.querySelector('.diff-label');
     if (lbl) lbl.style.color = a ? cols[k] : '#aaa';
   });
-  if (_wizStep === 2) setTimeout(() => wizGoTo(3), 380);
+  if (_wizStep === 2) setTimeout(() => { if (_wizStep === 2) wizGoTo(3); }, 380);
 }
 setTimeout(() => setDiff('balanced'), 0);
 
@@ -1868,20 +1876,20 @@ Promise.all(
     <div style="font-family:'Orbitron',monospace;font-size:20px;letter-spacing:5px;color:#fff;text-shadow:0 0 20px #8855ffaa;">SELECT GAME TYPE</div>
     <div style="display:flex;gap:12px;justify-content:center;">
       <div id="modeComputer" onclick="selectMode('computer')" style="
-        position:relative;width:200px;height:130px;border-radius:8px;overflow:hidden;
+        position:relative;width:232px;height:152px;border-radius:8px;overflow:hidden;
         cursor:pointer;border:2px solid #1a1a28;transition:all 0.22s;box-shadow:none;">
-        <img src="assets/mode-computer.png" style="width:100%;height:100%;object-fit:cover;display:block;filter:brightness(0.55);">
-        <div style="position:absolute;inset:0;background:linear-gradient(transparent 40%,#000000cc);"></div>
+        <img src="assets/mode-computer.png" style="width:100%;height:100%;object-fit:cover;display:block;filter:brightness(0.8);">
+        <div style="position:absolute;inset:0;background:linear-gradient(transparent 45%,#000000bb);"></div>
         <div class="mode-check" style="display:none;position:absolute;top:7px;right:7px;width:20px;height:20px;border-radius:50%;background:#00ffcc;align-items:center;justify-content:center;font-size:11px;color:#000;font-weight:bold;">✓</div>
         <div style="position:absolute;bottom:10px;left:0;right:0;text-align:center;">
           <div style="font-family:'Orbitron',monospace;font-size:13px;letter-spacing:2px;color:#aaa;">VS COMPUTER</div>
         </div>
       </div>
       <div id="modeFriend" onclick="selectMode('friend')" style="
-        position:relative;width:200px;height:130px;border-radius:8px;overflow:hidden;
+        position:relative;width:232px;height:152px;border-radius:8px;overflow:hidden;
         cursor:pointer;border:2px solid #1a1a28;transition:all 0.22s;box-shadow:none;">
-        <img src="assets/mode-friend.png" style="width:100%;height:100%;object-fit:cover;display:block;filter:brightness(0.55);">
-        <div style="position:absolute;inset:0;background:linear-gradient(transparent 40%,#000000cc);"></div>
+        <img src="assets/mode-friend.png" style="width:100%;height:100%;object-fit:cover;display:block;filter:brightness(0.8);">
+        <div style="position:absolute;inset:0;background:linear-gradient(transparent 45%,#000000bb);"></div>
         <div class="mode-check" style="display:none;position:absolute;top:7px;right:7px;width:20px;height:20px;border-radius:50%;background:#8855ff;align-items:center;justify-content:center;font-size:11px;color:#fff;font-weight:bold;">✓</div>
         <div style="position:absolute;bottom:10px;left:0;right:0;text-align:center;">
           <div style="font-family:'Orbitron',monospace;font-size:13px;letter-spacing:2px;color:#aaa;">INVITE FRIEND</div>
@@ -1897,7 +1905,7 @@ Promise.all(
         onmouseleave="this.style.borderColor='#8855ff99';this.style.color='#cc99ff';this.style.background='#0d0818'">
         ← BACK
       </button>
-      <button id="wizNextBtn" disabled onclick="wizGoTo(2)" style="
+      <button id="wizNextBtn" disabled onclick="if(_selectedMode==='computer')wizGoTo(2);else if(selectedRace)createRoom();else alert('Please select your faction first, then choose Invite Friend.')" style="
         background:#0a0a14;border:2px solid #2a3a2a;color:#2a4a2a;
         font-family:'Orbitron',monospace;font-size:13px;letter-spacing:3px;
         padding:12px 28px;border-radius:6px;cursor:not-allowed;
@@ -1911,42 +1919,51 @@ Promise.all(
   <div id="wizStep2" style="display:none;flex-direction:column;align-items:center;gap:20px;width:100%;transition:opacity 0.22s,transform 0.22s;">
     <div style="font-family:'Orbitron',monospace;font-size:20px;letter-spacing:5px;color:#fff;text-shadow:0 0 20px #8855ffaa;">SELECT DIFFICULTY</div>
     <div style="display:flex;gap:12px;justify-content:center;">
-      <div id="diff-passive" onclick="setDiff('passive')" style="position:relative;width:200px;height:130px;border-radius:10px;overflow:hidden;cursor:pointer;border:2px solid #1a1a28;transition:all 0.2s;flex-shrink:0;">
+      <div id="diff-passive" onclick="setDiff('passive')" style="position:relative;width:218px;height:144px;border-radius:10px;overflow:hidden;cursor:pointer;border:2px solid #1a1a28;transition:all 0.2s;flex-shrink:0;">
         <img src="assets/diff-passive.png" style="width:100%;height:100%;object-fit:cover;object-position:center;display:block;">
-        <div style="position:absolute;inset:0;background:linear-gradient(transparent 30%,#000000cc);"></div>
+        <div style="position:absolute;inset:0;background:linear-gradient(transparent 35%,#000000aa);"></div>
         <div class="diff-check" style="display:none;position:absolute;top:8px;right:8px;width:24px;height:24px;border-radius:50%;background:#4488cc;align-items:center;justify-content:center;font-size:13px;color:#fff;font-weight:bold;">✓</div>
         <div style="position:absolute;bottom:10px;left:0;right:0;text-align:center;">
           <div class="diff-label" style="font-family:'Orbitron',monospace;font-size:13px;letter-spacing:2px;color:#ccc;transition:color 0.2s;">PASSIVE</div>
-          <div style="font-size:11px;color:#777;letter-spacing:1px;margin-top:2px;">LOW AI</div>
+          <div style="font-size:11px;color:#888;letter-spacing:1px;margin-top:2px;">LOW AI</div>
         </div>
       </div>
-      <div id="diff-balanced" onclick="setDiff('balanced')" style="position:relative;width:200px;height:130px;border-radius:10px;overflow:hidden;cursor:pointer;border:2px solid #1a1a28;transition:all 0.2s;flex-shrink:0;">
+      <div id="diff-balanced" onclick="setDiff('balanced')" style="position:relative;width:218px;height:144px;border-radius:10px;overflow:hidden;cursor:pointer;border:2px solid #1a1a28;transition:all 0.2s;flex-shrink:0;">
         <img src="assets/diff-balanced.png" style="width:100%;height:100%;object-fit:cover;object-position:center;display:block;">
-        <div style="position:absolute;inset:0;background:linear-gradient(transparent 30%,#000000cc);"></div>
+        <div style="position:absolute;inset:0;background:linear-gradient(transparent 35%,#000000aa);"></div>
         <div class="diff-check" style="display:none;position:absolute;top:8px;right:8px;width:24px;height:24px;border-radius:50%;background:#00ffcc;align-items:center;justify-content:center;font-size:13px;color:#000;font-weight:bold;">✓</div>
         <div style="position:absolute;bottom:10px;left:0;right:0;text-align:center;">
           <div class="diff-label" style="font-family:'Orbitron',monospace;font-size:13px;letter-spacing:2px;color:#ccc;transition:color 0.2s;">BALANCED</div>
-          <div style="font-size:11px;color:#777;letter-spacing:1px;margin-top:2px;">FAIR MATCH</div>
+          <div style="font-size:11px;color:#888;letter-spacing:1px;margin-top:2px;">FAIR MATCH</div>
         </div>
       </div>
-      <div id="diff-aggressive" onclick="setDiff('aggressive')" style="position:relative;width:200px;height:130px;border-radius:10px;overflow:hidden;cursor:pointer;border:2px solid #1a1a28;transition:all 0.2s;flex-shrink:0;">
+      <div id="diff-aggressive" onclick="setDiff('aggressive')" style="position:relative;width:218px;height:144px;border-radius:10px;overflow:hidden;cursor:pointer;border:2px solid #1a1a28;transition:all 0.2s;flex-shrink:0;">
         <img src="assets/diff-aggressive.png" style="width:100%;height:100%;object-fit:cover;object-position:center;display:block;">
-        <div style="position:absolute;inset:0;background:linear-gradient(transparent 30%,#000000cc);"></div>
+        <div style="position:absolute;inset:0;background:linear-gradient(transparent 35%,#000000aa);"></div>
         <div class="diff-check" style="display:none;position:absolute;top:8px;right:8px;width:24px;height:24px;border-radius:50%;background:#ff4422;align-items:center;justify-content:center;font-size:13px;color:#fff;font-weight:bold;">✓</div>
         <div style="position:absolute;bottom:10px;left:0;right:0;text-align:center;">
           <div class="diff-label" style="font-family:'Orbitron',monospace;font-size:13px;letter-spacing:2px;color:#ccc;transition:color 0.2s;">AGGRESSIVE</div>
-          <div style="font-size:11px;color:#777;letter-spacing:1px;margin-top:2px;">HIGH AI</div>
+          <div style="font-size:11px;color:#888;letter-spacing:1px;margin-top:2px;">HIGH AI</div>
         </div>
       </div>
     </div>
-    <button onclick="wizGoTo(1)" style="
-      background:#0d0818;border:2px solid #8855ff99;color:#cc99ff;
-      font-family:'Orbitron',monospace;font-size:13px;letter-spacing:2px;
-      padding:12px 22px;cursor:pointer;border-radius:6px;transition:all 0.2s;"
-      onmouseenter="this.style.borderColor='#aa77ff';this.style.color='#fff';this.style.background='#1a0a2e'"
-      onmouseleave="this.style.borderColor='#8855ff99';this.style.color='#cc99ff';this.style.background='#0d0818'">
-      ← BACK
-    </button>
+    <div style="display:flex;gap:12px;align-items:center;">
+      <button onclick="wizGoTo(1)" style="
+        background:#0d0818;border:2px solid #8855ff99;color:#cc99ff;
+        font-family:'Orbitron',monospace;font-size:13px;letter-spacing:2px;
+        padding:12px 22px;cursor:pointer;border-radius:6px;transition:all 0.2s;"
+        onmouseenter="this.style.borderColor='#aa77ff';this.style.color='#fff';this.style.background='#1a0a2e'"
+        onmouseleave="this.style.borderColor='#8855ff99';this.style.color='#cc99ff';this.style.background='#0d0818'">
+        ← BACK
+      </button>
+      <button id="wizDiffNextBtn" disabled onclick="wizGoTo(3)" style="
+        background:#0a0a14;border:2px solid #2a3a2a;color:#2a4a2a;
+        font-family:'Orbitron',monospace;font-size:13px;letter-spacing:3px;
+        padding:12px 28px;border-radius:6px;cursor:not-allowed;
+        opacity:0.4;transition:all 0.25s;font-weight:700;">
+        NEXT →
+      </button>
+    </div>
   </div>
 
   <!-- STEP 3: SELECT YOUR OPPONENT -->
