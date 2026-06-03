@@ -252,23 +252,28 @@
     </div>
     <div class="ab-tile" style="--at:#cc44ff">
       <div class="at-name">AMBUSH <span class="at-tag new">NEW IDEA</span></div>
-      <div class="at-desc">On placement, ALL adjacent enemy cards each permanently lose -1 from all 4 of their edges. Area debuff — rewards clustering near multiple enemies.</div>
-      <div class="at-uses">Best for: assassin/aggressive factions (Void?). Strong mid-game when enemies are packed.</div>
+      <div class="at-desc">On placement, 2 adjacent enemy sides are selected at random. Each enemy card on those 2 sides permanently loses -1 from all 4 of their edges. Visual indicators on the board show which 2 sides were selected.</div>
+      <div class="at-uses">Best for: assassin factions (Void?). Unpredictable — you know roughly what fires, but not exactly which 2.</div>
     </div>
     <div class="ab-tile" style="--at:#ff8800">
       <div class="at-name">SNIPER <span class="at-tag new">NEW IDEA</span></div>
-      <div class="at-desc">When placed, cancels out the topmost enemy card in this card's column — that enemy contributes 0 VP for its row until end of game. Targeted column control.</div>
-      <div class="at-uses">Best for: long-range/precision factions. Devastating in columns the enemy is winning.</div>
+      <div class="at-desc">When placed, cancels the enemy card at the physically top-most position in this card's column (enemy home row, row 0) — that card contributes 0 VP for the rest of the game. Targets the enemy's T1 anchor card, disrupting their zone expansion foundation.</div>
+      <div class="at-uses">Best for: long-range/column control factions. Removes the enemy's home-row anchor, limiting their zone push options going forward.</div>
     </div>
     <div class="ab-tile" style="--at:#00ddff">
       <div class="at-name">HAT TRICK <span class="at-tag new">NEW IDEA</span></div>
-      <div class="at-desc">When placed as the middle card of 3 friendly cards in a row (any direction), this card's facing-edge value toward each flanking friendly card is added evenly across that friendly card's other 3 edges. Rewards tight formation play — your flankers get stronger the more connected the line is.</div>
-      <div class="at-uses">Best for: formation-based factions (Choir? Terran?). Requires setup but turns a 3-card line into a powerhouse.</div>
+      <div class="at-desc">When placed as the middle card of 3 friendly cards in a vertical column (N/S direction only — horizontal does not count, and home row excluded), this card's N and S edge values are distributed evenly across the other 3 edges of the friendly cards above and below it. Vertical formation play only.</div>
+      <div class="at-uses">Best for: factions that push forward in columns. Requires getting 3 friendly cards aligned vertically in the battle zone.</div>
     </div>
     <div class="ab-tile" style="--at:#ffaaff">
+    <div class="ab-tile" style="--at:#ff55aa">
+      <div class="at-name">EDGE PLAY <span class="at-tag new">NEW IDEA</span></div>
+      <div class="at-desc">If placed on any border cell (column 0, column 6, row 0 or row 4), this card also competes against the card on the opposite edge of the board in the same axis — wrapping the board like a torus. Col 0 fights col 6; row 0 fights row 4. The wrap comparison counts toward that row/column battle result. Works both H and V.</div>
+      <div class="at-uses">Best for: factions that play the wide edges. Creates surprise cross-board pressure. High risk too — your border card is now exposed on both sides.</div>
+    </div>
       <div class="at-name">BIRTHRIGHT <span class="at-tag new">NEW IDEA</span></div>
-      <div class="at-desc">At game start, if this card is in your deck, a random 16th bonus card (tier between T2 and T3) is spawned and added to your hand. You start with one more card than normal — a structural deck advantage.</div>
-      <div class="at-uses">Best for: factions with strong mid-tier cards. Creates early-game flexibility and density advantage.</div>
+      <div class="at-desc">At game start, a 16th bonus card is added to your hand: a lower-powered T2 card (weaker stats than a standard T2 — edges in the 4-5 range instead of 6-8). Gives one extra battle zone placement without flooding the home row.</div>
+      <div class="at-uses">Best for: any faction. The bonus T2 opens mid-game options from turn 1. Weak enough not to be unfair, strong enough to matter.</div>
     </div>
   </div>
 </div>
@@ -372,8 +377,8 @@
     </div>
     <div class="ab-tile" style="--at:#6688aa">
       <div class="at-name">STONEWALL <span class="at-tag new">NEW IDEA</span></div>
-      <div class="at-desc">This card contributes 0 VP toward its own row/col scoring. In exchange, any enemy card that is adjacent to it also contributes 0 VP. Pure denial — a calculated sacrifice that neutralizes the enemy's strongest adjacent pieces.</div>
-      <div class="at-uses">Best for: defensive/wall factions (Lithos?). Place it next to the enemy's highest-value card to silence it entirely. High risk/reward — you lose your own VP but erase theirs.</div>
+      <div class="at-desc">This card contributes 0 VP toward its own row/col scoring. On placement, 2 adjacent sides are selected at random — enemy cards on those 2 sides also contribute 0 VP. Visual indicators show which sides were selected. Sacrifice play: give up your VP to deny theirs.</div>
+      <div class="at-uses">Best for: defensive/wall factions (Lithos?). The randomness prevents perfectly optimized denial but keeps the threat real. High risk/reward.</div>
     </div>
   </div>
 </div>
@@ -706,7 +711,8 @@
     <div style="font-size:14px;color:#666;padding:8px;border:1px solid #1a1a28;border-radius:4px;border-left:3px solid #ff4444;"><b style="color:#00ddff">HAT TRICK</b><br>Middle of 3-card row: facing edge distributes to flanker's other 3 sides</div>
     <div style="font-size:14px;color:#666;padding:8px;border:1px solid #1a1a28;border-radius:4px;border-left:3px solid #ffcc00;"><b style="color:#ff8800">SNIPER</b><br>Cancels topmost enemy card in column (0 VP)</div>
     <div style="font-size:14px;color:#666;padding:8px;border:1px solid #1a1a28;border-radius:4px;border-left:3px solid #cc44ff;"><b style="color:#cc44ff">AMBUSH</b><br>All adjacent enemies lose -1 to ALL 4 edges on placement</div>
-    <div style="font-size:14px;color:#666;padding:8px;border:1px solid #1a1a28;border-radius:4px;border-left:3px solid #ffd700;"><b style="color:#ffaaff">BIRTHRIGHT</b><br>Spawns a 16th T2-T3 card into hand at game start</div>
+    <div style="font-size:14px;color:#666;padding:8px;border:1px solid #1a1a28;border-radius:4px;border-left:3px solid #ffd700;"><b style="color:#ff55aa">EDGE PLAY</b><br>Border card wraps to fight opposite edge card (torus board)</div>
+    <div style="font-size:14px;color:#666;padding:8px;border:1px solid #1a1a28;border-radius:4px;border-left:3px solid #ffaaff;"><b style="color:#ffaaff">BIRTHRIGHT</b><br>Spawns a weak T2 bonus card into hand at game start</div>
     <div style="font-size:14px;color:#666;padding:8px;border:1px solid #1a1a28;border-radius:4px;border-left:3px solid #9b59b6;"><b style="color:#9b59b6">ECHO</b><br>Double VP if row+col both won by this card</div>
     <div style="font-size:14px;color:#666;padding:8px;border:1px solid #1a1a28;border-radius:4px;border-left:3px solid #ffdd88;"><b style="color:#ffdd88">DECIDING FACTOR</b><br>Tied row/col tips +1 to player — converts draw to win</div>
     <div style="font-size:14px;color:#666;padding:8px;border:1px solid #1a1a28;border-radius:4px;border-left:3px solid #6688aa;"><b style="color:#6688aa">STONEWALL</b><br>This card = 0 VP + all adjacent enemies = 0 VP. Pure denial sacrifice.</div>
