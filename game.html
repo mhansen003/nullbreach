@@ -1523,6 +1523,9 @@ function initGame() {
   document.body.style.cursor = 'default';
   window._activeTier = undefined; // reset tier accordion to T1
   renderAll();
+  // Reset badge flip tracking for fresh game
+  _prevBadgeRes.rows = Array(5).fill(null);
+  _prevBadgeRes.cols = Array(7).fill(null);
   // Assign 5 random abilities per deck (weighted toward higher tiers)
   const _pRace = window.playerRaceId || 'terran';
   const _aRace = window.aiRaceId     || 'entropy';
@@ -1847,6 +1850,13 @@ function computeScores() {
         if (cell.card && cell.owner === 'player' && cell.card.ability === 'deciding_factor') { hasDf = true; break; }
       }
       if (hasDf) colResults[c] = 'p';
+    // AI DECIDING_FACTOR: flip tied col to 'a'
+    let hasAiDf3 = false;
+    for (let _r3=0; _r3<5; _r3++) {
+      const _c2 = G.grid[_r3][c];
+      if (_c2.card && _c2.owner==='ai' && _c2.card.ability==='deciding_factor' && !_c2.card.stonewalled && !_c2.card.sniped) hasAiDf3 = true;
+    }
+    if (hasAiDf3 && colResults[c]==='tie') colResults[c] = 'a';
     }
   }
 
@@ -3094,7 +3104,8 @@ function applyPlacementAbility(card, r, c, owner) {
       if (nb.card && nb.owner !== owner) adjEnemies.push({r:nr, c:nc, card:nb.card});
     });
     // Shuffle and pick up to 2
-    adjEnemies.sort(() => Math.random() - 0.5);
+    const _rng = window._mpSeed || Math.random;
+    adjEnemies.sort(() => _rng() - 0.5);
     const targets = adjEnemies.slice(0, 2);
     const names = [];
     targets.forEach(({r:nr, c:nc, card:tc}) => {
@@ -3123,7 +3134,8 @@ function applyPlacementAbility(card, r, c, owner) {
       const nb = G.grid[nr][nc];
       if (nb.card && nb.owner !== owner) adjEnemies.push({r:nr, c:nc, card:nb.card});
     });
-    adjEnemies.sort(() => Math.random() - 0.5);
+    const _rng2 = window._mpSeed || Math.random;
+    adjEnemies.sort(() => _rng2() - 0.5);
     const targets = adjEnemies.slice(0, 2);
     targets.forEach(({r:nr, c:nc, card:tc}) => {
       tc.stonewall_victim = true;
@@ -3198,7 +3210,7 @@ function placeCard(card, r, c, owner) {
 
   setTimeout(() => {
     const cells = document.querySelectorAll('.cell');
-    if (cells[r*7+c]) cells[r*6+c].classList.add('just-placed');
+    if (cells[r*7+c]) cells[r*7+c].classList.add('just-placed');
   }, 10);
 
   checkWin();
@@ -3318,7 +3330,7 @@ function checkWin() {
     if (cell.owner === 'player') pCells++;
     else if (cell.owner === 'ai') aCells++;
   }
-  if (pCells >= 17 || aCells >= 17) {
+  if (pCells >= 18 || aCells >= 18) {
     // fall through to show result
   } else {
     const allDone = G.playerHand.every(c=>c.used) && G.aiHand.every(c=>c.used);
@@ -3395,15 +3407,7 @@ function checkWin() {
     title.className = 'overlay-title win';
     title.textContent = 'BREACH COMPLETE';
     sub.textContent   = `${s.pVP} VP vs ${s.aVP} VP`;
-  } else if (false && s.aVP > s.pVP) {
-    title.className = 'overlay-title lose';
-    title.textContent = 'BREACH FAILED';
-    sub.textContent   = `AI wins ${s.aVP} VP vs your ${s.pVP} VP`;
-  } else {
-    title.className = 'overlay-title draw';
-    title.textContent = 'STALEMATE';
-    sub.textContent   = `${s.pWins} lines each`;
-  }
+
 
   const rowW_p = s.rowResults.filter(r=>r==='p').length;
   const rowW_a = s.rowResults.filter(r=>r==='a').length;
@@ -3672,10 +3676,8 @@ const ABILITY_ICONS = {
   shield:         { icon:'🛡',   color:'#aaaaff', label:'SHIELD'         },
   sweep:          { icon:'↔↕',  color:'#ff88ff', label:'SWEEP'          },
   phantom:        { icon:'◈',   color:'#88ffff', label:'PHANTOM'        },
-  drain:          { icon:'▼▼',  color:'#ff4444', label:'DRAIN'          },
   rush:           { icon:'▶!',  color:'#ff6644', label:'RUSH'           },
   cloak:          { icon:'?',   color:'#8888ff', label:'CLOAK'          },
-  ambush_strike:  { icon:'◉◉',  color:'#cc44ff', label:'AMBUSH STRIKE'  },
   spawn:          { icon:'★★',  color:'#88cc44', label:'SPAWN'          },
   intimidate:     { icon:'↓↓',  color:'#ff6644', label:'INTIMIDATE'     },
   mirror:         { icon:'⇔',   color:'#cc44ff', label:'MIRROR'         },
