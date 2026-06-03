@@ -788,6 +788,7 @@ button, [onclick] { touch-action: manipulation; }
 <audio id="cardSfx"    preload="auto"><source src="assets/card-place.mp3"   type="audio/mpeg"></audio>
 <audio id="selectSfx"  preload="auto"><source src="assets/deploy-click.mp3" type="audio/mpeg"></audio>
 <audio id="cardPopSfx" preload="auto"><source src="assets/newcard-pop.mp3"  type="audio/mpeg"></audio>
+<audio id="deckExpandSfx" preload="auto"><source src="assets/deck-expand.mp3" type="audio/mpeg"></audio>
 <audio id="bgTrack"    preload="none"></audio>
 
 <!-- Music controls: mute + volume -->
@@ -2287,10 +2288,18 @@ function renderHand() {
         front.style.boxShadow   = '0 0 10px '+tCol+'22';
         wrap.style.transform    = '';
       };
-      wrap.onclick = function() { window._activeTier = tier; renderHand(); };
+      wrap.onclick = function() {
+        window._activeTier = tier;
+        playDeckExpandSfx();
+        renderHand();
+      };
     }
     return wrap;
   }
+
+  // Auto-expand when only 1 tier has eligible cards (no need for stacks)
+  const tiersWithCards = ['I','II','III','IV'].filter(t => byTier[t]?.length > 0);
+  const autoExpand = tiersWithCards.length <= 1;
 
   // Build the row: collapsed stacks + one expanded tier inline
   ['I','II','III','IV'].forEach(function(tier) {
@@ -2298,7 +2307,7 @@ function renderHand() {
     var locked = inelByTier[tier] || 0;
     if (cards.length + locked === 0) return;
 
-    var isActive = window._activeTier === tier;
+    var isActive = window._activeTier === tier || autoExpand;
     var tCol     = TIER_COLORS[tier] || '#888';
 
     if (isActive && cards.length > 0) {
@@ -2851,6 +2860,12 @@ function playSelectSfx() {
   const sfx = document.getElementById('selectSfx');
   if (!sfx) return;
   sfx.currentTime = 0; sfx.volume = 0.65;
+  sfx.play().catch(() => {});
+}
+function playDeckExpandSfx() {
+  const sfx = document.getElementById('deckExpandSfx');
+  if (!sfx) return;
+  sfx.currentTime = 0; sfx.volume = 0.5;
   sfx.play().catch(() => {});
 }
 function playCardPopSfx() {
