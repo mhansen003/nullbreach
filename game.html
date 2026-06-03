@@ -558,7 +558,7 @@ button, [onclick] { touch-action: manipulation; }
   #factionHUD { top: 44px !important; min-width: 130px !important; padding: 5px 7px !important; }
   #factionHUD .bedge { font-size: 10px !important; }
   #sbAiNum, #sbPlayerNum { font-size: 18px !important; }
-  #sbAiAvatar, #sbPlayerAvatar { width: 26px !important; height: 26px !important; }
+  #sbAiAvatar, #sbPlayerAvatar { width: 48px !important; height: 48px !important; }
   .tooltip { width: min(460px, 96vw) !important; max-width: 96vw !important; }
 }
 @media (max-width: 599px) {
@@ -804,8 +804,8 @@ button, [onclick] { touch-action: manipulation; }
 <span id="hudAiRow"        style="display:none"></span>
 <span id="scoreHud"        style="display:none"></span>
 
-<div id="game-top-bg" style="position:fixed;top:0;left:0;right:0;height:50%;background-size:cover;background-position:center top;z-index:0;opacity:0;transition:opacity 1s;pointer-events:none;mask-image:linear-gradient(to bottom,black 0%,black 50%,transparent 100%);-webkit-mask-image:linear-gradient(to bottom,black 0%,black 50%,transparent 100%);"></div>
-<div id="game-bottom-bg" style="position:fixed;bottom:0;left:0;right:0;height:50%;background-size:cover;background-position:center bottom;z-index:0;opacity:0;transition:opacity 1s;pointer-events:none;mask-image:linear-gradient(to top,black 0%,black 50%,transparent 100%);-webkit-mask-image:linear-gradient(to top,black 0%,black 50%,transparent 100%);"></div>
+<div id="game-top-bg" style="position:fixed;top:0;left:0;right:0;height:100%;background-size:cover;background-position:center top;z-index:0;opacity:0;transition:opacity 1s;pointer-events:none;mask-image:linear-gradient(to bottom,black 0%,black 20%,transparent 60%);-webkit-mask-image:linear-gradient(to bottom,black 0%,black 20%,transparent 60%);"></div>
+<div id="game-bottom-bg" style="position:fixed;bottom:0;left:0;right:0;height:100%;background-size:cover;background-position:center bottom;z-index:0;opacity:0;transition:opacity 1s;pointer-events:none;mask-image:linear-gradient(to top,black 0%,black 20%,transparent 60%);-webkit-mask-image:linear-gradient(to top,black 0%,black 20%,transparent 60%);"></div>
 
 <!-- FACTION HUD — fixed left side, below header, AI on top / player below -->
 <div id="factionHUD" style="
@@ -816,27 +816,27 @@ button, [onclick] { touch-action: manipulation; }
   backdrop-filter:blur(4px);
 ">
   <!-- AI row (top) -->
-  <div id="fhAi" style="display:flex;align-items:center;gap:8px;padding:4px 6px;border-radius:6px;transition:all 0.3s;">
-    <img id="sbAiAvatar" src="" style="width:38px;height:38px;border-radius:50%;object-fit:cover;object-position:top;border:2px solid #333;flex-shrink:0;transition:all 0.3s;">
+  <div id="fhAi" style="display:flex;align-items:center;gap:10px;padding:4px 6px;border-radius:6px;transition:all 0.3s;">
+    <img id="sbAiAvatar" src="" style="width:64px;height:64px;border-radius:50%;object-fit:cover;object-position:top;border:2px solid #333;flex-shrink:0;transition:all 0.3s;">
     <div style="flex:1;min-width:0;">
-      <div id="sbAiName" style="font-size:9px;letter-spacing:1px;color:#555;overflow:hidden;white-space:nowrap;transition:color 0.3s;"></div>
-      <div style="display:flex;align-items:baseline;gap:4px;">
-        <span id="sbAiNum" style="font-size:22px;font-weight:bold;color:#444;line-height:1;transition:all 0.3s;">0</span>
-        <span style="font-size:7px;color:#2a2a3a;letter-spacing:1px;">LINES</span>
-        <span id="sbAiLead" style="font-size:7px;font-weight:bold;letter-spacing:2px;margin-left:2px;"></span>
+      <div id="sbAiName" style="font-family:'Orbitron',monospace;font-size:13px;letter-spacing:1px;color:#999;overflow:hidden;white-space:nowrap;transition:color 0.3s;"></div>
+      <div style="display:flex;align-items:baseline;gap:4px;margin-top:2px;">
+        <span id="sbAiNum" style="font-size:24px;font-weight:bold;color:#666;line-height:1;transition:all 0.3s;">0</span>
+        <span style="font-size:10px;color:#555;letter-spacing:1px;">VP</span>
+        <span id="sbAiLead" style="font-size:10px;font-weight:bold;letter-spacing:2px;margin-left:2px;"></span>
       </div>
     </div>
   </div>
   <div style="height:1px;background:#111120;"></div>
   <!-- Player row (bottom) -->
-  <div id="fhPlayer" style="display:flex;align-items:center;gap:8px;padding:4px 6px;border-radius:6px;transition:all 0.3s;">
-    <img id="sbPlayerAvatar" src="" style="width:38px;height:38px;border-radius:50%;object-fit:cover;object-position:top;border:2px solid #333;flex-shrink:0;transition:all 0.3s;">
+  <div id="fhPlayer" style="display:flex;align-items:center;gap:10px;padding:4px 6px;border-radius:6px;transition:all 0.3s;">
+    <img id="sbPlayerAvatar" src="" style="width:64px;height:64px;border-radius:50%;object-fit:cover;object-position:top;border:2px solid #333;flex-shrink:0;transition:all 0.3s;">
     <div style="flex:1;min-width:0;">
-      <div id="sbPlayerName" style="font-size:9px;letter-spacing:1px;color:#555;overflow:hidden;white-space:nowrap;transition:color 0.3s;"></div>
-      <div style="display:flex;align-items:baseline;gap:4px;">
-        <span id="sbPlayerNum" style="font-size:22px;font-weight:bold;color:#444;line-height:1;transition:all 0.3s;">0</span>
-        <span style="font-size:7px;color:#2a2a3a;letter-spacing:1px;">LINES</span>
-        <span id="sbPlayerLead" style="font-size:7px;font-weight:bold;letter-spacing:2px;margin-left:2px;"></span>
+      <div id="sbPlayerName" style="font-family:'Orbitron',monospace;font-size:13px;letter-spacing:1px;color:#999;overflow:hidden;white-space:nowrap;transition:color 0.3s;"></div>
+      <div style="display:flex;align-items:baseline;gap:4px;margin-top:2px;">
+        <span id="sbPlayerNum" style="font-size:24px;font-weight:bold;color:#666;line-height:1;transition:all 0.3s;">0</span>
+        <span style="font-size:10px;color:#555;letter-spacing:1px;">VP</span>
+        <span id="sbPlayerLead" style="font-size:10px;font-weight:bold;letter-spacing:2px;margin-left:2px;"></span>
       </div>
     </div>
   </div>
@@ -922,16 +922,13 @@ button, [onclick] { touch-action: manipulation; }
 </div>
 
 <div class="player-area">
-  <!-- Thin hint bar — no avatar (avatar is in the left HUD) -->
-  <div class="player-portrait" style="justify-content:center;">
-    <div style="font-size:9px;letter-spacing:2px;color:#2a2a3a;" id="playerFactionLabel">CLICK CARD › CLICK VALID CELL</div>
-    <!-- hidden compat stubs -->
-    <div id="aiQuote" style="display:none"></div>
-    <span id="aiFactionLabel" style="display:none"></span>
-    <span id="aiNameEl" style="display:none"></span>
-    <span id="playerNameEl" style="display:none"></span>
-  </div>
-  <!-- Hand cards centered below portrait -->
+  <!-- hidden compat stubs -->
+  <div id="aiQuote" style="display:none"></div>
+  <span id="aiFactionLabel" style="display:none"></span>
+  <span id="aiNameEl" style="display:none"></span>
+  <span id="playerNameEl" style="display:none"></span>
+  <span id="playerFactionLabel" style="display:none"></span>
+  <!-- Hand cards -->
   <div class="hand-cards" id="handCards"></div>
 </div>
 
@@ -2140,14 +2137,14 @@ function renderScoreHeader() {
   // AI faction row
   if (sbAiAv) { sbAiAv.src = aAvg; sbAiAv.style.borderColor = aLeading ? aCol : '#2a2a3a'; sbAiAv.style.boxShadow = aLeading ? `0 0 12px ${aCol}88` : 'none'; }
   if (sbAiNum) { sbAiNum.textContent = s.aVP; sbAiNum.style.color = aLeading ? aCol : '#555566'; sbAiNum.style.textShadow = aLeading ? `0 0 12px ${aCol}` : 'none'; }
-  if (sbAiName) { sbAiName.textContent = aNam; sbAiName.style.color = aLeading ? aCol : '#555566'; }
+  if (sbAiName) { sbAiName.textContent = aNam; sbAiName.style.color = aLeading ? aCol : '#aaaacc'; }
   if (sbAiLead) { sbAiLead.textContent = aLeading ? 'LEADS' : ''; sbAiLead.style.color = aCol; }
   if (fhAiEl) { fhAiEl.style.background = aLeading ? aCol + '18' : 'transparent'; fhAiEl.style.boxShadow = aLeading ? `0 0 0 1px ${aCol}44` : 'none'; }
 
   // Player faction row
   if (sbPAv) { sbPAv.src = pAvg; sbPAv.style.borderColor = pLeading ? pCol : '#2a2a3a'; sbPAv.style.boxShadow = pLeading ? `0 0 12px ${pCol}88` : 'none'; }
   if (sbPNum) { sbPNum.textContent = s.pVP; sbPNum.style.color = pLeading ? pCol : '#555566'; sbPNum.style.textShadow = pLeading ? `0 0 12px ${pCol}` : 'none'; }
-  if (sbPName) { sbPName.textContent = pNam; sbPName.style.color = pLeading ? pCol : '#555566'; }
+  if (sbPName) { sbPName.textContent = pNam; sbPName.style.color = pLeading ? pCol : '#aaaacc'; }
   if (sbPLead) { sbPLead.textContent = pLeading ? 'LEADS' : ''; sbPLead.style.color = pCol; }
   if (fhPEl) { fhPEl.style.background = pLeading ? pCol + '18' : 'transparent'; fhPEl.style.boxShadow = pLeading ? `0 0 0 1px ${pCol}44` : 'none'; }
 
