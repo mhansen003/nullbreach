@@ -1,0 +1,113 @@
+<h2>Ability Icons — Final Design</h2>
+<p class="subtitle">Reference-image-guided generation · Option A layout · 44 icons total</p>
+
+<div class="section">
+  <h3>1. Generation</h3>
+  <div style="display:flex;gap:16px;flex-wrap:wrap;">
+    <div style="flex:1;min-width:200px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:12px;">
+      <div class="label">Script</div>
+      <p style="font-family:monospace;font-size:12px;color:#aef;">generate-ability-icons.py</p>
+      <p style="font-size:12px;color:#aaa;">Runs once. For each race, loads an existing card image as style reference, then asks Nano Banana to generate a themed 128×128 icon for each of its 4 abilities.</p>
+    </div>
+    <div style="flex:1;min-width:200px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:12px;">
+      <div class="label">Output</div>
+      <p style="font-family:monospace;font-size:12px;color:#aef;">Desktop\ability-icons\<br>terran_colonial_bulwark.png<br>terran_accord_barrage.png<br>crystallis_crystal_fortress.png<br>… (44 total)</p>
+    </div>
+    <div style="flex:1;min-width:200px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:12px;">
+      <div class="label">After approval</div>
+      <p style="font-size:12px;color:#aaa;">Copy approved images to <code style="font-size:11px;">assets/abilities/</code>. Integration scripts wire them into the HTML.</p>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>2. Lore Page — Ability Showcase Cards</h3>
+  <p class="subtitle">Option A: 40×40 icon left of ability title. No layout changes.</p>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;font-family:'Courier New',monospace;">
+
+    <div style="flex:1;min-width:160px;background:rgba(0,0,0,0.6);border:1px solid #c44;border-radius:4px;padding:8px;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+        <div style="width:40px;height:40px;flex-shrink:0;background:linear-gradient(135deg,#1a2a3a,#334);border:1px solid #7ab8e8;border-radius:3px;overflow:hidden;display:flex;align-items:center;justify-content:center;">
+          <div style="font-size:20px;">🛡</div>
+        </div>
+        <div style="font-size:8px;color:#ffaa00;letter-spacing:1px;font-weight:bold;">COLONIAL BULWARK</div>
+      </div>
+      <div style="font-size:7px;color:#ccc;line-height:1.5;">The first edge comparison loss is permanently blocked in that direction</div>
+    </div>
+
+    <div style="flex:1;min-width:160px;background:rgba(0,0,0,0.6);border:1px solid #c44;border-radius:4px;padding:8px;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+        <div style="width:40px;height:40px;flex-shrink:0;background:linear-gradient(135deg,#1a2a3a,#334);border:1px solid #7ab8e8;border-radius:3px;overflow:hidden;display:flex;align-items:center;justify-content:center;">
+          <div style="font-size:20px;">⚡</div>
+        </div>
+        <div style="font-size:8px;color:#ffaa00;letter-spacing:1px;font-weight:bold;">ACCORD BARRAGE</div>
+      </div>
+      <div style="font-size:7px;color:#ccc;line-height:1.5;">Winning an edge fires a second hit at half strength – discipline strikes twice</div>
+    </div>
+
+    <div style="flex:1;min-width:160px;background:rgba(0,0,0,0.6);border:1px solid #c44;border-radius:4px;padding:8px;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+        <div style="width:40px;height:40px;flex-shrink:0;background:linear-gradient(135deg,#1a2a3a,#334);border:1px solid #7ab8e8;border-radius:3px;overflow:hidden;display:flex;align-items:center;justify-content:center;">
+          <div style="font-size:20px;">★</div>
+        </div>
+        <div style="font-size:8px;color:#ffaa00;letter-spacing:1px;font-weight:bold;">FLEET ADMIRAL</div>
+      </div>
+      <div style="font-size:7px;color:#ccc;line-height:1.5;">Adjacent same-tier friendly cards gain +2 to all edges on placement</div>
+    </div>
+
+    <div style="flex:1;min-width:160px;background:rgba(0,0,0,0.6);border:1px solid #c44;border-radius:4px;padding:8px;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+        <div style="width:40px;height:40px;flex-shrink:0;background:linear-gradient(135deg,#1a2a3a,#334);border:1px solid #7ab8e8;border-radius:3px;overflow:hidden;display:flex;align-items:center;justify-content:center;">
+          <div style="font-size:20px;">↺</div>
+        </div>
+        <div style="font-size:8px;color:#ffaa00;letter-spacing:1px;font-weight:bold;">PINCER MANEUVER</div>
+      </div>
+      <div style="font-size:7px;color:#ccc;line-height:1.5;">After placing, take an immediate extra turn before the opponent responds</div>
+    </div>
+
+  </div>
+  <p style="font-size:11px;color:#666;margin-top:8px;">↑ Emoji placeholders — real images will be race-themed (Terran = steel/military, etc.)</p>
+</div>
+
+<div class="section">
+  <h3>3. Game Tooltip — Ability Section</h3>
+  <p class="subtitle">32×32 icon beside the ability label inside the existing tooltip.</p>
+  <div style="display:inline-block;background:#0a0e1a;border:1px solid #333;border-radius:6px;padding:10px;font-family:'Courier New',monospace;min-width:200px;">
+    <div style="font-size:8px;color:#888;margin-bottom:6px;">… card stats …</div>
+    <div style="background:#1a1400;border:1px solid #ffdd0055;border-radius:3px;padding:6px;">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+        <div style="width:32px;height:32px;background:linear-gradient(135deg,#1a2a3a,#334);border:1px solid #ffdd0055;border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:15px;">🛡</div>
+        <div style="font-size:9px;color:#ffdd00;letter-spacing:1px;">COLONIAL BULWARK</div>
+      </div>
+      <div style="font-size:8px;color:#ccc;line-height:1.4;">The first edge comparison loss is permanently blocked in that direction</div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>4. Asset path &amp; naming</h3>
+  <div style="font-family:monospace;font-size:12px;color:#aef;background:rgba(0,0,0,0.4);padding:10px;border-radius:4px;">
+    assets/abilities/<br>
+    &nbsp;&nbsp;terran_colonial_bulwark.png<br>
+    &nbsp;&nbsp;terran_accord_barrage.png<br>
+    &nbsp;&nbsp;terran_fleet_admiral.png<br>
+    &nbsp;&nbsp;terran_pincer_maneuver.png<br>
+    &nbsp;&nbsp;crystallis_crystal_fortress.png<br>
+    &nbsp;&nbsp;… (44 total, 128×128px each)
+  </div>
+</div>
+
+<div class="section">
+  <h3>5. Workflow</h3>
+  <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:12px;">
+    <div style="background:rgba(100,200,100,0.1);border:1px solid rgba(100,200,100,0.3);border-radius:4px;padding:8px 12px;">① run generate-ability-icons.py</div>
+    <div style="color:#666;">→</div>
+    <div style="background:rgba(100,150,255,0.1);border:1px solid rgba(100,150,255,0.3);border-radius:4px;padding:8px 12px;">② 44 images → Desktop\ability-icons\</div>
+    <div style="color:#666;">→</div>
+    <div style="background:rgba(255,200,100,0.1);border:1px solid rgba(255,200,100,0.3);border-radius:4px;padding:8px 12px;">③ you review &amp; approve</div>
+    <div style="color:#666;">→</div>
+    <div style="background:rgba(100,200,100,0.1);border:1px solid rgba(100,200,100,0.3);border-radius:4px;padding:8px 12px;">④ copy to assets/abilities/</div>
+    <div style="color:#666;">→</div>
+    <div style="background:rgba(100,200,100,0.1);border:1px solid rgba(100,200,100,0.3);border-radius:4px;padding:8px 12px;">⑤ patch index.html + game.html</div>
+  </div>
+</div>
