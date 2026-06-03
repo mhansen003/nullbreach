@@ -1404,6 +1404,12 @@ function setDiff(d) {
 setTimeout(() => setDiff('balanced'), 0);
 
 function launchGame(opponentId) {
+  // Immediately cover everything with a black fade so no flash of deck select
+  const cover = document.createElement('div');
+  cover.style.cssText = 'position:fixed;inset:0;z-index:999999;background:#000;opacity:0;transition:opacity 0.25s;pointer-events:all;';
+  document.body.appendChild(cover);
+  requestAnimationFrame(() => requestAnimationFrame(() => { cover.style.opacity = '1'; }));
+
   document.getElementById('opponentModal').style.display = 'none';
   stopCivVoice();
   const allRaceIds = RACES.map(r => r.id).filter(id => id !== selectedRace.id);
@@ -1414,7 +1420,7 @@ function launchGame(opponentId) {
   const dep = document.getElementById('deploySfx');
   if (dep) { dep.currentTime = 0; dep.volume = 0.8; dep.play().catch(()=>{}); }
   const params = new URLSearchParams({ race: selectedRace.id, color: selectedRace.color, name: selectedRace.name });
-  setTimeout(() => { window.location.href = `game.html?${params.toString()}`; }, 400);
+  setTimeout(() => { window.location.href = `game.html?${params.toString()}&difficulty=${_selectedDifficulty}`; }, 280);
 }
 
 function startGame() {

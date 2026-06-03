@@ -157,21 +157,28 @@ function computeScores(){
 
 function applyPlacementAbility(card,r,c,owner){
   const dirs=[{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}];
-  if(card.ability==='boost'||card.ability==='commander'){
-    const bonus=card.ability==='commander'?2:1;
+  // BOOST, COMMANDER, SPAWN
+  if(card.ability==='boost'||card.ability==='commander'||card.ability==='spawn'){
+    const bonus=(card.ability==='commander'||card.ability==='spawn')?2:1;
+    const sameTierOnly=card.ability==='commander'||card.ability==='spawn';
     dirs.forEach(({dr,dc})=>{
       const nr=r+dr,nc=c+dc; if(nr<0||nr>=5||nc<0||nc>=7) return;
       const nb=G.grid[nr][nc];
       if(nb.card&&nb.owner===owner){
-        if(card.ability==='commander'&&nb.card.tier!==card.tier)return;
+        if(sameTierOnly&&nb.card.tier!==card.tier)return;
         nb.card.edgeMod=nb.card.edgeMod||{n:0,s:0,e:0,w:0};
         nb.card.edgeMod.n+=bonus;nb.card.edgeMod.s+=bonus;nb.card.edgeMod.e+=bonus;nb.card.edgeMod.w+=bonus;
       }
     });
   }
+  // SWEEP: normalize all edges to the 2nd highest effective edge value
   if(card.ability==='sweep'){
-    card.edgeMod=card.edgeMod||{n:0,s:0,e:0,w:0};
-    card.edgeMod.n+=2;card.edgeMod.s+=2;card.edgeMod.e+=2;card.edgeMod.w+=2;
+    const base=card.edges;
+    const ex=card.edgeMod||{n:0,s:0,e:0,w:0};
+    const effN=base.n+ex.n,effS=base.s+ex.s,effE=base.e+ex.e,effW=base.w+ex.w;
+    const sorted=[effN,effS,effE,effW].sort((a,b)=>b-a);
+    const target=sorted[1];
+    card.edgeMod={n:target-base.n,s:target-base.s,e:target-base.e,w:target-base.w};
   }
 }
 
@@ -988,6 +995,88 @@ test('Boundary: PIERCE tie-break — pierce wins ties','Edge Cases',()=>{
   const b=computeBattleResults();
   eq(b[2][3].h,'win','pierce wins tie');
   eq(b[2][4].h,'lose','non-pierce loses to pierce tie');
+});
+
+// ══════════════════════════════════════════════════════════════════════
+// 15. SPAWN (Brood COMMANDER) + new SWEEP mechanics — 12 tests
+// ══════════════════════════════════════════════════════════════════════
+
+// SPAWN tests (same math as COMMANDER, different name)
+test('SPAWN: adjacent same-tier ally gets +2','Brood Abilities',()=>{
+  const ally=makeCard({e:4,tier:'II'}), sp=makeCard({ability:'spawn',tier:'II'});
+  initTestGame([{r:2,c:2,card:ally,owner:'player'},{r:2,c:3,card:sp,owner:'player'}]);
+  applyPlacementAbility(sp,2,3,'player');
+  eq(ally.edgeMod?.e,2,'SPAWN same-tier +2');
+});
+test('SPAWN: does NOT boost different-tier allies','Brood Abilities',()=>{
+  const a=makeCard({tier:'I'}), sp=makeCard({ability:'spawn',tier:'II'});
+  initTestGame([{r:2,c:2,card:a,owner:'player'},{r:2,c:3,card:sp,owner:'player'}]);
+  applyPlacementAbility(sp,2,3,'player');
+  eq(a.edgeMod?.e||0,0,'SPAWN does not cross-tier buff');
+});
+test('SPAWN: boosts all 4 directions same-tier','Brood Abilities',()=>{
+  const dirs=[{r:1,c:2},{r:3,c:2},{r:2,c:1},{r:2,c:3}];
+  const allies=dirs.map(()=>makeCard({tier:'III'}));
+  const sp=makeCard({ability:'spawn',tier:'III'});
+  const cells=[{r:2,c:2,card:sp,owner:'player'},...dirs.map((d,i)=>({...d,card:allies[i],owner:'player'}))];
+  initTestGame(cells);
+  applyPlacementAbility(sp,2,2,'player');
+  allies.forEach((a,i)=>eq(a.edgeMod?.n,2,`dir ${i} boosted`));
+});
+test('SPAWN: does not affect enemies','Brood Abilities',()=>{
+  const e=makeCard({tier:'II'}), sp=makeCard({ability:'spawn',tier:'II'});
+  initTestGame([{r:2,c:2,card:e,owner:'ai'},{r:2,c:3,card:sp,owner:'player'}]);
+  applyPlacementAbility(sp,2,3,'player');
+  eq(e.edgeMod?.e||0,0,'enemy not buffed by SPAWN');
+});
+
+// SWEEP (normalize to 2nd highest) tests
+test('SWEEP: 8/7/3/2 → 2nd=7 → all edges become 7','Brood Abilities',()=>{
+  const sw=makeCard({n:7,s:2,e:8,w:3,ability:'sweep'});
+  initTestGame([{r:2,c:3,card:sw,owner:'player'}]);
+  applyPlacementAbility(sw,2,3,'player');
+  const effN=sw.edges.n+(sw.edgeMod?.n||0);
+  const effS=sw.edges.s+(sw.edgeMod?.s||0);
+  const effE=sw.edges.e+(sw.edgeMod?.e||0);
+  const effW=sw.edges.w+(sw.edgeMod?.w||0);
+  eq(effN,7,'N→7'); eq(effS,7,'S→7'); eq(effE,7,'E→7'); eq(effW,7,'W→7');
+});
+test('SWEEP: 9/5/4/2 → 2nd=5 → all edges 5','Brood Abilities',()=>{
+  const sw=makeCard({n:9,s:2,e:4,w:5,ability:'sweep'});
+  initTestGame([{r:2,c:3,card:sw,owner:'player'}]);
+  applyPlacementAbility(sw,2,3,'player');
+  eq(sw.edges.n+(sw.edgeMod?.n||0),5,'N normalized to 5');
+  eq(sw.edges.s+(sw.edgeMod?.s||0),5,'S normalized to 5');
+  eq(sw.edges.e+(sw.edgeMod?.e||0),5,'E normalized to 5');
+  eq(sw.edges.w+(sw.edgeMod?.w||0),5,'W normalized to 5');
+});
+test('SWEEP: 6/6/3/1 → 2nd=6 (tie for 1st) → all edges 6','Brood Abilities',()=>{
+  const sw=makeCard({n:6,s:3,e:6,w:1,ability:'sweep'});
+  initTestGame([{r:2,c:3,card:sw,owner:'player'}]);
+  applyPlacementAbility(sw,2,3,'player');
+  eq(sw.edges.n+(sw.edgeMod?.n||0),6,'N stays 6');
+  eq(sw.edges.s+(sw.edgeMod?.s||0),6,'S→6');
+  eq(sw.edges.w+(sw.edgeMod?.w||0),6,'W→6');
+});
+test('SWEEP: after normalize, former weak edge now wins comparison','Brood Abilities',()=>{
+  // Card n:8,s:2,e:7,w:3 → 2nd highest=7 → all become 7
+  // S was 2, now 7. Enemy with N=6 → player S(7) > enemy N(6) → player WINS V south
+  const sw=makeCard({n:8,s:2,e:7,w:3,ability:'sweep'});
+  const enemy=makeCard({n:6,s:9,e:5,w:5});
+  initTestGame([{r:2,c:3,card:sw,owner:'player'},{r:3,c:3,card:enemy,owner:'ai'}]);
+  applyPlacementAbility(sw,2,3,'player');
+  const b=computeBattleResults();
+  eq(b[2][3].v,'win','SWEEP normalized S=7 beats enemy N=6');
+});
+test('SWEEP: reduces highest edge — former strongest direction now ties','Brood Abilities',()=>{
+  // Card n:9,s:2,e:5,w:4 → 2nd=5 → all become 5. N was 9, now 5.
+  // Enemy S=5 → player N(5) = enemy S(5) → TIE (not win)
+  const sw=makeCard({n:9,s:2,e:5,w:4,ability:'sweep'});
+  const enemy=makeCard({s:5});
+  initTestGame([{r:1,c:3,card:enemy,owner:'ai'},{r:2,c:3,card:sw,owner:'player'}]);
+  applyPlacementAbility(sw,2,3,'player');
+  const b=computeBattleResults();
+  eq(b[2][3].v,'tie','SWEEP reduced N:9→5, ties with enemy S:5');
 });
 
 // ══════════════════════════════════════════════════════════════════════
