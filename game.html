@@ -687,8 +687,8 @@ button, [onclick] { touch-action: manipulation; }
     <span id="totalP" style="display:none"></span>
     <span id="totalA" style="display:none"></span>
   </div>
-  <!-- Hamburger menu button (id used to identify in click-outside handler) -->
-  <div id="menuToggleBtn" onclick="toggleMenu(event)" style="
+  <!-- Hamburger menu button -->
+  <div id="menuToggleBtn" onclick="toggleMenu()" style="
     background:#000000aa;border:1px solid #8855ff44;color:#aa88ff;
     font-size:18px;width:36px;height:30px;cursor:pointer;border-radius:3px;
     display:flex;align-items:center;justify-content:center;transition:all 0.2s;
@@ -740,6 +740,11 @@ button, [onclick] { touch-action: manipulation; }
     </div>
   </div>
 </div>
+
+<!-- Menu backdrop — clicking outside closes the menu -->
+<div id="menuBackdrop" onclick="closeMenu()" style="
+  display:none;position:fixed;inset:0;z-index:9998;
+"></div>
 
 <div class="ai-area">
   <div class="ai-portrait">
@@ -1016,10 +1021,7 @@ function initGame() {
     grid: Array(5).fill(null).map(() =>
       Array(7).fill(null).map(() => ({ card: null, owner: null }))
     ),
-    // Load deck based on selected race (from URL params)
-    const RACE_DECKS = { terran: PLAYER_CARDS, brood: BROOD_CARDS };
-    const selectedDeck = RACE_DECKS[new URLSearchParams(window.location.search).get('race') || 'terran'] || PLAYER_CARDS;
-    playerHand: selectedDeck.map(c => ({...c, shieldExpended: false, used: false})),
+    playerHand: (window.__activeDeck || PLAYER_CARDS).map(c => ({...c, shieldExpended: false, used: false})),
     aiHand:     AI_CARDS.map(c =>     ({...c, shieldExpended: false, used: false})),
     turn:         'player',
     selectedCard: null,
@@ -2108,28 +2110,24 @@ function setVolume(val) {
   if (s2) s2.value = val;
 }
 
-function toggleMenu(e) {
-  if (e) e.stopPropagation(); // prevent bubbling to document close-handler
+function toggleMenu() {
   const m = document.getElementById('gameMenu');
-  if (m) m.style.display = m.style.display === 'none' ? 'block' : 'none';
+  const b = document.getElementById('menuBackdrop');
+  const open = m && m.style.display !== 'none';
+  if (m) m.style.display = open ? 'none' : 'block';
+  if (b) b.style.display = open ? 'none' : 'block';
 }
 function closeMenu() {
   const m = document.getElementById('gameMenu');
+  const b = document.getElementById('menuBackdrop');
   if (m) m.style.display = 'none';
+  if (b) b.style.display = 'none';
 }
 function updateMuteLabel() {
   const btn = document.getElementById('muteMenuBtn');
   if (btn) btn.textContent = musicMuted ? '🔇 UNMUTE' : '🔊 MUTE';
 }
-// Close menu when clicking outside
-document.addEventListener('click', e => {
-  const menu = document.getElementById('gameMenu');
-  if (menu && menu.style.display !== 'none') {
-    if (!e.target.closest('#gameMenu') && !e.target.closest('#menuToggleBtn')) {
-      closeMenu();
-    }
-  }
-});
+// Menu closes via backdrop click (see menuBackdrop div)
 
 function goToMenu() {
   G.gameOver = true; // allow navigation without beforeunload warning
@@ -2210,6 +2208,11 @@ window.addEventListener('beforeunload', e => {
 });
 
 // ── START ─────────────────────────────────────
+// Set active deck from URL param BEFORE initGame reads it
+(function() {
+  const raceId = new URLSearchParams(window.location.search).get('race') || 'terran';
+  window.__activeDeck = { terran: PLAYER_CARDS, brood: BROOD_CARDS }[raceId] || PLAYER_CARDS;
+})();
 initRaceTheme();
 initGame();
 </script>

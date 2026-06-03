@@ -665,13 +665,39 @@ button, [onclick] { touch-action: manipulation; }
     </div>
   </div>
 
-  <!-- CONVEYOR BELT -->
-  <div class="conveyor-section">
-    <div class="conveyor-arrow left" onclick="shiftSpeed(-1)" title="Slower / Reverse">&#x276E;</div>
-    <div class="conveyor-wrap" id="conveyorWrap">
-      <div class="conveyor-track" id="conveyorTrack"></div>
+  <!-- CONVEYOR BELT + SELECTED DECK PANEL -->
+  <div style="display:flex;align-items:stretch;position:relative;z-index:20;flex-shrink:0;">
+    <!-- Scrolling belt -->
+    <div class="conveyor-section" style="flex:1;min-width:0;">
+      <div class="conveyor-arrow left" onclick="shiftSpeed(-1)">&#x276E;</div>
+      <div class="conveyor-wrap" id="conveyorWrap">
+        <div class="conveyor-track" id="conveyorTrack"></div>
+      </div>
+      <div class="conveyor-arrow right" onclick="shiftSpeed(1)">&#x276F;</div>
     </div>
-    <div class="conveyor-arrow right" onclick="shiftSpeed(1)" title="Faster">&#x276F;</div>
+    <!-- Selected deck panel — right side, blends into lore below -->
+    <div id="selectedDeckPanel" style="
+      width:220px;flex-shrink:0;position:relative;overflow:hidden;
+      background:#020208;cursor:pointer;
+    " onclick="selectedRace&&startGame()" title="Click to launch selected deck">
+      <div id="selectedCoverArt" style="
+        position:absolute;inset:0;
+        background:center/cover no-repeat;
+        transition:background-image 0.5s ease;
+      "></div>
+      <!-- Left edge blends into belt -->
+      <div style="position:absolute;top:0;bottom:0;left:0;width:60px;
+        background:linear-gradient(to right,#020208,transparent);pointer-events:none;"></div>
+      <!-- Bottom blends into lore -->
+      <div style="position:absolute;bottom:0;left:0;right:0;height:60%;
+        background:linear-gradient(transparent,#020208);pointer-events:none;"></div>
+      <!-- Labels -->
+      <div style="position:absolute;bottom:10px;left:0;right:0;text-align:center;padding:0 8px;">
+        <div style="font-size:8px;letter-spacing:3px;color:#ffffff44;margin-bottom:4px;">SELECTED</div>
+        <div id="selectedDeckLabel" style="font-family:'Orbitron',monospace;font-size:9px;letter-spacing:2px;color:#fff;"></div>
+      </div>
+      <div id="selectedDeckBorder" style="position:absolute;inset:0;border-left:2px solid transparent;pointer-events:none;transition:border-color 0.4s;"></div>
+    </div>
   </div>
 
   <!-- LORE PANEL -->
@@ -1072,6 +1098,32 @@ function selectRace(race, tileEl) {
   });
 
   selectedRace = race;
+
+  // Update selected deck panel (right of conveyor belt)
+  const sdArt = document.getElementById('selectedCoverArt');
+  const sdLbl = document.getElementById('selectedDeckLabel');
+  const sdBdr = document.getElementById('selectedDeckBorder');
+  if (sdArt) sdArt.style.backgroundImage = `url('${race.cover}')`;
+  if (sdLbl) { sdLbl.textContent = race.name.replace('THE ',''); sdLbl.style.color = race.color; }
+  if (sdBdr) sdBdr.style.borderColor = race.color + '88';
+
+  // Smooth-scroll conveyor so selected card appears at right edge of belt
+  const raceIdx = RACES.findIndex(r => r.id === race.id);
+  if (raceIdx >= 0 && CV_LOOP_PX > 0) {
+    const PITCH = 240 + 22;
+    const beltW = document.getElementById('conveyorWrap')?.offsetWidth || 800;
+    let target = (raceIdx * PITCH + 28 - beltW + PITCH + CV_LOOP_PX) % CV_LOOP_PX;
+    const sp = cvPos, st = performance.now(), dur = 700;
+    function anim(now) {
+      const t = Math.min((now-st)/dur, 1), e2 = t<0.5?2*t*t:-1+(4-2*t)*t;
+      let diff = target - sp;
+      if (Math.abs(diff) > CV_LOOP_PX/2) diff -= Math.sign(diff)*CV_LOOP_PX;
+      cvPos = ((sp + diff*e2) + CV_LOOP_PX) % CV_LOOP_PX;
+      if (t < 1) requestAnimationFrame(anim);
+    }
+    requestAnimationFrame(anim);
+  }
+
   // Apply yellow border to ALL copies of this tile in the conveyor (3 sets)
   document.querySelectorAll(`.race-tile[data-id="${race.id}"]`).forEach(t => {
     t.classList.add('selected');
