@@ -242,6 +242,11 @@ body {
 }
 .bti.win-chip { animation: chipPulse 2.5s ease-in-out infinite; }
 
+@keyframes starPulse {
+  0%,100% { color:#bb44ff; filter:drop-shadow(0 0 3px #bb44ffcc); }
+  50%      { color:#ffffff; filter:drop-shadow(0 0 9px #ffffffdd); }
+}
+.ability-star { animation: starPulse 1.8s ease-in-out infinite; }
 /* Card face -- all absolutely positioned inside position:relative .cell */
 .edge {
   position: absolute; font-size: 15px; font-weight: bold; line-height: 1; z-index: 2;
@@ -1166,11 +1171,11 @@ function initRaceTheme() {
 // Same design rule: strong attack direction = weak rear (S low on aggressive cards)
 // Brood: hive anchors (T1) → warrior clusters (T2) → skimmers (T3) → The Sovereign (T4)
 const BROOD_CARDS = [
-  { id:'br_t1a', name:'HIVE NODE',       tier:'I',  tierLabel:'HIVE NODE',       zone:'wide_cross', edges:{n:6,s:2,e:4,w:3}, power:1, ability:null,          abilityText:'Basic Hive Node', art:'assets/cards/brood/hive-node.png' },
-  { id:'br_t1b', name:'HIVE NODE',       tier:'I',  tierLabel:'HIVE NODE',       zone:'wide_cross', edges:{n:6,s:2,e:4,w:3}, power:1, ability:null,          abilityText:'Basic Hive Node', art:'assets/cards/brood/hive-node.png' },
-  { id:'br_t1c', name:'HIVE NODE',       tier:'I',  tierLabel:'HIVE NODE',       zone:'wide_cross', edges:{n:5,s:2,e:4,w:4}, power:1, ability:null,          abilityText:'Basic Hive Node', art:'assets/cards/brood/hive-node.png' },
-  { id:'br_t1d', name:'QUEEN CRADLE',    tier:'I',  tierLabel:'HIVE NODE',       zone:'wall',       edges:{n:3,s:6,e:4,w:3}, power:1, ability:null,   abilityText:'No special ability', art:'assets/cards/brood/queen-cradle.png' },
-  { id:'br_t1e', name:'BROOD ANCHOR',    tier:'I',  tierLabel:'HIVE NODE',       zone:'full_ring',  edges:{n:4,s:5,e:4,w:3}, power:2, ability:null,       abilityText:'No special ability', art:'assets/cards/brood/brood-anchor.png' },
+  { id:'br_t1a', name:'HIVE NODE',       tier:'I',  tierLabel:'HIVE NODE',       zone:'wide_cross', edges:{n:8,s:2,e:5,w:4}, power:1, ability:null,          abilityText:'Basic Hive Node', art:'assets/cards/brood/hive-node.png' },
+  { id:'br_t1b', name:'HIVE NODE',       tier:'I',  tierLabel:'HIVE NODE',       zone:'wide_cross', edges:{n:8,s:2,e:5,w:4}, power:1, ability:null,          abilityText:'Basic Hive Node', art:'assets/cards/brood/hive-node.png' },
+  { id:'br_t1c', name:'HIVE NODE',       tier:'I',  tierLabel:'HIVE NODE',       zone:'wide_cross', edges:{n:7,s:2,e:5,w:5}, power:1, ability:null,          abilityText:'Basic Hive Node', art:'assets/cards/brood/hive-node.png' },
+  { id:'br_t1d', name:'QUEEN CRADLE',    tier:'I',  tierLabel:'HIVE NODE',       zone:'wall',       edges:{n:7,s:5,e:5,w:4}, power:1, ability:null,   abilityText:'No special ability', art:'assets/cards/brood/queen-cradle.png' },
+  { id:'br_t1e', name:'BROOD ANCHOR',    tier:'I',  tierLabel:'HIVE NODE',       zone:'full_ring',  edges:{n:6,s:5,e:5,w:4}, power:2, ability:null,       abilityText:'No special ability', art:'assets/cards/brood/brood-anchor.png' },
   { id:'br_t2a', name:'WARRIOR CLUSTER', tier:'II', tierLabel:'WARRIOR CLUSTER', zone:'command',    edges:{n:6,s:3,e:5,w:6}, power:3, ability:null,   abilityText:'No special ability', art:'assets/cards/brood/warrior-cluster.png' },
   { id:'br_t2b', name:'SOLDIER MASS',    tier:'II', tierLabel:'WARRIOR CLUSTER', zone:'launch',     edges:{n:6,s:3,e:6,w:5}, power:3, ability:null,       abilityText:'No special ability', art:'assets/cards/brood/soldier-mass.png' },
   { id:'br_t2c', name:'BIOMECH FLEET',   tier:'II', tierLabel:'WARRIOR CLUSTER', zone:'command',    edges:{n:4,s:3,e:8,w:5}, power:2, ability:null,       abilityText:'No special ability', art:'assets/cards/brood/biomech-fleet.png' },
@@ -1189,11 +1194,11 @@ const BROOD_CARDS = [
 // Edge profile: W/E dominant (wide flanks), moderate N, weak S
 const CRYSTALLIS_CARDS = [
   // T1 — CRYSTAL SHARDS (sum 15-16, power 1) — W/E dominant
-  { id:'cr_t1a', name:'CRYSTAL SHARD',    tier:'I',  tierLabel:'CRYSTAL SHARD',    zone:'wide_cross', edges:{n:6,s:2,e:3,w:4}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/crystallis/t1_a.png' },
-  { id:'cr_t1b', name:'SHARD CLUSTER',    tier:'I',  tierLabel:'CRYSTAL SHARD',    zone:'wide_cross', edges:{n:6,s:2,e:3,w:4}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/crystallis/t1_b.png' },
-  { id:'cr_t1c', name:'SILICA NODE',      tier:'I',  tierLabel:'CRYSTAL SHARD',    zone:'wide_cross', edges:{n:5,s:2,e:4,w:4}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/crystallis/t1_c.png' },
-  { id:'cr_t1d', name:'LATTICE WALL',     tier:'I',  tierLabel:'CRYSTAL SHARD',    zone:'wall',       edges:{n:3,s:6,e:4,w:3}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/crystallis/t1_a.png' },
-  { id:'cr_t1e', name:'CRYSTAL CORE',     tier:'I',  tierLabel:'CRYSTAL SHARD',    zone:'full_ring',  edges:{n:4,s:4,e:4,w:4}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/crystallis/t1_c.png' },
+  { id:'cr_t1a', name:'CRYSTAL SHARD',    tier:'I',  tierLabel:'CRYSTAL SHARD',    zone:'wide_cross', edges:{n:8,s:2,e:4,w:5}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/crystallis/t1_a.png' },
+  { id:'cr_t1b', name:'SHARD CLUSTER',    tier:'I',  tierLabel:'CRYSTAL SHARD',    zone:'wide_cross', edges:{n:8,s:2,e:4,w:5}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/crystallis/t1_b.png' },
+  { id:'cr_t1c', name:'SILICA NODE',      tier:'I',  tierLabel:'CRYSTAL SHARD',    zone:'wide_cross', edges:{n:7,s:2,e:5,w:5}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/crystallis/t1_c.png' },
+  { id:'cr_t1d', name:'LATTICE WALL',     tier:'I',  tierLabel:'CRYSTAL SHARD',    zone:'wall',       edges:{n:7,s:5,e:5,w:4}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/crystallis/t1_a.png' },
+  { id:'cr_t1e', name:'CRYSTAL CORE',     tier:'I',  tierLabel:'CRYSTAL SHARD',    zone:'full_ring',  edges:{n:6,s:4,e:5,w:5}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/crystallis/t1_c.png' },
   // T2 — RESONANCE ARRAYS (sum 19-22, power 2) — W/E dominant
   { id:'cr_t2a', name:'RESONANCE ARRAY',  tier:'II', tierLabel:'RESONANCE ARRAY',  zone:'command',    edges:{n:6,s:3,e:5,w:7}, power:2, ability:null, abilityText:'No special ability', art:'assets/cards/crystallis/t2_a.png' },
   { id:'cr_t2b', name:'PRISM BATTERY',    tier:'II', tierLabel:'RESONANCE ARRAY',  zone:'launch',     edges:{n:7,s:3,e:4,w:7}, power:2, ability:null, abilityText:'No special ability', art:'assets/cards/crystallis/t2_b.png' },
@@ -1215,11 +1220,11 @@ const CRYSTALLIS_CARDS = [
 // Edge profile: balanced all edges, notably good S (spreads backward too)
 const MYCOS_CARDS = [
   // T1 — SPORE ANCHORS (sum 15-16, power 1) — balanced with strong S
-  { id:'my_t1a', name:'SPORE ANCHOR',     tier:'I',  tierLabel:'SPORE ANCHOR',     zone:'wide_cross', edges:{n:6,s:2,e:4,w:3}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/mycos/t1_a.png' },
-  { id:'my_t1b', name:'FUNGAL GROWTH',    tier:'I',  tierLabel:'SPORE ANCHOR',     zone:'wide_cross', edges:{n:5,s:3,e:4,w:3}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/mycos/t1_b.png' },
-  { id:'my_t1c', name:'BLOOM SEED',       tier:'I',  tierLabel:'SPORE ANCHOR',     zone:'wide_cross', edges:{n:6,s:2,e:4,w:3}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/mycos/t1_c.png' },
-  { id:'my_t1d', name:'MYCO WALL',        tier:'I',  tierLabel:'SPORE ANCHOR',     zone:'wall',       edges:{n:3,s:6,e:4,w:3}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/mycos/t1_a.png' },
-  { id:'my_t1e', name:'HYPHAE RING',      tier:'I',  tierLabel:'SPORE ANCHOR',     zone:'full_ring',  edges:{n:4,s:4,e:4,w:4}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/mycos/t1_c.png' },
+  { id:'my_t1a', name:'SPORE ANCHOR',     tier:'I',  tierLabel:'SPORE ANCHOR',     zone:'wide_cross', edges:{n:8,s:2,e:5,w:4}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/mycos/t1_a.png' },
+  { id:'my_t1b', name:'FUNGAL GROWTH',    tier:'I',  tierLabel:'SPORE ANCHOR',     zone:'wide_cross', edges:{n:7,s:3,e:5,w:4}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/mycos/t1_b.png' },
+  { id:'my_t1c', name:'BLOOM SEED',       tier:'I',  tierLabel:'SPORE ANCHOR',     zone:'wide_cross', edges:{n:8,s:2,e:5,w:4}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/mycos/t1_c.png' },
+  { id:'my_t1d', name:'MYCO WALL',        tier:'I',  tierLabel:'SPORE ANCHOR',     zone:'wall',       edges:{n:7,s:5,e:5,w:4}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/mycos/t1_a.png' },
+  { id:'my_t1e', name:'HYPHAE RING',      tier:'I',  tierLabel:'SPORE ANCHOR',     zone:'full_ring',  edges:{n:6,s:4,e:5,w:5}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/mycos/t1_c.png' },
   // T2 — MYCELIUM WEBS (sum 19-22, power 2) — balanced with notable S
   { id:'my_t2a', name:'MYCELIUM WEB',     tier:'II', tierLabel:'MYCELIUM WEB',     zone:'command',    edges:{n:5,s:3,e:6,w:5}, power:2, ability:null, abilityText:'No special ability', art:'assets/cards/mycos/t2_a.png' },
   { id:'my_t2b', name:'SPORE CLOUD',      tier:'II', tierLabel:'MYCELIUM WEB',     zone:'launch',     edges:{n:4,s:4,e:6,w:5}, power:2, ability:null, abilityText:'No special ability', art:'assets/cards/mycos/t2_b.png' },
@@ -1241,11 +1246,11 @@ const MYCOS_CARDS = [
 // Edge profile: very high N (9s), very low S (1-2) — glass cannon feast-or-famine
 const VEIL_CARDS = [
   // T1 — LIGHT ANCHORS (sum 15-16, power 1) — extreme N, minimal S
-  { id:'vl_t1a', name:'LIGHT ANCHOR',     tier:'I',  tierLabel:'LIGHT ANCHOR',     zone:'wide_cross', edges:{n:6,s:2,e:3,w:4}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/veil/t1_a.png' },
-  { id:'vl_t1b', name:'PHASE NODE',       tier:'I',  tierLabel:'LIGHT ANCHOR',     zone:'wide_cross', edges:{n:6,s:2,e:3,w:4}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/veil/t1_b.png' },
-  { id:'vl_t1c', name:'SHIMMER POINT',    tier:'I',  tierLabel:'LIGHT ANCHOR',     zone:'wide_cross', edges:{n:5,s:2,e:4,w:4}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/veil/t1_c.png' },
-  { id:'vl_t1d', name:'VEIL WALL',        tier:'I',  tierLabel:'LIGHT ANCHOR',     zone:'wall',       edges:{n:3,s:6,e:4,w:3}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/veil/t1_a.png' },
-  { id:'vl_t1e', name:'PHOTON RING',      tier:'I',  tierLabel:'LIGHT ANCHOR',     zone:'full_ring',  edges:{n:4,s:4,e:4,w:4}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/veil/t1_c.png' },
+  { id:'vl_t1a', name:'LIGHT ANCHOR',     tier:'I',  tierLabel:'LIGHT ANCHOR',     zone:'wide_cross', edges:{n:8,s:2,e:4,w:5}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/veil/t1_a.png' },
+  { id:'vl_t1b', name:'PHASE NODE',       tier:'I',  tierLabel:'LIGHT ANCHOR',     zone:'wide_cross', edges:{n:8,s:2,e:4,w:5}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/veil/t1_b.png' },
+  { id:'vl_t1c', name:'SHIMMER POINT',    tier:'I',  tierLabel:'LIGHT ANCHOR',     zone:'wide_cross', edges:{n:7,s:2,e:5,w:5}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/veil/t1_c.png' },
+  { id:'vl_t1d', name:'VEIL WALL',        tier:'I',  tierLabel:'LIGHT ANCHOR',     zone:'wall',       edges:{n:7,s:5,e:5,w:4}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/veil/t1_a.png' },
+  { id:'vl_t1e', name:'PHOTON RING',      tier:'I',  tierLabel:'LIGHT ANCHOR',     zone:'full_ring',  edges:{n:6,s:4,e:5,w:5}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/veil/t1_c.png' },
   // T2 — SHIMMER SCREENS (sum 19-22, power 2) — extreme N, minimal S
   { id:'vl_t2a', name:'SHIMMER SCREEN',   tier:'II', tierLabel:'SHIMMER SCREEN',   zone:'command',    edges:{n:9,s:3,e:5,w:6}, power:2, ability:null, abilityText:'No special ability', art:'assets/cards/veil/t2_a.png' },
   { id:'vl_t2b', name:'PHASE WING',       tier:'II', tierLabel:'SHIMMER SCREEN',   zone:'launch',     edges:{n:9,s:3,e:4,w:7}, power:2, ability:null, abilityText:'No special ability', art:'assets/cards/veil/t2_b.png' },
@@ -1267,11 +1272,11 @@ const VEIL_CARDS = [
 // Edge profile: high S (strong backward/downward pressure), weak N — unusual/tricky decay race
 const ENTROPY_CARDS = [
   // T1 — RUST ANCHORS (sum 15-16, power 1) — S dominant, weak N
-  { id:'en_t1a', name:'RUST ANCHOR',      tier:'I',  tierLabel:'RUST ANCHOR',      zone:'wide_cross', edges:{n:6,s:2,e:4,w:3}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/entropy/t1_a.png' },
-  { id:'en_t1b', name:'DECAY NODE',       tier:'I',  tierLabel:'RUST ANCHOR',      zone:'wide_cross', edges:{n:6,s:2,e:4,w:3}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/entropy/t1_b.png' },
-  { id:'en_t1c', name:'CORRODE POINT',    tier:'I',  tierLabel:'RUST ANCHOR',      zone:'wide_cross', edges:{n:5,s:2,e:4,w:4}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/entropy/t1_c.png' },
-  { id:'en_t1d', name:'ENTROPY WALL',     tier:'I',  tierLabel:'RUST ANCHOR',      zone:'wall',       edges:{n:3,s:6,e:4,w:3}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/entropy/t1_a.png' },
-  { id:'en_t1e', name:'DECAY RING',       tier:'I',  tierLabel:'RUST ANCHOR',      zone:'full_ring',  edges:{n:4,s:4,e:4,w:4}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/entropy/t1_c.png' },
+  { id:'en_t1a', name:'RUST ANCHOR',      tier:'I',  tierLabel:'RUST ANCHOR',      zone:'wide_cross', edges:{n:8,s:2,e:5,w:4}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/entropy/t1_a.png' },
+  { id:'en_t1b', name:'DECAY NODE',       tier:'I',  tierLabel:'RUST ANCHOR',      zone:'wide_cross', edges:{n:8,s:2,e:5,w:4}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/entropy/t1_b.png' },
+  { id:'en_t1c', name:'CORRODE POINT',    tier:'I',  tierLabel:'RUST ANCHOR',      zone:'wide_cross', edges:{n:7,s:2,e:5,w:5}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/entropy/t1_c.png' },
+  { id:'en_t1d', name:'ENTROPY WALL',     tier:'I',  tierLabel:'RUST ANCHOR',      zone:'wall',       edges:{n:7,s:5,e:5,w:4}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/entropy/t1_a.png' },
+  { id:'en_t1e', name:'DECAY RING',       tier:'I',  tierLabel:'RUST ANCHOR',      zone:'full_ring',  edges:{n:6,s:4,e:5,w:5}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/entropy/t1_c.png' },
   // T2 — CORRODE CLUSTERS (sum 19-22, power 2) — S dominant, weak N
   { id:'en_t2a', name:'CORRODE CLUSTER',  tier:'II', tierLabel:'CORRODE CLUSTER',  zone:'command',    edges:{n:6,s:3,e:7,w:5}, power:2, ability:null, abilityText:'No special ability', art:'assets/cards/entropy/t2_a.png' },
   { id:'en_t2b', name:'RUST SURGE',       tier:'II', tierLabel:'CORRODE CLUSTER',  zone:'launch',     edges:{n:7,s:3,e:6,w:5}, power:2, ability:null, abilityText:'No special ability', art:'assets/cards/entropy/t2_b.png' },
@@ -1293,11 +1298,11 @@ const ENTROPY_CARDS = [
 // Edge profile: extreme N (9s common), very low W — assassin knife-edge forward thrust
 const VOID_CARDS = [
   // T1 — NULL NODES (sum 15-16, power 1) — extreme N, near-zero W
-  { id:'vo_t1a', name:'NULL NODE',        tier:'I',  tierLabel:'NULL NODE',        zone:'wide_cross', edges:{n:6,s:2,e:4,w:3}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/void/t1_a.png' },
-  { id:'vo_t1b', name:'DARK SEED',        tier:'I',  tierLabel:'NULL NODE',        zone:'wide_cross', edges:{n:7,s:2,e:3,w:3}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/void/t1_b.png' },
-  { id:'vo_t1c', name:'VOID ANCHOR',      tier:'I',  tierLabel:'NULL NODE',        zone:'wide_cross', edges:{n:6,s:2,e:4,w:3}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/void/t1_c.png' },
-  { id:'vo_t1d', name:'EVENT WALL',       tier:'I',  tierLabel:'NULL NODE',        zone:'wall',       edges:{n:3,s:6,e:4,w:3}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/void/t1_a.png' },
-  { id:'vo_t1e', name:'GRAVITY RING',     tier:'I',  tierLabel:'NULL NODE',        zone:'full_ring',  edges:{n:4,s:4,e:4,w:4}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/void/t1_c.png' },
+  { id:'vo_t1a', name:'NULL NODE',        tier:'I',  tierLabel:'NULL NODE',        zone:'wide_cross', edges:{n:8,s:2,e:5,w:4}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/void/t1_a.png' },
+  { id:'vo_t1b', name:'DARK SEED',        tier:'I',  tierLabel:'NULL NODE',        zone:'wide_cross', edges:{n:9,s:2,e:4,w:4}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/void/t1_b.png' },
+  { id:'vo_t1c', name:'VOID ANCHOR',      tier:'I',  tierLabel:'NULL NODE',        zone:'wide_cross', edges:{n:8,s:2,e:5,w:4}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/void/t1_c.png' },
+  { id:'vo_t1d', name:'EVENT WALL',       tier:'I',  tierLabel:'NULL NODE',        zone:'wall',       edges:{n:7,s:5,e:5,w:4}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/void/t1_a.png' },
+  { id:'vo_t1e', name:'GRAVITY RING',     tier:'I',  tierLabel:'NULL NODE',        zone:'full_ring',  edges:{n:6,s:4,e:5,w:5}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/void/t1_c.png' },
   // T2 — DARK CLUSTERS (sum 19-22, power 2) — extreme N, very low W
   { id:'vo_t2a', name:'DARK CLUSTER',     tier:'II', tierLabel:'DARK CLUSTER',     zone:'command',    edges:{n:7,s:3,e:7,w:4}, power:2, ability:null, abilityText:'No special ability', art:'assets/cards/void/t2_a.png' },
   { id:'vo_t2b', name:'VOID WING',        tier:'II', tierLabel:'DARK CLUSTER',     zone:'launch',     edges:{n:7,s:3,e:6,w:5}, power:2, ability:null, abilityText:'No special ability', art:'assets/cards/void/t2_b.png' },
@@ -1319,11 +1324,11 @@ const VOID_CARDS = [
 // Edge profile: high N AND S (strong both vertically), weak E/W — volatile omni-vertical plasma
 const GAS_CARDS = [
   // T1 — STORM CELLS (sum 15-16, power 1) — high N+S, weak E/W
-  { id:'gs_t1a', name:'STORM CELL',       tier:'I',  tierLabel:'STORM CELL',       zone:'wide_cross', edges:{n:6,s:3,e:3,w:3}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/gas/t1_a.png' },
-  { id:'gs_t1b', name:'PLASMA NODE',      tier:'I',  tierLabel:'STORM CELL',       zone:'wide_cross', edges:{n:6,s:3,e:3,w:3}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/gas/t1_b.png' },
-  { id:'gs_t1c', name:'ION SEED',         tier:'I',  tierLabel:'STORM CELL',       zone:'wide_cross', edges:{n:5,s:3,e:4,w:3}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/gas/t1_c.png' },
-  { id:'gs_t1d', name:'STORM WALL',       tier:'I',  tierLabel:'STORM CELL',       zone:'wall',       edges:{n:3,s:7,e:3,w:3}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/gas/t1_a.png' },
-  { id:'gs_t1e', name:'PLASMA RING',      tier:'I',  tierLabel:'STORM CELL',       zone:'full_ring',  edges:{n:4,s:4,e:4,w:4}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/gas/t1_c.png' },
+  { id:'gs_t1a', name:'STORM CELL',       tier:'I',  tierLabel:'STORM CELL',       zone:'wide_cross', edges:{n:8,s:3,e:4,w:4}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/gas/t1_a.png' },
+  { id:'gs_t1b', name:'PLASMA NODE',      tier:'I',  tierLabel:'STORM CELL',       zone:'wide_cross', edges:{n:8,s:3,e:4,w:4}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/gas/t1_b.png' },
+  { id:'gs_t1c', name:'ION SEED',         tier:'I',  tierLabel:'STORM CELL',       zone:'wide_cross', edges:{n:7,s:3,e:5,w:4}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/gas/t1_c.png' },
+  { id:'gs_t1d', name:'STORM WALL',       tier:'I',  tierLabel:'STORM CELL',       zone:'wall',       edges:{n:8,s:5,e:4,w:4}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/gas/t1_a.png' },
+  { id:'gs_t1e', name:'PLASMA RING',      tier:'I',  tierLabel:'STORM CELL',       zone:'full_ring',  edges:{n:6,s:4,e:5,w:5}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/gas/t1_c.png' },
   // T2 — PLASMA WINGS (sum 19-22, power 2) — high N+S, weak E/W
   { id:'gs_t2a', name:'PLASMA WING',      tier:'II', tierLabel:'PLASMA WING',      zone:'launch',     edges:{n:6,s:4,e:5,w:5}, power:2, ability:null, abilityText:'No special ability', art:'assets/cards/gas/t2_a.png' },
   { id:'gs_t2b', name:'ION SURGE',        tier:'II', tierLabel:'PLASMA WING',      zone:'command',    edges:{n:5,s:5,e:5,w:5}, power:2, ability:null, abilityText:'No special ability', art:'assets/cards/gas/t2_b.png' },
@@ -1345,11 +1350,11 @@ const GAS_CARDS = [
 // Edge profile: very high W AND E (dominant flanks), moderate N, low S — geological fortress
 const LITHOS_CARDS = [
   // T1 — STONE ANCHORS (sum 15-16, power 1) — W/E very high, moderate N, low S
-  { id:'li_t1a', name:'STONE ANCHOR',     tier:'I',  tierLabel:'STONE ANCHOR',     zone:'wide_cross', edges:{n:6,s:2,e:3,w:4}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/lithos/t1_a.png' },
-  { id:'li_t1b', name:'ROCK NODE',        tier:'I',  tierLabel:'STONE ANCHOR',     zone:'wide_cross', edges:{n:5,s:2,e:3,w:5}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/lithos/t1_b.png' },
-  { id:'li_t1c', name:'BASALT POINT',     tier:'I',  tierLabel:'STONE ANCHOR',     zone:'wide_cross', edges:{n:6,s:2,e:3,w:4}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/lithos/t1_c.png' },
-  { id:'li_t1d', name:'TECTONIC WALL',    tier:'I',  tierLabel:'STONE ANCHOR',     zone:'wall',       edges:{n:3,s:6,e:3,w:4}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/lithos/t1_a.png' },
-  { id:'li_t1e', name:'GEODE RING',       tier:'I',  tierLabel:'STONE ANCHOR',     zone:'full_ring',  edges:{n:4,s:4,e:4,w:4}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/lithos/t1_c.png' },
+  { id:'li_t1a', name:'STONE ANCHOR',     tier:'I',  tierLabel:'STONE ANCHOR',     zone:'wide_cross', edges:{n:8,s:2,e:4,w:5}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/lithos/t1_a.png' },
+  { id:'li_t1b', name:'ROCK NODE',        tier:'I',  tierLabel:'STONE ANCHOR',     zone:'wide_cross', edges:{n:7,s:2,e:4,w:6}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/lithos/t1_b.png' },
+  { id:'li_t1c', name:'BASALT POINT',     tier:'I',  tierLabel:'STONE ANCHOR',     zone:'wide_cross', edges:{n:8,s:2,e:4,w:5}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/lithos/t1_c.png' },
+  { id:'li_t1d', name:'TECTONIC WALL',    tier:'I',  tierLabel:'STONE ANCHOR',     zone:'wall',       edges:{n:7,s:5,e:4,w:5}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/lithos/t1_a.png' },
+  { id:'li_t1e', name:'GEODE RING',       tier:'I',  tierLabel:'STONE ANCHOR',     zone:'full_ring',  edges:{n:6,s:4,e:5,w:5}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/lithos/t1_c.png' },
   // T2 — TECTONIC WALLS (sum 19-22, power 2) — W/E very high, moderate N, low S
   { id:'li_t2a', name:'TECTONIC CLUSTER', tier:'II', tierLabel:'TECTONIC CLUSTER', zone:'command',    edges:{n:8,s:3,e:5,w:7}, power:2, ability:null, abilityText:'No special ability', art:'assets/cards/lithos/t2_a.png' },
   { id:'li_t2b', name:'QUAKE SURGE',      tier:'II', tierLabel:'TECTONIC CLUSTER', zone:'launch',     edges:{n:9,s:3,e:4,w:7}, power:2, ability:null, abilityText:'No special ability', art:'assets/cards/lithos/t2_b.png' },
@@ -1371,11 +1376,11 @@ const LITHOS_CARDS = [
 // Edge profile: all edges nearly equal (4-6 range) — truly unpredictable, no dominant direction
 const QUANTUM_CARDS = [
   // T1 — PROBABILITY NODES (sum 15-16, power 1) — all edges 3-5, tightly grouped
-  { id:'qu_t1a', name:'PROBABILITY NODE', tier:'I',  tierLabel:'PROB NODE',        zone:'wide_cross', edges:{n:5,s:3,e:4,w:3}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/quantum/t1_a.png' },
-  { id:'qu_t1b', name:'SUPERPOSED SEED',  tier:'I',  tierLabel:'PROB NODE',        zone:'wide_cross', edges:{n:5,s:3,e:4,w:3}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/quantum/t1_b.png' },
-  { id:'qu_t1c', name:'QUBIT ANCHOR',     tier:'I',  tierLabel:'PROB NODE',        zone:'wide_cross', edges:{n:5,s:3,e:4,w:3}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/quantum/t1_c.png' },
-  { id:'qu_t1d', name:'ENTANGLE WALL',    tier:'I',  tierLabel:'PROB NODE',        zone:'wall',       edges:{n:3,s:6,e:4,w:3}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/quantum/t1_a.png' },
-  { id:'qu_t1e', name:'SPIN RING',        tier:'I',  tierLabel:'PROB NODE',        zone:'full_ring',  edges:{n:4,s:5,e:4,w:3}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/quantum/t1_c.png' },
+  { id:'qu_t1a', name:'PROBABILITY NODE', tier:'I',  tierLabel:'PROB NODE',        zone:'wide_cross', edges:{n:7,s:3,e:5,w:4}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/quantum/t1_a.png' },
+  { id:'qu_t1b', name:'SUPERPOSED SEED',  tier:'I',  tierLabel:'PROB NODE',        zone:'wide_cross', edges:{n:7,s:3,e:5,w:4}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/quantum/t1_b.png' },
+  { id:'qu_t1c', name:'QUBIT ANCHOR',     tier:'I',  tierLabel:'PROB NODE',        zone:'wide_cross', edges:{n:7,s:3,e:5,w:4}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/quantum/t1_c.png' },
+  { id:'qu_t1d', name:'ENTANGLE WALL',    tier:'I',  tierLabel:'PROB NODE',        zone:'wall',       edges:{n:7,s:5,e:5,w:4}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/quantum/t1_a.png' },
+  { id:'qu_t1e', name:'SPIN RING',        tier:'I',  tierLabel:'PROB NODE',        zone:'full_ring',  edges:{n:6,s:5,e:5,w:4}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/quantum/t1_c.png' },
   // T2 — SUPERPOSED ARRAYS (sum 19-22, power 2) — all edges 5-6, tightly grouped
   { id:'qu_t2a', name:'SUPERPOSED ARRAY', tier:'II', tierLabel:'SUPERPOSED ARRAY', zone:'command',    edges:{n:5,s:4,e:6,w:5}, power:2, ability:null, abilityText:'No special ability', art:'assets/cards/quantum/t2_a.png' },
   { id:'qu_t2b', name:'QUBIT WING',       tier:'II', tierLabel:'SUPERPOSED ARRAY', zone:'launch',     edges:{n:5,s:4,e:5,w:6}, power:2, ability:null, abilityText:'No special ability', art:'assets/cards/quantum/t2_b.png' },
@@ -1397,10 +1402,10 @@ const QUANTUM_CARDS = [
 // Edge profile: high E specifically (right-flank dominant), moderate N and W, lower S
 const CHOIR_CARDS = [
   // T1 — HARMONIC NODES (sum 15-16, power 1) — E dominant, moderate N/W, lower S
-  { id:'ch_t1a', name:'HARMONIC NODE',    tier:'I',  tierLabel:'HARMONIC NODE',    zone:'wide_cross', edges:{n:6,s:2,e:5,w:3}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/choir/t1_a.png' },
-  { id:'ch_t1b', name:'RESONANCE SEED',   tier:'I',  tierLabel:'HARMONIC NODE',    zone:'wide_cross', edges:{n:6,s:2,e:5,w:3}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/choir/t1_b.png' },
-  { id:'ch_t1c', name:'SONIC ANCHOR',     tier:'I',  tierLabel:'HARMONIC NODE',    zone:'wide_cross', edges:{n:5,s:2,e:5,w:3}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/choir/t1_c.png' },
-  { id:'ch_t1d', name:'TONE WALL',        tier:'I',  tierLabel:'HARMONIC NODE',    zone:'wall',       edges:{n:3,s:6,e:4,w:3}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/choir/t1_a.png' },
+  { id:'ch_t1a', name:'HARMONIC NODE',    tier:'I',  tierLabel:'HARMONIC NODE',    zone:'wide_cross', edges:{n:8,s:2,e:6,w:4}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/choir/t1_a.png' },
+  { id:'ch_t1b', name:'RESONANCE SEED',   tier:'I',  tierLabel:'HARMONIC NODE',    zone:'wide_cross', edges:{n:8,s:2,e:6,w:4}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/choir/t1_b.png' },
+  { id:'ch_t1c', name:'SONIC ANCHOR',     tier:'I',  tierLabel:'HARMONIC NODE',    zone:'wide_cross', edges:{n:7,s:2,e:6,w:4}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/choir/t1_c.png' },
+  { id:'ch_t1d', name:'TONE WALL',        tier:'I',  tierLabel:'HARMONIC NODE',    zone:'wall',       edges:{n:7,s:5,e:5,w:4}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/choir/t1_a.png' },
   { id:'ch_t1e', name:'CHOIR RING',       tier:'I',  tierLabel:'HARMONIC NODE',    zone:'full_ring',  edges:{n:4,s:4,e:5,w:3}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/choir/t1_b.png' },
   // T2 — RESONANCE CHOIRS (sum 19-22, power 2) — E dominant, moderate N/W, lower S
   { id:'ch_t2a', name:'RESONANCE CHOIR',  tier:'II', tierLabel:'RESONANCE CHOIR',  zone:'command',    edges:{n:6,s:3,e:7,w:5}, power:2, ability:null, abilityText:'No special ability', art:'assets/cards/choir/t2_a.png' },
@@ -1423,11 +1428,11 @@ const CHOIR_CARDS = [
 // N=forward toward enemy | S=rear weakness | E/W=flanks
 const PLAYER_CARDS = [
   // T1 — COLONY WORLDS (anchors; balanced but slight directional bias, rear always weak)
-  { id:'ta_t1a', name:'COLONY WORLD A', tier:'I',  tierLabel:'COLONY WORLD', zone:'wide_cross',  edges:{n:6,s:2,e:4,w:3}, power:1, ability:null,            abilityText:'Basic Colony World', art:'assets/cards/terran/colony-world-a.png' },
-  { id:'ta_t1b', name:'COLONY WORLD B', tier:'I',  tierLabel:'COLONY WORLD', zone:'wide_cross',  edges:{n:5,s:2,e:4,w:4}, power:1, ability:null,            abilityText:'Basic Colony World', art:'assets/cards/terran/colony-world-b.png' },
-  { id:'ta_t1c', name:'COLONY WORLD C', tier:'I',  tierLabel:'COLONY WORLD', zone:'wide_cross',  edges:{n:6,s:2,e:4,w:3}, power:1, ability:null,            abilityText:'Basic Colony World', art:'assets/cards/terran/colony-world-c.png' },
-  { id:'ta_t1d', name:'FRONTIER POST', tier:'I',  tierLabel:'COLONY WORLD', zone:'wall',        edges:{n:3,s:6,e:4,w:3}, power:1, ability:null,        abilityText:'No special ability', art:'assets/cards/terran/frontier-post.png' },
-  { id:'ta_t1e', name:'SUPPLY HUB',    tier:'I',  tierLabel:'COLONY WORLD', zone:'full_ring',   edges:{n:4,s:4,e:4,w:4}, power:2, ability:null,     abilityText:'No special ability', art:'assets/cards/terran/supply-hub.png' },
+  { id:'ta_t1a', name:'COLONY WORLD A', tier:'I',  tierLabel:'COLONY WORLD', zone:'wide_cross',  edges:{n:8,s:2,e:5,w:4}, power:1, ability:null,            abilityText:'Basic Colony World', art:'assets/cards/terran/colony-world-a.png' },
+  { id:'ta_t1b', name:'COLONY WORLD B', tier:'I',  tierLabel:'COLONY WORLD', zone:'wide_cross',  edges:{n:7,s:2,e:5,w:5}, power:1, ability:null,            abilityText:'Basic Colony World', art:'assets/cards/terran/colony-world-b.png' },
+  { id:'ta_t1c', name:'COLONY WORLD C', tier:'I',  tierLabel:'COLONY WORLD', zone:'wide_cross',  edges:{n:8,s:2,e:5,w:4}, power:1, ability:null,            abilityText:'Basic Colony World', art:'assets/cards/terran/colony-world-c.png' },
+  { id:'ta_t1d', name:'FRONTIER POST', tier:'I',  tierLabel:'COLONY WORLD', zone:'wall',        edges:{n:7,s:5,e:5,w:4}, power:1, ability:null,        abilityText:'No special ability', art:'assets/cards/terran/frontier-post.png' },
+  { id:'ta_t1e', name:'SUPPLY HUB',    tier:'I',  tierLabel:'COLONY WORLD', zone:'full_ring',   edges:{n:6,s:4,e:5,w:5}, power:2, ability:null,     abilityText:'No special ability', art:'assets/cards/terran/supply-hub.png' },
   // T2 — BATTLE GROUPS
   { id:'ta_t2a', name:'BATTLE GROUP',  tier:'II', tierLabel:'BATTLE GROUP', zone:'command',     edges:{n:6,s:3,e:6,w:5}, power:3, ability:null,     abilityText:'No special ability', art:'assets/cards/terran/battle-group.png' },
   { id:'ta_t2b', name:'CARRIER WING',  tier:'II', tierLabel:'BATTLE GROUP', zone:'launch',      edges:{n:6,s:3,e:5,w:6}, power:3, ability:null, abilityText:'No special ability', art:'assets/cards/terran/carrier-wing.png' },
@@ -1444,20 +1449,20 @@ const PLAYER_CARDS = [
   { id:'ta_x3', name:'GHOST RUNNER',  tier:'III', tierLabel:'STRIKE CRAFT', zone:'lance',       edges:{n:3,s:8,e:5,w:5}, power:2, ability:null,        abilityText:'No special ability', art:'assets/cards/terran/fast-runner.png' },
 ];
 const AI_CARDS = [
-  { id:'a1',  name:'FANG',    tier:'I',   edges:{n:3,s:5,e:4,w:5}, power:2, ability:null,            abilityText:'Basic card' },
-  { id:'a2',  name:'FANG',    tier:'I',   edges:{n:4,s:5,e:3,w:6}, power:2, ability:null,            abilityText:'Basic card' },
+  { id:'a1',  name:'FANG',    tier:'I',   edges:{n:6,s:5,e:5,w:6}, power:2, ability:null,            abilityText:'Basic card' },
+  { id:'a2',  name:'FANG',    tier:'I',   edges:{n:6,s:5,e:4,w:7}, power:2, ability:null,            abilityText:'Basic card' },
   { id:'a3',  name:'FANG',    tier:'I',   edges:{n:5,s:4,e:5,w:4}, power:2, ability:null,            abilityText:'Basic card' },
-  { id:'a4',  name:'TOWER',   tier:'I',   edges:{n:2,s:2,e:6,w:6}, power:1, ability:null,        abilityText:'Basic card' },
-  { id:'a5',  name:'SHADE',   tier:'I',   edges:{n:4,s:3,e:4,w:5}, power:1, ability:null,       abilityText:'Basic card' },
-  { id:'a6',  name:'CRUSH',   tier:'I',   edges:{n:3,s:4,e:5,w:6}, power:2, ability:null, abilityText:'Basic card' },
+  { id:'a4',  name:'TOWER',   tier:'I',   edges:{n:5,s:3,e:7,w:7}, power:1, ability:null,        abilityText:'Basic card' },
+  { id:'a5',  name:'SHADE',   tier:'I',   edges:{n:6,s:3,e:5,w:6}, power:1, ability:null,       abilityText:'Basic card' },
+  { id:'a6',  name:'CRUSH',   tier:'I',   edges:{n:6,s:4,e:6,w:7}, power:2, ability:null, abilityText:'Basic card' },
   { id:'a7',  name:'THORN',   tier:'I',   edges:{n:4,s:5,e:6,w:4}, power:2, ability:null,            abilityText:'Basic card' },
-  { id:'a8',  name:'CLAW',    tier:'I',   edges:{n:5,s:3,e:4,w:6}, power:2, ability:null,            abilityText:'Basic card' },
-  { id:'a9',  name:'BASTION', tier:'I',   edges:{n:5,s:6,e:3,w:3}, power:1, ability:null,            abilityText:'Basic card' },
+  { id:'a8',  name:'CLAW',    tier:'I',   edges:{n:7,s:3,e:5,w:7}, power:2, ability:null,            abilityText:'Basic card' },
+  { id:'a9',  name:'BASTION', tier:'I',   edges:{n:6,s:7,e:4,w:4}, power:1, ability:null,            abilityText:'Basic card' },
   { id:'a10', name:'CLEAVE',  tier:'II',  edges:{n:6,s:7,e:7,w:8}, power:4, ability:null,         abilityText:'Basic card' },
   { id:'a11', name:'RAZOR',   tier:'II',  edges:{n:7,s:6,e:6,w:7}, power:4, ability:null,            abilityText:'High-power Tier II' },
   { id:'a12', name:'AEGIS',   tier:'II',  edges:{n:5,s:8,e:7,w:6}, power:3, ability:null,            abilityText:'High-power Tier II' },
   // Extra AI cards for 15-card deck
-  { id:'a13', name:'SPORE',   tier:'I',   edges:{n:4,s:6,e:5,w:4}, power:1, ability:null,            abilityText:'Basic card' },
+  { id:'a13', name:'SPORE',   tier:'I',   edges:{n:6,s:6,e:6,w:5}, power:1, ability:null,            abilityText:'Basic card' },
   { id:'a14', name:'SLASH',   tier:'III', edges:{n:7,s:3,e:8,w:3}, power:3, ability:null,        abilityText:'Basic card' },
   { id:'a15', name:'VENOM',   tier:'III', edges:{n:8,s:4,e:7,w:3}, power:2, ability:null,         abilityText:'Basic card' },
 ];
