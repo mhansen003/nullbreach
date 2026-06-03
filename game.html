@@ -144,17 +144,16 @@ body {
   margin-top: 4px;
 }
 .col-score-badge {
-  width: 108px; height: 50px; /* match cell width */
-  border-radius: 3px;
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: 2px; font-size: 8px; letter-spacing: 1px;
-  flex-shrink: 0;
+  width: 108px; height: 54px;
+  border-radius: 4px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; overflow: hidden; position: relative;
+  transition: border-color 0.3s;
 }
-.col-score-badge.p-win  { background:#00ffcc0d; border:1px solid #00ffcc55; }
-.col-score-badge.a-win  { background:#ff00800d; border:1px solid #ff008055; }
-.col-score-badge.tie    { background:#111120; border:1px solid #1a1a2a; color:#444; }
-.csb-row { display: flex; gap: 6px; align-items: center; font-size: 9px; }
-.csb-winner { font-size: 8px; letter-spacing: 1px; font-weight: bold; }
+.col-score-badge.none   { background:#07070f; border:1px solid #111120; }
+.col-score-badge.p-win  { background:#00ffcc08; border:1px solid #00ffcc44; }
+.col-score-badge.a-win  { background:#ff008008; border:1px solid #ff008044; }
+.col-score-badge.tie    { background:#0d0c18; border:1px solid #221a33; }
 
 /* Row scores column */
 .row-scores {
@@ -163,25 +162,21 @@ body {
   gap: 6px;
 }
 .row-score-badge {
-  width: 90px; height: 144px; /* match cell height */
-  border-radius: 3px;
+  width: 90px; height: 144px;
+  border-radius: 4px;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: 5px;
+  gap: 6px; overflow: hidden; position: relative;
+  transition: border-color 0.3s;
 }
-.row-score-badge.p-win  { background:#00ffcc0d; border:1px solid #00ffcc55; }
-.row-score-badge.a-win  { background:#ff00800d; border:1px solid #ff008055; }
-.row-score-badge.tie    { background:#111120; border:1px solid #1a1a2a; }
-.rsb-line { display: flex; justify-content: space-between; align-items: center; width: 80px; }
-.rsb-who  { font-size: 9px; letter-spacing: 1px; }
-.rsb-pts  { font-size: 14px; font-weight: bold; }
-.rsb-pts.p { color: #00ffcc; text-shadow: 0 0 6px #00ffcc66; }
-.rsb-pts.a { color: #ff0080; text-shadow: 0 0 6px #ff008066; }
-.rsb-pts.dim { color: #2a2a3a; }
-.rsb-divider { width: 80px; height: 1px; background: #1a1a2a; }
-.rsb-winner-tag { font-size: 8px; font-weight: bold; letter-spacing: 2px; padding: 2px 6px; border-radius: 2px; }
-.rsb-winner-tag.p { color: #00ffcc; background: #00ffcc11; }
-.rsb-winner-tag.a { color: #ff0080; background: #ff008011; }
-.rsb-winner-tag.t { color: #444; }
+.row-score-badge.none  { background:#07070f; border:1px solid #111120; }
+.row-score-badge.p-win { background:#00ffcc08; border:1px solid #00ffcc44; }
+.row-score-badge.a-win { background:#ff008008; border:1px solid #ff008044; }
+.row-score-badge.tie   { background:#0d0c18; border:1px solid #221a33; }
+/* avatar circles on badges */
+.sbav { width:26px;height:26px;border-radius:50%;object-fit:cover;object-position:top;border:2px solid transparent; }
+.sbav.win  { filter:none;   opacity:1;   }
+.sbav.lose { filter:grayscale(1); opacity:0.25; }
+.sbav.none { filter:grayscale(1); opacity:0.15; }
 
 /* GRID */
 .grid {
@@ -909,8 +904,12 @@ function initRaceTheme() {
   // Store short faction names (first 2 words) for score badge display
   const playerWords = player.name.replace(/^THE /, '').split(' ');
   const aiWords     = ai.name.replace(/^THE /, '').split(' ');
-  window.playerFactionName = playerWords.slice(0, 2).join(' ');
-  window.aiFactionName     = aiWords.slice(0, 2).join(' ');
+  window.playerFactionName  = playerWords.slice(0, 2).join(' ');
+  window.aiFactionName      = aiWords.slice(0, 2).join(' ');
+  window.playerRaceId       = raceId;
+  window.aiRaceId           = aiRaceId;
+  window.playerAvatarImg    = player.avatarImg || `assets/avatars/${raceId}.png`;
+  window.aiAvatarImg        = ai.avatarImg     || `assets/avatars/${aiRaceId}.png`;
 
   // Update faction labels below avatars
   const aiFactionLbl = document.getElementById('aiFactionLabel');
@@ -1306,28 +1305,83 @@ function renderScoreBadges() {
   if (tP) tP.textContent = `${pLabel}: ${s.pWins}/12 lines`;
   if (tA) tA.textContent = `${aLabel}: ${s.aWins}/12 lines`;
 
-  // ROW score badges — show both totals + winner
+  const pAvatar = window.playerAvatarImg || `assets/avatars/${window.playerRaceId||'terran'}.png`;
+  const aAvatar = window.aiAvatarImg    || `assets/avatars/${window.aiRaceId||'entropy'}.png`;
+  const pCol    = window.playerFactionColor || '#00ffcc';
+  const aCol    = window.aiFactionColor     || '#ff0080';
+
+  function rowBadgeHtml(p, a, res) {
+    const noContest = p === 0 && a === 0;
+    if (noContest) return `<span style="font-size:18px;color:#1a1a28;letter-spacing:3px;">--</span>`;
+
+    const pWin = res === 'p', aWin = res === 'a', tie = res === 'tie' || (!pWin && !aWin);
+
+    // Winner on top (bigger, colored), loser below (smaller, grey)
+    const pClass = pWin ? 'win' : aWin ? 'lose' : 'none';
+    const aClass = aWin ? 'win' : pWin ? 'lose' : 'none';
+    const pBorder = pWin ? pCol : '#333';
+    const aBorder = aWin ? aCol : '#333';
+    const pSize   = pWin ? '24px' : '16px';
+    const aSize   = aWin ? '24px' : '16px';
+    const pFSize  = pWin ? '18px' : '12px';
+    const aFSize  = aWin ? '18px' : '12px';
+    const pOpac  = pWin ? '1' : '0.22';
+    const aOpac  = aWin ? '1' : '0.22';
+    const pFilter = pWin ? 'none' : 'grayscale(1)';
+    const aFilter = aWin ? 'none' : 'grayscale(1)';
+
+    return `
+      <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+        <img src="${pAvatar}" style="width:${pSize};height:${pSize};border-radius:50%;object-fit:cover;object-position:top;border:2px solid ${pBorder};filter:${pFilter};opacity:${pOpac};transition:all 0.3s;">
+        <span style="font-size:${pFSize};font-weight:bold;color:${pWin?pCol:'#2a2a3a'};line-height:1;transition:all 0.3s;">${p}</span>
+      </div>
+      <div style="width:28px;height:1px;background:#1a1a28;"></div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+        <span style="font-size:${aFSize};font-weight:bold;color:${aWin?aCol:'#2a2a3a'};line-height:1;transition:all 0.3s;">${a}</span>
+        <img src="${aAvatar}" style="width:${aSize};height:${aSize};border-radius:50%;object-fit:cover;object-position:top;border:2px solid ${aBorder};filter:${aFilter};opacity:${aOpac};transition:all 0.3s;">
+      </div>`;
+  }
+
+  function colBadgeHtml(p, a, res) {
+    const noContest = p === 0 && a === 0;
+    if (noContest) return `<span style="font-size:16px;color:#1a1a28;letter-spacing:3px;">--</span>`;
+
+    const pWin = res === 'p', aWin = res === 'a';
+    const pFilter = pWin ? 'none' : 'grayscale(1)';
+    const aFilter = aWin ? 'none' : 'grayscale(1)';
+    const pOpac   = pWin ? '1' : '0.22';
+    const aOpac   = aWin ? '1' : '0.22';
+    const pBorder = pWin ? pCol : '#2a2a3a';
+    const aBorder = aWin ? aCol : '#2a2a3a';
+    const pFSize  = pWin ? '15px' : '11px';
+    const aFSize  = aWin ? '15px' : '11px';
+    const pImgSz  = pWin ? '20px' : '15px';
+    const aImgSz  = aWin ? '20px' : '15px';
+
+    return `
+      <div style="display:flex;align-items:center;gap:4px;transition:all 0.3s;">
+        <img src="${pAvatar}" style="width:${pImgSz};height:${pImgSz};border-radius:50%;object-fit:cover;object-position:top;border:1px solid ${pBorder};filter:${pFilter};opacity:${pOpac};">
+        <span style="font-size:${pFSize};font-weight:bold;color:${pWin?pCol:'#2a2a3a'};">${p}</span>
+      </div>
+      <div style="width:1px;height:24px;background:#1a1a28;margin:0 3px;"></div>
+      <div style="display:flex;align-items:center;gap:4px;transition:all 0.3s;">
+        <span style="font-size:${aFSize};font-weight:bold;color:${aWin?aCol:'#2a2a3a'};">${a}</span>
+        <img src="${aAvatar}" style="width:${aImgSz};height:${aImgSz};border-radius:50%;object-fit:cover;object-position:top;border:1px solid ${aBorder};filter:${aFilter};opacity:${aOpac};">
+      </div>`;
+  }
+
+  // ROW score badges
   const rowEl = document.getElementById('rowScores');
   rowEl.innerHTML = '';
   for (let r = 0; r < 5; r++) {
     const {p,a} = s.rows[r];
     const res = s.rowResults[r];
+    const state = (p===0&&a===0) ? 'none' : res==='p' ? 'p-win' : res==='a' ? 'a-win' : 'tie';
     const badge = document.createElement('div');
-    badge.className = `row-score-badge ${res==='p'?'p-win':res==='a'?'a-win':'tie'}`;
-    const wtag = res==='p'
-      ? `<span class="rsb-winner-tag p">${pLabel} &#x25B6;</span>`
-      : res==='a'
-      ? `<span class="rsb-winner-tag a">&#x25C0; ${aLabel}</span>`
-      : `<span class="rsb-winner-tag t">TIE</span>`;
-    // Simplified: just two numbers + winner indicator
-    badge.innerHTML = `
-      <span class="rsb-pts p">${p}</span>
-      <span style="font-size:9px;color:#333;letter-spacing:1px;">vs</span>
-      <span class="rsb-pts a">${a}</span>
-    `;
-    // Hover: highlight entire row on board
+    badge.className = `row-score-badge ${state}`;
+    badge.innerHTML = rowBadgeHtml(p, a, res);
     badge.addEventListener('mouseenter', () => {
-      document.querySelectorAll(`.cell[data-r="${r}"]`).forEach(el => el.style.outline='2px solid #ffff0066');
+      document.querySelectorAll(`.cell[data-r="${r}"]`).forEach(el => el.style.outline='2px solid #ffff0055');
     });
     badge.addEventListener('mouseleave', () => {
       document.querySelectorAll(`.cell[data-r="${r}"]`).forEach(el => el.style.outline='');
@@ -1335,27 +1389,18 @@ function renderScoreBadges() {
     rowEl.appendChild(badge);
   }
 
-  // COL score badges — show both totals + winner (7 cols)
+  // COL score badges
   const colEl = document.getElementById('colScores');
   colEl.innerHTML = '';
   for (let c = 0; c < 7; c++) {
     const {p,a} = s.cols[c];
     const res = s.colResults[c];
+    const state = (p===0&&a===0) ? 'none' : res==='p' ? 'p-win' : res==='a' ? 'a-win' : 'tie';
     const badge = document.createElement('div');
-    badge.className = `col-score-badge ${res==='p'?'p-win':res==='a'?'a-win':'tie'}`;
-    const winner = res==='p'
-      ? `<span style="color:#00ffcc;font-weight:bold;font-size:9px">${pLabel} &#x25B2;</span>`
-      : res==='a'
-      ? `<span style="color:#ff0080;font-weight:bold;font-size:9px">${aLabel} &#x25BC;</span>`
-      : `<span style="color:#444;font-size:9px">TIE</span>`;
-    badge.innerHTML = `
-      <span style="color:#00ffcc;font-size:13px;font-weight:bold;">${p}</span>
-      <span style="color:#333;font-size:9px;">vs</span>
-      <span style="color:#ff0080;font-size:13px;font-weight:bold;">${a}</span>
-    `;
-    // Hover: highlight entire column
+    badge.className = `col-score-badge ${state}`;
+    badge.innerHTML = colBadgeHtml(p, a, res);
     badge.addEventListener('mouseenter', () => {
-      document.querySelectorAll(`.cell[data-c="${c}"]`).forEach(el => el.style.outline='2px solid #ffff0066');
+      document.querySelectorAll(`.cell[data-c="${c}"]`).forEach(el => el.style.outline='2px solid #ffff0055');
     });
     badge.addEventListener('mouseleave', () => {
       document.querySelectorAll(`.cell[data-c="${c}"]`).forEach(el => el.style.outline='');
