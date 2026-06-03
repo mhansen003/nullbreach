@@ -185,16 +185,16 @@ body {
 /* GRID */
 .grid {
   display: grid;
-  grid-template-columns: repeat(7, 108px);
-  grid-template-rows: repeat(5, 144px);
+  grid-template-columns: repeat(7, 114px);
+  grid-template-rows: repeat(5, 152px);
   gap: 6px;
   position: relative;
   flex-shrink: 0;
 }
 
-/* CELLS — 3:4 portrait ratio (108×144) matching hand card proportions */
+/* CELLS — 3:4 portrait ratio (114×152) matching hand card proportions */
 .cell {
-  width: 108px; height: 144px;
+  width: 114px; height: 152px;
   border-radius: 5px;
   position: relative;
   display: flex; flex-direction: column;
@@ -271,7 +271,7 @@ body {
 
 /* HAND CARD -- card art as background, overlay shows stats */
 .hand-card {
-  width: 106px; height: 140px; border-radius: 6px; position: relative;
+  width: 112px; height: 148px; border-radius: 6px; position: relative;
   cursor: pointer; flex-shrink: 0; overflow: hidden;
   /* Slightly brighter dark background so card art is more visible */
   background-color: #10101e;
@@ -1060,8 +1060,8 @@ function initRaceTheme() {
   if (sbPl) sbPl.src = player.avatarImg || `assets/avatars/${raceId}.png`;
   const sbAN = document.getElementById('sbAiName');
   const sbPN = document.getElementById('sbPlayerName');
-  if (sbAN) { sbAN.textContent = aiWords.slice(0,2).join(' '); sbAN.style.color = ai.color+'99'; }
-  if (sbPN) { sbPN.textContent = playerWords.slice(0,2).join(' '); sbPN.style.color = player.color+'99'; }
+  if (sbAN) { sbAN.textContent = aiWords.slice(0,2).join(' '); sbAN.style.color = ai.color+'bb'; }
+  if (sbPN) { sbPN.textContent = playerWords.slice(0,2).join(' '); sbPN.style.color = player.color+'bb'; }
 
   // Update faction labels below avatars
   const aiFactionLbl = document.getElementById('aiFactionLabel');
@@ -2159,14 +2159,14 @@ function renderScoreHeader() {
   // AI faction row
   if (sbAiAv) { sbAiAv.src = aAvg; sbAiAv.style.borderColor = aLeading ? aCol : '#2a2a3a'; sbAiAv.style.boxShadow = aLeading ? `0 0 12px ${aCol}88` : 'none'; }
   if (sbAiNum) { sbAiNum.textContent = s.aVP; sbAiNum.style.color = aLeading ? aCol : '#555566'; sbAiNum.style.textShadow = aLeading ? `0 0 12px ${aCol}` : 'none'; }
-  if (sbAiName) { sbAiName.textContent = aNam; sbAiName.style.color = aLeading ? aCol : '#aaaacc'; }
+  if (sbAiName) { sbAiName.textContent = aNam; sbAiName.style.color = aLeading ? aCol : aCol + 'bb'; }
   if (sbAiLead) { sbAiLead.textContent = aLeading ? 'LEADS' : ''; sbAiLead.style.color = aCol; }
   if (fhAiEl) { fhAiEl.style.background = aLeading ? aCol + '18' : 'transparent'; fhAiEl.style.boxShadow = aLeading ? `0 0 0 1px ${aCol}44` : 'none'; }
 
   // Player faction row
   if (sbPAv) { sbPAv.src = pAvg; sbPAv.style.borderColor = pLeading ? pCol : '#2a2a3a'; sbPAv.style.boxShadow = pLeading ? `0 0 12px ${pCol}88` : 'none'; }
   if (sbPNum) { sbPNum.textContent = s.pVP; sbPNum.style.color = pLeading ? pCol : '#555566'; sbPNum.style.textShadow = pLeading ? `0 0 12px ${pCol}` : 'none'; }
-  if (sbPName) { sbPName.textContent = pNam; sbPName.style.color = pLeading ? pCol : '#aaaacc'; }
+  if (sbPName) { sbPName.textContent = pNam; sbPName.style.color = pLeading ? pCol : pCol + 'bb'; }
   if (sbPLead) { sbPLead.textContent = pLeading ? 'LEADS' : ''; sbPLead.style.color = pCol; }
   if (fhPEl) { fhPEl.style.background = pLeading ? pCol + '18' : 'transparent'; fhPEl.style.boxShadow = pLeading ? `0 0 0 1px ${pCol}44` : 'none'; }
 
@@ -2309,6 +2309,32 @@ function renderHand() {
         window._activeTier = tier;
         playDeckExpandSfx();
         renderHand();
+      };
+      wrap.title = `TIER ${tier} — Click to expand (${cards.length} card${cards.length!==1?'s':''})`;
+      wrap.onmouseenter = function(e) {
+        front.style.borderColor = tCol+'aa';
+        front.style.boxShadow   = '0 0 20px '+tCol+'55';
+        wrap.style.transform    = 'translateY(-5px)';
+        const tt = document.getElementById('tooltip');
+        if (tt) {
+          tt.style.right = '16px'; tt.style.left = 'auto';
+          tt.style.top = Math.max(8, Math.round((window.innerHeight-120)/2)) + 'px';
+          tt.style.setProperty('--tc', tCol);
+          tt.style.setProperty('--tc-dim', tCol+'55');
+          tt.style.setProperty('--tc-glow', tCol+'18');
+          tt.innerHTML = `<div class="tip-body" style="padding:14px 16px;min-width:180px;">
+            <div style="font-family:'Orbitron',monospace;font-size:12px;letter-spacing:2px;color:${tCol};margin-bottom:6px;">TIER ${tier}</div>
+            <div style="font-size:11px;color:#aaa;">${cards.length} card${cards.length!==1?'s':''} available</div>
+            <div style="font-size:10px;color:#666;margin-top:4px;letter-spacing:1px;">Click to expand</div>
+          </div>`;
+          tt.style.display = 'block';
+        }
+      };
+      wrap.onmouseleave = function() {
+        front.style.borderColor = tCol+'55';
+        front.style.boxShadow   = '0 0 10px '+tCol+'22';
+        wrap.style.transform    = '';
+        hideTip();
       };
     }
     return wrap;
