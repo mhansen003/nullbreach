@@ -2021,9 +2021,16 @@ function renderGrid() {
 
         // Show tooltip on placed board cards (shows card info + buff status)
         div.onmouseenter = (ev) => {
-          const cardWithBuf = {...cell.card};
-          if (cell.battle) cardWithBuf._bat = cell.battle;
-          showTip(ev, cardWithBuf);
+          // Hazard warning overrides card tooltip for penalised cards
+          const _hzNear = [{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}]
+            .filter(({dr,dc})=>{const hr=r+dr,hc=c+dc;return hr>=0&&hr<5&&hc>=0&&hc<7&&G.grid[hr][hc].owner==='hazard';}).length;
+          if (_hzNear > 0) {
+            showErrorTip(ev, `⚠ HAZARD ZONE — this card loses ${_hzNear*2} VP from its scoring contribution`);
+          } else {
+            const cardWithBuf = {...cell.card};
+            if (cell.battle) cardWithBuf._bat = cell.battle;
+            showTip(ev, cardWithBuf);
+          }
           // Yellow dotted lines on adjacent cells showing influence range
           [{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}].forEach(({dr,dc}) => {
             const nr2 = r+dr, nc2 = c+dc;
@@ -2380,7 +2387,7 @@ function renderScoreBadges() {
     if (res === 'tie') return `
       <div style="display:flex;flex-direction:column;align-items:center;gap:4px;pointer-events:none;">
         <span style="font-size:9px;letter-spacing:2px;color:#666677;">TIE</span>
-        <span style="font-size:14px;font-weight:bold;color:#8888aa;">${p} = ${a}</span>
+        <span style="font-size:14px;font-weight:bold;color:#cccccc;">${p} = ${a}</span>
       </div>`;
     const pWin = res === 'p';
     const wAvg = pWin ? pAvatar : aAvatar, lAvg = pWin ? aAvatar : pAvatar;
@@ -2403,7 +2410,7 @@ function renderScoreBadges() {
     if (p === 0 && a === 0) return `<span style="font-size:13px;color:#1a1a28;letter-spacing:3px;pointer-events:none;">--</span>`;
     if (res === 'tie') return `<div style="pointer-events:none;text-align:center;">
       <span style="font-size:9px;letter-spacing:2px;color:#666677;display:block;">TIE</span>
-      <span style="font-size:12px;font-weight:bold;color:#8888aa;">${p}=${a}</span></div>`;
+      <span style="font-size:12px;font-weight:bold;color:#cccccc;">${p}=${a}</span></div>`;
     const pWin = res === 'p';
     const wAvg = pWin ? pAvatar : aAvatar, lAvg = pWin ? aAvatar : pAvatar;
     const wScore = pWin ? p : a, lScore = pWin ? a : p;
