@@ -1106,7 +1106,7 @@ function selectRace(race, tileEl) {
   const clipTop = cvSection ? Math.round(cvSection.getBoundingClientRect().bottom) : 380;
   bg.style.backgroundImage = `url('${race.loreBg || race.cover}')`;
   // Soft gradient fade: race-bg bleeds up into the conveyor for a natural blend
-  const fadeStart = clipTop - 10; // blend starts right at conveyor bottom
+  const fadeStart = clipTop - 58; // blend starts half inch above conveyor bottom
   const maskGrad = `linear-gradient(to bottom, transparent 0px, transparent ${fadeStart}px, black ${clipTop}px, black 100%)`;
   bg.style.webkitMaskImage = maskGrad;
   bg.style.maskImage = maskGrad;
@@ -1152,9 +1152,9 @@ function selectRace(race, tileEl) {
       `<span class="ability-pill" style="color:${race.color};border-color:${race.color}44">${a}</span>`
     ).join('');
 
-    // Ability showcase cards — show first 3 unique abilities with descriptions
+    // Ability showcase cards — show ALL abilities
     const ac = document.getElementById('abilityCards');
-    ac.innerHTML = race.abilities.slice(0, 3).map(a => `
+    ac.innerHTML = race.abilities.map(a => `
       <div class="ability-showcase" style="color:${race.color};border-color:${race.color}44;background:${race.color}08">
         <div class="absc-title">${a}</div>
         <div class="absc-desc">${ABILITY_DESC[a] || '—'}</div>

@@ -1064,7 +1064,11 @@ function computeBattleResults() {
           const pierceThem = east.card.ability === 'pierce';
           if (me > them || (me === them && pierce && !pierceThem)) {
             b[r][c].h = 'win';
-            if (b[r][c+1].h !== 'win') b[r][c+1].h = 'lose';
+            // Shield: block the first loss if east card has shield
+            if (east.card.ability === 'shield' && !east.card.shieldExpended) {
+              east.card.shieldExpended = true; // consume shield
+              // loss blocked — east card stays at 'none'
+            } else if (b[r][c+1].h !== 'win') b[r][c+1].h = 'lose';
             // DOUBLE STRIKE: also contest the cell beyond the beaten card
             if (cell.card.ability === 'double_strike' && c < 4) {
               const far = G.grid[r][c+2];
@@ -1075,7 +1079,11 @@ function computeBattleResults() {
             }
           } else if (them > me || (me === them && pierceThem && !pierce)) {
             b[r][c+1].h = 'win';
-            if (b[r][c].h !== 'win') b[r][c].h = 'lose';
+            // Shield: block the first loss if west card has shield
+            if (cell.card.ability === 'shield' && !cell.card.shieldExpended) {
+              cell.card.shieldExpended = true;
+              // loss blocked
+            } else if (b[r][c].h !== 'win') b[r][c].h = 'lose';
             if (east.card.ability === 'double_strike' && c > 0) {
               const far = G.grid[r][c-1];
               if (far.card && far.owner !== east.owner) {
