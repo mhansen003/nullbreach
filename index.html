@@ -1187,13 +1187,66 @@ function selectRace(race, tileEl) {
         { tier:'IV',  art:'assets/cards/terran/the-accord.png',      name:'THE ACCORD'      },
       ],
       brood: [
-        { tier:'I',   art:'assets/cards/brood/hive-node.png',       name:'HIVE NODE'       },
-        { tier:'II',  art:'assets/cards/brood/warrior-cluster.png', name:'WARRIOR CLUSTER' },
-        { tier:'III', art:'assets/cards/brood/skimmer.png',         name:'SKIMMER'         },
-        { tier:'IV',  art:'assets/cards/brood/the-sovereign.png',   name:'THE SOVEREIGN'   },
+        { tier:'I',   art:'assets/cards/brood/hive-node.png',        name:'HIVE NODE'       },
+        { tier:'II',  art:'assets/cards/brood/warrior-cluster.png',  name:'WARRIOR CLUSTER' },
+        { tier:'III', art:'assets/cards/brood/skimmer.png',          name:'SKIMMER'         },
+        { tier:'IV',  art:'assets/cards/brood/the-sovereign.png',    name:'THE SOVEREIGN'   },
+      ],
+      crystallis: [
+        { tier:'I',   art:'assets/cards/crystallis/t1_a.png', name:'CRYSTAL SHARD'    },
+        { tier:'II',  art:'assets/cards/crystallis/t2_a.png', name:'RESONANCE ARRAY'  },
+        { tier:'III', art:'assets/cards/crystallis/t3_a.png', name:'PRISM LANCE'      },
+        { tier:'IV',  art:'assets/cards/crystallis/t4.png',   name:'THE LATTICE'      },
+      ],
+      mycos: [
+        { tier:'I',   art:'assets/cards/mycos/t1_a.png', name:'SPORE ANCHOR'    },
+        { tier:'II',  art:'assets/cards/mycos/t2_a.png', name:'MYCELIUM WEB'    },
+        { tier:'III', art:'assets/cards/mycos/t3_a.png', name:'BLOOM SURGE'     },
+        { tier:'IV',  art:'assets/cards/mycos/t4.png',   name:'THE BLOOM'       },
+      ],
+      veil: [
+        { tier:'I',   art:'assets/cards/veil/t1_a.png', name:'LIGHT ANCHOR'    },
+        { tier:'II',  art:'assets/cards/veil/t2_a.png', name:'SHIMMER SCREEN'  },
+        { tier:'III', art:'assets/cards/veil/t3_a.png', name:'NULL LANCE'      },
+        { tier:'IV',  art:'assets/cards/veil/t4.png',   name:'THE VEIL'        },
+      ],
+      entropy: [
+        { tier:'I',   art:'assets/cards/entropy/t1_a.png', name:'RUST ANCHOR'      },
+        { tier:'II',  art:'assets/cards/entropy/t2_a.png', name:'CORRODE CLUSTER'  },
+        { tier:'III', art:'assets/cards/entropy/t3_a.png', name:'DISSOLUTION'      },
+        { tier:'IV',  art:'assets/cards/entropy/t4.png',   name:'THE ENTROPY'      },
+      ],
+      void: [
+        { tier:'I',   art:'assets/cards/void/t1_a.png', name:'NULL NODE'       },
+        { tier:'II',  art:'assets/cards/void/t2_a.png', name:'DARK CLUSTER'    },
+        { tier:'III', art:'assets/cards/void/t3_a.png', name:'SINGULARITY'     },
+        { tier:'IV',  art:'assets/cards/void/t4.png',   name:'THE VOID'        },
+      ],
+      gas: [
+        { tier:'I',   art:'assets/cards/gas/t1_a.png', name:'STORM CELL'      },
+        { tier:'II',  art:'assets/cards/gas/t2_a.png', name:'PLASMA WING'     },
+        { tier:'III', art:'assets/cards/gas/t3_a.png', name:'TEMPEST LANCE'   },
+        { tier:'IV',  art:'assets/cards/gas/t4.png',   name:'THE MAELSTROM'   },
+      ],
+      lithos: [
+        { tier:'I',   art:'assets/cards/lithos/t1_a.png', name:'STONE ANCHOR'     },
+        { tier:'II',  art:'assets/cards/lithos/t2_a.png', name:'TECTONIC CLUSTER' },
+        { tier:'III', art:'assets/cards/lithos/t3_a.png', name:'SEISMIC LANCE'    },
+        { tier:'IV',  art:'assets/cards/lithos/t4.png',   name:'THE MONOLITH'     },
+      ],
+      quantum: [
+        { tier:'I',   art:'assets/cards/quantum/t1_a.png', name:'PROB NODE'        },
+        { tier:'II',  art:'assets/cards/quantum/t2_a.png', name:'SUPERPOSED ARRAY' },
+        { tier:'III', art:'assets/cards/quantum/t3_a.png', name:'WAVEFORM LANCE'   },
+        { tier:'IV',  art:'assets/cards/quantum/t4.png',   name:'THE OBSERVER'     },
+      ],
+      choir: [
+        { tier:'I',   art:'assets/cards/choir/t1_a.png', name:'HARMONIC NODE'    },
+        { tier:'II',  art:'assets/cards/choir/t2_a.png', name:'RESONANCE CHOIR'  },
+        { tier:'III', art:'assets/cards/choir/t3_a.png', name:'SONIC LANCE'      },
+        { tier:'IV',  art:'assets/cards/choir/t4.png',   name:'THE CRESCENDO'    },
       ],
     };
-    // For races without art, generate placeholder tiles from deck cover
     const samples = TIER_CARD_ART[race.id] ||
       ['I','II','III','IV'].map(t => ({ tier:t, art:race.cover, name:`TIER ${t}`, placeholder:true }));
 
@@ -1209,11 +1262,10 @@ function selectRace(race, tileEl) {
           box-shadow:0 0 10px ${TC[s.tier]}44;
           ${s.placeholder ? 'filter:brightness(0.4) saturate(0.5);' : ''}
         ">
-          <div style="position:absolute;bottom:0;left:0;right:0;background:#000000dd;padding:5px 6px;">
-            <div style="font-size:8px;letter-spacing:1px;color:${TC[s.tier]};">${s.name}</div>
-            ${s.placeholder ? `<div style="font-size:7px;color:#555;letter-spacing:1px;">ART PENDING</div>` : ''}
+          <div style="position:absolute;bottom:0;left:0;right:0;background:#000000dd;padding:6px 7px;">
+            <div style="font-family:'Orbitron',monospace;font-size:10px;letter-spacing:1px;color:${TC[s.tier]};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${s.name}</div>
           </div>
-          <div style="position:absolute;top:5px;left:5px;background:${TC[s.tier]}22;border:1px solid ${TC[s.tier]}66;border-radius:3px;padding:2px 5px;font-size:9px;color:${TC[s.tier]};font-weight:bold;">${s.tier}</div>
+          <div style="position:absolute;top:5px;left:5px;background:${TC[s.tier]}22;border:1px solid ${TC[s.tier]}66;border-radius:3px;padding:2px 6px;font-family:'Orbitron',monospace;font-size:10px;color:${TC[s.tier]};font-weight:bold;">${s.tier}</div>
         </div>
       `).join('');
       tcp.style.display = 'flex';
