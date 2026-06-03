@@ -1173,22 +1173,22 @@ function initRaceTheme() {
 // Same design rule: strong attack direction = weak rear (S low on aggressive cards)
 // Brood: hive anchors (T1) → warrior clusters (T2) → skimmers (T3) → The Sovereign (T4)
 const BROOD_CARDS = [
-  { id:'br_t1a', name:'HIVE NODE',       tier:'I',  tierLabel:'HIVE NODE',       zone:'wide_cross', edges:{n:6,s:2,e:4,w:3}, power:1, ability:null,          abilityText:'Basic Hive Node', art:'assets/cards/brood/hive-node.png' },
-  { id:'br_t1b', name:'HIVE NODE',       tier:'I',  tierLabel:'HIVE NODE',       zone:'wide_cross', edges:{n:6,s:2,e:4,w:3}, power:1, ability:null,          abilityText:'Basic Hive Node', art:'assets/cards/brood/hive-node.png' },
-  { id:'br_t1c', name:'HIVE NODE',       tier:'I',  tierLabel:'HIVE NODE',       zone:'wide_cross', edges:{n:5,s:2,e:4,w:4}, power:1, ability:null,          abilityText:'Basic Hive Node', art:'assets/cards/brood/hive-node.png' },
-  { id:'br_t1d', name:'QUEEN CRADLE',    tier:'I',  tierLabel:'HIVE NODE',       zone:'wall',       edges:{n:3,s:6,e:4,w:3}, power:1, ability:null,   abilityText:'No special ability', art:'assets/cards/brood/queen-cradle.png' },
-  { id:'br_t1e', name:'BROOD ANCHOR',    tier:'I',  tierLabel:'HIVE NODE',       zone:'full_ring',  edges:{n:4,s:5,e:4,w:3}, power:2, ability:null,       abilityText:'No special ability', art:'assets/cards/brood/brood-anchor.png' },
-  { id:'br_t2a', name:'WARRIOR CLUSTER', tier:'II', tierLabel:'WARRIOR CLUSTER', zone:'command',    edges:{n:6,s:3,e:5,w:6}, power:3, ability:null,   abilityText:'No special ability', art:'assets/cards/brood/warrior-cluster.png' },
-  { id:'br_t2b', name:'SOLDIER MASS',    tier:'II', tierLabel:'WARRIOR CLUSTER', zone:'launch',     edges:{n:6,s:3,e:6,w:5}, power:3, ability:null,       abilityText:'No special ability', art:'assets/cards/brood/soldier-mass.png' },
-  { id:'br_t2c', name:'BIOMECH FLEET',   tier:'II', tierLabel:'WARRIOR CLUSTER', zone:'command',    edges:{n:4,s:3,e:8,w:5}, power:2, ability:null,       abilityText:'No special ability', art:'assets/cards/brood/biomech-fleet.png' },
-  { id:'br_t3a', name:'SKIMMER',         tier:'III',tierLabel:'SKIMMER',         zone:'flanker',    edges:{n:8,s:3,e:5,w:5}, power:3, ability:null,        abilityText:'No special ability', art:'assets/cards/brood/skimmer.png' },
-  { id:'br_t3b', name:'VOID SKIMMER',    tier:'III',tierLabel:'SKIMMER',         zone:'flanker',    edges:{n:5,s:3,e:8,w:5}, power:2, ability:null,        abilityText:'No special ability',          art:'assets/cards/brood/void-skimmer.png' },
-  { id:'br_t3c', name:'LARVAE STRIKE',   tier:'III',tierLabel:'SKIMMER',         zone:'lance',      edges:{n:5,s:5,e:6,w:5}, power:2, ability:null,         abilityText:'No special ability',    art:'assets/cards/brood/skimmer.png' },
-  { id:'br_t4',  name:'THE SOVEREIGN',   tier:'IV', tierLabel:'SOVEREIGN',       zone:'dreadnaught',edges:{n:8,s:6,e:7,w:7}, power:4, ability:null,   abilityText:'No special ability', art:'assets/cards/brood/the-sovereign.png' },
+  { id:'br_t1a', name:'HIVE NODE',       tier:'I',  tierLabel:'HIVE NODE',       zone:'wide_cross', edges:{n:6,s:2,e:4,w:3}, power:1, ability:null,          abilityText:'Basic Hive Node', art:'assets/cards/brood/t1_a.png' },
+  { id:'br_t1b', name:'HIVE NODE',       tier:'I',  tierLabel:'HIVE NODE',       zone:'wide_cross', edges:{n:6,s:2,e:4,w:3}, power:1, ability:null,          abilityText:'Basic Hive Node', art:'assets/cards/brood/t1_a.png' },
+  { id:'br_t1c', name:'HIVE NODE',       tier:'I',  tierLabel:'HIVE NODE',       zone:'wide_cross', edges:{n:5,s:2,e:4,w:4}, power:1, ability:null,          abilityText:'Basic Hive Node', art:'assets/cards/brood/t1_a.png' },
+  { id:'br_t1d', name:'QUEEN CRADLE',    tier:'I',  tierLabel:'HIVE NODE',       zone:'wall',       edges:{n:3,s:6,e:4,w:3}, power:1, ability:null,   abilityText:'No special ability', art:'assets/cards/brood/t1_d.png' },
+  { id:'br_t1e', name:'BROOD ANCHOR',    tier:'I',  tierLabel:'HIVE NODE',       zone:'full_ring',  edges:{n:4,s:5,e:4,w:3}, power:2, ability:null,       abilityText:'No special ability', art:'assets/cards/brood/t1_e.png' },
+  { id:'br_t2a', name:'WARRIOR CLUSTER', tier:'II', tierLabel:'WARRIOR CLUSTER', zone:'command',    edges:{n:6,s:3,e:5,w:6}, power:3, ability:null,   abilityText:'No special ability', art:'assets/cards/brood/t2_a.png' },
+  { id:'br_t2b', name:'SOLDIER MASS',    tier:'II', tierLabel:'WARRIOR CLUSTER', zone:'launch',     edges:{n:6,s:3,e:6,w:5}, power:3, ability:null,       abilityText:'No special ability', art:'assets/cards/brood/t2_b.png' },
+  { id:'br_t2c', name:'BIOMECH FLEET',   tier:'II', tierLabel:'WARRIOR CLUSTER', zone:'command',    edges:{n:4,s:3,e:8,w:5}, power:2, ability:null,       abilityText:'No special ability', art:'assets/cards/brood/t2_c.png' },
+  { id:'br_t3a', name:'SKIMMER',         tier:'III',tierLabel:'SKIMMER',         zone:'flanker',    edges:{n:8,s:3,e:5,w:5}, power:3, ability:null,        abilityText:'No special ability', art:'assets/cards/brood/t3_a.png' },
+  { id:'br_t3b', name:'VOID SKIMMER',    tier:'III',tierLabel:'SKIMMER',         zone:'flanker',    edges:{n:5,s:3,e:8,w:5}, power:2, ability:null,        abilityText:'No special ability',          art:'assets/cards/brood/t3_b.png' },
+  { id:'br_t3c', name:'LARVAE STRIKE',   tier:'III',tierLabel:'SKIMMER',         zone:'lance',      edges:{n:5,s:5,e:6,w:5}, power:2, ability:null,         abilityText:'No special ability',    art:'assets/cards/brood/t3_a.png' },
+  { id:'br_t4',  name:'THE SOVEREIGN',   tier:'IV', tierLabel:'SOVEREIGN',       zone:'dreadnaught',edges:{n:8,s:6,e:7,w:7}, power:4, ability:null,   abilityText:'No special ability', art:'assets/cards/brood/t4.png' },
   // Extra cards
-  { id:'br_x1', name:'HIVE NODE',        tier:'I',  tierLabel:'HIVE NODE',       zone:'wide_cross', edges:{n:5,s:5,e:6,w:5}, power:1, ability:null,          abilityText:'Basic Hive Node', art:'assets/cards/brood/hive-node.png' },
-  { id:'br_x2', name:'SWARM WING',       tier:'II', tierLabel:'WARRIOR CLUSTER', zone:'flanker',    edges:{n:5,s:3,e:8,w:5}, power:3, ability:null,       abilityText:'No special ability', art:'assets/cards/brood/biomech-fleet.png' },
-  { id:'br_x3', name:'HIVE LANCE',       tier:'III',tierLabel:'SKIMMER',         zone:'lance',      edges:{n:3,s:8,e:5,w:5}, power:2, ability:null,        abilityText:'No special ability', art:'assets/cards/brood/void-skimmer.png' },
+  { id:'br_x1', name:'HIVE NODE',        tier:'I',  tierLabel:'HIVE NODE',       zone:'wide_cross', edges:{n:5,s:5,e:6,w:5}, power:1, ability:null,          abilityText:'Basic Hive Node', art:'assets/cards/brood/t1_a.png' },
+  { id:'br_x2', name:'SWARM WING',       tier:'II', tierLabel:'WARRIOR CLUSTER', zone:'flanker',    edges:{n:5,s:3,e:8,w:5}, power:3, ability:null,       abilityText:'No special ability', art:'assets/cards/brood/t2_c.png' },
+  { id:'br_x3', name:'HIVE LANCE',       tier:'III',tierLabel:'SKIMMER',         zone:'lance',      edges:{n:3,s:8,e:5,w:5}, power:2, ability:null,        abilityText:'No special ability', art:'assets/cards/brood/t3_b.png' },
 ];
 
 // ── CRYSTALLIS DECK — Silicon Lattice Collective ──────────────────
