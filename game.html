@@ -344,11 +344,14 @@ body {
   background: #090912; border-top: 1px solid #131320;
   padding: 8px 20px;
   display: flex; align-items: flex-end; gap: 12px; flex-shrink: 0;
+  justify-content: center; /* center hand under board */
+  position: relative;      /* allow portrait to be absolute */
 }
 .player-portrait {
   display: flex; align-items: center; gap: 10px;
   background: #0e0e1e; border: 1px solid #00ffcc22;
-  border-radius: 5px; padding: 6px 12px; min-width: 165px; align-self: center;
+  border-radius: 5px; padding: 6px 12px; min-width: 165px;
+  position: absolute; left: 20px; bottom: 8px; z-index: 5;
 }
 .player-avatar {
   width: 80px; height: 80px; flex-shrink: 0;
@@ -552,7 +555,7 @@ button, [onclick] { touch-action: manipulation; }
 
   /* Player area */
   .player-area { padding: 6px 14px; gap: 8px; }
-  .player-portrait { padding: 5px 8px; min-width: 130px; }
+  .player-portrait { padding: 5px 8px; min-width: 130px; left: 14px; bottom: 6px; }
   .player-avatar { width: 60px; height: 60px; font-size: 24px; }
 
   /* Board direction row */
@@ -641,8 +644,8 @@ button, [onclick] { touch-action: manipulation; }
   .ai-hand-row { gap: 3px; flex-wrap: wrap; }
 
   /* Player area */
-  .player-area { padding: 5px 10px; gap: 6px; flex-wrap: wrap; }
-  .player-portrait { padding: 4px 8px; min-width: unset; flex-shrink: 0; }
+  .player-area { padding: 5px 10px; gap: 6px; flex-wrap: wrap; justify-content: flex-start; }
+  .player-portrait { position: static; padding: 4px 8px; min-width: unset; flex-shrink: 0; }
   .player-avatar { width: 48px; height: 48px; font-size: 20px; }
   .player-name { font-size: 9px; letter-spacing: 1px; }
   .player-sub  { font-size: 7px; }
