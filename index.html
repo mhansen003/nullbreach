@@ -1564,9 +1564,10 @@ function selectMode(mode) {
   const mc = document.getElementById('modeComputer');
   const mf = document.getElementById('modeFriend');
   if (mode === 'computer') {
-    mc.style.borderColor = '#00ffcc'; mc.style.boxShadow = '0 0 28px #00ffcc55,0 0 0 1px #00ffcc44'; mc.style.transform = 'scale(1.04)'; mc.querySelector('img').style.filter = ''; mc.querySelector('.mode-check').style.display = 'flex';
-    mf.style.borderColor = '#1a1a28'; mf.style.boxShadow = 'none'; mf.style.transform = ''; mf.querySelector('img').style.filter = 'brightness(0.55)'; mf.querySelector('.mode-check').style.display = 'none';
-    wizGoTo(2);
+    mc.style.borderColor = '#00ffcc'; mc.style.boxShadow = '0 0 28px #00ffcc55,0 0 0 1px #00ffcc44'; mc.style.transform = 'scale(1.04)'; mc.querySelector('img').style.filter = ''; mc.querySelector('.mode-check').style.display = 'flex'; mc.querySelector('div:last-child div').style.color = '#00ffcc';
+    mf.style.borderColor = '#1a1a28'; mf.style.boxShadow = 'none'; mf.style.transform = ''; mf.querySelector('img').style.filter = 'brightness(0.55)'; mf.querySelector('.mode-check').style.display = 'none'; mf.querySelector('div:last-child div').style.color = '#aaa';
+    const nb = document.getElementById('wizNextBtn');
+    if (nb) { nb.disabled = false; nb.style.opacity='1'; nb.style.cursor='pointer'; nb.style.borderColor='#00ffcc'; nb.style.color='#00ffcc'; }
   } else {
     if (selectedRace) { createRoom(); return; }
     else { alert('Please select your faction first, then choose Invite Friend.'); return; }
@@ -1640,8 +1641,10 @@ function _resetMode() {
   });
   const mc = document.getElementById('modeComputer');
   const mf = document.getElementById('modeFriend');
-  if (mc) { mc.style.borderColor='#00ffcc'; mc.style.boxShadow='0 0 28px #00ffcc55,0 0 0 1px #00ffcc44'; mc.style.transform=''; mc.querySelector('img').style.filter=''; mc.querySelector('.mode-check').style.display='flex'; }
+  if (mc) { mc.style.borderColor='#1a1a28'; mc.style.boxShadow='none'; mc.style.transform=''; mc.querySelector('img').style.filter='brightness(0.55)'; mc.querySelector('.mode-check').style.display='none'; }
   if (mf) { mf.style.borderColor='#1a1a28'; mf.style.boxShadow='none'; mf.style.transform=''; mf.querySelector('img').style.filter='brightness(0.55)'; mf.querySelector('.mode-check').style.display='none'; }
+  const nb = document.getElementById('wizNextBtn');
+  if (nb) { nb.disabled = true; nb.style.opacity='0.4'; nb.style.cursor='not-allowed'; nb.style.borderColor='#2a3a2a'; nb.style.color='#2a4a2a'; }
 }
 
 let _selectedDifficulty = 'balanced';
@@ -1866,13 +1869,12 @@ Promise.all(
     <div style="display:flex;gap:12px;justify-content:center;">
       <div id="modeComputer" onclick="selectMode('computer')" style="
         position:relative;width:200px;height:130px;border-radius:8px;overflow:hidden;
-        cursor:pointer;border:2px solid #00ffcc;transition:all 0.22s;
-        box-shadow:0 0 18px #00ffcc44,0 0 0 1px #00ffcc33;">
-        <img src="assets/mode-computer.png" style="width:100%;height:100%;object-fit:cover;display:block;">
+        cursor:pointer;border:2px solid #1a1a28;transition:all 0.22s;box-shadow:none;">
+        <img src="assets/mode-computer.png" style="width:100%;height:100%;object-fit:cover;display:block;filter:brightness(0.55);">
         <div style="position:absolute;inset:0;background:linear-gradient(transparent 40%,#000000cc);"></div>
-        <div class="mode-check" style="display:flex;position:absolute;top:7px;right:7px;width:20px;height:20px;border-radius:50%;background:#00ffcc;align-items:center;justify-content:center;font-size:11px;color:#000;font-weight:bold;">✓</div>
+        <div class="mode-check" style="display:none;position:absolute;top:7px;right:7px;width:20px;height:20px;border-radius:50%;background:#00ffcc;align-items:center;justify-content:center;font-size:11px;color:#000;font-weight:bold;">✓</div>
         <div style="position:absolute;bottom:10px;left:0;right:0;text-align:center;">
-          <div style="font-family:'Orbitron',monospace;font-size:13px;letter-spacing:2px;color:#00ffcc;">VS COMPUTER</div>
+          <div style="font-family:'Orbitron',monospace;font-size:13px;letter-spacing:2px;color:#aaa;">VS COMPUTER</div>
         </div>
       </div>
       <div id="modeFriend" onclick="selectMode('friend')" style="
@@ -1886,14 +1888,23 @@ Promise.all(
         </div>
       </div>
     </div>
-    <button onclick="document.getElementById('opponentModal').style.display='none'" style="
-      background:#0d0818;border:2px solid #8855ff99;color:#cc99ff;
-      font-family:'Orbitron',monospace;font-size:13px;letter-spacing:2px;
-      padding:12px 22px;cursor:pointer;border-radius:6px;transition:all 0.2s;"
-      onmouseenter="this.style.borderColor='#aa77ff';this.style.color='#fff';this.style.background='#1a0a2e'"
-      onmouseleave="this.style.borderColor='#8855ff99';this.style.color='#cc99ff';this.style.background='#0d0818'">
-      ← BACK
-    </button>
+    <div style="display:flex;gap:12px;align-items:center;justify-content:center;">
+      <button onclick="document.getElementById('opponentModal').style.display='none'" style="
+        background:#0d0818;border:2px solid #8855ff99;color:#cc99ff;
+        font-family:'Orbitron',monospace;font-size:13px;letter-spacing:2px;
+        padding:12px 22px;cursor:pointer;border-radius:6px;transition:all 0.2s;"
+        onmouseenter="this.style.borderColor='#aa77ff';this.style.color='#fff';this.style.background='#1a0a2e'"
+        onmouseleave="this.style.borderColor='#8855ff99';this.style.color='#cc99ff';this.style.background='#0d0818'">
+        ← BACK
+      </button>
+      <button id="wizNextBtn" disabled onclick="wizGoTo(2)" style="
+        background:#0a0a14;border:2px solid #2a3a2a;color:#2a4a2a;
+        font-family:'Orbitron',monospace;font-size:13px;letter-spacing:3px;
+        padding:12px 28px;border-radius:6px;cursor:not-allowed;
+        opacity:0.4;transition:all 0.25s;font-weight:700;">
+        NEXT →
+      </button>
+    </div>
   </div>
 
   <!-- STEP 2: SELECT DIFFICULTY -->
