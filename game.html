@@ -146,7 +146,7 @@ body {
   margin-top: 4px;
 }
 .col-score-badge {
-  width: 108px; height: 54px;
+  width: 114px; height: 54px;
   border-radius: 4px;
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0; overflow: hidden; position: relative;
@@ -166,7 +166,7 @@ body {
   gap: 6px;
 }
 .row-score-badge {
-  width: 90px; height: 54px;
+  width: 62px; height: 152px;
   border-radius: 4px;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   gap: 4px; overflow: hidden; position: relative;
@@ -633,7 +633,7 @@ button, [onclick] { touch-action: manipulation; }
   .row-score-badge { width: 72px; height: 96px; }
 
   /* Column score badge: match reduced cell width */
-  .col-score-badge { width: 72px; height: 40px; }
+  .col-score-badge { width: 76px; height: 40px; }
 
   /* Hand cards */
   .hand-card { width: 80px; height: 106px; }
@@ -2404,7 +2404,7 @@ function renderHand() {
         Array.from({length:tdNum},function(){return '<span style="width:5px;height:5px;border-radius:50%;background:'+tCol+';box-shadow:0 0 3px '+tCol+';display:inline-block;"></span>';}).join('') +
       '</div>' +
       '<div class="hc-center"><span class="hc-power-center" style="color:'+factionC+'">'+card.power+'</span></div>' +
-      (card.ability ? '<span class="hc-ability-tag" style="color:'+factionC+'">'+ab(card.ability)+'</span>' : '');
+      (card.ability ? '<span class="hc-ability-tag" style="color:'+factionC+'">'+(card.abilityLabel || ab(card.ability))+'</span>' : '');
     div.onclick      = function() { onCardSelect(card); };
     div.onmouseenter = function(e) { showTip(e, card); };
     div.onmouseleave = hideTip;
@@ -3359,6 +3359,21 @@ function buildZoneGrid(card) {
 }
 
 // Ability descriptions (for tooltip + future randomization)
+// Custom ability names per race — keyed [raceId][abilityKey] = custom label
+const RACE_ABILITY_NAMES = {
+  terran:     { shield:'COLONIAL BULWARK', double_strike:'ACCORD BARRAGE', commander:'FLEET ADMIRAL', flank:'PINCER MANEUVER' },
+  brood:      { spawn:'HIVE PULSE', sweep:'MANDIBLE LEVEL', rush:'ACID CHARGE', boost:"QUEEN'S FAVOR" },
+  crystallis: { stonewall:'CRYSTAL FORTRESS', mirror:'REFRACTION', shield:'LATTICE WARD', density:'CRYSTAL DENSITY' },
+  mycos:      { hat_trick:'MYCELIUM LINK', birthright:'SPORE BURST', echo:'MYCELIAL NETWORK', intimidate:'MYCO TOXIN' },
+  veil:       { phantom:'PHASE SHIFT', flank:'AFTERIMAGE', edge_play:'LIGHT BEND', pierce:'PHOTON LANCE' },
+  entropy:    { mirror:'ENTROPY REVERSAL', sweep:'RUST EQUALIZE', double_strike:'SECOND ROT', ambush:'CORROSIVE STRIKE' },
+  void:       { sniper:'VOID LANCE', ambush:'DARK SURGE', rush:'DARK LUNGE', pierce:'EVENT HORIZON' },
+  gas:        { edge_play:'STORM WRAP', overwhelm:'PLASMA SURGE', birthright:'STORM BIRTH', double_strike:'TWIN PLASMA' },
+  lithos:     { stonewall:'TECTONIC HOLD', deciding_factor:'FAULT LINE', commander:'TECTONIC ARRAY', density:'MONOLITH MASS' },
+  quantum:    { echo:'QUANTUM ENTANGLEMENT', deciding_factor:'WAVE COLLAPSE', phantom:'SUPERPOSITION', sniper:'OBSERVER EFFECT' },
+  choir:      { hat_trick:'RESONANT CHORD', overwhelm:'SONIC BOOM', boost:'HARMONIC PULSE', intimidate:'DISSONANCE' },
+};
+
 const ABILITY_TEXT = {
   shield:        'SHIELD: First comparison loss blocked',
   double_strike: 'DOUBLE STRIKE: 2nd-depth win at half strength',
@@ -3441,6 +3456,9 @@ function assignRandomAbilities(hand, raceId) {
     const ab = pool[Math.floor(Math.random() * pool.length)];
     card.ability = ab;
     card.abilityText = (typeof ABILITY_TEXT !== 'undefined' && ABILITY_TEXT[ab]) || ab.toUpperCase();
+    // Custom race-specific ability label (shown in tooltip header and hand card tag)
+    const _raceNames = RACE_ABILITY_NAMES[raceId] || {};
+    card.abilityLabel = _raceNames[ab] || null; // e.g. "LATTICE WARD" for crystallis shield
     card.isSpecial = true;
   });
 }
@@ -3598,7 +3616,7 @@ function showTip(e, card) {
     <div style="padding:8px 12px 10px;">
       ${abi ? `
       <div style="border:1px solid #ffdd0044;border-radius:5px;padding:7px 10px;background:#ffdd0008;">
-        <div style="font-family:'Orbitron',monospace;font-size:10px;letter-spacing:1px;color:#ffdd00;font-weight:700;margin-bottom:4px;">${abi.label}</div>
+        <div style="font-family:'Orbitron',monospace;font-size:10px;letter-spacing:1px;color:#ffdd00;font-weight:700;margin-bottom:4px;">${card.abilityLabel || abi.label}</div>
         <div style="font-size:11px;color:#ddd;line-height:1.5;">${card.abilityText}</div>
       </div>` : `
       <div style="font-size:10px;color:#333;letter-spacing:1px;font-style:italic;">No special ability</div>`}

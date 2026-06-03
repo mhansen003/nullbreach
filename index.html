@@ -1491,6 +1491,53 @@ function showOpponentPicker() {
   modal.style.display = 'flex';
 }
 
+let _selectedMode = null;
+function selectMode(mode) {
+  _selectedMode = mode;
+  const mc = document.getElementById('modeComputer');
+  const mf = document.getElementById('modeFriend');
+  const flow = document.getElementById('computerFlow');
+
+  if (mode === 'computer') {
+    mc.style.borderColor = '#00ffcc';
+    mc.style.boxShadow = '0 0 28px #00ffcc55,0 0 0 1px #00ffcc44';
+    mc.style.transform = 'scale(1.04)';
+    mc.querySelector('img').style.filter = '';
+    mc.querySelector('.mode-check').style.display = 'flex';
+    mf.style.borderColor = '#1a1a28';
+    mf.style.boxShadow = 'none';
+    mf.style.transform = '';
+    mf.querySelector('img').style.filter = 'brightness(0.55)';
+    mf.querySelector('.mode-check').style.display = 'none';
+    // Reveal computer flow
+    flow.style.display = 'flex';
+  } else {
+    mf.style.borderColor = '#8855ff';
+    mf.style.boxShadow = '0 0 28px #8855ff55,0 0 0 1px #8855ff44';
+    mf.style.transform = 'scale(1.04)';
+    mf.querySelector('img').style.filter = '';
+    mf.querySelector('.mode-check').style.display = 'flex';
+    mc.style.borderColor = '#1a1a28';
+    mc.style.boxShadow = 'none';
+    mc.style.transform = '';
+    mc.querySelector('img').style.filter = 'brightness(0.55)';
+    mc.querySelector('.mode-check').style.display = 'none';
+    flow.style.display = 'none';
+    // TODO: show invite friend flow
+    alert('Invite friend multiplayer — coming soon!');
+  }
+}
+// Reset mode when modal reopens
+function _resetMode() {
+  _selectedMode = null;
+  const flow = document.getElementById('computerFlow');
+  if (flow) flow.style.display = 'none';
+  const mc = document.getElementById('modeComputer');
+  const mf = document.getElementById('modeFriend');
+  if (mc) { mc.style.borderColor='#00ffcc'; mc.style.boxShadow='0 0 28px #00ffcc55,0 0 0 1px #00ffcc44'; mc.style.transform=''; mc.querySelector('img').style.filter=''; mc.querySelector('.mode-check').style.display='flex'; }
+  if (mf) { mf.style.borderColor='#1a1a28'; mf.style.boxShadow='none'; mf.style.transform=''; mf.querySelector('img').style.filter='brightness(0.55)'; mf.querySelector('.mode-check').style.display='none'; }
+}
+
 let _selectedDifficulty = 'balanced';
 function setDiff(d) {
   _selectedDifficulty = d;
@@ -1586,36 +1633,42 @@ Promise.all(
   font-family:'Share Tech Mono','Courier New',monospace;
   overflow-y:auto;padding:24px 0;
 ">
-  <!-- Step 0: Play Mode selection -->
-  <div style="font-family:'Orbitron',monospace;font-size:20px;letter-spacing:5px;color:#fff;text-shadow:0 0 20px #8855ffaa;">SELECT MODE</div>
-  <div style="display:flex;gap:20px;max-width:860px;width:100%;justify-content:center;margin-bottom:4px;">
-    <!-- vs Computer -->
+  <!-- ① MODE SELECTION — shown first, always centered -->
+  <div style="font-family:'Orbitron',monospace;font-size:22px;letter-spacing:6px;color:#fff;text-shadow:0 0 24px #00ffcc66;">SELECT MODE</div>
+  <div style="display:flex;gap:28px;justify-content:center;">
+
+    <!-- VS COMPUTER tile -->
     <div id="modeComputer" onclick="selectMode('computer')" style="
-      position:relative;flex:1;max-width:300px;height:140px;border-radius:12px;overflow:hidden;
-      cursor:pointer;border:2px solid #00ffcc;transition:all 0.2s;
-      background:linear-gradient(135deg,#041a14 0%,#0a2e1f 50%,#061810 100%);
-      box-shadow:0 0 20px #00ffcc44,0 0 0 1px #00ffcc44;">
-      <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;">
-        <div style="font-size:32px;">🖥</div>
+      position:relative;width:280px;height:180px;border-radius:14px;overflow:hidden;
+      cursor:pointer;border:2px solid #00ffcc;transition:all 0.25s;
+      box-shadow:0 0 28px #00ffcc55,0 0 0 1px #00ffcc44;">
+      <img src="assets/mode-computer.png" style="width:100%;height:100%;object-fit:cover;display:block;">
+      <div style="position:absolute;inset:0;background:linear-gradient(transparent 40%,#000000cc);"></div>
+      <div class="mode-check" style="display:flex;position:absolute;top:10px;right:10px;width:24px;height:24px;border-radius:50%;background:#00ffcc;align-items:center;justify-content:center;font-size:13px;color:#000;font-weight:bold;">✓</div>
+      <div style="position:absolute;bottom:12px;left:0;right:0;text-align:center;">
         <div style="font-family:'Orbitron',monospace;font-size:14px;letter-spacing:3px;color:#00ffcc;">VS COMPUTER</div>
-        <div style="font-size:11px;color:#55aa88;letter-spacing:1px;">Choose difficulty</div>
+        <div style="font-size:11px;color:#55aa88;letter-spacing:1px;margin-top:3px;">Choose difficulty + opponent</div>
       </div>
-      <div id="modeComputerCheck" style="position:absolute;top:8px;right:8px;width:22px;height:22px;border-radius:50%;background:#00ffcc;display:flex;align-items:center;justify-content:center;font-size:12px;color:#000;font-weight:bold;">✓</div>
     </div>
-    <!-- Invite Friend -->
+
+    <!-- INVITE FRIEND tile -->
     <div id="modeFriend" onclick="selectMode('friend')" style="
-      position:relative;flex:1;max-width:300px;height:140px;border-radius:12px;overflow:hidden;
-      cursor:pointer;border:2px solid #1a1a28;transition:all 0.2s;
-      background:linear-gradient(135deg,#0a0a1a 0%,#14102a 50%,#0a0818 100%);
+      position:relative;width:280px;height:180px;border-radius:14px;overflow:hidden;
+      cursor:pointer;border:2px solid #1a1a28;transition:all 0.25s;
       box-shadow:none;">
-      <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;">
-        <div style="font-size:32px;">⚡</div>
-        <div style="font-family:'Orbitron',monospace;font-size:14px;letter-spacing:3px;color:#888;">INVITE FRIEND</div>
-        <div style="font-size:11px;color:#444;letter-spacing:1px;">Share a link</div>
+      <img src="assets/mode-friend.png" style="width:100%;height:100%;object-fit:cover;display:block;filter:brightness(0.55);">
+      <div style="position:absolute;inset:0;background:linear-gradient(transparent 40%,#000000cc);"></div>
+      <div class="mode-check" style="display:none;position:absolute;top:10px;right:10px;width:24px;height:24px;border-radius:50%;background:#8855ff;align-items:center;justify-content:center;font-size:13px;color:#fff;font-weight:bold;">✓</div>
+      <div style="position:absolute;bottom:12px;left:0;right:0;text-align:center;">
+        <div style="font-family:'Orbitron',monospace;font-size:14px;letter-spacing:3px;color:#aaa;">INVITE FRIEND</div>
+        <div style="font-size:11px;color:#555;letter-spacing:1px;margin-top:3px;">Share a link · play live</div>
       </div>
-      <div id="modeFriendCheck" style="display:none;position:absolute;top:8px;right:8px;width:22px;height:22px;border-radius:50%;background:#8855ff;align-items:center;justify-content:center;font-size:12px;color:#fff;font-weight:bold;">✓</div>
     </div>
+
   </div>
+
+  <!-- ② COMPUTER FLOW — hidden until VS COMPUTER selected -->
+  <div id="computerFlow" style="display:none;flex-direction:column;align-items:center;gap:20px;width:100%;">
 
   <!-- Difficulty header -->
   <div style="font-family:'Orbitron',monospace;font-size:20px;letter-spacing:5px;color:#fff;text-shadow:0 0 20px #8855ffaa;">SELECT DIFFICULTY</div>
@@ -1686,6 +1739,8 @@ Promise.all(
       opacity:0.35;transition:all 0.3s;font-weight:700;
     ">BEGIN MATCH ▶</button>
   </div>
+
+  </div><!-- end #computerFlow -->
 </div>
 </body>
 </html>
