@@ -210,6 +210,10 @@ body {
 .cell.ai     { background: linear-gradient(145deg, #1c0a0a, #150818); border: 2px solid #ff0080; box-shadow: 0 0 8px #ff008022; }
 .cell.just-placed { animation: placePulse 0.35s ease; }
 @keyframes placePulse { 0%{transform:scale(0.8);opacity:0.4} 100%{transform:scale(1);opacity:1} }
+/* Battle outcome preview — shown on adjacent enemy cells when hovering a valid placement */
+.bpv-win  { outline: 3px solid #00ff8888 !important; box-shadow: 0 0 18px #00ff8844, inset 0 0 14px #00ff8822 !important; }
+.bpv-lose { outline: 3px solid #ff222288 !important; box-shadow: 0 0 18px #ff222244, inset 0 0 14px #ff222222 !important; }
+.bpv-tie  { outline: 3px solid #ffdd0088 !important; box-shadow: 0 0 18px #ffdd0044, inset 0 0 14px #ffdd0022 !important; }
 /* Safe zone bars — player home (row 4) gets top bar, AI home (row 0) gets bottom bar */
 .cell[data-r="4"]::before {
   content:''; position:absolute; top:0;left:0;right:0; height:3px; z-index:3; pointer-events:none;
@@ -269,8 +273,8 @@ body {
 .hand-card {
   width: 106px; height: 140px; border-radius: 6px; position: relative;
   cursor: pointer; flex-shrink: 0; overflow: hidden;
-  /* DO NOT use background shorthand here — it wipes backgroundImage set by JS */
-  background-color: #06050e;
+  /* Slightly brighter dark background so card art is more visible */
+  background-color: #10101e;
   background-size: cover;
   background-position: center top;
   border: 1px solid #555;
@@ -351,7 +355,8 @@ body {
 /* PLAYER AREA — column: portrait strip above, hand cards below */
 .player-area {
   background: #090912; border-top: 1px solid #131320;
-  padding: 4px 14px 8px;
+  padding: 10px 14px 8px;  /* extra top for card pop-in bounce clearance */
+  overflow: visible;
   display: flex; flex-direction: column; align-items: center;
   gap: 5px; flex-shrink: 0;
 }
@@ -1620,19 +1625,65 @@ function renderGrid() {
           div.onclick = () => onCellClick(r, c);
           div.addEventListener('dragover', e => { e.preventDefault(); e.dataTransfer.dropEffect='move'; });
           div.addEventListener('drop', e => { e.preventDefault(); if (G.selectedCard) onCellClick(r, c); });
-          // Zone preview: show future valid cells on hover
+          // Zone preview + battle outcome preview on hover
           if (G.selectedCard) {
             const preview = getZonePreview(r, c, G.selectedCard, 'player');
+            const _pRow = r, _pCol = c;
             div.onmouseenter = () => {
+              // Zone expansion — yellow dots for future valid cells
               preview.forEach(({r: pr, c: pc}) => {
                 const targetCell = document.querySelector(`.cell[data-r="${pr}"][data-c="${pc}"]`);
-                if (targetCell && !targetCell.classList.contains('valid')) {
+                if (targetCell && !targetCell.classList.contains('valid'))
                   targetCell.classList.add('future-valid');
-                }
+              });
+              // ── Battle outcome preview on adjacent enemy cells ──────────
+              const card = G.selectedCard;
+              const surgeB = (card.ability === 'surge' && G.surgeTrigger?.player) ? 3 : 0;
+              const sweepB = (card.ability === 'sweep') ? 2 : 0;
+              const dirs = [
+                {dr:-1,dc:0,myE:'n',theirE:'s',lbl:'N'},
+                {dr:1, dc:0,myE:'s',theirE:'n',lbl:'S'},
+                {dr:0, dc:-1,myE:'w',theirE:'e',lbl:'W'},
+                {dr:0, dc:1, myE:'e',theirE:'w',lbl:'E'},
+              ];
+              dirs.forEach(({dr,dc,myE,theirE,lbl}) => {
+                const nr=_pRow+dr, nc=_pCol+dc;
+                if (nr<0||nr>=5||nc<0||nc>=7) return;
+                const adj = G.grid[nr][nc];
+                if (!adj.card || adj.owner === 'player') return;
+                const myVal   = card.edges[myE] + (card.edgeMod?.[myE]||0) + surgeB + sweepB;
+                const theirVal= adj.card.edges[theirE] + (adj.card.edgeMod?.[theirE]||0);
+                const pierceTie = card.ability === 'pierce' && myVal === theirVal;
+                const result  = (myVal > theirVal || pierceTie) ? 'win' : myVal < theirVal ? 'lose' : 'tie';
+                const adjEl   = document.querySelector(`.cell[data-r="${nr}"][data-c="${nc}"]`);
+                if (!adjEl) return;
+                adjEl.classList.add(`bpv-${result}`);
+                // Inject floating badge showing edge values + result
+                const badge = document.createElement('div');
+                badge.dataset.bpv = '1';
+                const col = result==='win'?'#00ff88':result==='lose'?'#ff3333':'#ffdd00';
+                badge.style.cssText = `position:absolute;z-index:12;pointer-events:none;
+                  background:#000000ee;border:1px solid ${col}88;border-radius:4px;
+                  padding:3px 6px;display:flex;flex-direction:column;align-items:center;gap:1px;
+                  font-family:'Courier New',monospace;`;
+                // Position the badge toward the center of the cell based on direction
+                const offR=dr, offC=dc; // which side the placing card is coming from
+                if (offR===1)  badge.style.cssText+=`top:4px;left:50%;transform:translateX(-50%);`;
+                else if (offR===-1) badge.style.cssText+=`bottom:4px;left:50%;transform:translateX(-50%);`;
+                else if (offC===1)  badge.style.cssText+=`right:4px;top:50%;transform:translateY(-50%);`;
+                else               badge.style.cssText+=`left:4px;top:50%;transform:translateY(-50%);`;
+                badge.innerHTML = `
+                  <span style="font-size:9px;font-weight:bold;color:${col};letter-spacing:1px;">${result.toUpperCase()}</span>
+                  <span style="font-size:8px;color:#888888;">${myVal}v${theirVal}</span>`;
+                adjEl.appendChild(badge);
               });
             };
             div.onmouseleave = () => {
               document.querySelectorAll('.cell.future-valid').forEach(el => el.classList.remove('future-valid'));
+              document.querySelectorAll('.bpv-win,.bpv-lose,.bpv-tie').forEach(el => {
+                el.classList.remove('bpv-win','bpv-lose','bpv-tie');
+              });
+              document.querySelectorAll('[data-bpv]').forEach(el => el.remove());
             };
           }
         } else if (G.selectedCard) {
@@ -1857,17 +1908,19 @@ function renderScoreBadges() {
         <span style="font-size:13px;font-weight:bold;color:#555566;">${p} = ${a}</span>
       </div>`;
     const pWin = res === 'p', aWin = res === 'a';
-    const wAvg = pWin ? pAvatar : aAvatar;
-    const wScore = pWin ? p : a;
-    const lScore = pWin ? a : p;
-    const wCol   = pWin ? pCol : aCol;
+    const wAvg = pWin ? pAvatar : aAvatar, lAvg = pWin ? aAvatar : pAvatar;
+    const wScore = pWin ? p : a, lScore = pWin ? a : p;
+    const wCol = pWin ? pCol : aCol, lCol = pWin ? aCol : pCol;
     return `
-      <div style="display:flex;flex-direction:column;align-items:center;gap:4px;pointer-events:none;">
-        <img src="${wAvg}" style="width:34px;height:34px;border-radius:50%;object-fit:cover;
-          object-position:top;border:2px solid ${wCol};box-shadow:0 0 12px ${wCol}66;pointer-events:none;">
-        <span style="font-size:22px;font-weight:bold;color:${wCol};line-height:1;
+      <div style="display:flex;flex-direction:column;align-items:center;gap:3px;pointer-events:none;">
+        <img src="${wAvg}" style="width:30px;height:30px;border-radius:50%;object-fit:cover;
+          object-position:top;border:2px solid ${wCol};box-shadow:0 0 10px ${wCol}66;pointer-events:none;">
+        <span style="font-size:20px;font-weight:bold;color:${wCol};line-height:1;
           text-shadow:0 0 10px ${wCol};pointer-events:none;">${wScore}</span>
-        <span style="font-size:7px;color:#2a2a3a;letter-spacing:1px;pointer-events:none;">vs ${lScore}</span>
+        <div style="width:26px;height:1px;background:#1a1a28;"></div>
+        <span style="font-size:13px;font-weight:bold;color:#555566;pointer-events:none;">${lScore}</span>
+        <img src="${lAvg}" style="width:18px;height:18px;border-radius:50%;object-fit:cover;
+          object-position:top;border:1px solid #2a2a3a;filter:grayscale(0.7);opacity:0.5;pointer-events:none;">
       </div>`;
   }
 
@@ -1877,19 +1930,19 @@ function renderScoreBadges() {
       <span style="font-size:7px;letter-spacing:2px;color:#443355;display:block;">TIE</span>
       <span style="font-size:11px;font-weight:bold;color:#555566;">${p}=${a}</span></div>`;
     const pWin = res === 'p', aWin = res === 'a';
-    const wAvg = pWin ? pAvatar : aAvatar;
-    const wScore = pWin ? p : a;
-    const lScore = pWin ? a : p;
-    const wCol   = pWin ? pCol : aCol;
+    const wAvg = pWin ? pAvatar : aAvatar, lAvg = pWin ? aAvatar : pAvatar;
+    const wScore = pWin ? p : a, lScore = pWin ? a : p;
+    const wCol = pWin ? pCol : aCol;
     return `
-      <div style="display:flex;align-items:center;gap:5px;pointer-events:none;">
-        <img src="${wAvg}" style="width:22px;height:22px;border-radius:50%;object-fit:cover;
+      <div style="display:flex;align-items:center;gap:4px;pointer-events:none;">
+        <img src="${wAvg}" style="width:20px;height:20px;border-radius:50%;object-fit:cover;
           object-position:top;border:2px solid ${wCol};box-shadow:0 0 8px ${wCol}55;pointer-events:none;">
-        <div style="display:flex;flex-direction:column;pointer-events:none;">
-          <span style="font-size:16px;font-weight:bold;color:${wCol};line-height:1;
-            text-shadow:0 0 8px ${wCol};pointer-events:none;">${wScore}</span>
-          <span style="font-size:6px;color:#2a2a3a;pointer-events:none;">vs ${lScore}</span>
-        </div>
+        <span style="font-size:16px;font-weight:bold;color:${wCol};line-height:1;
+          text-shadow:0 0 8px ${wCol};pointer-events:none;">${wScore}</span>
+        <span style="font-size:10px;color:#2a2a3a;pointer-events:none;">–</span>
+        <span style="font-size:12px;font-weight:bold;color:#444455;pointer-events:none;">${lScore}</span>
+        <img src="${lAvg}" style="width:14px;height:14px;border-radius:50%;object-fit:cover;
+          object-position:top;border:1px solid #2a2a3a;filter:grayscale(0.8);opacity:0.45;pointer-events:none;">
       </div>`;
   }
 
@@ -2805,13 +2858,13 @@ function showTip(e, card) {
       </div>` : ''}
       <div style="flex:1;display:flex;flex-direction:column;gap:12px;justify-content:center;">
         <div style="display:flex;align-items:center;gap:10px;">
-          <span style="font-size:9px;letter-spacing:2px;color:#555;">VICTORY PTS:</span>
-          <div style="width:42px;height:42px;border-radius:50%;border:2px solid var(--tc);display:flex;align-items:center;justify-content:center;box-shadow:0 0 12px var(--tc-glow);">
-            <span style="font-size:20px;font-weight:bold;color:var(--tc);">${card.power}</span>
+          <span style="font-size:11px;letter-spacing:2px;color:#aaa;">VICTORY PTS:</span>
+          <div style="width:46px;height:46px;border-radius:50%;border:2px solid var(--tc);display:flex;align-items:center;justify-content:center;box-shadow:0 0 14px var(--tc-glow);">
+            <span style="font-size:22px;font-weight:bold;color:var(--tc);">${card.power}</span>
           </div>
         </div>
         <div style="display:flex;align-items:center;gap:5px;">
-          <span style="font-size:9px;letter-spacing:2px;color:#555;margin-right:3px;">TIER</span>
+          <span style="font-size:11px;letter-spacing:2px;color:#aaa;margin-right:3px;">TIER</span>
           ${Array.from({length:tierNum},()=>`<div style="width:12px;height:12px;border-radius:50%;background:${tierCol};box-shadow:0 0 6px ${tierCol};"></div>`).join('')}
           ${Array.from({length:4-tierNum},()=>`<div style="width:12px;height:12px;border-radius:50%;border:1px solid #2a2a3a;opacity:0.4;"></div>`).join('')}
         </div>
