@@ -1894,8 +1894,8 @@ Promise.all(
   <div style="font-family:'Orbitron',monospace;font-size:20px;letter-spacing:5px;color:#fff;text-shadow:0 0 20px #8855ffaa;margin-top:32px;">SELECT YOUR OPPONENT</div>
   <div id="opponentGrid" style="display:grid;grid-template-columns:repeat(4,200px);gap:12px;max-width:860px;overflow:visible;padding:4px 4px 12px;"></div>
 
-  <!-- Action row: BACK + BEGIN MATCH -->
-  <div style="display:flex;gap:14px;align-items:center;margin-top:4px;max-width:860px;width:100%;justify-content:space-between;">
+  <!-- Action row: sticky so always visible -->
+  <div style="display:flex;gap:14px;align-items:center;margin-top:4px;max-width:860px;width:100%;justify-content:space-between;position:sticky;bottom:0;background:#000000dd;backdrop-filter:blur(6px);padding:10px 0 4px;z-index:10;">
     <!-- Left: BACK + INVITE FRIEND -->
     <div style="display:flex;gap:10px;align-items:center;">
       <button onclick="document.getElementById('opponentModal').style.display='none'" style="

@@ -1557,28 +1557,6 @@ function initGame() {
 
   renderHand(); // re-evaluate eligibility now that abilities (e.g. RUSH) are assigned
 
-  // Place cosmic hazard cards for balanced and aggressive games (1-2 random hazards)
-  const _hazardDiff = window.aiDifficulty || 'balanced';
-  if (_hazardDiff === 'balanced' || _hazardDiff === 'aggressive') {
-    const _count = Math.random() < 0.5 ? 1 : 2; // 50% chance of 1 vs 2 hazards
-    const _shuffledH = [...HAZARD_CARDS].sort(() => Math.random() - 0.5);
-    let _placed = 0;
-    const _tried = new Set();
-    while (_placed < _count && _tried.size < 21) { // rows 1-3, cols 0-6 = 21 cells
-      const _hr = 1 + Math.floor(Math.random() * 3); // rows 1,2,3 (not home rows)
-      const _hc = Math.floor(Math.random() * 7);
-      const _key = `${_hr},${_hc}`;
-      if (_tried.has(_key)) continue;
-      _tried.add(_key);
-      if (!G.grid[_hr][_hc].card) {
-        const _hz = _shuffledH[_placed];
-        G.grid[_hr][_hc] = { card: { ..._hz, power:0, tier:'I', edges:{n:0,s:0,e:0,w:0}, edgeMod:{n:0,s:0,e:0,w:0}, used:false, isHazard:true }, owner:'hazard' };
-        addLog('system', `⚠ ${_hz.name} emerged at [${_hr},${_hc}] — adjacent cards lose 2 VP`);
-        _placed++;
-      }
-    }
-  }
-
   if (G.aiHand.some(c => c.ability === 'birthright')) {
     const bonusCard = {
       id: 'birthright_bonus',
@@ -1599,8 +1577,6 @@ function initGame() {
     G.aiHand.push(bonusCard);
     addLog('system', 'AI BIRTHRIGHT — bonus T2 unit added to your hand');
   }
-
-  renderHand(); // re-evaluate eligibility now that abilities (e.g. RUSH) are assigned
 
   // Place cosmic hazard cards for balanced and aggressive games (1-2 random hazards)
   const _hazardDiff = window.aiDifficulty || 'balanced';
