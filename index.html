@@ -1541,18 +1541,33 @@ function genRoomId() {
 }
 
 let _selectedMode = null;
+let _wizStep = 1;
+function wizGoTo(step) {
+  const from = document.getElementById('wizStep' + _wizStep);
+  const to   = document.getElementById('wizStep' + step);
+  const fwd  = step > _wizStep;
+  from.style.opacity = '0';
+  from.style.transform = 'translateX(' + (fwd ? '-40px' : '40px') + ')';
+  setTimeout(() => {
+    from.style.display = 'none'; from.style.opacity = ''; from.style.transform = '';
+    to.style.display = 'flex'; to.style.opacity = '0'; to.style.transform = 'translateX(' + (fwd ? '40px' : '-40px') + ')';
+    requestAnimationFrame(() => requestAnimationFrame(() => { to.style.opacity = '1'; to.style.transform = 'translateX(0)'; }));
+    _wizStep = step;
+    document.querySelectorAll('.wiz-dot').forEach((d, i) => {
+      d.style.background = (i + 1) <= step ? '#00ffcc' : '#2a2a3a';
+      d.style.width = d.style.height = (i + 1) === step ? '10px' : '8px';
+    });
+  }, 220);
+}
 function selectMode(mode) {
   _selectedMode = mode;
   const mc = document.getElementById('modeComputer');
   const mf = document.getElementById('modeFriend');
-  const flow = document.getElementById('computerFlow');
-
   if (mode === 'computer') {
     mc.style.borderColor = '#00ffcc'; mc.style.boxShadow = '0 0 28px #00ffcc55,0 0 0 1px #00ffcc44'; mc.style.transform = 'scale(1.04)'; mc.querySelector('img').style.filter = ''; mc.querySelector('.mode-check').style.display = 'flex';
     mf.style.borderColor = '#1a1a28'; mf.style.boxShadow = 'none'; mf.style.transform = ''; mf.querySelector('img').style.filter = 'brightness(0.55)'; mf.querySelector('.mode-check').style.display = 'none';
-    flow.style.display = 'flex';
+    wizGoTo(2);
   } else {
-    // Invite friend: skip animation, go straight to room creation
     if (selectedRace) { createRoom(); return; }
     else { alert('Please select your faction first, then choose Invite Friend.'); return; }
   }
@@ -1609,11 +1624,20 @@ async function createRoom() {
     }
   }, 2000);
 }
-// Reset mode when modal reopens
+// Reset wizard to step 1 when modal reopens
 function _resetMode() {
   _selectedMode = null;
-  const flow = document.getElementById('computerFlow');
-  if (flow) flow.style.display = 'none';
+  [1,2,3].forEach(s => {
+    const el = document.getElementById('wizStep' + s);
+    if (!el) return;
+    el.style.display = s === 1 ? 'flex' : 'none';
+    el.style.opacity = ''; el.style.transform = '';
+  });
+  _wizStep = 1;
+  document.querySelectorAll('.wiz-dot').forEach((d, i) => {
+    d.style.background = i === 0 ? '#00ffcc' : '#2a2a3a';
+    d.style.width = d.style.height = i === 0 ? '10px' : '8px';
+  });
   const mc = document.getElementById('modeComputer');
   const mf = document.getElementById('modeFriend');
   if (mc) { mc.style.borderColor='#00ffcc'; mc.style.boxShadow='0 0 28px #00ffcc55,0 0 0 1px #00ffcc44'; mc.style.transform=''; mc.querySelector('img').style.filter=''; mc.querySelector('.mode-check').style.display='flex'; }
@@ -1636,6 +1660,7 @@ function setDiff(d) {
     const lbl = tile.querySelector('.diff-label');
     if (lbl) lbl.style.color = a ? cols[k] : '#aaa';
   });
+  if (_wizStep === 2) setTimeout(() => wizGoTo(3), 380);
 }
 setTimeout(() => setDiff('balanced'), 0);
 
@@ -1828,95 +1853,111 @@ Promise.all(
   font-family:'Share Tech Mono','Courier New',monospace;
   overflow-y:auto;padding:24px 0;
 ">
-  <!-- SELECT GAME TYPE -->
-  <div style="font-family:'Orbitron',monospace;font-size:20px;letter-spacing:5px;color:#fff;text-shadow:0 0 20px #8855ffaa;">SELECT GAME TYPE</div>
-  <div style="display:flex;gap:12px;justify-content:center;">
-    <div id="modeComputer" onclick="selectMode('computer')" style="
-      position:relative;width:200px;height:130px;border-radius:8px;overflow:hidden;
-      cursor:pointer;border:2px solid #00ffcc;transition:all 0.22s;
-      box-shadow:0 0 18px #00ffcc44,0 0 0 1px #00ffcc33;">
-      <img src="assets/mode-computer.png" style="width:100%;height:100%;object-fit:cover;display:block;">
-      <div style="position:absolute;inset:0;background:linear-gradient(transparent 40%,#000000cc);"></div>
-      <div class="mode-check" style="display:flex;position:absolute;top:7px;right:7px;width:20px;height:20px;border-radius:50%;background:#00ffcc;align-items:center;justify-content:center;font-size:11px;color:#000;font-weight:bold;">✓</div>
-      <div style="position:absolute;bottom:10px;left:0;right:0;text-align:center;">
-        <div style="font-family:'Orbitron',monospace;font-size:13px;letter-spacing:2px;color:#00ffcc;">VS COMPUTER</div>
-      </div>
-    </div>
-    <div id="modeFriend" onclick="selectMode('friend')" style="
-      position:relative;width:200px;height:130px;border-radius:8px;overflow:hidden;
-      cursor:pointer;border:2px solid #1a1a28;transition:all 0.22s;box-shadow:none;">
-      <img src="assets/mode-friend.png" style="width:100%;height:100%;object-fit:cover;display:block;filter:brightness(0.55);">
-      <div style="position:absolute;inset:0;background:linear-gradient(transparent 40%,#000000cc);"></div>
-      <div class="mode-check" style="display:none;position:absolute;top:7px;right:7px;width:20px;height:20px;border-radius:50%;background:#8855ff;align-items:center;justify-content:center;font-size:11px;color:#fff;font-weight:bold;">✓</div>
-      <div style="position:absolute;bottom:10px;left:0;right:0;text-align:center;">
-        <div style="font-family:'Orbitron',monospace;font-size:13px;letter-spacing:2px;color:#aaa;">INVITE FRIEND</div>
-      </div>
-    </div>
+  <!-- Wizard progress dots -->
+  <div style="display:flex;gap:10px;align-items:center;margin-bottom:4px;">
+    <div class="wiz-dot" style="width:10px;height:10px;border-radius:50%;background:#00ffcc;transition:all 0.3s;"></div>
+    <div class="wiz-dot" style="width:8px;height:8px;border-radius:50%;background:#2a2a3a;transition:all 0.3s;"></div>
+    <div class="wiz-dot" style="width:8px;height:8px;border-radius:50%;background:#2a2a3a;transition:all 0.3s;"></div>
   </div>
 
-  <!-- SELECT DIFFICULTY -->
-  <div id="computerFlow" style="display:flex;flex-direction:column;align-items:center;gap:20px;width:100%;">
-  <div style="font-family:'Orbitron',monospace;font-size:20px;letter-spacing:5px;color:#fff;text-shadow:0 0 20px #8855ffaa;">SELECT DIFFICULTY</div>
-  <div style="display:flex;gap:12px;justify-content:center;">
-    <!-- PASSIVE tile -->
-    <div id="diff-passive" onclick="setDiff('passive')" style="position:relative;width:200px;height:130px;border-radius:10px;overflow:hidden;cursor:pointer;border:2px solid #1a1a28;transition:all 0.2s;flex-shrink:0;">
-      <img src="assets/diff-passive.png" style="width:100%;height:100%;object-fit:cover;object-position:center;display:block;">
-      <div style="position:absolute;inset:0;background:linear-gradient(transparent 30%,#000000cc);"></div>
-      <div class="diff-check" style="display:none;position:absolute;top:8px;right:8px;width:24px;height:24px;border-radius:50%;background:#4488cc;align-items:center;justify-content:center;font-size:13px;color:#fff;font-weight:bold;">✓</div>
-      <div style="position:absolute;bottom:10px;left:0;right:0;text-align:center;">
-        <div class="diff-label" style="font-family:'Orbitron',monospace;font-size:13px;letter-spacing:2px;color:#ccc;transition:color 0.2s;">PASSIVE</div>
-        <div style="font-size:11px;color:#777;letter-spacing:1px;margin-top:2px;">LOW AI</div>
+  <!-- STEP 1: SELECT GAME TYPE -->
+  <div id="wizStep1" style="display:flex;flex-direction:column;align-items:center;gap:20px;width:100%;transition:opacity 0.22s,transform 0.22s;">
+    <div style="font-family:'Orbitron',monospace;font-size:20px;letter-spacing:5px;color:#fff;text-shadow:0 0 20px #8855ffaa;">SELECT GAME TYPE</div>
+    <div style="display:flex;gap:12px;justify-content:center;">
+      <div id="modeComputer" onclick="selectMode('computer')" style="
+        position:relative;width:200px;height:130px;border-radius:8px;overflow:hidden;
+        cursor:pointer;border:2px solid #00ffcc;transition:all 0.22s;
+        box-shadow:0 0 18px #00ffcc44,0 0 0 1px #00ffcc33;">
+        <img src="assets/mode-computer.png" style="width:100%;height:100%;object-fit:cover;display:block;">
+        <div style="position:absolute;inset:0;background:linear-gradient(transparent 40%,#000000cc);"></div>
+        <div class="mode-check" style="display:flex;position:absolute;top:7px;right:7px;width:20px;height:20px;border-radius:50%;background:#00ffcc;align-items:center;justify-content:center;font-size:11px;color:#000;font-weight:bold;">✓</div>
+        <div style="position:absolute;bottom:10px;left:0;right:0;text-align:center;">
+          <div style="font-family:'Orbitron',monospace;font-size:13px;letter-spacing:2px;color:#00ffcc;">VS COMPUTER</div>
+        </div>
+      </div>
+      <div id="modeFriend" onclick="selectMode('friend')" style="
+        position:relative;width:200px;height:130px;border-radius:8px;overflow:hidden;
+        cursor:pointer;border:2px solid #1a1a28;transition:all 0.22s;box-shadow:none;">
+        <img src="assets/mode-friend.png" style="width:100%;height:100%;object-fit:cover;display:block;filter:brightness(0.55);">
+        <div style="position:absolute;inset:0;background:linear-gradient(transparent 40%,#000000cc);"></div>
+        <div class="mode-check" style="display:none;position:absolute;top:7px;right:7px;width:20px;height:20px;border-radius:50%;background:#8855ff;align-items:center;justify-content:center;font-size:11px;color:#fff;font-weight:bold;">✓</div>
+        <div style="position:absolute;bottom:10px;left:0;right:0;text-align:center;">
+          <div style="font-family:'Orbitron',monospace;font-size:13px;letter-spacing:2px;color:#aaa;">INVITE FRIEND</div>
+        </div>
       </div>
     </div>
-    <!-- BALANCED tile -->
-    <div id="diff-balanced" onclick="setDiff('balanced')" style="position:relative;width:200px;height:130px;border-radius:10px;overflow:hidden;cursor:pointer;border:2px solid #1a1a28;transition:all 0.2s;flex-shrink:0;">
-      <img src="assets/diff-balanced.png" style="width:100%;height:100%;object-fit:cover;object-position:center;display:block;">
-      <div style="position:absolute;inset:0;background:linear-gradient(transparent 30%,#000000cc);"></div>
-      <div class="diff-check" style="display:none;position:absolute;top:8px;right:8px;width:24px;height:24px;border-radius:50%;background:#00ffcc;align-items:center;justify-content:center;font-size:13px;color:#000;font-weight:bold;">✓</div>
-      <div style="position:absolute;bottom:10px;left:0;right:0;text-align:center;">
-        <div class="diff-label" style="font-family:'Orbitron',monospace;font-size:13px;letter-spacing:2px;color:#ccc;transition:color 0.2s;">BALANCED</div>
-        <div style="font-size:11px;color:#777;letter-spacing:1px;margin-top:2px;">FAIR MATCH</div>
-      </div>
-    </div>
-    <!-- AGGRESSIVE tile -->
-    <div id="diff-aggressive" onclick="setDiff('aggressive')" style="position:relative;width:200px;height:130px;border-radius:10px;overflow:hidden;cursor:pointer;border:2px solid #1a1a28;transition:all 0.2s;flex-shrink:0;">
-      <img src="assets/diff-aggressive.png" style="width:100%;height:100%;object-fit:cover;object-position:center;display:block;">
-      <div style="position:absolute;inset:0;background:linear-gradient(transparent 30%,#000000cc);"></div>
-      <div class="diff-check" style="display:none;position:absolute;top:8px;right:8px;width:24px;height:24px;border-radius:50%;background:#ff4422;align-items:center;justify-content:center;font-size:13px;color:#fff;font-weight:bold;">✓</div>
-      <div style="position:absolute;bottom:10px;left:0;right:0;text-align:center;">
-        <div class="diff-label" style="font-family:'Orbitron',monospace;font-size:13px;letter-spacing:2px;color:#ccc;transition:color 0.2s;">AGGRESSIVE</div>
-        <div style="font-size:11px;color:#777;letter-spacing:1px;margin-top:2px;">HIGH AI</div>
-      </div>
-    </div>
+    <button onclick="document.getElementById('opponentModal').style.display='none'" style="
+      background:#0d0818;border:2px solid #8855ff99;color:#cc99ff;
+      font-family:'Orbitron',monospace;font-size:13px;letter-spacing:2px;
+      padding:12px 22px;cursor:pointer;border-radius:6px;transition:all 0.2s;"
+      onmouseenter="this.style.borderColor='#aa77ff';this.style.color='#fff';this.style.background='#1a0a2e'"
+      onmouseleave="this.style.borderColor='#8855ff99';this.style.color='#cc99ff';this.style.background='#0d0818'">
+      ← BACK
+    </button>
   </div>
 
-  <!-- Opponent header -->
-  <div style="font-family:'Orbitron',monospace;font-size:20px;letter-spacing:5px;color:#fff;text-shadow:0 0 20px #8855ffaa;margin-top:32px;">SELECT YOUR OPPONENT</div>
-  <div id="opponentGrid" style="display:grid;grid-template-columns:repeat(4,200px);gap:12px;max-width:860px;overflow:visible;padding:4px 4px 12px;"></div>
+  <!-- STEP 2: SELECT DIFFICULTY -->
+  <div id="wizStep2" style="display:none;flex-direction:column;align-items:center;gap:20px;width:100%;transition:opacity 0.22s,transform 0.22s;">
+    <div style="font-family:'Orbitron',monospace;font-size:20px;letter-spacing:5px;color:#fff;text-shadow:0 0 20px #8855ffaa;">SELECT DIFFICULTY</div>
+    <div style="display:flex;gap:12px;justify-content:center;">
+      <div id="diff-passive" onclick="setDiff('passive')" style="position:relative;width:200px;height:130px;border-radius:10px;overflow:hidden;cursor:pointer;border:2px solid #1a1a28;transition:all 0.2s;flex-shrink:0;">
+        <img src="assets/diff-passive.png" style="width:100%;height:100%;object-fit:cover;object-position:center;display:block;">
+        <div style="position:absolute;inset:0;background:linear-gradient(transparent 30%,#000000cc);"></div>
+        <div class="diff-check" style="display:none;position:absolute;top:8px;right:8px;width:24px;height:24px;border-radius:50%;background:#4488cc;align-items:center;justify-content:center;font-size:13px;color:#fff;font-weight:bold;">✓</div>
+        <div style="position:absolute;bottom:10px;left:0;right:0;text-align:center;">
+          <div class="diff-label" style="font-family:'Orbitron',monospace;font-size:13px;letter-spacing:2px;color:#ccc;transition:color 0.2s;">PASSIVE</div>
+          <div style="font-size:11px;color:#777;letter-spacing:1px;margin-top:2px;">LOW AI</div>
+        </div>
+      </div>
+      <div id="diff-balanced" onclick="setDiff('balanced')" style="position:relative;width:200px;height:130px;border-radius:10px;overflow:hidden;cursor:pointer;border:2px solid #1a1a28;transition:all 0.2s;flex-shrink:0;">
+        <img src="assets/diff-balanced.png" style="width:100%;height:100%;object-fit:cover;object-position:center;display:block;">
+        <div style="position:absolute;inset:0;background:linear-gradient(transparent 30%,#000000cc);"></div>
+        <div class="diff-check" style="display:none;position:absolute;top:8px;right:8px;width:24px;height:24px;border-radius:50%;background:#00ffcc;align-items:center;justify-content:center;font-size:13px;color:#000;font-weight:bold;">✓</div>
+        <div style="position:absolute;bottom:10px;left:0;right:0;text-align:center;">
+          <div class="diff-label" style="font-family:'Orbitron',monospace;font-size:13px;letter-spacing:2px;color:#ccc;transition:color 0.2s;">BALANCED</div>
+          <div style="font-size:11px;color:#777;letter-spacing:1px;margin-top:2px;">FAIR MATCH</div>
+        </div>
+      </div>
+      <div id="diff-aggressive" onclick="setDiff('aggressive')" style="position:relative;width:200px;height:130px;border-radius:10px;overflow:hidden;cursor:pointer;border:2px solid #1a1a28;transition:all 0.2s;flex-shrink:0;">
+        <img src="assets/diff-aggressive.png" style="width:100%;height:100%;object-fit:cover;object-position:center;display:block;">
+        <div style="position:absolute;inset:0;background:linear-gradient(transparent 30%,#000000cc);"></div>
+        <div class="diff-check" style="display:none;position:absolute;top:8px;right:8px;width:24px;height:24px;border-radius:50%;background:#ff4422;align-items:center;justify-content:center;font-size:13px;color:#fff;font-weight:bold;">✓</div>
+        <div style="position:absolute;bottom:10px;left:0;right:0;text-align:center;">
+          <div class="diff-label" style="font-family:'Orbitron',monospace;font-size:13px;letter-spacing:2px;color:#ccc;transition:color 0.2s;">AGGRESSIVE</div>
+          <div style="font-size:11px;color:#777;letter-spacing:1px;margin-top:2px;">HIGH AI</div>
+        </div>
+      </div>
+    </div>
+    <button onclick="wizGoTo(1)" style="
+      background:#0d0818;border:2px solid #8855ff99;color:#cc99ff;
+      font-family:'Orbitron',monospace;font-size:13px;letter-spacing:2px;
+      padding:12px 22px;cursor:pointer;border-radius:6px;transition:all 0.2s;"
+      onmouseenter="this.style.borderColor='#aa77ff';this.style.color='#fff';this.style.background='#1a0a2e'"
+      onmouseleave="this.style.borderColor='#8855ff99';this.style.color='#cc99ff';this.style.background='#0d0818'">
+      ← BACK
+    </button>
+  </div>
 
-  <!-- Action row: sticky so always visible -->
-  <div style="display:flex;gap:14px;align-items:center;margin-top:4px;max-width:860px;width:100%;justify-content:space-between;position:sticky;bottom:0;background:#000000dd;backdrop-filter:blur(6px);padding:10px 0 4px;z-index:10;">
-    <!-- Left: BACK + INVITE FRIEND -->
-    <div style="display:flex;gap:10px;align-items:center;">
-      <button onclick="document.getElementById('opponentModal').style.display='none'" style="
+  <!-- STEP 3: SELECT YOUR OPPONENT -->
+  <div id="wizStep3" style="display:none;flex-direction:column;align-items:center;gap:20px;width:100%;transition:opacity 0.22s,transform 0.22s;">
+    <div style="font-family:'Orbitron',monospace;font-size:20px;letter-spacing:5px;color:#fff;text-shadow:0 0 20px #8855ffaa;">SELECT YOUR OPPONENT</div>
+    <div id="opponentGrid" style="display:grid;grid-template-columns:repeat(4,200px);gap:12px;max-width:860px;overflow:visible;padding:4px 4px 12px;"></div>
+    <div style="display:flex;gap:14px;align-items:center;max-width:860px;width:100%;justify-content:space-between;position:sticky;bottom:0;background:#000000dd;backdrop-filter:blur(6px);padding:10px 0 4px;z-index:10;">
+      <button onclick="wizGoTo(2)" style="
         background:#0d0818;border:2px solid #8855ff99;color:#cc99ff;
         font-family:'Orbitron',monospace;font-size:13px;letter-spacing:2px;
-        padding:12px 22px;cursor:pointer;border-radius:6px;transition:all 0.2s;
-      " onmouseenter="this.style.borderColor='#aa77ff';this.style.color='#fff';this.style.background='#1a0a2e'"
-         onmouseleave="this.style.borderColor='#8855ff99';this.style.color='#cc99ff';this.style.background='#0d0818'">
+        padding:12px 22px;cursor:pointer;border-radius:6px;transition:all 0.2s;"
+        onmouseenter="this.style.borderColor='#aa77ff';this.style.color='#fff';this.style.background='#1a0a2e'"
+        onmouseleave="this.style.borderColor='#8855ff99';this.style.color='#cc99ff';this.style.background='#0d0818'">
         ← BACK
       </button>
+      <button id="beginMatchBtn" disabled onclick="if(_selectedOpponent)launchGame(_selectedOpponent)" style="
+        background:#0a0a14;border:1px solid #2a2a3a;color:#444;
+        font-family:'Orbitron',monospace;font-size:13px;letter-spacing:4px;
+        padding:14px 36px;border-radius:6px;cursor:not-allowed;
+        opacity:0.35;transition:all 0.3s;font-weight:700;">BEGIN MATCH ▶</button>
     </div>
-    <!-- Right: BEGIN MATCH (disabled until opponent chosen) -->
-    <button id="beginMatchBtn" disabled onclick="if(_selectedOpponent)launchGame(_selectedOpponent)" style="
-      background:#0a0a14;border:1px solid #2a2a3a;color:#444;
-      font-family:'Orbitron',monospace;font-size:13px;letter-spacing:4px;
-      padding:14px 36px;border-radius:6px;cursor:not-allowed;
-      opacity:0.35;transition:all 0.3s;font-weight:700;
-    ">BEGIN MATCH ▶</button>
   </div>
-
-  </div><!-- end computerFlow -->
 </div>
 </body>
 </html>
