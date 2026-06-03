@@ -3677,9 +3677,9 @@ function assignRandomAbilities(hand, raceId) {
     const ab = pool[Math.floor(Math.random() * pool.length)];
     card.ability = ab;
     card.abilityText = (typeof ABILITY_TEXT !== 'undefined' && ABILITY_TEXT[ab]) || ab.toUpperCase();
-    // Custom race-specific ability label (shown in tooltip header and hand card tag)
     const _raceNames = RACE_ABILITY_NAMES[raceId] || {};
-    card.abilityLabel = _raceNames[ab] || null; // e.g. "LATTICE WARD" for crystallis shield
+    card.abilityLabel = _raceNames[ab] || null;
+    card.raceId = raceId;
     card.isSpecial = true;
   });
 }
@@ -3726,7 +3726,8 @@ function cancelTipDelay() {
 function showTip(e, card) {
   const tt      = document.getElementById('tooltip');
   const tierCol = TIER_COLORS[card.tier] || '#888';
-  const abi     = card.ability ? (ABILITY_ICONS[card.ability] || {icon:'✦', color:tierCol, label:card.ability.toUpperCase()}) : null;
+  const abi      = card.ability ? (ABILITY_ICONS[card.ability] || {icon:'✦', color:tierCol, label:card.ability.toUpperCase()}) : null;
+  const _iconSrc = card.raceId && card.ability ? `assets/abilities/${card.raceId}_${card.ability}.png` : '';
   const mod     = card.edgeMod;
   const n  = card.edges.n + (mod?.n||0), s  = card.edges.s + (mod?.s||0);
   const e_ = card.edges.e + (mod?.e||0), w  = card.edges.w + (mod?.w||0);
@@ -3836,7 +3837,10 @@ function showTip(e, card) {
     <div style="padding:8px 12px 10px;">
       ${abi ? `
       <div style="border:1px solid #ffdd0044;border-radius:5px;padding:7px 10px;background:#ffdd0008;">
-        <div style="font-family:'Orbitron',monospace;font-size:10px;letter-spacing:1px;color:#ffdd00;font-weight:700;margin-bottom:4px;">${card.abilityLabel || abi.label}</div>
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+          ${_iconSrc ? `<img src="${_iconSrc}" width="32" height="32" style="border-radius:2px;flex-shrink:0;" onerror="this.style.display='none'">` : ''}
+          <div style="font-family:'Orbitron',monospace;font-size:10px;letter-spacing:1px;color:#ffdd00;font-weight:700;">${card.abilityLabel || abi.label}</div>
+        </div>
         <div style="font-size:11px;color:#ddd;line-height:1.5;">${card.abilityText}</div>
       </div>` : `
       <div style="font-size:10px;color:#333;letter-spacing:1px;font-style:italic;">No special ability</div>`}
