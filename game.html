@@ -388,19 +388,49 @@ body {
 }
 .btn-restart:hover { background:#1a3a26; }
 
-/* TOOLTIP — bigger, clearer */
-.tooltip {
-  display:none; position:fixed;
-  background:#07070f; border:1px solid #8855ff44;
-  border-radius:6px; padding:14px 18px;
-  font-size:13px; color:#e0e0e0; letter-spacing:0.5px; line-height:1.8;
-  z-index:9500; pointer-events:none; max-width:260px;
-  box-shadow: 0 8px 24px #00000088, 0 0 20px #8855ff22;
+/* TOOLTIP — shiny, tier-color-driven */
+@keyframes tipGlow {
+  0%,100% { box-shadow: 0 0 0 1px var(--tc-dim,#8855ff33), 0 24px 64px #000000cc, 0 0 22px var(--tc-glow,#8855ff18); }
+  50%     { box-shadow: 0 0 0 2px var(--tc-dim,#8855ff44), 0 24px 64px #000000cc, 0 0 52px var(--tc-glow,#8855ff28); }
 }
-.tooltip strong { font-size:15px; letter-spacing:2px; }
-.tooltip .tip-edges { font-size:12px; color:#888; margin: 4px 0; }
-.tooltip .tip-ability { font-size:12px; color:#aa88ff; margin-top:6px; }
-.tooltip .tip-zone { font-size:11px; color:#888899; margin-top:3px; font-style:italic; }
+@keyframes tipScan {
+  0%   { transform: translateY(-110%); }
+  100% { transform: translateY(350%); }
+}
+@keyframes tipShineSwipe {
+  0%   { transform: translateX(-200%) skewX(-18deg); opacity:0; }
+  20%  { opacity: 1; }
+  80%  { opacity: 1; }
+  100% { transform: translateX(400%) skewX(-18deg); opacity:0; }
+}
+.tooltip {
+  --tc: #8855ff; --tc-dim: #8855ff33; --tc-glow: #8855ff18;
+  display:none; position:fixed;
+  background: linear-gradient(148deg, #0e0c24 0%, #07070f 55%, #0b0916 100%);
+  border: 1px solid var(--tc);
+  border-radius:10px; padding:0;
+  font-size:13px; color:#e0e0e0; letter-spacing:0.4px; line-height:1.5;
+  z-index:9500; pointer-events:none; width:310px;
+  animation: tipGlow 2.5s ease-in-out infinite;
+  overflow:hidden;
+}
+.tip-shine-layer {
+  position:absolute; inset:0; pointer-events:none; overflow:hidden; border-radius:10px; z-index:2;
+}
+.tip-shine-layer::before {
+  content:''; position:absolute; top:0; left:0; width:50px; height:200%;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.07) 50%, transparent 100%);
+  animation: tipShineSwipe 4s ease-in-out infinite 1s;
+}
+.tip-body { position:relative; z-index:3; }
+.tip-error {
+  display:none; position:fixed;
+  background:#1a0505; border:1px solid #ff334488;
+  border-radius:8px; padding:10px 14px;
+  font-size:11px; color:#ff8888; letter-spacing:1px; line-height:1.6;
+  z-index:9500; pointer-events:none; max-width:220px;
+  box-shadow: 0 8px 24px #000000aa, 0 0 20px #ff333318;
+}
 
 /* Tier row labels on left side of board */
 .tier-row-labels {
@@ -694,57 +724,7 @@ button, [onclick] { touch-action: manipulation; }
     display:flex;align-items:center;justify-content:center;transition:all 0.2s;
   " title="Menu">☰</div>
 
-  <!-- Dropdown menu — solid background, bright readable text -->
-  <div id="gameMenu" style="
-    display:none;position:fixed;top:44px;right:16px;z-index:9999;
-    background:#0a0a18;border:1px solid #8855ffaa;border-radius:6px;
-    padding:14px;min-width:220px;font-family:'Courier New',monospace;
-    box-shadow:0 8px 40px #000000cc, 0 0 20px #8855ff22;
-  ">
-    <div style="font-size:10px;letter-spacing:3px;color:#aa88ff;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid #2a1a44;">⚙ MENU</div>
-
-    <!-- Volume -->
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
-      <span style="font-size:10px;color:#aaa;letter-spacing:1px;white-space:nowrap;min-width:32px;">🔊</span>
-      <input id="volSlider2" type="range" min="0" max="100" value="40"
-        oninput="setVolume(this.value)"
-        style="flex:1;accent-color:#8855ff;cursor:pointer;">
-    </div>
-
-    <!-- Menu buttons — bright white text on dark bg -->
-    <div style="display:flex;flex-direction:column;gap:8px;">
-      <button onclick="toggleGameMusic();updateMuteLabel()" id="muteMenuBtn" style="
-        background:#1a0a2e;border:1px solid #6644aa;color:#ffffff;
-        font-family:inherit;font-size:11px;letter-spacing:2px;padding:9px 14px;
-        cursor:pointer;border-radius:4px;text-align:left;width:100%;transition:all 0.2s;
-      " onmouseenter="this.style.background='#2a1040';this.style.borderColor='#aa77ff'"
-         onmouseleave="this.style.background='#1a0a2e';this.style.borderColor='#6644aa'">
-        🔊 MUTE / UNMUTE
-      </button>
-      <button onclick="initGame();closeMenu()" style="
-        background:#0a1a14;border:1px solid #226644;color:#ffffff;
-        font-family:inherit;font-size:11px;letter-spacing:2px;padding:9px 14px;
-        cursor:pointer;border-radius:4px;text-align:left;width:100%;transition:all 0.2s;
-      " onmouseenter="this.style.background='#0e2a1e';this.style.borderColor='#00ffcc'"
-         onmouseleave="this.style.background='#0a1a14';this.style.borderColor='#226644'">
-        ↺ RESTART GAME
-      </button>
-      <button onclick="goToMenuNow()" style="
-        background:#1a0a2e;border:1px solid #6644aa;color:#ffffff;
-        font-family:inherit;font-size:11px;letter-spacing:2px;padding:9px 14px;
-        cursor:pointer;border-radius:4px;text-align:left;width:100%;transition:all 0.2s;
-      " onmouseenter="this.style.background='#2a1040';this.style.borderColor='#aa77ff'"
-         onmouseleave="this.style.background='#1a0a2e';this.style.borderColor='#6644aa'">
-        ← CHANGE DECK
-      </button>
-    </div>
-  </div>
 </div>
-
-<!-- Menu backdrop — clicking outside closes the menu -->
-<div id="menuBackdrop" onclick="closeMenu()" style="
-  display:none;position:fixed;inset:0;z-index:9998;
-"></div>
 
 <div class="ai-area">
   <div class="ai-portrait">
@@ -838,8 +818,6 @@ button, [onclick] { touch-action: manipulation; }
     </button>
   </div>
 </div>
-<div class="tooltip" id="tooltip"></div>
-
 <!-- Drag card: created once, reused on every card selection -->
 <div id="dragCard">
   <span class="dc-e-n" id="dc-n"></span>
@@ -1249,6 +1227,25 @@ function renderGrid() {
               document.querySelectorAll('.cell.future-valid').forEach(el => el.classList.remove('future-valid'));
             };
           }
+        } else if (G.selectedCard) {
+          // Show red tooltip explaining WHY this cell is invalid
+          div.style.cursor = 'not-allowed';
+          const _r = r, _c = c, _card = G.selectedCard;
+          div.onmouseenter = ev => {
+            const homeRow = 4;
+            let reason = 'No friendly card adjacent — place next to your cards';
+            if (_r < 0 || _r > 4) {
+              reason = 'Out of bounds';
+            } else if (_card.tier === 'I' && _r !== homeRow) {
+              reason = 'Tier I: home row only (row 5)';
+            } else if (_card.tier !== 'I' && _r === homeRow) {
+              reason = 'Tier II+ cannot go in the home row — advance first';
+            } else if (G.board[_r][_c] && G.board[_r][_c].owner) {
+              reason = 'Cell is occupied';
+            }
+            showErrorTip(ev, reason);
+          };
+          div.onmouseleave = hideTip;
         }
       }
       el.appendChild(div);
@@ -1985,47 +1982,90 @@ function showTip(e, card) {
   const n = card.edges.n + (mod?.n||0), s = card.edges.s + (mod?.s||0);
   const e_ = card.edges.e + (mod?.e||0), w = card.edges.w + (mod?.w||0);
 
+  // Drive all tier-color glows from CSS custom properties
+  tt.style.setProperty('--tc',     tierCol);
+  tt.style.setProperty('--tc-dim', tierCol + '55');
+  tt.style.setProperty('--tc-glow',tierCol + '22');
+
   tt.innerHTML = `
-    <div style="display:flex;gap:12px;margin-bottom:10px;">
-      ${card.art ? `<img src="${card.art}" style="width:72px;height:96px;object-fit:cover;object-position:center top;border-radius:4px;border:2px solid ${tierCol}55;flex-shrink:0;">` : ''}
+  <div class="tip-shine-layer"></div>
+  <div class="tip-body">
+    <!-- Header: art + name/tier/stats -->
+    <div style="display:flex;gap:12px;padding:14px 14px 10px;">
+      ${card.art ? `
+      <div style="position:relative;flex-shrink:0;width:82px;height:112px;">
+        <img src="${card.art}" style="width:100%;height:100%;object-fit:cover;object-position:top;border-radius:6px;border:2px solid var(--tc-dim);">
+        <!-- scan sweep over art -->
+        <div style="position:absolute;inset:0;border-radius:6px;overflow:hidden;pointer-events:none;">
+          <div style="position:absolute;width:100%;height:35%;background:linear-gradient(transparent,var(--tc-glow),transparent);animation:tipScan 3.5s ease-in-out infinite;"></div>
+        </div>
+      </div>` : ''}
       <div style="flex:1;min-width:0;">
-        <div style="font-family:'Orbitron',monospace;color:${tierCol};font-size:13px;letter-spacing:1px;font-weight:700;line-height:1.2;">${card.name}</div>
-        <div style="color:${tierCol}88;font-size:10px;letter-spacing:2px;margin-bottom:6px;">${card.tierLabel || card.tier}</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:3px;margin-bottom:4px;">
-          <div style="text-align:center;background:#0e0c18;border-radius:3px;padding:3px;"><div style="font-size:8px;color:#555;letter-spacing:1px;">NORTH</div><div style="font-size:16px;font-weight:bold;color:${tierCol}">${n}</div></div>
-          <div style="text-align:center;background:#0e0c18;border-radius:3px;padding:3px;"><div style="font-size:8px;color:#555;letter-spacing:1px;">SOUTH</div><div style="font-size:16px;font-weight:bold;color:${tierCol}">${s}</div></div>
-          <div style="text-align:center;background:#0e0c18;border-radius:3px;padding:3px;"><div style="font-size:8px;color:#555;letter-spacing:1px;">WEST</div><div style="font-size:16px;font-weight:bold;color:${tierCol}">${w}</div></div>
-          <div style="text-align:center;background:#0e0c18;border-radius:3px;padding:3px;"><div style="font-size:8px;color:#555;letter-spacing:1px;">EAST</div><div style="font-size:16px;font-weight:bold;color:${tierCol}">${e_}</div></div>
+        <div style="font-family:'Orbitron',monospace;color:var(--tc);font-size:12px;letter-spacing:1.5px;font-weight:700;line-height:1.2;margin-bottom:2px;">${card.name}</div>
+        <div style="font-size:8px;letter-spacing:3px;color:var(--tc-dim);margin-bottom:8px;">${card.tierLabel || card.tier}</div>
+        <!-- N/S/W/E grid -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:6px;">
+          ${['N','S','W','E'].map((d,i)=>{
+            const val = [n,s,w,e_][i];
+            return `<div style="background:#ffffff07;border:1px solid var(--tc-dim);border-radius:4px;padding:3px 0;text-align:center;">
+              <div style="font-size:7px;color:#555;letter-spacing:1px;">${d}</div>
+              <div style="font-size:16px;font-weight:bold;color:var(--tc);line-height:1.1;">${val}</div>
+            </div>`;
+          }).join('')}
         </div>
-        <div style="background:#0e0c18;border-radius:3px;padding:4px 8px;text-align:center;">
-          <span style="font-size:9px;color:#555;letter-spacing:1px;">POWER SCORE</span>
-          <span style="font-size:18px;font-weight:bold;color:${tierCol};margin-left:8px;">${card.power}</span>
+        <!-- Power -->
+        <div style="background:var(--tc-glow);border:1px solid var(--tc-dim);border-radius:4px;padding:4px 8px;text-align:center;">
+          <span style="font-size:7px;color:#666;letter-spacing:2px;">POWER</span>
+          <span style="font-size:20px;font-weight:bold;color:var(--tc);margin-left:8px;">${card.power}</span>
         </div>
       </div>
     </div>
+    <!-- Divider -->
+    <div style="height:1px;background:linear-gradient(90deg,transparent,var(--tc-dim),transparent);margin:0 12px;"></div>
+    <!-- Ability -->
     ${abi ? `
-    <div style="background:${abi.color}18;border:1px solid ${abi.color}44;border-radius:4px;padding:8px 10px;margin-bottom:8px;">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
-        <span style="font-size:16px;">${abi.icon}</span>
-        <strong style="color:${abi.color};font-size:11px;letter-spacing:2px;">${abi.label}</strong>
+    <div style="padding:10px 14px;">
+      <div style="background:${abi.color}18;border:1px solid ${abi.color}55;border-radius:6px;padding:8px 10px;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+          <span style="font-size:18px;filter:drop-shadow(0 0 6px ${abi.color});">${abi.icon}</span>
+          <span style="font-family:'Orbitron',monospace;font-size:10px;letter-spacing:2px;color:${abi.color};font-weight:700;">${abi.label}</span>
+        </div>
+        <div style="font-size:10px;color:#ccc;line-height:1.65;">${card.abilityText}</div>
       </div>
-      <div style="font-size:11px;color:#ddd;line-height:1.6;">${card.abilityText}</div>
     </div>
-    ` : `<div style="font-size:10px;color:#444;margin-bottom:8px;letter-spacing:1px;">No special ability — pure positioning</div>`}
-    ${card._battleStatus ? `<div style="margin-top:6px;font-size:10px;letter-spacing:1px;color:#aaa;">${card._battleStatus}</div>` : ''}
-    ${!card._battleStatus && card.zone ? buildZoneGrid(card) : ''}
-  `;
+    ` : `<div style="padding:8px 14px;font-size:10px;color:#2a2a3a;letter-spacing:1px;">No ability</div>`}
+    ${card._battleStatus ? `<div style="padding:4px 14px 10px;font-size:9px;letter-spacing:2px;color:#aaa;">${card._battleStatus}</div>` : ''}
+    ${!card._battleStatus && card.zone ? `<div style="padding:0 14px 10px;">${buildZoneGrid(card)}</div>` : ''}
+  </div>`;
+
   tt.style.display = 'block';
-  // Smart positioning: flip up if tooltip would go off bottom of screen
-  const ttH = tt.offsetHeight || 300;
-  const ttW = tt.offsetWidth  || 270;
+  const ttH = tt.offsetHeight || 320;
+  const ttW = tt.offsetWidth  || 315;
   const spaceBelow = window.innerHeight - e.clientY;
   const top  = spaceBelow > ttH + 20 ? e.clientY + 14 : e.clientY - ttH - 14;
   const left = e.clientX + ttW + 20 > window.innerWidth ? e.clientX - ttW - 14 : e.clientX + 14;
   tt.style.top  = Math.max(8, top)  + 'px';
   tt.style.left = Math.max(8, left) + 'px';
 }
-function hideTip() { document.getElementById('tooltip').style.display='none'; }
+
+function showErrorTip(e, reason) {
+  hideTip();
+  const et = document.getElementById('errorTip');
+  et.innerHTML = `<span style="color:#ff5555;font-size:13px;margin-right:6px;">✗</span>${reason}`;
+  et.style.display = 'block';
+  const etH = et.offsetHeight || 60;
+  const etW = et.offsetWidth  || 220;
+  const spaceBelow = window.innerHeight - e.clientY;
+  const top  = spaceBelow > etH + 20 ? e.clientY + 14 : e.clientY - etH - 14;
+  const left = e.clientX + etW + 20 > window.innerWidth ? e.clientX - etW - 14 : e.clientX + 14;
+  et.style.top  = Math.max(8, top)  + 'px';
+  et.style.left = Math.max(8, left) + 'px';
+}
+
+function hideTip() {
+  document.getElementById('tooltip').style.display = 'none';
+  document.getElementById('errorTip').style.display = 'none';
+}
 
 // ── GLOBAL MOUSE / KEYBOARD ───────────────────
 document.addEventListener('mousemove', e => {
@@ -2215,6 +2255,69 @@ window.addEventListener('beforeunload', e => {
 })();
 initRaceTheme();
 initGame();
+
+// F5 / Ctrl+R → deck selection instead of hard refresh
+document.addEventListener('keydown', e => {
+  if (e.key === 'F5' || (e.ctrlKey && e.key === 'r')) {
+    e.preventDefault();
+    goToMenu();
+  }
+});
 </script>
+
+<!-- GAME MENU — at body level so z-index always wins over everything -->
+<div id="gameMenu" style="
+  display:none;position:fixed;top:44px;right:16px;z-index:100000;
+  background:#0a0a18;border:1px solid #8855ffaa;border-radius:8px;
+  padding:14px;min-width:230px;font-family:'Courier New',monospace;
+  box-shadow:0 12px 48px #000000ee, 0 0 28px #8855ff33, 0 0 0 1px #8855ff22;
+">
+  <div style="font-size:10px;letter-spacing:3px;color:#aa88ff;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid #2a1a44;">⚙ MENU</div>
+  <!-- Volume -->
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+    <span style="font-size:10px;color:#aaa;letter-spacing:1px;white-space:nowrap;min-width:32px;">VOL</span>
+    <input id="volSlider2" type="range" min="0" max="100" value="40"
+      oninput="setVolume(this.value)"
+      style="flex:1;accent-color:#8855ff;cursor:pointer;">
+  </div>
+  <!-- Buttons -->
+  <div style="display:flex;flex-direction:column;gap:8px;">
+    <button onclick="toggleGameMusic();updateMuteLabel()" id="muteMenuBtn" style="
+      background:#1a0a2e;border:1px solid #6644aa;color:#ffffff;
+      font-family:inherit;font-size:11px;letter-spacing:2px;padding:9px 14px;
+      cursor:pointer;border-radius:4px;text-align:left;width:100%;transition:all 0.2s;
+    " onmouseenter="this.style.background='#2a1040';this.style.borderColor='#aa77ff'"
+       onmouseleave="this.style.background='#1a0a2e';this.style.borderColor='#6644aa'">
+      🔊 MUTE / UNMUTE
+    </button>
+    <button onclick="initGame();closeMenu()" style="
+      background:#0a1a14;border:1px solid #226644;color:#ffffff;
+      font-family:inherit;font-size:11px;letter-spacing:2px;padding:9px 14px;
+      cursor:pointer;border-radius:4px;text-align:left;width:100%;transition:all 0.2s;
+    " onmouseenter="this.style.background='#0e2a1e';this.style.borderColor='#00ffcc'"
+       onmouseleave="this.style.background='#0a1a14';this.style.borderColor='#226644'">
+      ↺ RESTART GAME
+    </button>
+    <button onclick="goToMenuNow()" style="
+      background:#1a0a2e;border:1px solid #6644aa;color:#ffffff;
+      font-family:inherit;font-size:11px;letter-spacing:2px;padding:9px 14px;
+      cursor:pointer;border-radius:4px;text-align:left;width:100%;transition:all 0.2s;
+    " onmouseenter="this.style.background='#2a1040';this.style.borderColor='#aa77ff'"
+       onmouseleave="this.style.background='#1a0a2e';this.style.borderColor='#6644aa'">
+      ← BACK TO DECK SELECT
+    </button>
+  </div>
+</div>
+
+<!-- Menu backdrop — body level, just below the menu -->
+<div id="menuBackdrop" onclick="closeMenu()" style="
+  display:none;position:fixed;inset:0;z-index:99999;background:#00000066;
+"></div>
+
+<!-- TOOLTIP — shiny, tier-colored -->
+<div id="tooltip" class="tooltip"></div>
+<!-- ERROR TOOLTIP — red, invalid placement -->
+<div id="errorTip" class="tip-error"></div>
+
 </body>
 </html>
