@@ -1108,23 +1108,6 @@ function selectRace(race, tileEl) {
   if (sdLbl) { sdLbl.textContent = race.name.replace('THE ',''); sdLbl.style.color = race.color; }
   if (sdBdr) sdBdr.style.borderColor = race.color + '88';
 
-  // Smooth-scroll conveyor so selected card appears at right edge of belt
-  const raceIdx = RACES.findIndex(r => r.id === race.id);
-  if (raceIdx >= 0 && CV_LOOP_PX > 0) {
-    const PITCH = 240 + 22;
-    const beltW = document.getElementById('conveyorWrap')?.offsetWidth || 800;
-    let target = (raceIdx * PITCH + 28 - beltW + PITCH + CV_LOOP_PX) % CV_LOOP_PX;
-    const sp = cvPos, st = performance.now(), dur = 700;
-    function anim(now) {
-      const t = Math.min((now-st)/dur, 1), e2 = t<0.5?2*t*t:-1+(4-2*t)*t;
-      let diff = target - sp;
-      if (Math.abs(diff) > CV_LOOP_PX/2) diff -= Math.sign(diff)*CV_LOOP_PX;
-      cvPos = ((sp + diff*e2) + CV_LOOP_PX) % CV_LOOP_PX;
-      if (t < 1) requestAnimationFrame(anim);
-    }
-    requestAnimationFrame(anim);
-  }
-
   // Apply yellow border to ALL copies of this tile in the conveyor (3 sets)
   document.querySelectorAll(`.race-tile[data-id="${race.id}"]`).forEach(t => {
     t.classList.add('selected');
