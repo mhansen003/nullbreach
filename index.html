@@ -1488,6 +1488,12 @@ function showOpponentPicker() {
     btn.style.boxShadow  = 'none';
   }
 
+  // Auto-select a random opponent so BEGIN MATCH is immediately ready
+  const _allRaceIds = RACES.filter(r => r.id !== selectedRace.id).map(r => r.id);
+  const _autoRace   = _allRaceIds[Math.floor(Math.random() * _allRaceIds.length)];
+  const _autoTile   = grid.querySelector(`.opp-tile[data-rid="${_autoRace}"]`);
+  if (_autoTile) selectOpponent(_autoRace, _autoTile);
+
   modal.style.display = 'flex';
 }
 
@@ -1711,25 +1717,18 @@ Promise.all(
   <div style="font-family:'Orbitron',monospace;font-size:20px;letter-spacing:5px;color:#fff;text-shadow:0 0 20px #8855ffaa;margin-top:32px;">SELECT YOUR OPPONENT</div>
   <div id="opponentGrid" style="display:grid;grid-template-columns:repeat(4,200px);gap:12px;max-width:860px;overflow:visible;padding:4px 4px 12px;"></div>
 
-  <!-- Action row: RANDOM + BEGIN MATCH -->
+  <!-- Action row: BACK + BEGIN MATCH -->
   <div style="display:flex;gap:14px;align-items:center;margin-top:4px;max-width:860px;width:100%;justify-content:space-between;">
-    <!-- Left: RANDOM + BACK -->
-    <div style="display:flex;gap:10px;align-items:center;">
-      <button onclick="launchGame('random')" style="
-        background:transparent;border:1px solid #8855ff66;color:#aa88ff;
-        font-family:inherit;font-size:13px;letter-spacing:3px;padding:12px 22px;
-        cursor:pointer;border-radius:5px;transition:all 0.2s;
-      " onmouseenter="this.style.borderColor='#aa77ff';this.style.color='#fff'"
-         onmouseleave="this.style.borderColor='#8855ff66';this.style.color='#aa88ff'">
-        ⚄ RANDOM
-      </button>
-      <div onclick="document.getElementById('opponentModal').style.display='none'" style="
-        font-size:13px;letter-spacing:2px;color:#554466;cursor:pointer;
-        padding:10px 16px;border:1px solid #1a1a28;border-radius:4px;transition:all 0.2s;
-      " onmouseenter="this.style.color='#8855ff';this.style.borderColor='#554477'"
-         onmouseleave="this.style.color='#554466';this.style.borderColor='#1a1a28'">
+    <!-- Left: BACK only -->
+    <div style="display:flex;align-items:center;">
+      <button onclick="document.getElementById('opponentModal').style.display='none'" style="
+        background:#0d0818;border:2px solid #8855ff99;color:#cc99ff;
+        font-family:'Orbitron',monospace;font-size:13px;letter-spacing:2px;
+        padding:12px 22px;cursor:pointer;border-radius:6px;transition:all 0.2s;
+      " onmouseenter="this.style.borderColor='#aa77ff';this.style.color='#fff';this.style.background='#1a0a2e'"
+         onmouseleave="this.style.borderColor='#8855ff99';this.style.color='#cc99ff';this.style.background='#0d0818'">
         ← BACK
-      </div>
+      </button>
     </div>
     <!-- Right: BEGIN MATCH (disabled until opponent chosen) -->
     <button id="beginMatchBtn" disabled onclick="if(_selectedOpponent)launchGame(_selectedOpponent)" style="
