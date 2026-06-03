@@ -250,20 +250,15 @@
       <div class="at-desc">Can be placed anywhere in own home 2 rows — ignores zone expansion rules entirely. Flexible anchor.</div>
       <div class="at-uses">Best for: evasive/light factions (Veil?)</div>
     </div>
-    <div class="ab-tile" style="--at:#ffcc00">
-      <div class="at-name">ANCHOR <span class="at-tag new">NEW IDEA</span></div>
-      <div class="at-desc">When placed, permanently claims the cell — enemy cannot displace or overwrite via game effects. (Lithos?)</div>
-      <div class="at-uses">Best for: defensive/immovable factions</div>
-    </div>
     <div class="ab-tile" style="--at:#cc44ff">
       <div class="at-name">AMBUSH <span class="at-tag new">NEW IDEA</span></div>
-      <div class="at-desc">If placed adjacent to an enemy, that enemy immediately loses 1 from its facing edge (permanent debuff on placement).</div>
-      <div class="at-uses">Best for: precision/assassin factions (Void?)</div>
+      <div class="at-desc">On placement, ALL adjacent enemy cards each permanently lose -1 from all 4 of their edges. Area debuff — rewards clustering near multiple enemies.</div>
+      <div class="at-uses">Best for: assassin/aggressive factions (Void?). Strong mid-game when enemies are packed.</div>
     </div>
-    <div class="ab-tile" style="--at:#ff4422">
-      <div class="at-name">SURGE <span class="at-tag live">LIVE</span></div>
-      <div class="at-desc">When this card is losing a line at placement time, it gains +3 to all edges. Comeback mechanic.</div>
-      <div class="at-uses">Best for: volatile/unstable factions (Gas?)</div>
+    <div class="ab-tile" style="--at:#ff8800">
+      <div class="at-name">SNIPER <span class="at-tag new">NEW IDEA</span></div>
+      <div class="at-desc">When placed, cancels out the topmost enemy card in this card's column — that enemy contributes 0 VP for its row until end of game. Targeted column control.</div>
+      <div class="at-uses">Best for: long-range/precision factions. Devastating in columns the enemy is winning.</div>
     </div>
   </div>
 </div>
@@ -392,10 +387,10 @@
     <th>FLANK</th>
     <th>RUSH</th>
     <th>PIERCE</th>
-    <th>SURGE</th>
     <th>DRAIN</th>
-    <th>NEW 1</th>
-    <th>NEW 2</th>
+    <th>AMBUSH</th>
+    <th>SNIPER</th>
+    <th>NEW</th>
     <th>PLAY STYLE</th>
   </tr>
 </thead>
@@ -445,7 +440,7 @@
     <td class="cell-check"><span class="dash">—</span></td>
     <td class="cell-check"><span class="dash">—</span></td>
     <td class="cell-check"><span class="tbd">MIRROR?</span></td>
-    <td class="cell-check"><span class="tbd">ANCHOR?</span></td>
+    <td class="cell-check"><span class="tbd">SNIPER?</span></td>
     <td style="font-size:13px;color:#555;">Fortress / Counter</td>
   </tr>
   <tr>
@@ -524,7 +519,7 @@
     <td class="cell-check"><span class="dash">—</span></td>
     <td class="cell-check"><span style="color:#8855ff">●</span></td>
     <td class="cell-check"><span class="dash">—</span></td>
-    <td class="cell-check"><span class="tbd">SURGE+?</span></td>
+    <td class="cell-check"><span class="tbd">SNIPER?</span></td>
     <td class="cell-check"><span class="dash">—</span></td>
     <td style="font-size:13px;color:#555;">Volatile / Comeback</td>
   </tr>
@@ -540,7 +535,7 @@
     <td class="cell-check"><span style="color:#8855ff">●</span></td>
     <td class="cell-check"><span class="dash">—</span></td>
     <td class="cell-check"><span class="dash">—</span></td>
-    <td class="cell-check"><span class="tbd">ANCHOR?</span></td>
+    <td class="cell-check"><span class="tbd">SNIPER?</span></td>
     <td class="cell-check"><span class="tbd">FORTIFY?</span></td>
     <td style="font-size:13px;color:#555;">Fortress / Wall</td>
   </tr>
@@ -658,7 +653,7 @@
   <div class="note-card">
     <div class="note-race" style="--nr:#ffd700">GAS NOMADS</div>
     <div class="note-tag">"Volatile, comeback, storm"</div>
-    <div class="note-slot"><span class="slot-num">1</span><span class="slot-fill">SURGE → "Storm Surge"?</span></div>
+    <div class="note-slot"><span class="slot-num">1</span><span class="slot-fill">AMBUSH → "Acid Splash"?</span></div>
     <div class="note-slot"><span class="slot-num">2</span><span class="slot-fill">SWEEP → "Plasma Equalize"?</span></div>
     <div class="note-slot"><span class="slot-num">3</span><span class="slot-fill">BOOST → "Ion Cloud"?</span></div>
     <div class="note-slot"><span class="slot-num">4</span><span class="slot-fill">FLANK → "Gale Strike"?</span></div>
@@ -670,7 +665,7 @@
     <div class="note-slot"><span class="slot-num">1</span><span class="slot-fill">SHIELD → "Stone Skin"?</span></div>
     <div class="note-slot"><span class="slot-num">2</span><span class="slot-fill">COMMANDER → "Tectonic Array"?</span></div>
     <div class="note-slot"><span class="slot-num">3</span><span class="slot-fill">PIERCE → "Seismic Pierce"?</span></div>
-    <div class="note-slot"><span class="slot-num">4</span><span class="slot-fill">ANCHOR (new) → "Bedrock"?</span></div>
+    <div class="note-slot"><span class="slot-num">4</span><span class="slot-fill">SNIPER → "Bedrock Shot"?</span></div>
   </div>
 
   <div class="note-card">
@@ -699,8 +694,8 @@
     <div style="font-size:14px;color:#666;padding:8px;border:1px solid #1a1a28;border-radius:4px;border-left:3px solid #88ffff;"><b style="color:#88ffff">PHANTOM</b><br>Place in own 2 home rows freely</div>
     <div style="font-size:14px;color:#666;padding:8px;border:1px solid #1a1a28;border-radius:4px;border-left:3px solid #cc44ff;"><b style="color:#cc44ff">MIRROR</b><br>Attacker loses 1 edge when they beat this card</div>
     <div style="font-size:14px;color:#666;padding:8px;border:1px solid #1a1a28;border-radius:4px;border-left:3px solid #ff4444;"><b style="color:#ff4444">DRAIN</b><br>Winners strip 1 edge from loser permanently (needs full impl)</div>
-    <div style="font-size:14px;color:#666;padding:8px;border:1px solid #1a1a28;border-radius:4px;border-left:3px solid #ffcc00;"><b style="color:#ffcc00">ANCHOR</b><br>Cell cannot be overwritten by game effects</div>
-    <div style="font-size:14px;color:#666;padding:8px;border:1px solid #1a1a28;border-radius:4px;border-left:3px solid #cc44ff;"><b style="color:#cc44ff">AMBUSH</b><br>Adjacent enemy loses 1 from facing edge on placement</div>
+    <div style="font-size:14px;color:#666;padding:8px;border:1px solid #1a1a28;border-radius:4px;border-left:3px solid #ffcc00;"><b style="color:#ff8800">SNIPER</b><br>Cancels topmost enemy card in column (0 VP)</div>
+    <div style="font-size:14px;color:#666;padding:8px;border:1px solid #1a1a28;border-radius:4px;border-left:3px solid #cc44ff;"><b style="color:#cc44ff">AMBUSH</b><br>All adjacent enemies lose -1 to ALL 4 edges on placement</div>
     <div style="font-size:14px;color:#666;padding:8px;border:1px solid #1a1a28;border-radius:4px;border-left:3px solid #ffd700;"><b style="color:#ffd700">RESONATE</b><br>Adjacent ability-cards get +1 to their highest edge</div>
     <div style="font-size:14px;color:#666;padding:8px;border:1px solid #1a1a28;border-radius:4px;border-left:3px solid #9b59b6;"><b style="color:#9b59b6">ECHO</b><br>Double VP if row+col both won by this card</div>
   </div>
