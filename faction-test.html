@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>GALACTIC ZERO — Faction Test Harness</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #080810; color: #e0e0e0; font-family: 'Courier New', monospace; padding: 20px; }
+h1 { font-size: 18px; letter-spacing: 4px; color: #aa88ff; margin-bottom: 6px; }
+h2 { font-size: 13px; letter-spacing: 3px; color: #8866cc; margin: 24px 0 10px; }
+.subtitle { font-size: 10px; color: #444; letter-spacing: 2px; margin-bottom: 20px; }
+#runBtn {
+  background: #0a0a1e; border: 1px solid #8855ff; color: #aa88ff;
+  padding: 10px 28px; font-family: inherit; font-size: 11px; letter-spacing: 3px;
+  cursor: pointer; border-radius: 4px; margin-bottom: 20px; transition: all 0.2s;
+}
+#runBtn:hover { background: #1a0a2e; border-color: #aa77ff; }
+#runBtn:disabled { opacity: 0.4; cursor: default; }
+#progress { font-size: 10px; color: #555; letter-spacing: 2px; margin-bottom: 20px; min-height: 18px; }
+.section { margin-bottom: 32px; }
+/* Heatmap */
+.heatmap-wrap { overflow-x: auto; }
+table.heatmap { border-collapse: collapse; font-size: 10px; }
+table.heatmap th { background: #0e0c1e; color: #666; padding: 5px 8px; letter-spacing: 1px; font-size: 9px; white-space: nowrap; }
+table.heatmap td { padding: 5px 10px; text-align: center; border: 1px solid #1a1a28; font-size: 11px; font-weight: bold; min-width: 48px; }
+/* Ability table */
+table.stats { border-collapse: collapse; width: 100%; font-size: 11px; }
+table.stats th { background: #0e0c1e; color: #666; padding: 7px 12px; text-align: left; letter-spacing: 1px; font-size: 9px; border: 1px solid #1a1a28; }
+table.stats td { padding: 7px 12px; border: 1px solid #1a1a28; }
+table.stats tr:nth-child(even) td { background: #0a0a16; }
+.warn { color: #ff8844; }
+.err  { color: #ff4444; font-weight: bold; }
+.ok   { color: #44cc66; }
+.dim  { color: #555; }
+/* Error log */
+.error-box { background: #1a0808; border: 1px solid #ff444433; border-radius: 5px; padding: 14px; font-size: 10px; line-height: 1.8; max-height: 300px; overflow-y: auto; }
+.error-box .e-line { color: #ff8844; }
+/* Balance score */
+.balance-score { font-size: 28px; font-weight: bold; margin: 8px 0; }
+.balance-label { font-size: 10px; letter-spacing: 2px; color: #666; }
+</style>
+</head>
+<body>
+
+<h1>GALACTIC ZERO</h1>
+<div class="subtitle">FACTION BALANCE TEST HARNESS — ~1000 AI vs AI SIMULATED GAMES</div>
+
+<button id="runBtn" onclick="runTests()">RUN SIMULATIONS</button>
+<div id="progress"></div>
+<div id="results"></div>
+
+<script>
+// ============================================================
+// CARD CONSTANTS — inlined from game.html
+// ============================================================
+
+const BROOD_CARDS = [
+  { id:'br_t1a', name:'HIVE NODE',       tier:'I',   zone:'wide_cross',  edges:{n:4,s:2,e:5,w:5}, power:1 },
+  { id:'br_t1b', name:'HIVE NODE',       tier:'I',   zone:'wide_cross',  edges:{n:5,s:2,e:4,w:5}, power:1 },
+  { id:'br_t1c', name:'HIVE NODE',       tier:'I',   zone:'wide_cross',  edges:{n:4,s:2,e:5,w:4}, power:1 },
+  { id:'br_t1d', name:'QUEEN CRADLE',    tier:'I',   zone:'wall',        edges:{n:3,s:2,e:5,w:5}, power:1 },
+  { id:'br_t1e', name:'BROOD ANCHOR',    tier:'I',   zone:'full_ring',   edges:{n:5,s:3,e:5,w:5}, power:2 },
+  { id:'br_t2a', name:'WARRIOR CLUSTER', tier:'II',  zone:'command',     edges:{n:6,s:3,e:6,w:6}, power:3 },
+  { id:'br_t2b', name:'SOLDIER MASS',    tier:'II',  zone:'launch',      edges:{n:7,s:3,e:5,w:6}, power:3 },
+  { id:'br_t2c', name:'BIOMECH FLEET',   tier:'II',  zone:'command',     edges:{n:6,s:3,e:7,w:5}, power:2 },
+  { id:'br_t3a', name:'SKIMMER',         tier:'III', zone:'flanker',     edges:{n:7,s:2,e:8,w:3}, power:3 },
+  { id:'br_t3b', name:'VOID SKIMMER',    tier:'III', zone:'flanker',     edges:{n:7,s:2,e:7,w:4}, power:2 },
+  { id:'br_t3c', name:'LARVAE STRIKE',   tier:'III', zone:'lance',       edges:{n:8,s:2,e:7,w:4}, power:2 },
+  { id:'br_t4',  name:'THE SOVEREIGN',   tier:'IV',  zone:'dreadnaught', edges:{n:8,s:5,e:8,w:7}, power:4 },
+  { id:'br_x1',  name:'HIVE NODE',       tier:'I',   zone:'wide_cross',  edges:{n:5,s:2,e:4,w:4}, power:1 },
+  { id:'br_x2',  name:'SWARM WING',      tier:'II',  zone:'flanker',     edges:{n:6,s:2,e:7,w:5}, power:3 },
+  { id:'br_x3',  name:'HIVE LANCE',      tier:'III', zone:'lance',       edges:{n:9,s:2,e:7,w:3}, power:2 },
+];
+const CRYSTALLIS_CARDS = [
+  { id:'cr_t1a', name:'CRYSTAL SHARD',   tier:'I',   zone:'wide_cross',  edges:{n:3,s:2,e:5,w:6}, power:1 },
+  { id:'cr_t1b', name:'SHARD CLUSTER',   tier:'I',   zone:'wide_cross',  edges:{n:3,s:2,e:6,w:5}, power:1 },
+  { id:'cr_t1c', name:'SILICA NODE',     tier:'I',   zone:'wide_cross',  edges:{n:4,s:1,e:5,w:6}, power:1 },
+  { id:'cr_t1d', name:'LATTICE WALL',    tier:'I',   zone:'wall',        edges:{n:3,s:2,e:5,w:5}, power:1 },
+  { id:'cr_t1e', name:'CRYSTAL CORE',    tier:'I',   zone:'full_ring',   edges:{n:4,s:2,e:5,w:5}, power:1 },
+  { id:'cr_t2a', name:'RESONANCE ARRAY', tier:'II',  zone:'command',     edges:{n:4,s:3,e:8,w:6}, power:2 },
+  { id:'cr_t2b', name:'PRISM BATTERY',   tier:'II',  zone:'launch',      edges:{n:4,s:3,e:7,w:7}, power:2 },
+  { id:'cr_t2c', name:'REFRACTION RING', tier:'II',  zone:'command',     edges:{n:5,s:2,e:7,w:7}, power:2 },
+  { id:'cr_t3a', name:'PRISM LANCE',     tier:'III', zone:'lance',       edges:{n:4,s:2,e:9,w:7}, power:3 },
+  { id:'cr_t3b', name:'SHARD BLADE',     tier:'III', zone:'flanker',     edges:{n:5,s:2,e:8,w:7}, power:3 },
+  { id:'cr_t3c', name:'FACET STRIKE',    tier:'III', zone:'lance',       edges:{n:4,s:2,e:8,w:8}, power:3 },
+  { id:'cr_t4',  name:'THE LATTICE',     tier:'IV',  zone:'dreadnaught', edges:{n:5,s:4,e:9,w:9}, power:4 },
+  { id:'cr_x1',  name:'SHARD SPIRE',     tier:'I',   zone:'wide_cross',  edges:{n:3,s:2,e:6,w:5}, power:1 },
+  { id:'cr_x2',  name:'LENS BATTERY',    tier:'II',  zone:'flanker',     edges:{n:4,s:2,e:8,w:7}, power:2 },
+  { id:'cr_x3',  name:'CRYSTAL LANCE',   tier:'III', zone:'lance',       edges:{n:5,s:2,e:9,w:6}, power:3 },
+];
+const MYCOS_CARDS = [
+  { id:'my_t1a', name:'SPORE ANCHOR',    tier:'I',   zone:'wide_cross',  edges:{n:4,s:4,e:4,w:4}, power:1 },
+  { id:'my_t1b', name:'FUNGAL GROWTH',   tier:'I',   zone:'wide_cross',  edges:{n:4,s:4,e:4,w:3}, power:1 },
+  { id:'my_t1c', name:'BLOOM SEED',      tier:'I',   zone:'wide_cross',  edges:{n:4,s:4,e:3,w:4}, power:1 },
+  { id:'my_t1d', name:'MYCO WALL',       tier:'I',   zone:'wall',        edges:{n:3,s:5,e:4,w:4}, power:1 },
+  { id:'my_t1e', name:'HYPHAE RING',     tier:'I',   zone:'full_ring',   edges:{n:4,s:5,e:3,w:4}, power:1 },
+  { id:'my_t2a', name:'MYCELIUM WEB',    tier:'II',  zone:'command',     edges:{n:5,s:6,e:5,w:5}, power:2 },
+  { id:'my_t2b', name:'SPORE CLOUD',     tier:'II',  zone:'launch',      edges:{n:5,s:6,e:6,w:4}, power:2 },
+  { id:'my_t2c', name:'TENDRIL SURGE',   tier:'II',  zone:'flanker',     edges:{n:6,s:5,e:5,w:5}, power:2 },
+  { id:'my_t3a', name:'BLOOM SURGE',     tier:'III', zone:'lance',       edges:{n:6,s:6,e:5,w:5}, power:3 },
+  { id:'my_t3b', name:'SPORE STRIKER',   tier:'III', zone:'flanker',     edges:{n:5,s:7,e:5,w:5}, power:3 },
+  { id:'my_t3c', name:'MOLD LANCE',      tier:'III', zone:'lance',       edges:{n:6,s:5,e:6,w:4}, power:3 },
+  { id:'my_t4',  name:'THE MYCELORD',    tier:'IV',  zone:'dreadnaught', edges:{n:7,s:7,e:7,w:7}, power:4 },
+  { id:'my_x1',  name:'FUNGAL NODE',     tier:'I',   zone:'wide_cross',  edges:{n:4,s:4,e:4,w:4}, power:1 },
+  { id:'my_x2',  name:'BLOOM BATTERY',   tier:'II',  zone:'command',     edges:{n:5,s:5,e:6,w:5}, power:2 },
+  { id:'my_x3',  name:'SPORE BLADE',     tier:'III', zone:'lance',       edges:{n:6,s:6,e:5,w:4}, power:3 },
+];
+const VEIL_CARDS = [
+  { id:'vl_t1a', name:'LIGHT ANCHOR',    tier:'I',   zone:'wide_cross',  edges:{n:8,s:1,e:3,w:3}, power:1 },
+  { id:'vl_t1b', name:'PHASE NODE',      tier:'I',   zone:'wide_cross',  edges:{n:7,s:1,e:4,w:3}, power:1 },
+  { id:'vl_t1c', name:'SHIMMER POINT',   tier:'I',   zone:'wide_cross',  edges:{n:8,s:1,e:3,w:4}, power:1 },
+  { id:'vl_t1d', name:'VEIL WALL',       tier:'I',   zone:'wall',        edges:{n:9,s:1,e:2,w:3}, power:1 },
+  { id:'vl_t1e', name:'PHOTON RING',     tier:'I',   zone:'full_ring',   edges:{n:7,s:2,e:3,w:4}, power:1 },
+  { id:'vl_t2a', name:'SHIMMER SCREEN',  tier:'II',  zone:'command',     edges:{n:9,s:2,e:5,w:5}, power:2 },
+  { id:'vl_t2b', name:'PHASE WING',      tier:'II',  zone:'launch',      edges:{n:9,s:1,e:6,w:5}, power:2 },
+  { id:'vl_t2c', name:'CLOAK ARRAY',     tier:'II',  zone:'flanker',     edges:{n:9,s:2,e:4,w:6}, power:2 },
+  { id:'vl_t3a', name:'NULL LANCE',      tier:'III', zone:'lance',       edges:{n:9,s:1,e:6,w:5}, power:3 },
+  { id:'vl_t3b', name:'BLINK STRIKER',   tier:'III', zone:'flanker',     edges:{n:9,s:1,e:7,w:4}, power:3 },
+  { id:'vl_t3c', name:'PHANTOM BLADE',   tier:'III', zone:'lance',       edges:{n:9,s:2,e:5,w:5}, power:3 },
+  { id:'vl_t4',  name:'THE REFRACTION',  tier:'IV',  zone:'dreadnaught', edges:{n:9,s:3,e:8,w:8}, power:4 },
+  { id:'vl_x1',  name:'GLIMMER NODE',    tier:'I',   zone:'wide_cross',  edges:{n:8,s:1,e:4,w:3}, power:1 },
+  { id:'vl_x2',  name:'PHASE BATTERY',   tier:'II',  zone:'command',     edges:{n:9,s:2,e:5,w:5}, power:2 },
+  { id:'vl_x3',  name:'GHOST LANCE',     tier:'III', zone:'lance',       edges:{n:9,s:1,e:6,w:5}, power:3 },
+];
+const ENTROPY_CARDS = [
+  { id:'en_t1a', name:'RUST ANCHOR',     tier:'I',   zone:'wide_cross',  edges:{n:2,s:6,e:4,w:4}, power:1 },
+  { id:'en_t1b', name:'DECAY NODE',      tier:'I',   zone:'wide_cross',  edges:{n:2,s:7,e:3,w:3}, power:1 },
+  { id:'en_t1c', name:'CORRODE POINT',   tier:'I',   zone:'wide_cross',  edges:{n:3,s:6,e:4,w:3}, power:1 },
+  { id:'en_t1d', name:'ENTROPY WALL',    tier:'I',   zone:'wall',        edges:{n:2,s:7,e:4,w:3}, power:1 },
+  { id:'en_t1e', name:'DECAY RING',      tier:'I',   zone:'full_ring',   edges:{n:3,s:6,e:3,w:4}, power:1 },
+  { id:'en_t2a', name:'CORRODE CLUSTER', tier:'II',  zone:'command',     edges:{n:3,s:8,e:5,w:5}, power:2 },
+  { id:'en_t2b', name:'RUST SURGE',      tier:'II',  zone:'launch',      edges:{n:4,s:8,e:5,w:4}, power:2 },
+  { id:'en_t2c', name:'BLIGHT MASS',     tier:'II',  zone:'command',     edges:{n:3,s:9,e:4,w:5}, power:2 },
+  { id:'en_t3a', name:'DISSOLUTION',     tier:'III', zone:'lance',       edges:{n:3,s:9,e:5,w:4}, power:3 },
+  { id:'en_t3b', name:'DECAY STRIKER',   tier:'III', zone:'flanker',     edges:{n:4,s:8,e:5,w:4}, power:3 },
+  { id:'en_t3c', name:'ENTROPY BLADE',   tier:'III', zone:'lance',       edges:{n:3,s:9,e:4,w:5}, power:3 },
+  { id:'en_t4',  name:'THE COLLAPSE',    tier:'IV',  zone:'dreadnaught', edges:{n:4,s:9,e:8,w:7}, power:4 },
+  { id:'en_x1',  name:'RUST NODE',       tier:'I',   zone:'wide_cross',  edges:{n:2,s:7,e:3,w:4}, power:1 },
+  { id:'en_x2',  name:'BLIGHT BATTERY',  tier:'II',  zone:'flanker',     edges:{n:3,s:9,e:5,w:4}, power:2 },
+  { id:'en_x3',  name:'DECAY LANCE',     tier:'III', zone:'lance',       edges:{n:4,s:8,e:5,w:4}, power:3 },
+];
+const VOID_CARDS = [
+  { id:'vo_t1a', name:'NULL NODE',       tier:'I',   zone:'wide_cross',  edges:{n:8,s:3,e:3,w:1}, power:1 },
+  { id:'vo_t1b', name:'DARK SEED',       tier:'I',   zone:'wide_cross',  edges:{n:9,s:2,e:3,w:1}, power:1 },
+  { id:'vo_t1c', name:'VOID ANCHOR',     tier:'I',   zone:'wide_cross',  edges:{n:8,s:2,e:4,w:1}, power:1 },
+  { id:'vo_t1d', name:'EVENT WALL',      tier:'I',   zone:'wall',        edges:{n:9,s:2,e:3,w:1}, power:1 },
+  { id:'vo_t1e', name:'GRAVITY RING',    tier:'I',   zone:'full_ring',   edges:{n:8,s:3,e:3,w:2}, power:1 },
+  { id:'vo_t2a', name:'DARK CLUSTER',    tier:'II',  zone:'command',     edges:{n:9,s:4,e:6,w:2}, power:2 },
+  { id:'vo_t2b', name:'VOID WING',       tier:'II',  zone:'launch',      edges:{n:9,s:3,e:7,w:2}, power:2 },
+  { id:'vo_t2c', name:'SHADOW MASS',     tier:'II',  zone:'command',     edges:{n:9,s:4,e:5,w:3}, power:2 },
+  { id:'vo_t3a', name:'SINGULARITY',     tier:'III', zone:'lance',       edges:{n:9,s:4,e:6,w:2}, power:3 },
+  { id:'vo_t3b', name:'VOID STRIKER',    tier:'III', zone:'flanker',     edges:{n:9,s:3,e:7,w:2}, power:3 },
+  { id:'vo_t3c', name:'DARK LANCE',      tier:'III', zone:'lance',       edges:{n:9,s:4,e:5,w:3}, power:3 },
+  { id:'vo_t4',  name:'THE ABYSS',       tier:'IV',  zone:'dreadnaught', edges:{n:9,s:6,e:9,w:4}, power:4 },
+  { id:'vo_x1',  name:'NULL SHARD',      tier:'I',   zone:'wide_cross',  edges:{n:9,s:2,e:3,w:1}, power:1 },
+  { id:'vo_x2',  name:'SHADOW BATTERY',  tier:'II',  zone:'flanker',     edges:{n:9,s:4,e:6,w:2}, power:2 },
+  { id:'vo_x3',  name:'VOID LANCE',      tier:'III', zone:'lance',       edges:{n:9,s:3,e:7,w:2}, power:3 },
+];
+const GAS_CARDS = [
+  { id:'gs_t1a', name:'STORM CELL',      tier:'I',   zone:'wide_cross',  edges:{n:6,s:6,e:2,w:2}, power:1 },
+  { id:'gs_t1b', name:'PLASMA NODE',     tier:'I',   zone:'wide_cross',  edges:{n:6,s:5,e:2,w:3}, power:1 },
+  { id:'gs_t1c', name:'ION SEED',        tier:'I',   zone:'wide_cross',  edges:{n:5,s:6,e:2,w:3}, power:1 },
+  { id:'gs_t1d', name:'STORM WALL',      tier:'I',   zone:'wall',        edges:{n:7,s:5,e:2,w:2}, power:1 },
+  { id:'gs_t1e', name:'PLASMA RING',     tier:'I',   zone:'full_ring',   edges:{n:6,s:6,e:2,w:2}, power:1 },
+  { id:'gs_t2a', name:'PLASMA WING',     tier:'II',  zone:'launch',      edges:{n:8,s:7,e:3,w:3}, power:2 },
+  { id:'gs_t2b', name:'ION SURGE',       tier:'II',  zone:'command',     edges:{n:7,s:8,e:3,w:3}, power:2 },
+  { id:'gs_t2c', name:'STORM MASS',      tier:'II',  zone:'flanker',     edges:{n:8,s:7,e:2,w:4}, power:2 },
+  { id:'gs_t3a', name:'TEMPEST LANCE',   tier:'III', zone:'lance',       edges:{n:8,s:8,e:3,w:3}, power:3 },
+  { id:'gs_t3b', name:'GALE STRIKER',    tier:'III', zone:'flanker',     edges:{n:9,s:7,e:3,w:3}, power:3 },
+  { id:'gs_t3c', name:'PLASMA BLADE',    tier:'III', zone:'lance',       edges:{n:8,s:8,e:2,w:4}, power:3 },
+  { id:'gs_t4',  name:'THE MAELSTROM',   tier:'IV',  zone:'dreadnaught', edges:{n:9,s:9,e:5,w:5}, power:4 },
+  { id:'gs_x1',  name:'ION NODE',        tier:'I',   zone:'wide_cross',  edges:{n:6,s:6,e:2,w:2}, power:1 },
+  { id:'gs_x2',  name:'STORM BATTERY',   tier:'II',  zone:'command',     edges:{n:7,s:8,e:3,w:3}, power:2 },
+  { id:'gs_x3',  name:'GALE LANCE',      tier:'III', zone:'lance',       edges:{n:8,s:8,e:3,w:3}, power:3 },
+];
+const LITHOS_CARDS = [
+  { id:'li_t1a', name:'STONE ANCHOR',    tier:'I',   zone:'wide_cross',  edges:{n:4,s:1,e:5,w:6}, power:1 },
+  { id:'li_t1b', name:'ROCK NODE',       tier:'I',   zone:'wide_cross',  edges:{n:3,s:1,e:6,w:6}, power:1 },
+  { id:'li_t1c', name:'BASALT POINT',    tier:'I',   zone:'wide_cross',  edges:{n:4,s:2,e:5,w:5}, power:1 },
+  { id:'li_t1d', name:'TECTONIC WALL',   tier:'I',   zone:'wall',        edges:{n:3,s:2,e:6,w:5}, power:1 },
+  { id:'li_t1e', name:'GEODE RING',      tier:'I',   zone:'full_ring',   edges:{n:4,s:1,e:5,w:6}, power:1 },
+  { id:'li_t2a', name:'TECTONIC CLUSTER',tier:'II',  zone:'command',     edges:{n:4,s:2,e:8,w:7}, power:2 },
+  { id:'li_t2b', name:'QUAKE SURGE',     tier:'II',  zone:'launch',      edges:{n:5,s:2,e:7,w:7}, power:2 },
+  { id:'li_t2c', name:'BASALT MASS',     tier:'II',  zone:'command',     edges:{n:4,s:3,e:7,w:7}, power:2 },
+  { id:'li_t3a', name:'SEISMIC LANCE',   tier:'III', zone:'lance',       edges:{n:4,s:2,e:8,w:8}, power:3 },
+  { id:'li_t3b', name:'ROCK STRIKER',    tier:'III', zone:'flanker',     edges:{n:5,s:2,e:7,w:8}, power:3 },
+  { id:'li_t3c', name:'GRAVEL BLADE',    tier:'III', zone:'lance',       edges:{n:4,s:2,e:9,w:7}, power:3 },
+  { id:'li_t4',  name:'THE MONOLITH',    tier:'IV',  zone:'dreadnaught', edges:{n:5,s:4,e:9,w:9}, power:4 },
+  { id:'li_x1',  name:'FLINT NODE',      tier:'I',   zone:'wide_cross',  edges:{n:3,s:2,e:5,w:6}, power:1 },
+  { id:'li_x2',  name:'SLATE BATTERY',   tier:'II',  zone:'flanker',     edges:{n:4,s:2,e:7,w:8}, power:2 },
+  { id:'li_x3',  name:'QUAKE LANCE',     tier:'III', zone:'lance',       edges:{n:5,s:2,e:8,w:7}, power:3 },
+];
+const QUANTUM_CARDS = [
+  { id:'qu_t1a', name:'PROBABILITY NODE',tier:'I',   zone:'wide_cross',  edges:{n:4,s:4,e:4,w:4}, power:1 },
+  { id:'qu_t1b', name:'SUPERPOSED SEED', tier:'I',   zone:'wide_cross',  edges:{n:4,s:4,e:3,w:5}, power:1 },
+  { id:'qu_t1c', name:'QUBIT ANCHOR',    tier:'I',   zone:'wide_cross',  edges:{n:5,s:4,e:4,w:3}, power:1 },
+  { id:'qu_t1d', name:'ENTANGLE WALL',   tier:'I',   zone:'wall',        edges:{n:4,s:4,e:4,w:4}, power:1 },
+  { id:'qu_t1e', name:'SPIN RING',       tier:'I',   zone:'full_ring',   edges:{n:4,s:3,e:5,w:4}, power:1 },
+  { id:'qu_t2a', name:'SUPERPOSED ARRAY',tier:'II',  zone:'command',     edges:{n:5,s:5,e:6,w:5}, power:2 },
+  { id:'qu_t2b', name:'QUBIT WING',      tier:'II',  zone:'launch',      edges:{n:6,s:5,e:5,w:5}, power:2 },
+  { id:'qu_t2c', name:'ENTANGLE MASS',   tier:'II',  zone:'flanker',     edges:{n:5,s:5,e:5,w:6}, power:2 },
+  { id:'qu_t3a', name:'WAVEFORM LANCE',  tier:'III', zone:'lance',       edges:{n:6,s:5,e:5,w:6}, power:3 },
+  { id:'qu_t3b', name:'COLLAPSE STRIKER',tier:'III', zone:'flanker',     edges:{n:5,s:5,e:6,w:6}, power:3 },
+  { id:'qu_t3c', name:'QUBIT BLADE',     tier:'III', zone:'lance',       edges:{n:6,s:6,e:5,w:5}, power:3 },
+  { id:'qu_t4',  name:'THE OBSERVER',    tier:'IV',  zone:'dreadnaught', edges:{n:7,s:7,e:7,w:7}, power:4 },
+  { id:'qu_x1',  name:'SPIN NODE',       tier:'I',   zone:'wide_cross',  edges:{n:4,s:4,e:4,w:4}, power:1 },
+  { id:'qu_x2',  name:'QUBIT BATTERY',   tier:'II',  zone:'command',     edges:{n:5,s:5,e:6,w:5}, power:2 },
+  { id:'qu_x3',  name:'COLLAPSE LANCE',  tier:'III', zone:'lance',       edges:{n:6,s:5,e:5,w:6}, power:3 },
+];
+const CHOIR_CARDS = [
+  { id:'ch_t1a', name:'HARMONIC NODE',   tier:'I',   zone:'wide_cross',  edges:{n:4,s:2,e:7,w:3}, power:1 },
+  { id:'ch_t1b', name:'RESONANCE SEED',  tier:'I',   zone:'wide_cross',  edges:{n:3,s:2,e:7,w:4}, power:1 },
+  { id:'ch_t1c', name:'SONIC ANCHOR',    tier:'I',   zone:'wide_cross',  edges:{n:4,s:2,e:8,w:2}, power:1 },
+  { id:'ch_t1d', name:'TONE WALL',       tier:'I',   zone:'wall',        edges:{n:3,s:2,e:7,w:4}, power:1 },
+  { id:'ch_t1e', name:'CHOIR RING',      tier:'I',   zone:'full_ring',   edges:{n:4,s:3,e:6,w:3}, power:1 },
+  { id:'ch_t2a', name:'RESONANCE CHOIR', tier:'II',  zone:'command',     edges:{n:5,s:3,e:9,w:4}, power:2 },
+  { id:'ch_t2b', name:'HARMONIC SURGE',  tier:'II',  zone:'launch',      edges:{n:5,s:4,e:8,w:4}, power:2 },
+  { id:'ch_t2c', name:'SONIC MASS',      tier:'II',  zone:'flanker',     edges:{n:4,s:3,e:9,w:5}, power:2 },
+  { id:'ch_t3a', name:'SONIC LANCE',     tier:'III', zone:'lance',       edges:{n:5,s:3,e:9,w:4}, power:3 },
+  { id:'ch_t3b', name:'TONE STRIKER',    tier:'III', zone:'flanker',     edges:{n:4,s:3,e:9,w:5}, power:3 },
+  { id:'ch_t3c', name:'DISCORD BLADE',   tier:'III', zone:'lance',       edges:{n:5,s:4,e:8,w:4}, power:3 },
+  { id:'ch_t4',  name:'THE CRESCENDO',   tier:'IV',  zone:'dreadnaught', edges:{n:6,s:5,e:9,w:7}, power:4 },
+  { id:'ch_x1',  name:'TONE NODE',       tier:'I',   zone:'wide_cross',  edges:{n:4,s:2,e:7,w:3}, power:1 },
+  { id:'ch_x2',  name:'CHORD BATTERY',   tier:'II',  zone:'command',     edges:{n:5,s:3,e:9,w:4}, power:2 },
+  { id:'ch_x3',  name:'SONIC BLADE',     tier:'III', zone:'lance',       edges:{n:4,s:3,e:9,w:5}, power:3 },
+];
+const TERRAN_CARDS = [
+  { id:'ta_t1a', name:'COLONY WORLD A',  tier:'I',   zone:'wide_cross',  edges:{n:5,s:2,e:5,w:4}, power:1 },
+  { id:'ta_t1b', name:'COLONY WORLD B',  tier:'I',   zone:'wide_cross',  edges:{n:4,s:2,e:4,w:6}, power:1 },
+  { id:'ta_t1c', name:'COLONY WORLD C',  tier:'I',   zone:'wide_cross',  edges:{n:5,s:2,e:5,w:3}, power:1 },
+  { id:'ta_t1d', name:'FRONTIER POST',   tier:'I',   zone:'wall',        edges:{n:7,s:2,e:3,w:3}, power:1 },
+  { id:'ta_t1e', name:'SUPPLY HUB',      tier:'I',   zone:'full_ring',   edges:{n:4,s:3,e:4,w:4}, power:2 },
+  { id:'ta_t2a', name:'BATTLE GROUP',    tier:'II',  zone:'command',     edges:{n:6,s:3,e:7,w:5}, power:3 },
+  { id:'ta_t2b', name:'CARRIER WING',    tier:'II',  zone:'launch',      edges:{n:7,s:3,e:5,w:6}, power:3 },
+  { id:'ta_t2c', name:'STRIKE FORCE',    tier:'II',  zone:'lance',       edges:{n:7,s:2,e:7,w:3}, power:2 },
+  { id:'ta_t3a', name:'INTERCEPTOR',     tier:'III', zone:'lance',       edges:{n:9,s:2,e:7,w:3}, power:3 },
+  { id:'ta_t3b', name:'FAST RUNNER',     tier:'III', zone:'flanker',     edges:{n:7,s:2,e:9,w:3}, power:2 },
+  { id:'ta_t3c', name:'FLANKER',         tier:'III', zone:'flanker',     edges:{n:8,s:2,e:6,w:4}, power:2 },
+  { id:'ta_t4',  name:'THE ACCORD',      tier:'IV',  zone:'dreadnaught', edges:{n:8,s:5,e:8,w:7}, power:4 },
+  { id:'ta_x1',  name:'MINING COLONY',   tier:'I',   zone:'wide_cross',  edges:{n:4,s:2,e:3,w:5}, power:1 },
+  { id:'ta_x2',  name:'GUNSHIP WING',    tier:'II',  zone:'command',     edges:{n:5,s:3,e:6,w:6}, power:3 },
+  { id:'ta_x3',  name:'GHOST RUNNER',    tier:'III', zone:'lance',       edges:{n:8,s:2,e:5,w:4}, power:2 },
+];
+
+const ALL_FACTIONS = {
+  terran: TERRAN_CARDS, brood: BROOD_CARDS, crystallis: CRYSTALLIS_CARDS,
+  mycos: MYCOS_CARDS, veil: VEIL_CARDS, entropy: ENTROPY_CARDS,
+  void: VOID_CARDS, gas: GAS_CARDS, lithos: LITHOS_CARDS,
+  quantum: QUANTUM_CARDS, choir: CHOIR_CARDS
+};
+const FACTION_NAMES = Object.keys(ALL_FACTIONS);
+
+const FACTION_ABILITY_POOLS = {
+  terran:     ['shield','double_strike','commander','flank','deciding_factor','birthright'],
+  brood:      ['spawn','sweep','rush','boost','hat_trick','overwhelm'],
+  crystallis: ['shield','commander','pierce','boost','echo','density'],
+  mycos:      ['boost','sweep','rush','commander','hat_trick','birthright'],
+  veil:       ['pierce','double_strike','flank','sweep','phantom','sniper'],
+  entropy:    ['mirror','sweep','shield','double_strike','intimidate','density'],
+  void:       ['double_strike','pierce','rush','flank','sniper','ambush'],
+  gas:        ['ambush','sweep','boost','flank','overwhelm','edge_play'],
+  lithos:     ['shield','commander','boost','pierce','stonewall','density'],
+  quantum:    ['pierce','double_strike','flank','rush','echo','deciding_factor'],
+  choir:      ['sweep','boost','double_strike','commander','mirror','hat_trick'],
+};
+
+// Zone expansion offsets
+const ZONES = {
+  wide_cross:  [{dr:-1,dc:0},{dr:-1,dc:-1},{dr:-1,dc:1},{dr:0,dc:-1},{dr:0,dc:1},{dr:1,dc:0},{dr:-2,dc:0}],
+  full_ring:   [{dr:-1,dc:-1},{dr:-1,dc:0},{dr:-1,dc:1},{dr:0,dc:-1},{dr:0,dc:1},{dr:1,dc:-1},{dr:1,dc:0},{dr:1,dc:1}],
+  wall:        [{dr:-1,dc:0},{dr:0,dc:-1},{dr:0,dc:-2},{dr:0,dc:1},{dr:0,dc:2},{dr:1,dc:0}],
+  command:     [{dr:-1,dc:-1},{dr:-1,dc:0},{dr:-1,dc:1},{dr:-2,dc:0},{dr:-2,dc:-1},{dr:-2,dc:1}],
+  launch:      [{dr:-1,dc:0},{dr:-2,dc:0},{dr:-1,dc:-1},{dr:-1,dc:1},{dr:-3,dc:0}],
+  lance:       [{dr:-1,dc:0},{dr:-2,dc:0}],
+  flanker:     [{dr:-1,dc:0},{dr:-1,dc:-1},{dr:-1,dc:1},{dr:-2,dc:0}],
+  dreadnaught: [{dr:-1,dc:0},{dr:-2,dc:0},{dr:0,dc:-1},{dr:0,dc:1},{dr:-1,dc:-1},{dr:-1,dc:1},{dr:1,dc:0}],
+};
+
+const DIRS4 = [
+  {dr:-1,dc:0,myE:'n',theirE:'s'},
+  {dr: 1,dc:0,myE:'s',theirE:'n'},
+  {dr: 0,dc:1,myE:'e',theirE:'w'},
+  {dr: 0,dc:-1,myE:'w',theirE:'e'},
+];
+
+// ============================================================
+// SIMULATION ENGINE — stripped of all DOM/sound/render calls
+// ============================================================
+
+let SIM = {}; // simulation game state
+
+function simGetValidPlacements(owner, card) {
+  if (card.ability === 'phantom') {
+    const [minR, maxR] = owner === 'p' ? [3,4] : [0,1];
+    const cells = [];
+    for (let r = minR; r <= maxR; r++)
+      for (let c = 0; c < 7; c++)
+        if (!SIM.grid[r][c].card) cells.push({r,c});
+    return cells;
+  }
+
+  const homeRow = owner === 'p' ? 4 : 0;
+  const fwd     = owner === 'p' ? 1 : -1;
+  const set     = new Set();
+
+  for (let c = 0; c < 7; c++)
+    if (!SIM.grid[homeRow][c].card) set.add(`${homeRow},${c}`);
+
+  if (card.ability === 'rush') {
+    const enemy = owner === 'p' ? 'a' : 'p';
+    for (let r = 0; r < 5; r++) {
+      for (let c = 0; c < 7; c++) {
+        if (SIM.grid[r][c].owner !== enemy || !SIM.grid[r][c].card) continue;
+        [{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}].forEach(({dr,dc}) => {
+          const nr=r+dr, nc=c+dc;
+          if (nr>=0&&nr<5&&nc>=0&&nc<7&&!SIM.grid[nr][nc].card) set.add(`${nr},${nc}`);
+        });
+      }
+    }
+    const enemyHome = owner === 'p' ? 0 : 4;
+    return [...set].map(s=>{const[r,c]=s.split(',').map(Number);return{r,c};}).filter(({r})=>r!==enemyHome);
+  }
+
+  for (let r = 0; r < 5; r++) {
+    for (let c = 0; c < 7; c++) {
+      const cell = SIM.grid[r][c];
+      if (cell.owner !== owner || !cell.card) continue;
+      const zoneKey = cell.card.zone || 'wide_cross';
+      const zoneOffsets = ZONES[zoneKey] || ZONES.wide_cross;
+      for (const {dr,dc} of zoneOffsets) {
+        const nr = r + dr * fwd, nc = c + dc;
+        if (nr>=0&&nr<5&&nc>=0&&nc<7&&!SIM.grid[nr][nc].card) set.add(`${nr},${nc}`);
+      }
+    }
+  }
+
+  let minAllowed, maxAllowed;
+  if (card.tier === 'I') { minAllowed = homeRow; maxAllowed = homeRow; }
+  else { minAllowed = 1; maxAllowed = 3; }
+
+  return [...set].map(s=>{const[r,c]=s.split(',').map(Number);return{r,c};})
+    .filter(({r})=>r>=minAllowed&&r<=maxAllowed);
+}
+
+function simApplyPlacementAbility(card, r, c, owner) {
+  const enemy = owner === 'p' ? 'a' : 'p';
+  card.edgeMod = card.edgeMod || {n:0,s:0,e:0,w:0};
+
+  if (card.ability === 'boost' || card.ability === 'commander' || card.ability === 'spawn') {
+    const bonus = (card.ability === 'commander' || card.ability === 'spawn') ? 2 : 1;
+    const requireSameTier = card.ability === 'commander' || card.ability === 'spawn';
+    DIRS4.forEach(({dr,dc}) => {
+      const nr=r+dr, nc=c+dc;
+      if (nr<0||nr>=5||nc<0||nc>=7) return;
+      const nb = SIM.grid[nr][nc];
+      if (nb.card && nb.owner === owner) {
+        if (requireSameTier && nb.card.tier !== card.tier) return;
+        nb.card.edgeMod = nb.card.edgeMod || {n:0,s:0,e:0,w:0};
+        nb.card.edgeMod.n += bonus; nb.card.edgeMod.s += bonus;
+        nb.card.edgeMod.e += bonus; nb.card.edgeMod.w += bonus;
+      }
+    });
+  }
+
+  if (card.ability === 'sweep') {
+    const base = card.edges, em = card.edgeMod || {n:0,s:0,e:0,w:0};
+    const vals = [base.n+em.n, base.s+em.s, base.e+em.e, base.w+em.w].sort((a,b)=>b-a);
+    const target = vals[1];
+    card.edgeMod = {
+      n: target - base.n, s: target - base.s,
+      e: target - base.e, w: target - base.w
+    };
+  }
+
+  if (card.ability === 'intimidate') {
+    DIRS4.forEach(({dr,dc}) => {
+      const nr=r+dr, nc=c+dc;
+      if (nr<0||nr>=5||nc<0||nc>=7) return;
+      const nb = SIM.grid[nr][nc];
+      if (!nb.card || nb.owner === owner) return;
+      nb.card.edgeMod = nb.card.edgeMod || {n:0,s:0,e:0,w:0};
+      const eff = {
+        n: nb.card.edges.n + nb.card.edgeMod.n,
+        s: nb.card.edges.s + nb.card.edgeMod.s,
+        e: nb.card.edges.e + nb.card.edgeMod.e,
+        w: nb.card.edges.w + nb.card.edgeMod.w,
+      };
+      const max = Math.max(eff.n, eff.s, eff.e, eff.w);
+      if (eff.n === max) nb.card.edgeMod.n -= 1;
+      else if (eff.s === max) nb.card.edgeMod.s -= 1;
+      else if (eff.e === max) nb.card.edgeMod.e -= 1;
+      else nb.card.edgeMod.w -= 1;
+    });
+  }
+
+  if (card.ability === 'mirror') {
+    const nC = r>0 ? SIM.grid[r-1][c] : null;
+    const sC = r<4 ? SIM.grid[r+1][c] : null;
+    const wC = c>0 ? SIM.grid[r][c-1] : null;
+    const eC = c<6 ? SIM.grid[r][c+1] : null;
+    if (nC?.card && nC.owner!==owner && sC?.card && sC.owner!==owner) {
+      const nc=nC.card, sc=sC.card;
+      nc.edgeMod = nc.edgeMod||{n:0,s:0,e:0,w:0};
+      sc.edgeMod = sc.edgeMod||{n:0,s:0,e:0,w:0};
+      const ncSeff = nc.edges.s + nc.edgeMod.s;
+      const scNeff = sc.edges.n + sc.edgeMod.n;
+      nc.edgeMod.s = scNeff - nc.edges.s;
+      sc.edgeMod.n = ncSeff - sc.edges.n;
+    }
+    if (wC?.card && wC.owner!==owner && eC?.card && eC.owner!==owner) {
+      const wc=wC.card, ec=eC.card;
+      wc.edgeMod = wc.edgeMod||{n:0,s:0,e:0,w:0};
+      ec.edgeMod = ec.edgeMod||{n:0,s:0,e:0,w:0};
+      const wcEeff = wc.edges.e + wc.edgeMod.e;
+      const ecWeff = ec.edges.w + ec.edgeMod.w;
+      wc.edgeMod.e = ecWeff - wc.edges.e;
+      ec.edgeMod.w = wcEeff - ec.edges.w;
+    }
+  }
+
+  if (card.ability === 'ambush') {
+    const adjEnemies = [];
+    DIRS4.forEach(({dr,dc}) => {
+      const nr=r+dr, nc=c+dc;
+      if (nr<0||nr>=5||nc<0||nc>=7) return;
+      const nb = SIM.grid[nr][nc];
+      if (nb.card && nb.owner !== owner) adjEnemies.push(nb.card);
+    });
+    adjEnemies.sort(()=>Math.random()-0.5).slice(0,2).forEach(tc => {
+      tc.edgeMod = tc.edgeMod||{n:0,s:0,e:0,w:0};
+      tc.edgeMod.n -= 1; tc.edgeMod.s -= 1;
+      tc.edgeMod.e -= 1; tc.edgeMod.w -= 1;
+    });
+    return { triggered: 'ambush', count: Math.min(adjEnemies.length, 2) };
+  }
+
+  if (card.ability === 'stonewall') {
+    card.stonewalled = true;
+    const adjEnemies = [];
+    DIRS4.forEach(({dr,dc}) => {
+      const nr=r+dr, nc=c+dc;
+      if (nr<0||nr>=5||nc<0||nc>=7) return;
+      const nb = SIM.grid[nr][nc];
+      if (nb.card && nb.owner !== owner) adjEnemies.push(nb.card);
+    });
+    adjEnemies.sort(()=>Math.random()-0.5).slice(0,2).forEach(tc => {
+      tc.stonewall_victim = true;
+    });
+    return { triggered: 'stonewall', count: adjEnemies.length, victimCount: Math.min(adjEnemies.length, 2) };
+  }
+
+  if (card.ability === 'sniper') {
+    const enemyHomeRow = owner === 'p' ? 0 : 4;
+    const target = SIM.grid[enemyHomeRow][c];
+    if (target.card && target.owner !== owner) {
+      target.card.sniped = true;
+      return { triggered: 'sniper', hit: true };
+    }
+    return { triggered: 'sniper', hit: false };
+  }
+
+  if (card.ability === 'hat_trick') {
+    if (r >= 1 && r <= 3) {
+      const northCell = SIM.grid[r-1][c];
+      const southCell = SIM.grid[r+1][c];
+      if (northCell?.card && northCell.owner===owner && southCell?.card && southCell.owner===owner) {
+        const bonusN = Math.floor(card.edges.n / 3);
+        northCell.card.edgeMod = northCell.card.edgeMod||{n:0,s:0,e:0,w:0};
+        northCell.card.edgeMod.s += bonusN;
+        northCell.card.edgeMod.e += bonusN;
+        northCell.card.edgeMod.w += bonusN;
+        const bonusS = Math.floor(card.edges.s / 3);
+        southCell.card.edgeMod = southCell.card.edgeMod||{n:0,s:0,e:0,w:0};
+        southCell.card.edgeMod.n += bonusS;
+        southCell.card.edgeMod.e += bonusS;
+        southCell.card.edgeMod.w += bonusS;
+        return { triggered: 'hat_trick' };
+      }
+    }
+    return { triggered: 'hat_trick', hit: false };
+  }
+
+  if (card.ability === 'phantom') {
+    return { triggered: 'phantom' };
+  }
+
+  return null;
+}
+
+function simComputeBattleResults() {
+  const b = Array(5).fill(null).map(()=>Array(7).fill(null).map(()=>({hW:0,hL:0,vW:0,vL:0})));
+
+  for (let r=0; r<5; r++) {
+    for (let c=0; c<7; c++) {
+      const cell = SIM.grid[r][c];
+      if (!cell.card) continue;
+
+      // H battle
+      if (c < 6) {
+        const east = SIM.grid[r][c+1];
+        if (east.card && east.owner !== cell.owner) {
+          const surgeBonus = (cell.card.ability==='surge' && SIM.surgeTrigger?.[cell.owner]) ? 3 : 0;
+          const me   = cell.card.edges.e + (cell.card.edgeMod?.e||0) + surgeBonus;
+          const them = east.card.edges.w + (east.card.edgeMod?.w||0);
+          const pierce = cell.card.ability==='pierce', pierceThem = east.card.ability==='pierce';
+          if (me > them || (me===them && pierce && !pierceThem)) {
+            b[r][c].hW++;
+            const hMargin = me - them;
+            if (cell.card.ability==='overwhelm' && hMargin>=3) b[r][c].vW++;
+            if (east.card.ability==='shield' && !east.card.shieldExpended) east.card.shieldExpended=true;
+            else b[r][c+1].hL++;
+            if (cell.card.ability==='double_strike' && c<5) {
+              const far = SIM.grid[r][c+2];
+              if (far.card && far.owner!==cell.owner) {
+                const me2 = Math.max(1,Math.floor(me/2));
+                if (me2 > (far.card.edges.w + (far.card.edgeMod?.w||0))) b[r][c+2].hL++;
+              }
+            }
+          } else if (them > me || (me===them && pierceThem && !pierce)) {
+            b[r][c+1].hW++;
+            const hMargin = them - me;
+            if (east.card.ability==='overwhelm' && hMargin>=3) b[r][c+1].vW++;
+            if (cell.card.ability==='shield' && !cell.card.shieldExpended) cell.card.shieldExpended=true;
+            else b[r][c].hL++;
+            if (east.card.ability==='double_strike' && c>1) {
+              const far = SIM.grid[r][c-1];
+              if (far.card && far.owner!==east.owner) {
+                const me2 = Math.max(1,Math.floor(them/2));
+                if (me2 > (far.card.edges.e + (far.card.edgeMod?.e||0))) b[r][c-1].hL++;
+              }
+            }
+          } else { b[r][c].hL++; b[r][c+1].hL++; }
+        }
+      }
+
+      // V battle
+      if (r < 4) {
+        const south = SIM.grid[r+1][c];
+        if (south.card && south.owner !== cell.owner) {
+          const me   = cell.card.edges.s + (cell.card.edgeMod?.s||0);
+          const them = south.card.edges.n + (south.card.edgeMod?.n||0);
+          if (me > them) {
+            b[r][c].vW++;
+            if (cell.card.ability==='overwhelm' && (me-them)>=3) b[r][c].hW++;
+            if (south.card.ability==='shield' && !south.card.shieldExpended) south.card.shieldExpended=true;
+            else b[r+1][c].vL++;
+            if (cell.card.ability==='double_strike' && r<3) {
+              const far = SIM.grid[r+2][c];
+              if (far.card && far.owner!==cell.owner) {
+                const me2 = Math.max(1,Math.floor(me/2));
+                if (me2 > (far.card.edges.n + (far.card.edgeMod?.n||0))) b[r+2][c].vL++;
+              }
+            }
+          } else if (me < them) {
+            b[r+1][c].vW++;
+            if (south.card.ability==='overwhelm' && (them-me)>=3) b[r+1][c].hW++;
+            if (cell.card.ability==='shield' && !cell.card.shieldExpended) cell.card.shieldExpended=true;
+            else b[r][c].vL++;
+            if (south.card.ability==='double_strike' && r>0) {
+              const far = SIM.grid[r-1][c];
+              if (far.card && far.owner!==south.owner) {
+                const me2 = Math.max(1,Math.floor(them/2));
+                if (me2 > (far.card.edges.s + (far.card.edgeMod?.s||0))) b[r-1][c].vL++;
+              }
+            }
+          } else { b[r][c].vL++; b[r+1][c].vL++; }
+        }
+      }
+    }
+  }
+
+  // EDGE PLAY wrap fights
+  for (let r=0; r<5; r++) {
+    for (let c=0; c<7; c++) {
+      const cell = SIM.grid[r][c];
+      if (!cell.card || cell.card.ability!=='edge_play') continue;
+      const ow = cell.owner;
+      if (c===0) {
+        const opp = SIM.grid[r][6];
+        if (opp.card && opp.owner!==ow) {
+          const me=cell.card.edges.w+(cell.card.edgeMod?.w||0), them=opp.card.edges.e+(opp.card.edgeMod?.e||0);
+          if (me>them){b[r][c].hW++;b[r][6].hL++;} else if(me<them){b[r][6].hW++;b[r][c].hL++;}
+        }
+      }
+      if (c===6) {
+        const opp = SIM.grid[r][0];
+        if (opp.card && opp.owner!==ow) {
+          const me=cell.card.edges.e+(cell.card.edgeMod?.e||0), them=opp.card.edges.w+(opp.card.edgeMod?.w||0);
+          if (me>them){b[r][c].hW++;b[r][0].hL++;} else if(me<them){b[r][0].hW++;b[r][c].hL++;}
+        }
+      }
+      if (r===0) {
+        const opp = SIM.grid[4][c];
+        if (opp.card && opp.owner!==ow) {
+          const me=cell.card.edges.n+(cell.card.edgeMod?.n||0), them=opp.card.edges.s+(opp.card.edgeMod?.s||0);
+          if (me>them){b[r][c].vW++;b[4][c].vL++;} else if(me<them){b[4][c].vW++;b[r][c].vL++;}
+        }
+      }
+      if (r===4) {
+        const opp = SIM.grid[0][c];
+        if (opp.card && opp.owner!==ow) {
+          const me=cell.card.edges.s+(cell.card.edgeMod?.s||0), them=opp.card.edges.n+(opp.card.edgeMod?.n||0);
+          if (me>them){b[r][c].vW++;b[0][c].vL++;} else if(me<them){b[0][c].vW++;b[r][c].vL++;}
+        }
+      }
+    }
+  }
+
+  for (let r=0; r<5; r++) for (let c=0; c<7; c++) {
+    const bb=b[r][c];
+    bb.h = bb.hW>bb.hL?'win':bb.hL>bb.hW?'lose':(bb.hW>0)?'tie':'none';
+    bb.v = bb.vW>bb.vL?'win':bb.vL>bb.vW?'lose':(bb.vW>0)?'tie':'none';
+  }
+  return b;
+}
+
+function simComputeScores() {
+  const battles = simComputeBattleResults();
+  const rows = Array(5).fill(null).map(()=>({p:0,a:0}));
+  const cols = Array(7).fill(null).map(()=>({p:0,a:0}));
+
+  for (let r=0; r<5; r++) for (let c=0; c<7; c++) {
+    const cell = SIM.grid[r][c];
+    if (!cell.card) continue;
+    if (cell.card.stonewalled || cell.card.stonewall_victim || cell.card.sniped) continue;
+    const bat = battles[r][c];
+    const countsH = bat.h==='win'||bat.h==='none';
+    const countsV = bat.v==='win'||bat.v==='none';
+    const basePower = cell.card.ability==='density' ? Math.ceil(cell.card.power*1.5) : cell.card.power;
+    if (countsH) { if(cell.owner==='p') rows[r].p+=basePower; else rows[r].a+=basePower; }
+    if (countsV) { if(cell.owner==='p') cols[c].p+=basePower; else cols[c].a+=basePower; }
+  }
+
+  let rowResults = rows.map(r=>r.p>r.a?'p':r.a>r.p?'a':'tie');
+  let colResults = cols.map(c=>c.p>c.a?'p':c.a>c.p?'a':'tie');
+
+  // DECIDING FACTOR: player ties become player wins
+  for (let r=0; r<5; r++) {
+    if (rowResults[r]==='tie') {
+      if (SIM.grid[r].some(cell=>cell.card&&cell.owner==='p'&&cell.card.ability==='deciding_factor'))
+        rowResults[r]='p';
+    }
+  }
+  for (let c=0; c<7; c++) {
+    if (colResults[c]==='tie') {
+      let hasDf=false;
+      for (let r=0;r<5;r++) { if(SIM.grid[r][c].card&&SIM.grid[r][c].owner==='p'&&SIM.grid[r][c].card.ability==='deciding_factor'){hasDf=true;break;} }
+      if (hasDf) colResults[c]='p';
+    }
+  }
+
+  let pVP=0, aVP=0;
+  rows.forEach(row=>{const net=row.p-row.a;if(net>0)pVP+=net;else if(net<0)aVP+=(-net);});
+  cols.forEach(col=>{const net=col.p-col.a;if(net>0)pVP+=net;else if(net<0)aVP+=(-net);});
+
+  // ECHO
+  for (let r=0;r<5;r++) for (let c=0;c<7;c++) {
+    const cell=SIM.grid[r][c];
+    if (!cell.card||cell.card.stonewalled||cell.card.stonewall_victim||cell.card.sniped) continue;
+    if (cell.card.ability==='echo') {
+      if (cell.owner==='p' && rowResults[r]==='p' && colResults[c]==='p') pVP+=cell.card.power;
+      if (cell.owner==='a' && rowResults[r]==='a' && colResults[c]==='a') aVP+=cell.card.power;
+    }
+  }
+
+  return { rows, cols, rowResults, colResults, pVP, aVP };
+}
+
+function simHasAnyMoves(owner) {
+  const hand = owner==='p' ? SIM.pHand : SIM.aHand;
+  return hand.filter(c=>!c.used).some(card=>simGetValidPlacements(owner,card).length>0);
+}
+
+function simAiTurn(owner) {
+  const hand = owner==='p' ? SIM.pHand : SIM.aHand;
+  const avail = hand.filter(c=>!c.used);
+  if (!avail.length) return false;
+
+  let best=-Infinity, bestCard=null, bestR=-1, bestC=-1;
+  for (const card of avail) {
+    for (const {r,c} of simGetValidPlacements(owner,card)) {
+      let score = card.power;
+      const s = simComputeScores();
+      if (s.rowResults[r]!==owner) score+=2;
+      if (s.colResults[c]!==owner) score+=2;
+      for (const d of DIRS4) {
+        const nr=r+d.dr, nc=c+d.dc;
+        if (nr<0||nr>=5||nc<0||nc>=7) continue;
+        const t=SIM.grid[nr][nc];
+        const enemy = owner==='p'?'a':'p';
+        if (t.card&&t.owner===enemy&&card.edges[d.myE]>t.card.edges[d.theirE]) score+=1;
+      }
+      // For AI side, forward = toward enemy (row 0 for 'p', row 4 for 'a')
+      const fwdRow = owner==='p' ? r : (4-r);
+      score += fwdRow * 0.2 + (2.5-Math.abs(2.5-c))*0.1 + Math.random()*0.5;
+      if (score>best){best=score;bestCard=card;bestR=r;bestC=c;}
+    }
+  }
+  if (bestCard&&bestR>=0) {
+    simPlaceCard(bestCard, bestR, bestC, owner);
+    return true;
+  }
+  return false;
+}
+
+function simPlaceCard(card, r, c, owner) {
+  SIM.grid[r][c] = { card, owner };
+  card.used = true;
+  const result = simApplyPlacementAbility(card, r, c, owner);
+
+  // Update surge trigger
+  if (!SIM.surgeTrigger) SIM.surgeTrigger = {p:false, a:false};
+  const s = simComputeScores();
+  SIM.surgeTrigger.p = s.rowResults.filter(r=>r==='a').length > s.rowResults.filter(r=>r==='p').length;
+  SIM.surgeTrigger.a = s.rowResults.filter(r=>r==='p').length > s.rowResults.filter(r=>r==='a').length;
+
+  return result;
+}
+
+function simAssignRandomAbilities(hand, raceId) {
+  hand.forEach(c=>{ c.ability=null; c.isSpecial=false; });
+  const pool = FACTION_ABILITY_POOLS[raceId] || ['shield','double_strike','boost','sweep','pierce','flank'];
+  const weighted = [];
+  hand.forEach(c=>{
+    const w = {I:1,II:2,III:3,IV:5}[c.tier]||1;
+    for (let i=0;i<w;i++) weighted.push(c);
+  });
+  const chosen = new Set();
+  const shuffled = weighted.sort(()=>Math.random()-0.5);
+  for (const card of shuffled) { if(chosen.size>=5)break; chosen.add(card); }
+  chosen.forEach(card=>{
+    card.ability = pool[Math.floor(Math.random()*pool.length)];
+    card.isSpecial = true;
+  });
+}
+
+function deepCloneDeck(cards) {
+  return cards.map(c=>({
+    ...c,
+    edges: {...c.edges},
+    edgeMod: {n:0,s:0,e:0,w:0},
+    ability: null,
+    shieldExpended: false,
+    used: false,
+    stonewalled: false,
+    stonewall_victim: false,
+    sniped: false,
+    isSpecial: false,
+    _flankUsed: false
+  }));
+}
+
+// Flip N<->S for the "AI" side (they attack downward)
+function flipDeck(cards) {
+  return cards.map(c=>({
+    ...c,
+    edges: { n:c.edges.s, s:c.edges.n, e:c.edges.e, w:c.edges.w },
+  }));
+}
+
+// ============================================================
+// TRACKING DATA
+// ============================================================
+
+const abilityStats = {};
+const ABILITY_LIST = [
+  'shield','double_strike','commander','flank','deciding_factor','birthright',
+  'spawn','sweep','rush','boost','hat_trick','overwhelm',
+  'pierce','echo','density','mirror','intimidate',
+  'phantom','sniper','ambush','stonewall','edge_play'
+];
+ABILITY_LIST.forEach(a=>{
+  abilityStats[a] = { triggers:0, wins:0, games:0, nan_errors:0, edge_cases:[] };
+});
+
+const factionMatrix = {};
+FACTION_NAMES.forEach(f1=>{
+  factionMatrix[f1]={};
+  FACTION_NAMES.forEach(f2=>{ factionMatrix[f1][f2]={p:0,a:0,games:0}; });
+});
+
+const errors = [];
+let totalGames = 0;
+let nanCount = 0;
+let infiniteLoopCount = 0;
+let negativeVpCount = 0;
+
+// ============================================================
+// SINGLE GAME SIMULATION
+// ============================================================
+
+function runOneGame(pFaction, aFaction) {
+  const pDeckBase = deepCloneDeck(ALL_FACTIONS[pFaction]);
+  const aDeckBase = deepCloneDeck(flipDeck(ALL_FACTIONS[aFaction]));
+
+  SIM = {
+    grid: Array(5).fill(null).map(()=>Array(7).fill(null).map(()=>({card:null,owner:null}))),
+    pHand: pDeckBase,
+    aHand: aDeckBase,
+    surgeTrigger: {p:false,a:false},
+    gameOver: false,
+  };
+
+  simAssignRandomAbilities(SIM.pHand, pFaction);
+  simAssignRandomAbilities(SIM.aHand, aFaction);
+
+  // BIRTHRIGHT: add bonus T2 card
+  if (SIM.pHand.some(c=>c.ability==='birthright')) {
+    SIM.pHand.push({id:'brt_p',name:'BONUS UNIT',tier:'II',zone:'wide_cross',
+      edges:{n:4,s:3,e:4,w:4},power:2,ability:null,edgeMod:{n:0,s:0,e:0,w:0},
+      shieldExpended:false,used:false,stonewalled:false,stonewall_victim:false,sniped:false,isSpecial:false});
+  }
+  if (SIM.aHand.some(c=>c.ability==='birthright')) {
+    SIM.aHand.push({id:'brt_a',name:'BONUS UNIT',tier:'II',zone:'wide_cross',
+      edges:{n:3,s:4,e:4,w:4},power:2,ability:null,edgeMod:{n:0,s:0,e:0,w:0},
+      shieldExpended:false,used:false,stonewalled:false,stonewall_victim:false,sniped:false,isSpecial:false});
+  }
+
+  // Collect abilities on each side for tracking
+  const pAbilities = SIM.pHand.filter(c=>c.ability).map(c=>c.ability);
+  const aAbilities = SIM.aHand.filter(c=>c.ability).map(c=>c.ability);
+  const allAbilities = [...new Set([...pAbilities, ...aAbilities])];
+  allAbilities.forEach(a=>{ if(abilityStats[a]) abilityStats[a].games++; });
+
+  let turn = 'p';
+  let maxTurns = 200;
+  let abilityTriggers = {};
+  const abilityEdgeCases = {};
+
+  while (maxTurns-- > 0) {
+    // Check win condition
+    let pCells=0, aCells=0;
+    for (let r=0;r<5;r++) for (let c=0;c<7;c++) {
+      if (SIM.grid[r][c].owner==='p') pCells++;
+      else if (SIM.grid[r][c].owner==='a') aCells++;
+    }
+    if (pCells>=17||aCells>=17) break;
+    const allDone = SIM.pHand.every(c=>c.used) && SIM.aHand.every(c=>c.used);
+    if (allDone) break;
+
+    const moved = simAiTurn(turn);
+
+    // FLANK: extra turn
+    const hand = turn==='p' ? SIM.pHand : SIM.aHand;
+    const lastPlaced = hand.find(c=>c.used && c.ability==='flank' && !c._flankUsed);
+    if (lastPlaced) {
+      lastPlaced._flankUsed = true;
+      if(abilityStats['flank']) abilityStats['flank'].triggers++;
+      abilityTriggers['flank'] = true;
+      // Extra turn for same player — don't switch
+      continue;
+    }
+
+    if (!moved) {
+      // No moves — switch sides
+      turn = turn==='p'?'a':'p';
+      if (!simHasAnyMoves(turn)) break; // neither can move
+      continue;
+    }
+    turn = turn==='p'?'a':'p';
+  }
+
+  if (maxTurns <= 0) {
+    infiniteLoopCount++;
+    errors.push(`Potential infinite loop: ${pFaction} vs ${aFaction}`);
+  }
+
+  // Final score
+  let s;
+  try {
+    s = simComputeScores();
+  } catch(e) {
+    errors.push(`Score computation error (${pFaction} vs ${aFaction}): ${e.message}`);
+    return null;
+  }
+
+  // Check for NaN/negative VP
+  if (isNaN(s.pVP) || isNaN(s.aVP)) {
+    nanCount++;
+    errors.push(`NaN VP detected: ${pFaction} vs ${aFaction} (pVP=${s.pVP} aVP=${s.aVP})`);
+    return null;
+  }
+  if (s.pVP < 0 || s.aVP < 0) {
+    negativeVpCount++;
+    errors.push(`Negative VP: ${pFaction} vs ${aFaction} (pVP=${s.pVP} aVP=${s.aVP})`);
+    return null;
+  }
+
+  const pWon = s.pVP > s.aVP;
+  const aWon = s.aVP > s.pVP;
+
+  // Record per-ability trigger rates & edge cases
+  // Walk the board and detect triggered abilities
+  for (let r=0;r<5;r++) for (let c=0;c<7;c++) {
+    const cell = SIM.grid[r][c];
+    if (!cell.card || !cell.card.ability) continue;
+    const ab = cell.card.ability;
+    if (!abilityStats[ab]) continue;
+    const owner = cell.owner;
+
+    // Detect triggers based on ability type
+    // Note: rush, phantom, birthright counted separately from hand scan below (skip here)
+    if (ab==='shield' && cell.card.shieldExpended) {
+      abilityStats[ab].triggers++;
+      if ((owner==='p'&&pWon)||(owner==='a'&&aWon)) abilityStats[ab].wins++;
+    }
+    const BOARD_COUNTED = ['boost','commander','spawn','sweep','intimidate','mirror','ambush',
+      'stonewall','sniper','hat_trick','deciding_factor','echo','overwhelm',
+      'density','double_strike','pierce','edge_play'];
+    if (BOARD_COUNTED.includes(ab)) {
+      abilityStats[ab].triggers++;
+      if ((owner==='p'&&pWon)||(owner==='a'&&aWon)) abilityStats[ab].wins++;
+    }
+
+    // Edge cases
+    if (ab==='stonewall' && cell.card.stonewalled) {
+      const adjEnemies = DIRS4.filter(({dr,dc})=>{
+        const nr=r+dr,nc=c+dc;
+        return nr>=0&&nr<5&&nc>=0&&nc<7&&SIM.grid[nr][nc].card&&SIM.grid[nr][nc].owner!==owner;
+      }).length;
+      if (adjEnemies===0) {
+        abilityStats[ab].edge_cases.push('STONEWALL with 0 adjacent enemies');
+      }
+    }
+    if (ab==='sniper') {
+      const enemyHomeRow = owner==='p'?0:4;
+      if (!SIM.grid[enemyHomeRow][c].card) {
+        if (!abilityStats[ab].edge_cases.includes('SNIPER: empty target column'))
+          abilityStats[ab].edge_cases.push('SNIPER: empty target column');
+      }
+    }
+    if (ab==='ambush') {
+      const adjEnemies = DIRS4.filter(({dr,dc})=>{
+        const nr=r+dr,nc=c+dc;
+        return nr>=0&&nr<5&&nc>=0&&nc<7&&SIM.grid[nr][nc].card&&SIM.grid[nr][nc].owner!==owner;
+      }).length;
+      if (adjEnemies===0) {
+        if (!abilityStats[ab].edge_cases.includes('AMBUSH with 0 adjacent enemies'))
+          abilityStats[ab].edge_cases.push('AMBUSH with 0 adjacent enemies');
+      }
+    }
+    if (ab==='hat_trick') {
+      // Check if it formed the vertical sandwich
+      const northCard = r>0&&SIM.grid[r-1][c].card&&SIM.grid[r-1][c].owner===owner;
+      const southCard = r<4&&SIM.grid[r+1][c].card&&SIM.grid[r+1][c].owner===owner;
+      if (!northCard||!southCard) {
+        if (!abilityStats[ab].edge_cases.includes('HAT TRICK: not sandwiched'))
+          abilityStats[ab].edge_cases.push('HAT TRICK: not sandwiched');
+      }
+    }
+    if (ab==='mirror') {
+      const nEnemy = r>0&&SIM.grid[r-1][c].card&&SIM.grid[r-1][c].owner!==owner;
+      const sEnemy = r<4&&SIM.grid[r+1][c].card&&SIM.grid[r+1][c].owner!==owner;
+      const wEnemy = c>0&&SIM.grid[r][c-1].card&&SIM.grid[r][c-1].owner!==owner;
+      const eEnemy = c<6&&SIM.grid[r][c+1].card&&SIM.grid[r][c+1].owner!==owner;
+      if (!((nEnemy&&sEnemy)||(wEnemy&&eEnemy))) {
+        if (!abilityStats[ab].edge_cases.includes('MIRROR: not sandwiched between enemies'))
+          abilityStats[ab].edge_cases.push('MIRROR: not sandwiched between enemies');
+      }
+    }
+    if (ab==='edge_play') {
+      if (c!==0&&c!==6&&r!==0&&r!==4) {
+        if (!abilityStats[ab].edge_cases.includes('EDGE PLAY: not on border'))
+          abilityStats[ab].edge_cases.push('EDGE PLAY: not on border');
+      }
+    }
+    if (ab==='echo') {
+      const battles = simComputeBattleResults();
+      const bat = battles[r][c];
+      const rowResults = simComputeScores().rowResults;
+      const colResults = simComputeScores().colResults;
+      if (rowResults[r]===owner && colResults[c]===owner) {
+        if (!abilityStats[ab].edge_cases.includes('ECHO: triggered double-score'))
+          abilityStats[ab].edge_cases.push('ECHO: triggered double-score');
+      }
+    }
+  }
+
+  // Hand-tracked abilities: flank (already tracked mid-game), rush, phantom, birthright
+  for (const card of [...SIM.pHand,...SIM.aHand]) {
+    const ow = SIM.pHand.includes(card) ? 'p' : 'a';
+    const cardWon = (ow==='p'&&pWon)||(ow==='a'&&aWon);
+    if (card.ability==='rush' && card.used) {
+      if(abilityStats['rush']) { abilityStats['rush'].triggers++; if(cardWon) abilityStats['rush'].wins++; }
+    }
+    if (card.ability==='phantom' && card.used) {
+      if(abilityStats['phantom']) { abilityStats['phantom'].triggers++; if(cardWon) abilityStats['phantom'].wins++; }
+    }
+    if (card.ability==='birthright') {
+      // birthright triggers at game start (bonus card spawned), count per game it was assigned
+      if(abilityStats['birthright']) { abilityStats['birthright'].triggers++; if(cardWon) abilityStats['birthright'].wins++; }
+    }
+    if (card.ability==='flank' && card._flankUsed) {
+      if(abilityStats['flank']) { if(cardWon) abilityStats['flank'].wins++; }
+    }
+  }
+
+  return { pVP: s.pVP, aVP: s.aVP, pWon, aWon };
+}
+
+// ============================================================
+// MAIN TEST RUNNER
+// ============================================================
+
+async function runTests() {
+  document.getElementById('runBtn').disabled = true;
+  document.getElementById('results').innerHTML = '';
+
+  // Reset stats
+  Object.keys(abilityStats).forEach(a=>{
+    abilityStats[a]={triggers:0,wins:0,games:0,nan_errors:0,edge_cases:[]};
+  });
+  FACTION_NAMES.forEach(f1=>{
+    FACTION_NAMES.forEach(f2=>{ factionMatrix[f1][f2]={p:0,a:0,games:0}; });
+  });
+  errors.length=0; totalGames=0; nanCount=0; infiniteLoopCount=0; negativeVpCount=0;
+
+  const GAMES_PER_MATCHUP = 8;
+  const total = FACTION_NAMES.length * FACTION_NAMES.length * GAMES_PER_MATCHUP;
+  let done = 0;
+  const prog = document.getElementById('progress');
+
+  // Run all matchups in async batches so the browser doesn't freeze
+  for (const pF of FACTION_NAMES) {
+    for (const aF of FACTION_NAMES) {
+      for (let g=0; g<GAMES_PER_MATCHUP; g++) {
+        const result = runOneGame(pF, aF);
+        totalGames++;
+        if (result) {
+          factionMatrix[pF][aF].games++;
+          if (result.pWon) factionMatrix[pF][aF].p++;
+          else if (result.aWon) factionMatrix[pF][aF].a++;
+        }
+        done++;
+      }
+      // Yield to browser every matchup
+      await new Promise(r=>setTimeout(r,0));
+      prog.textContent = `Simulated ${done} / ${total} games...`;
+    }
+  }
+
+  prog.textContent = `Simulation complete. ${totalGames} games run.`;
+  renderResults();
+  document.getElementById('runBtn').disabled = false;
+}
+
+// ============================================================
+// RESULTS RENDERER
+// ============================================================
+
+function heatColor(pct) {
+  // 50% = neutral gray; >50% = green; <50% = red
+  const t = (pct - 50) / 50; // -1 to 1
+  if (t > 0) {
+    const g = Math.round(t * 180);
+    return `background:rgba(0,${g+60},${g/2},0.35);color:#${Math.round(200+t*55).toString(16)}ff${Math.round(180+t*75).toString(16)};`;
+  } else {
+    const r = Math.round((-t) * 180);
+    return `background:rgba(${r+60},0,0,0.35);color:#ff${Math.round(180+(-t)*75).toString(16)}${Math.round(180+(-t)*75).toString(16)};`;
+  }
+}
+
+function renderResults() {
+  let html = '';
+
+  // ── 1. ERRORS & WARNINGS ──
+  html += `<div class="section">`;
+  html += `<h2>ERRORS &amp; WARNINGS</h2>`;
+  if (errors.length === 0 && nanCount === 0 && infiniteLoopCount === 0 && negativeVpCount === 0) {
+    html += `<div class="ok" style="font-size:12px;padding:10px 0;">No errors detected. All ${totalGames} games completed cleanly.</div>`;
+  } else {
+    html += `<div class="error-box">`;
+    if (nanCount>0) html += `<div class="e-line err">NaN VP errors: ${nanCount} games</div>`;
+    if (infiniteLoopCount>0) html += `<div class="e-line err">Possible infinite loops: ${infiniteLoopCount}</div>`;
+    if (negativeVpCount>0) html += `<div class="e-line err">Negative VP errors: ${negativeVpCount}</div>`;
+    errors.slice(0,30).forEach(e=>{ html += `<div class="e-line">${e}</div>`; });
+    if (errors.length>30) html += `<div class="dim">... and ${errors.length-30} more</div>`;
+    html += `</div>`;
+  }
+  html += `</div>`;
+
+  // ── 2. BALANCE SCORE ──
+  const allWinRates = [];
+  FACTION_NAMES.forEach(f=>{
+    let wins=0, games=0;
+    FACTION_NAMES.forEach(opp=>{ wins+=factionMatrix[f][opp].p; games+=factionMatrix[f][opp].games; });
+    // Also count as AI
+    FACTION_NAMES.forEach(opp=>{ wins+=factionMatrix[opp][f].a; games+=factionMatrix[opp][f].games; });
+    if (games>0) allWinRates.push(wins/games*100);
+  });
+  const avgWR = allWinRates.reduce((a,b)=>a+b,0)/allWinRates.length;
+  const stdDev = Math.sqrt(allWinRates.map(w=>(w-avgWR)**2).reduce((a,b)=>a+b,0)/allWinRates.length);
+  // Balance score: 100 - 2*stdDev (perfect=100, each % of std costs 2 pts)
+  const balanceScore = Math.max(0, Math.round(100 - 2 * stdDev));
+  const bColor = balanceScore >= 80 ? '#44cc66' : balanceScore >= 60 ? '#ffcc44' : '#ff4444';
+
+  html += `<div class="section">`;
+  html += `<h2>OVERALL BALANCE SCORE</h2>`;
+  html += `<div class="balance-score" style="color:${bColor}">${balanceScore}<span style="font-size:16px;color:#666;">/100</span></div>`;
+  html += `<div class="balance-label">StdDev of faction win rates: ${stdDev.toFixed(1)}% &nbsp;|&nbsp; Target: &lt;10% std for good balance</div>`;
+  html += `</div>`;
+
+  // ── 3. FACTION HEATMAP ──
+  html += `<div class="section">`;
+  html += `<h2>FACTION MATCHUP HEATMAP — WIN % as P1 (row) vs P2 (col)</h2>`;
+  html += `<div style="font-size:9px;color:#555;margin-bottom:8px;">Numbers show P1 win %. 50% = even. Green = P1 advantage. Red = P2 advantage. Mirror = overall symmetry check.</div>`;
+  html += `<div class="heatmap-wrap"><table class="heatmap"><tr><th>P1 \\ P2</th>`;
+  FACTION_NAMES.forEach(f=>{ html+=`<th>${f.toUpperCase().slice(0,4)}</th>`; });
+  html += `<th style="color:#8855ff">TOTAL</th></tr>`;
+  FACTION_NAMES.forEach(pF=>{
+    html += `<tr><th>${pF.toUpperCase()}</th>`;
+    let totalWins=0, totalGamesRow=0;
+    FACTION_NAMES.forEach(aF=>{
+      const m = factionMatrix[pF][aF];
+      if (m.games===0) { html+=`<td class="dim">-</td>`; return; }
+      const pct = Math.round(m.p/m.games*100);
+      totalWins+=m.p; totalGamesRow+=m.games;
+      const isSelf = pF===aF;
+      html += `<td style="${isSelf?'background:#0a0a18;color:#333;':heatColor(pct)}">${isSelf?'--':pct+'%'}</td>`;
+    });
+    const totalPct = totalGamesRow>0 ? Math.round(totalWins/totalGamesRow*100) : 0;
+    html += `<td style="background:#1a1a28;color:#aa88ff;font-weight:bold;">${totalPct}%</td>`;
+    html += `</tr>`;
+  });
+  html += `</table></div>`;
+
+  // Flag dominant/weak factions
+  html += `<div style="margin-top:12px;">`;
+  FACTION_NAMES.forEach(f=>{
+    let wins=0, games=0;
+    FACTION_NAMES.forEach(opp=>{ if(opp!==f){wins+=factionMatrix[f][opp].p; games+=factionMatrix[f][opp].games;} });
+    if (games>0) {
+      const wr = wins/games*100;
+      if (wr>65) html+=`<div class="err" style="font-size:11px;">DOMINANT: ${f.toUpperCase()} wins ${wr.toFixed(0)}% as P1 (>65% threshold)</div>`;
+      if (wr<35) html+=`<div class="warn" style="font-size:11px;">WEAK: ${f.toUpperCase()} wins only ${wr.toFixed(0)}% as P1 (&lt;35% threshold)</div>`;
+    }
+  });
+  html += `</div></div>`;
+
+  // ── 4. ABILITY TRIGGER STATS ──
+  html += `<div class="section">`;
+  html += `<h2>ABILITY TRIGGER STATISTICS</h2>`;
+  html += `<table class="stats"><tr>
+    <th>ABILITY</th><th>GAMES WITH ABILITY</th><th>TRIGGERS</th><th>TRIGGER RATE</th>
+    <th>WIN RATE WHEN ON BOARD</th><th>EDGE CASES</th><th>STATUS</th>
+  </tr>`;
+
+  const sortedAbilities = [...ABILITY_LIST].sort((a,b)=>abilityStats[b].triggers-abilityStats[a].triggers);
+  sortedAbilities.forEach(ab=>{
+    const s = abilityStats[ab];
+    const trigRate = s.games>0 ? (s.triggers/s.games*100).toFixed(0) : 0;
+    const winRate = s.triggers>0 ? (s.wins/s.triggers*100).toFixed(0) : 'N/A';
+    const trigRateNum = parseInt(trigRate);
+    let status = '';
+    if (s.games===0) status = `<span class="dim">not assigned</span>`;
+    else if (s.triggers===0) status = `<span class="err">NEVER FIRES</span>`;
+    else if (trigRateNum>90) status = `<span class="warn">fires very often</span>`;
+    else status = `<span class="ok">ok</span>`;
+    const edgeCaseStr = s.edge_cases.length ? s.edge_cases.slice(0,3).join('; ') : '-';
+    html += `<tr>
+      <td style="color:#aa88ff;font-weight:bold;">${ab.toUpperCase()}</td>
+      <td>${s.games}</td>
+      <td>${s.triggers}</td>
+      <td style="${s.triggers===0&&s.games>0?'color:#ff4444;':'color:#e0e0e0;'}">${trigRate}%</td>
+      <td>${winRate}${winRate!=='N/A'?'%':''}</td>
+      <td style="font-size:9px;color:#666;max-width:220px;">${edgeCaseStr}</td>
+      <td>${status}</td>
+    </tr>`;
+  });
+  html += `</table></div>`;
+
+  // ── 5. FACTION ABILITY COVERAGE ──
+  html += `<div class="section">`;
+  html += `<h2>FACTION ABILITY POOL REFERENCE</h2>`;
+  html += `<table class="stats"><tr><th>FACTION</th><th>ABILITY POOL</th></tr>`;
+  FACTION_NAMES.forEach(f=>{
+    const pool = FACTION_ABILITY_POOLS[f]||[];
+    html += `<tr><td style="color:#aa88ff">${f.toUpperCase()}</td><td style="color:#888">${pool.join(', ')}</td></tr>`;
+  });
+  html += `</table></div>`;
+
+  document.getElementById('results').innerHTML = html;
+}
+</script>
+</body>
+</html>
