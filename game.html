@@ -2042,15 +2042,6 @@ function renderGrid() {
         };
       } else {
         div.classList.add('empty');
-        // Orange hazard blast bleeds into adjacent empty cells too
-        [{dr:-1,dc:0,de:'n'},{dr:1,dc:0,de:'s'},{dr:0,dc:-1,de:'w'},{dr:0,dc:1,de:'e'}].forEach(({dr,dc,de}) => {
-          const hr=r+dr, hc=c+dc;
-          if (hr<0||hr>=5||hc<0||hc>=7||G.grid[hr][hc].owner!=='hazard') return;
-          const gradDir = {n:'to bottom',s:'to top',w:'to right',e:'to left'}[de];
-          const blast = document.createElement('div');
-          blast.style.cssText = `position:absolute;inset:0;pointer-events:none;z-index:1;border-radius:4px;background:linear-gradient(${gradDir},#ff660044 0%,#ff440018 40%,transparent 60%);`;
-          div.appendChild(blast);
-        });
         // Tier indicator: row 4 = T1 home, rows 1-3 = T2+ battle zone, row 0 = AI home
         const _triHtml = r === 4
           ? `<div class="tri-dots"><span class="tri-d white"></span></div>`
@@ -2058,6 +2049,15 @@ function renderGrid() {
           ? `` // AI home — no player indicator
           : `<div class="tri-dots"><span class="tri-d green"></span><span class="tri-d green"></span><span class="tri-plus">+</span></div>`;
         div.innerHTML = _triHtml;
+        // Orange hazard blast bleeds into adjacent empty cells
+        [{dr:-1,dc:0,de:'n'},{dr:1,dc:0,de:'s'},{dr:0,dc:-1,de:'w'},{dr:0,dc:1,de:'e'}].forEach(({dr,dc,de}) => {
+          const hr=r+dr, hc=c+dc;
+          if (hr<0||hr>=5||hc<0||hc>=7||G.grid[hr][hc].owner!=='hazard') return;
+          const gradDir = {n:'to bottom',s:'to top',w:'to right',e:'to left'}[de];
+          const blast = document.createElement('div');
+          blast.style.cssText = `position:absolute;inset:0;pointer-events:none;z-index:2;border-radius:3px;background:linear-gradient(${gradDir},#ff660055 0%,#ff440022 42%,transparent 62%);`;
+          div.appendChild(blast);
+        });
         if (valid.some(v => v.r===r && v.c===c)) {
           div.classList.add('valid');
           // Persistent hazard warning icon on valid cells bordering a hazard
