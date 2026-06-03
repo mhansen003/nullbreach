@@ -2226,8 +2226,8 @@ function renderHand() {
       '<div class="hc-center"><span class="hc-power-center" style="color:'+factionC+'">'+card.power+'</span></div>' +
       (card.ability ? '<span class="hc-ability-tag" style="color:'+factionC+'">'+ab(card.ability)+'</span>' : '');
     div.onclick      = function() { onCardSelect(card); };
-    div.onmouseenter = function(e) { showTipDelayed(e, card); };
-    div.onmouseleave = cancelTipDelay;
+    div.onmouseenter = function(e) { showTip(e, card); };
+    div.onmouseleave = hideTip;
     div.draggable    = true;
     div.addEventListener('dragstart', function(e) {
       onCardSelect(card);
@@ -2255,25 +2255,32 @@ function renderHand() {
       wrap.appendChild(sh);
     }
 
-    // Front card
+    // Front card — same format as real hand cards: art bg + tier dots top-left
     var front = document.createElement('div');
-    front.style.cssText = 'position:absolute;top:0;left:0;width:106px;height:140px;border-radius:6px;background-color:#10101e;background-size:cover;background-position:center top;border:1px solid '+(canOpen?tCol+'55':'#1a1a28')+';box-shadow:'+(canOpen?'0 0 10px '+tCol+'22':'none')+';display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;transition:border-color 0.2s,box-shadow 0.2s,transform 0.15s;';
+    front.style.cssText = 'position:absolute;top:0;left:0;width:106px;height:140px;border-radius:6px;background-color:#10101e;background-size:cover;background-position:center top;border:1px solid '+(canOpen?tCol+'55':'#1a1a28')+';box-shadow:'+(canOpen?'0 0 10px '+tCol+'22':'none')+';overflow:hidden;transition:border-color 0.2s,box-shadow 0.2s,transform 0.15s;';
 
     if (cards[0] && cards[0].art) {
       front.style.backgroundImage = "url('"+cards[0].art+"')";
-      front.style.backgroundBlendMode = 'luminosity';
-      front.style.backgroundColor = '#08081888';
+      front.style.backgroundSize  = 'cover';
+      front.style.backgroundPosition = 'center top';
+      // Dim for collapsed state
+      front.style.filter = canOpen ? 'brightness(0.5)' : 'brightness(0.2) grayscale(1)';
     }
 
+    // Tier dots top-left — exact same format as hand cards
     var dots = Array.from({length:tNum}, function(){
-      return '<div style="width:9px;height:9px;border-radius:50%;background:'+(canOpen?tCol:'#2a2a3a')+';box-shadow:'+(canOpen?'0 0 6px '+tCol:'none')+'"></div>';
+      return '<span style="width:5px;height:5px;border-radius:50%;background:'+tCol+';box-shadow:0 0 3px '+tCol+';display:inline-block;"></span>';
     }).join('');
 
+    // Count badge top-right (only if >1 card)
+    var countBadge = cards.length > 1
+      ? '<div style="position:absolute;top:4px;right:4px;background:#000000cc;border:1px solid '+tCol+'44;border-radius:10px;padding:1px 5px;font-size:9px;font-weight:bold;color:'+tCol+';font-family:\'Courier New\',monospace;">'+cards.length+'</div>'
+      : '';
+
     front.innerHTML =
-      '<div style="display:flex;gap:4px;">'+dots+'</div>' +
-      '<div style="font-family:\'Orbitron\',monospace;font-size:9px;letter-spacing:2px;color:'+(canOpen?tCol:'#2a2a3a')+';">TIER '+tier+'</div>' +
-      '<div style="font-size:15px;font-weight:bold;color:'+(canOpen?'#ccc':'#333')+';font-family:\'Courier New\',monospace;">'+cards.length+'</div>' +
-      (locked>0 ? '<div style="font-size:8px;color:#444;letter-spacing:1px;">+'+locked+' locked</div>' : '');
+      '<div style="position:absolute;top:4px;left:4px;display:flex;gap:2px;z-index:2;">'+dots+'</div>' +
+      countBadge +
+      (locked>0 ? '<div style="position:absolute;bottom:4px;right:4px;font-size:8px;color:#444;">+'+locked+'</div>' : '');
 
     wrap.appendChild(front);
 
@@ -2311,21 +2318,47 @@ function renderHand() {
     var tCol     = TIER_COLORS[tier] || '#888';
 
     if (isActive && cards.length > 0) {
-      // EXPANDED: fan out all cards individually
-      cards.forEach(function(card, idx) {
-        var div = buildCard(card, idx);
-        // Extra tier-color border to show this tier is active
-        var ag2 = card.ability ? ', inset 0 0 24px #ff0000ee' : '';
-        var borderC = card.ability ? '#ff3333' : tCol;
-        div.style.borderColor = borderC;
-        div.style.boxShadow   = G.selectedCard===card
-          ? '0 0 22px '+borderC+'88, 0 0 44px '+borderC+'44'+ag2
-          : '0 0 14px '+borderC+'66, 0 0 0 1px '+borderC+'44'+ag2;
+      if (cards.length === 1 && !autoExpand) {
+        // Single card — show as normal card (no group wrapper needed)
+        var div = buildCard(cards[0], 0);
         el.appendChild(div);
-      });
+      } else {
+        // EXPANDED: wrap cards in a tier group with border/bg showing they're related
+        var group = document.createElement('div');
+        group.style.cssText = 'display:flex;gap:8px;align-items:flex-end;flex-shrink:0;' +
+          'padding:8px 10px 6px;border-radius:10px;' +
+          'background:' + tCol + '08;' +
+          'border:1px solid ' + tCol + '33;' +
+          'box-shadow:0 0 12px ' + tCol + '11;' +
+          'position:relative;';
+        // Tiny tier label at top-left of group
+        var lbl = document.createElement('div');
+        lbl.style.cssText = 'position:absolute;top:-8px;left:10px;background:#080810;padding:0 6px;font-size:7px;letter-spacing:2px;color:'+tCol+';font-family:\'Courier New\',monospace;border:1px solid '+tCol+'44;border-radius:3px;';
+        lbl.textContent = 'TIER ' + tier;
+        group.appendChild(lbl);
+
+        cards.forEach(function(card, idx) {
+          var div = buildCard(card, idx);
+          // Active tier cards get tier-color border
+          var ag2 = card.ability ? ', inset 0 0 24px #ff0000ee' : '';
+          var borderC = card.ability ? '#ff3333' : tCol;
+          div.style.borderColor = borderC;
+          div.style.boxShadow   = G.selectedCard===card
+            ? '0 0 22px '+borderC+'88, 0 0 44px '+borderC+'44'+ag2
+            : '0 0 12px '+borderC+'55, 0 0 0 1px '+borderC+'33'+ag2;
+          group.appendChild(div);
+        });
+        el.appendChild(group);
+      }
     } else {
-      // COLLAPSED: show as stacked thumbnail
-      el.appendChild(buildStack(tier, cards, locked));
+      // COLLAPSED: single card shows as normal card; multi = stacked thumbnail
+      if (cards.length === 1 && locked === 0) {
+        // Just one card — show flat, no stack effect
+        var div = buildCard(cards[0], 0);
+        el.appendChild(div);
+      } else {
+        el.appendChild(buildStack(tier, cards, locked));
+      }
     }
   });
 }
