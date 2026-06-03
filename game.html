@@ -1410,11 +1410,11 @@ const AI_CARDS = [
 // These are placed on the board at game start. They don't fight edge battles.
 // Any player or AI card adjacent to a hazard loses 2 from its effective power in VP scoring.
 const HAZARD_CARDS = [
-  { id:'hz_bh',  name:'BLACK HOLE',         art:'assets/cards/hazard/black_hole.png',        color:'#ff4400' },
-  { id:'hz_pp',  name:'PLASMA PULSE',        art:'assets/cards/hazard/plasma_pulse.png',       color:'#4488ff' },
-  { id:'hz_rg',  name:'RED GIANT',           art:'assets/cards/hazard/red_giant.png',          color:'#ff2200' },
-  { id:'hz_psr', name:'PULSAR',              art:'assets/cards/hazard/pulsar.png',             color:'#88ddff' },
-  { id:'hz_td',  name:'TIME DISPLACEMENT',   art:'assets/cards/hazard/time_displacement.png',  color:'#aa44ff' },
+  { id:'hz_bh',  name:'BLACK HOLE',        video:'assets/cards/hazard/black_hole.mp4',        color:'#ff4400' },
+  { id:'hz_pp',  name:'PLASMA PULSE',       video:'assets/cards/hazard/plasma_pulse.mp4',       color:'#4488ff' },
+  { id:'hz_rg',  name:'RED GIANT',          video:'assets/cards/hazard/red_giant.mp4',          color:'#ff2200' },
+  { id:'hz_psr', name:'PULSAR',             video:'assets/cards/hazard/pulsar.mp4',             color:'#88ddff' },
+  { id:'hz_td',  name:'TIME DISPLACEMENT',  video:'assets/cards/hazard/time_displacement.mp4',  color:'#aa44ff' },
 ];
 
 // ── STATE ─────────────────────────────────────
@@ -1833,14 +1833,18 @@ function renderGrid() {
       div.dataset.r = r; div.dataset.c = c;
 
       if (cell.card && cell.owner === 'hazard') {
-        // Cosmic hazard — render as distinct obstacle, no edges/battles
         div.classList.add('hazard');
-        div.style.backgroundImage = `url('${cell.card.art || ''}')`;
-        div.style.backgroundSize = 'cover';
-        div.style.backgroundPosition = 'center';
-        const _hzCol = cell.card.color || '#ff4400';
-        div.innerHTML = `<div style="position:absolute;bottom:4px;left:0;right:0;text-align:center;font-family:'Orbitron',monospace;font-size:8px;letter-spacing:1px;color:${_hzCol};text-shadow:0 0 6px ${_hzCol};">⚠ ${cell.card.name}</div>`;
+        div.style.overflow = 'hidden';
         div.style.cursor = 'default';
+        const _hzCol = cell.card.color || '#ff4400';
+        // Video fills the cell; overlay shows hazard name
+        div.innerHTML = `
+          <video autoplay loop muted playsinline style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;pointer-events:none;">
+            <source src="${cell.card.video}" type="video/mp4">
+          </video>
+          <div style="position:absolute;inset:0;background:linear-gradient(transparent 60%,${_hzCol}22);z-index:1;pointer-events:none;"></div>
+          <div style="position:absolute;bottom:4px;left:0;right:0;text-align:center;font-family:'Orbitron',monospace;font-size:7px;letter-spacing:1px;color:${_hzCol};text-shadow:0 0 6px ${_hzCol};z-index:2;">⚠ ${cell.card.name}</div>
+        `;
       } else if (cell.card) {
         div.classList.add(cell.owner);
         div.style.backgroundImage = `url('${cell.card.art || ''}')`;
