@@ -969,6 +969,13 @@ button, [onclick] { touch-action: manipulation; }
   <div class="hand-cards" id="handCards"></div>
 </div>
 
+<!-- Multiplayer waiting overlay -->
+<div id="mpWaitOverlay" style="display:none;position:fixed;inset:0;z-index:50000;background:#000000aa;backdrop-filter:blur(3px);align-items:center;justify-content:center;flex-direction:column;gap:16px;font-family:'Share Tech Mono',monospace;">
+  <div style="font-family:'Orbitron',monospace;font-size:18px;letter-spacing:4px;color:#8855ff;text-shadow:0 0 20px #8855ff66;">OPPONENT'S TURN</div>
+  <div style="font-size:12px;color:#555;letter-spacing:2px;">Waiting for their move...</div>
+  <div id="mpWaitDots" style="font-size:20px;color:#8855ff;letter-spacing:8px;">● ○ ○</div>
+</div>
+
 <div class="overlay" id="overlay">
   <div class="overlay-title" id="overlayTitle">BREACH COMPLETE</div>
   <div class="overlay-sub" id="overlaySub"></div>
@@ -3362,6 +3369,17 @@ function onCellClick(r, c) {
 
   if (G.gameOver) return;
 
+  // MULTIPLAYER: submit move and wait for opponent instead of aiTurn
+  if (_mpRoom && _mpPlayer) {
+    const seed = Math.floor(Math.random() * 1000000);
+    window._mpSeed = seededRand(seed);
+    mpSubmitMove(G.selectedCard?.id || 'unknown', r, c, seed).then(() => {
+      if (!G.gameOver && !G.playerHand.every(c=>c.used)) mpStartPolling();
+      else checkWin();
+    });
+    return;
+  }
+
   if (!hasAnyMoves('ai')) {
     G.turn = 'player';
     addLog('system', 'AI has no moves -- your turn again');
@@ -3966,6 +3984,112 @@ document.addEventListener('click', ev => {
     if (sfx) { sfx.currentTime = 0; sfx.volume = 0.4; sfx.play().catch(()=>{}); }
   }
 }, true);
+
+// ── MULTIPLAYER ENGINE ────────────────────────────────────────────────────────
+const _SB_URL = 'https://mstpkwxxhsspivtngfnm.supabase.co';
+const _SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1zdHBrd3h4aHNzcGl2dG5nZm5tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0NTE2MTcsImV4cCI6MjA5NjAyNzYxN30.B0F-e_mGzv5kbjwOa2yw499OfsZ3qJDXdoyrCu2tNiI';
+const _SB_H   = { 'apikey':_SB_KEY, 'Authorization':'Bearer '+_SB_KEY, 'Content-Type':'application/json' };
+
+// Seeded PRNG for deterministic AMBUSH/STONEWALL picks (both clients get same result)
+function seededRand(seed) {
+  let s = seed;
+  return function() { s = (s * 1664525 + 1013904223) & 0xffffffff; return (s >>> 0) / 0xffffffff; };
+}
+
+// Detect multiplayer params
+const _mpParams = new URLSearchParams(window.location.search);
+const _mpRoom   = _mpParams.get('room');
+const _mpPlayer = parseInt(_mpParams.get('player') || '0'); // 1 or 2, 0 = single player
+const _mpP2Fac  = _mpParams.get('p2faction') || ''; // P1 knows P2's faction from room
+
+let _mpTurnNum  = 0;   // moves processed so far
+let _mpPollInt  = null; // polling interval handle
+let _mpMyTurn   = _mpPlayer === 1; // P1 goes first
+
+// Show/hide the "WAITING FOR OPPONENT" overlay
+function mpShowWaiting(show) {
+  const ov = document.getElementById('mpWaitOverlay');
+  if (ov) ov.style.display = show ? 'flex' : 'none';
+}
+
+// Submit player's move to Supabase
+async function mpSubmitMove(cardId, r, c, seed) {
+  const move = { player:_mpPlayer, turn:_mpTurnNum, cardId, r, c, seed };
+  // Fetch current moves array first, then append
+  const res = await fetch(`${_SB_URL}/rest/v1/gz_rooms?id=eq.${_mpRoom}&select=moves`, { headers:_SB_H });
+  const data = await res.json();
+  const moves = (data[0]?.moves || []);
+  moves.push(move);
+  await fetch(`${_SB_URL}/rest/v1/gz_rooms?id=eq.${_mpRoom}`, {
+    method:'PATCH', headers:_SB_H,
+    body: JSON.stringify({ moves, updated_at: new Date().toISOString() })
+  });
+  _mpTurnNum++;
+}
+
+// Reconstruct opponent's card object from cardId
+function mpFindCard(cardId, opponentFaction) {
+  const allDecks = {
+    terran:PLAYER_CARDS, brood:BROOD_CARDS, crystallis:CRYSTALLIS_CARDS,
+    mycos:MYCOS_CARDS, veil:VEIL_CARDS, entropy:ENTROPY_CARDS,
+    void:VOID_CARDS, gas:GAS_CARDS, lithos:LITHOS_CARDS,
+    quantum:QUANTUM_CARDS, choir:CHOIR_CARDS
+  };
+  const deck = allDecks[opponentFaction] || [];
+  return deck.find(c => c.id === cardId) || null;
+}
+
+// Apply opponent's move (received from Supabase)
+function mpApplyMove(move) {
+  const opFaction = _mpPlayer === 1 ? _mpP2Fac : window.playerRaceId;
+  let card = mpFindCard(move.cardId, opFaction ? (window.aiRaceId||opFaction) : opFaction);
+  if (!card) { console.warn('MP: card not found', move.cardId); return; }
+  // Find the card in aiHand (it might have been modified by abilities/edgeMod)
+  const handCard = G.aiHand.find(c => c.id === move.cardId && !c.used) || {...card, used:false, shieldExpended:false, edgeMod:{n:0,s:0,e:0,w:0}};
+  // Use seeded random for AMBUSH/STONEWALL so both clients get same sides
+  if (move.seed) window._mpSeed = seededRand(move.seed);
+  animateAiCard(handCard, move.r, move.c);
+  _mpTurnNum++;
+  _mpMyTurn = true;
+}
+
+// Poll Supabase for opponent's move
+function mpStartPolling() {
+  if (_mpPollInt) clearInterval(_mpPollInt);
+  mpShowWaiting(true);
+  _mpPollInt = setInterval(async () => {
+    try {
+      const res = await fetch(`${_SB_URL}/rest/v1/gz_rooms?id=eq.${_mpRoom}&select=moves,status`, { headers:_SB_H });
+      const data = await res.json();
+      if (!data[0]) return;
+      if (data[0].status === 'done') { clearInterval(_mpPollInt); return; }
+      const moves = data[0].moves || [];
+      if (moves.length > _mpTurnNum) {
+        const nextMove = moves[_mpTurnNum];
+        if (nextMove.player !== _mpPlayer) { // it's opponent's move
+          clearInterval(_mpPollInt); _mpPollInt = null;
+          mpShowWaiting(false);
+          setTimeout(() => mpApplyMove(nextMove), 300);
+        }
+      }
+    } catch(e) { console.warn('MP poll error', e); }
+  }, 2000);
+}
+
+// ── MULTIPLAYER HOOKS ON onCellClick ─────────────────────────────────────────
+// Overrides the normal aiTurn call with multiplayer move submission
+const _origOnCellClick = window.onCellClick;
+if (_mpRoom && _mpPlayer) {
+  // After game init, replace turn flow with MP version
+  window.addEventListener('load', () => {
+    // P2 waits for P1's first move
+    if (_mpPlayer === 2) {
+      G.turn = 'ai'; // disable player input until P1 moves
+      renderScoreHeader();
+      mpStartPolling();
+    }
+  });
+}
 
 // ── START ─────────────────────────────────────
 // Set active deck from URL param BEFORE initGame reads it

@@ -1524,6 +1524,25 @@ function showOpponentPicker() {
   modal.style.display = 'flex';
 }
 
+// ── SUPABASE CONFIG ─────────────────────────────────────────────────────────
+const SB_URL = 'https://mstpkwxxhsspivtngfnm.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1zdHBrd3h4aHNzcGl2dG5nZm5tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0NTE2MTcsImV4cCI6MjA5NjAyNzYxN30.B0F-e_mGzv5kbjwOa2yw499OfsZ3qJDXdoyrCu2tNiI';
+const SB_HDR = { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json' };
+
+async function sbPost(path, body) {
+  return fetch(SB_URL + path, { method:'POST', headers:{...SB_HDR,'Prefer':'return=representation'}, body:JSON.stringify(body) });
+}
+async function sbPatch(path, body) {
+  return fetch(SB_URL + path, { method:'PATCH', headers:SB_HDR, body:JSON.stringify(body) });
+}
+async function sbGet(path) {
+  return fetch(SB_URL + path, { headers: SB_HDR });
+}
+
+function genRoomId() {
+  return Math.random().toString(36).substr(2,6).toUpperCase();
+}
+
 let _selectedMode = null;
 function selectMode(mode) {
   _selectedMode = mode;
@@ -1532,33 +1551,68 @@ function selectMode(mode) {
   const flow = document.getElementById('computerFlow');
 
   if (mode === 'computer') {
-    mc.style.borderColor = '#00ffcc';
-    mc.style.boxShadow = '0 0 28px #00ffcc55,0 0 0 1px #00ffcc44';
-    mc.style.transform = 'scale(1.04)';
-    mc.querySelector('img').style.filter = '';
-    mc.querySelector('.mode-check').style.display = 'flex';
-    mf.style.borderColor = '#1a1a28';
-    mf.style.boxShadow = 'none';
-    mf.style.transform = '';
-    mf.querySelector('img').style.filter = 'brightness(0.55)';
-    mf.querySelector('.mode-check').style.display = 'none';
-    // Reveal computer flow
+    mc.style.borderColor = '#00ffcc'; mc.style.boxShadow = '0 0 28px #00ffcc55,0 0 0 1px #00ffcc44'; mc.style.transform = 'scale(1.04)'; mc.querySelector('img').style.filter = ''; mc.querySelector('.mode-check').style.display = 'flex';
+    mf.style.borderColor = '#1a1a28'; mf.style.boxShadow = 'none'; mf.style.transform = ''; mf.querySelector('img').style.filter = 'brightness(0.55)'; mf.querySelector('.mode-check').style.display = 'none';
     flow.style.display = 'flex';
   } else {
-    mf.style.borderColor = '#8855ff';
-    mf.style.boxShadow = '0 0 28px #8855ff55,0 0 0 1px #8855ff44';
-    mf.style.transform = 'scale(1.04)';
-    mf.querySelector('img').style.filter = '';
-    mf.querySelector('.mode-check').style.display = 'flex';
-    mc.style.borderColor = '#1a1a28';
-    mc.style.boxShadow = 'none';
-    mc.style.transform = '';
-    mc.querySelector('img').style.filter = 'brightness(0.55)';
-    mc.querySelector('.mode-check').style.display = 'none';
+    mf.style.borderColor = '#8855ff'; mf.style.boxShadow = '0 0 28px #8855ff55,0 0 0 1px #8855ff44'; mf.style.transform = 'scale(1.04)'; mf.querySelector('img').style.filter = ''; mf.querySelector('.mode-check').style.display = 'flex';
+    mc.style.borderColor = '#1a1a28'; mc.style.boxShadow = 'none'; mc.style.transform = ''; mc.querySelector('img').style.filter = 'brightness(0.55)'; mc.querySelector('.mode-check').style.display = 'none';
     flow.style.display = 'none';
-    // TODO: show invite friend flow
-    alert('Invite friend multiplayer — coming soon!');
+    if (selectedRace) createRoom();
+    else alert('Please select your faction first, then choose Invite Friend.');
   }
+}
+
+async function createRoom() {
+  if (!selectedRace) return;
+  const roomId = genRoomId();
+  const inviteUrl = window.location.origin + window.location.pathname + '?room=' + roomId;
+
+  // POST room to Supabase
+  const resp = await sbPost('/rest/v1/gz_rooms', {
+    id: roomId,
+    p1_faction: selectedRace.id,
+    p1_color: selectedRace.color,
+    p1_name: selectedRace.name,
+    status: 'waiting',
+    moves: []
+  });
+
+  if (!resp.ok) { alert('Could not create room. Check Supabase connection.'); return; }
+
+  // Show invite modal
+  const m = document.createElement('div');
+  m.style.cssText = 'position:fixed;inset:0;z-index:200000;background:#000000ee;display:flex;align-items:center;justify-content:center;font-family:\'Share Tech Mono\',monospace;';
+  m.innerHTML = `
+    <div style="background:#07070f;border:1px solid #8855ff88;border-radius:12px;padding:32px 40px;max-width:480px;width:90%;text-align:center;box-shadow:0 0 60px #8855ff22;">
+      <div style="font-family:'Orbitron',monospace;font-size:18px;letter-spacing:4px;color:#8855ff;margin-bottom:6px;">INVITE SENT</div>
+      <div style="font-size:12px;color:#555;letter-spacing:2px;margin-bottom:24px;">Share this link with your opponent</div>
+      <div style="background:#0a0a18;border:1px solid #1a1a28;border-radius:6px;padding:12px;font-size:12px;color:#00ffcc;word-break:break-all;margin-bottom:16px;">${inviteUrl}</div>
+      <div style="display:flex;gap:12px;justify-content:center;margin-bottom:20px;">
+        <button onclick="navigator.clipboard.writeText('${inviteUrl}');this.textContent='COPIED ✓';" style="background:#0a1a2e;border:1px solid #00ffcc66;color:#00ffcc;font-family:inherit;font-size:12px;letter-spacing:2px;padding:10px 20px;cursor:pointer;border-radius:5px;">COPY LINK</button>
+        <a href="mailto:?subject=GALACTIC ZERO — Challenge&body=Join my game: ${inviteUrl}" style="background:#0d0a18;border:1px solid #8855ff66;color:#aa88ff;font-family:inherit;font-size:12px;letter-spacing:2px;padding:10px 20px;cursor:pointer;border-radius:5px;text-decoration:none;display:flex;align-items:center;">EMAIL LINK</a>
+      </div>
+      <div style="font-size:11px;color:#444;letter-spacing:1px;margin-bottom:20px;">Waiting for opponent to join...</div>
+      <div id="waitDots" style="font-size:18px;color:#8855ff;letter-spacing:8px;">● ○ ○</div>
+    </div>`;
+  document.body.appendChild(m);
+
+  // Animate waiting dots
+  const dots = ['● ○ ○','○ ● ○','○ ○ ●'];
+  let di=0;
+  const dotTimer = setInterval(() => { const el=document.getElementById('waitDots'); if(el) el.textContent=dots[di++%3]; }, 600);
+
+  // Poll for P2 joining
+  const pollRoom = setInterval(async () => {
+    const r = await sbGet(`/rest/v1/gz_rooms?id=eq.${roomId}&select=status,p2_faction`);
+    const data = await r.json();
+    if (data[0]?.status === 'playing') {
+      clearInterval(pollRoom); clearInterval(dotTimer); m.remove();
+      stopCivVoice();
+      const params = new URLSearchParams({ race: selectedRace.id, color: selectedRace.color, name: selectedRace.name });
+      window.location.href = `game.html?${params}&difficulty=${_selectedDifficulty}&room=${roomId}&player=1&p2faction=${data[0].p2_faction}`;
+    }
+  }, 2000);
 }
 // Reset mode when modal reopens
 function _resetMode() {
@@ -1615,6 +1669,67 @@ function startGame() {
 }
 
 // (startGame now routes through showOpponentPicker -> launchGame)
+
+// ── P2 JOIN DETECTION — fires if URL has ?room= param ────────────────────────
+(function() {
+  const _rp = new URLSearchParams(window.location.search);
+  const _roomId = _rp.get('room');
+  if (!_roomId) return; // normal load, no room
+
+  // Show a JOIN overlay on top of the splash — P2 picks faction and joins
+  window.addEventListener('DOMContentLoaded', () => {
+    const ov = document.createElement('div');
+    ov.style.cssText = 'position:fixed;inset:0;z-index:99998;background:#000000ee;backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;font-family:\'Share Tech Mono\',monospace;flex-direction:column;gap:20px;';
+    ov.innerHTML = `
+      <div style="font-family:'Orbitron',monospace;font-size:22px;letter-spacing:6px;color:#8855ff;text-shadow:0 0 24px #8855ff66;">YOU'VE BEEN CHALLENGED</div>
+      <div style="font-size:13px;color:#555;letter-spacing:2px;">Select your faction and join the battle</div>
+      <div id="joinRaceGrid" style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;max-width:700px;"></div>
+      <button id="joinBtn" disabled onclick="joinRoom('${_roomId}')" style="
+        background:#0a0a14;border:2px solid #2a2a3a;color:#444;
+        font-family:'Orbitron',monospace;font-size:14px;letter-spacing:4px;
+        padding:14px 40px;border-radius:6px;cursor:not-allowed;opacity:0.4;transition:all 0.3s;margin-top:8px;">
+        JOIN MATCH ▶
+      </button>`;
+    document.body.appendChild(ov);
+
+    let _joinRace = null;
+    // Build compact faction tiles
+    RACES.forEach(r => {
+      const tile = document.createElement('div');
+      tile.style.cssText = `position:relative;width:110px;height:70px;border-radius:8px;overflow:hidden;cursor:pointer;border:2px solid ${r.color}44;transition:all 0.2s;`;
+      tile.innerHTML = `<img src="${r.cover}" style="width:100%;height:100%;object-fit:cover;display:block;filter:brightness(0.5);">
+        <div style="position:absolute;bottom:0;left:0;right:0;padding:4px 6px;background:#000000cc;">
+          <div style="font-family:'Orbitron',monospace;font-size:8px;letter-spacing:1px;color:${r.color};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${r.name.replace('THE ','')}</div>
+        </div>`;
+      tile.onclick = () => {
+        _joinRace = r;
+        document.querySelectorAll('#joinRaceGrid > div').forEach(t => { t.style.borderColor = RACES.find(rr=>rr.cover===t.querySelector('img').src.split('/').slice(-2).join('/') || t.style.borderColor)?.color+'44' || '#1a1a28'; t.querySelector('img').style.filter = 'brightness(0.5)'; });
+        tile.style.borderColor = r.color;
+        tile.querySelector('img').style.filter = 'brightness(1)';
+        const btn = document.getElementById('joinBtn');
+        btn.disabled = false; btn.style.background='#1a0830'; btn.style.borderColor='#8855ff'; btn.style.color='#cc99ff'; btn.style.opacity='1'; btn.style.cursor='pointer';
+      };
+      document.getElementById('joinRaceGrid').appendChild(tile);
+    });
+
+    window._joinRace = () => _joinRace;
+  });
+})();
+
+async function joinRoom(roomId) {
+  const race = window._joinRace();
+  if (!race) return;
+  const btn = document.getElementById('joinBtn');
+  btn.textContent = 'JOINING...'; btn.disabled = true;
+
+  await sbPatch(`/rest/v1/gz_rooms?id=eq.${roomId}`, {
+    p2_faction: race.id, p2_color: race.color, p2_name: race.name, status: 'playing'
+  });
+
+  stopCivVoice();
+  const params = new URLSearchParams({ race: race.id, color: race.color, name: race.name });
+  window.location.href = `game.html?${params}&room=${roomId}&player=2`;
+}
 
 // Disable right-click on both splash and deck select screens
 document.addEventListener('contextmenu', e => e.preventDefault());
