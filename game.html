@@ -1118,9 +1118,10 @@ function initGame() {
 // NONE  = uncontested, always counts
 
 function computeBattleResults() {
-  // battle[r][c] = { h: 'win'|'lose'|'tie'|'none', v: 'win'|'lose'|'tie'|'none' }
+  // Use win/loss COUNTERS per axis — handles sandwiched cards correctly.
+  // A card winning one V but losing another gets net=0 → no contribution (floor(½)).
   const b = Array(5).fill(null).map(() =>
-    Array(7).fill(null).map(() => ({ h: 'none', v: 'none' }))
+    Array(7).fill(null).map(() => ({ hW:0, hL:0, vW:0, vL:0 }))
   );
 
   for (let r = 0; r < 5; r++) {
@@ -1132,45 +1133,37 @@ function computeBattleResults() {
       if (c < 6) {
         const east = G.grid[r][c+1];
         if (east.card && east.owner !== cell.owner) {
-          // SURGE: +3 if currently losing more rows (uses stored surge state)
           const surgeBonus = (cell.card.ability === 'surge' && G.surgeTrigger?.[cell.owner]) ? 3 : 0;
           const me = (cell.card.edges.e + (cell.card.edgeMod?.e || 0) + surgeBonus);
           const them = (east.card.edges.w + (east.card.edgeMod?.w || 0));
-          // PIERCE: ties go to this card
           const pierce = cell.card.ability === 'pierce';
           const pierceThem = east.card.ability === 'pierce';
           if (me > them || (me === them && pierce && !pierceThem)) {
-            b[r][c].h = 'win';
-            // Shield: block the first loss if east card has shield
+            b[r][c].hW++;
             if (east.card.ability === 'shield' && !east.card.shieldExpended) {
-              east.card.shieldExpended = true; // consume shield
-              // loss blocked — east card stays at 'none'
-            } else if (b[r][c+1].h !== 'win') b[r][c+1].h = 'lose';
-            // DOUBLE STRIKE: 2nd-depth hit at HALF strength
+              east.card.shieldExpended = true;
+            } else { b[r][c+1].hL++; }
+            // DOUBLE STRIKE 2nd hit at half strength
             if (cell.card.ability === 'double_strike' && c < 5) {
               const far = G.grid[r][c+2];
               if (far.card && far.owner !== cell.owner) {
                 const me2 = Math.max(1, Math.floor(me / 2));
-                const them2 = (far.card.edges.w + (far.card.edgeMod?.w || 0));
-                if (me2 > them2) { if (b[r][c+2].h !== 'win') b[r][c+2].h = 'lose'; }
+                if (me2 > (far.card.edges.w + (far.card.edgeMod?.w||0))) b[r][c+2].hL++;
               }
             }
           } else if (them > me || (me === them && pierceThem && !pierce)) {
-            b[r][c+1].h = 'win';
-            // Shield: block the first loss if west card has shield
+            b[r][c+1].hW++;
             if (cell.card.ability === 'shield' && !cell.card.shieldExpended) {
               cell.card.shieldExpended = true;
-              // loss blocked
-            } else if (b[r][c].h !== 'win') b[r][c].h = 'lose';
+            } else { b[r][c].hL++; }
             if (east.card.ability === 'double_strike' && c > 1) {
               const far = G.grid[r][c-1];
               if (far.card && far.owner !== east.owner) {
                 const me2 = Math.max(1, Math.floor(them / 2));
-                const them2 = (far.card.edges.e + (far.card.edgeMod?.e || 0));
-                if (me2 > them2) { if (b[r][c-1].h !== 'win') b[r][c-1].h = 'lose'; }
+                if (me2 > (far.card.edges.e + (far.card.edgeMod?.e||0))) b[r][c-1].hL++;
               }
             }
-          } else { b[r][c].h = 'tie'; b[r][c+1].h = 'tie'; }
+          } else { b[r][c].hL++; b[r][c+1].hL++; } // tie = neither wins
         }
       }
 
@@ -1180,32 +1173,47 @@ function computeBattleResults() {
         if (south.card && south.owner !== cell.owner) {
           const me = cell.card.edges.s, them = south.card.edges.n;
           if (me > them) {
-            b[r][c].v = 'win';
-            if (b[r+1][c].v !== 'win') b[r+1][c].v = 'lose';
-            // DOUBLE STRIKE south (cell attacks downward): contest r+2 at half strength
+            b[r][c].vW++;
+            b[r+1][c].vL++;
+            // DOUBLE STRIKE downward at half strength
             if (cell.card.ability === 'double_strike' && r < 3) {
               const far = G.grid[r+2][c];
               if (far.card && far.owner !== cell.owner) {
                 const me2 = Math.max(1, Math.floor(me / 2));
-                if (me2 > far.card.edges.n + (far.card.edgeMod?.n||0))
-                  { if (b[r+2][c].v !== 'win') b[r+2][c].v = 'lose'; }
+                if (me2 > (far.card.edges.n + (far.card.edgeMod?.n||0))) b[r+2][c].vL++;
               }
             }
           } else if (me < them) {
-            b[r+1][c].v = 'win';
-            if (b[r][c].v !== 'win') b[r][c].v = 'lose';
-            // DOUBLE STRIKE north (south card attacks upward): contest r-1 at half strength
+            b[r+1][c].vW++;
+            b[r][c].vL++;
+            // DOUBLE STRIKE upward at half strength
             if (south.card.ability === 'double_strike' && r > 0) {
               const far = G.grid[r-1][c];
               if (far.card && far.owner !== south.owner) {
                 const me2 = Math.max(1, Math.floor(them / 2));
-                if (me2 > far.card.edges.s + (far.card.edgeMod?.s||0))
-                  { if (b[r-1][c].v !== 'win') b[r-1][c].v = 'lose'; }
+                if (me2 > (far.card.edges.s + (far.card.edgeMod?.s||0))) b[r-1][c].vL++;
               }
             }
-          } else { b[r][c].v = 'tie'; b[r+1][c].v = 'tie'; }
+          } else { b[r][c].vL++; b[r+1][c].vL++; } // tie = neither wins
         }
       }
+    }
+  }
+
+  // ── Derive h/v strings from net counters (net win rule) ──────────────
+  // H: win if hW > hL; lose if hL > hW; tie if equal but > 0; none if both 0
+  // V: same. Win one / lose one = tie = 0 contribution (floor of ½ power).
+  for (let r = 0; r < 5; r++) {
+    for (let c = 0; c < 7; c++) {
+      const bb = b[r][c];
+      bb.h = bb.hW > bb.hL ? 'win'
+           : bb.hL > bb.hW ? 'lose'
+           : (bb.hW > 0)   ? 'tie'
+           : 'none';
+      bb.v = bb.vW > bb.vL ? 'win'
+           : bb.vL > bb.vW ? 'lose'
+           : (bb.vW > 0)   ? 'tie'
+           : 'none';
     }
   }
   return b;
@@ -1281,7 +1289,7 @@ function renderGrid() {
           ? (window.playerFactionColor || '#00ffcc')
           : (window.aiFactionColor     || '#ff0080');
         div.style.borderColor = factionCol;
-        const _bInner = cell.card.ability ? `, inset 0 0 20px #ff0000cc, inset 0 0 8px #ff000088` : '';
+        const _bInner = cell.card.ability ? `, inset 0 0 28px #ff0000ee, inset 0 0 10px #ff0000cc` : '';
         div.style.boxShadow = `0 0 10px ${factionCol}44${_bInner}`;
         const tierDotCol = TIER_COLORS[cell.card.tier] || '#888';
         const tierNum    = {'I':1,'II':2,'III':3,'IV':4}[cell.card.tier] || 1;
@@ -1816,11 +1824,12 @@ function renderHand() {
       div.style.animationDelay = `${idx * 55}ms`; // stagger when multiple unlock at once
     }
     if (card.art) div.style.backgroundImage = `url('${card.art}')`;
-    const _abilGlow = card.ability ? ', inset 0 0 18px #ff0000bb, inset 0 0 7px #ff000077' : '';
-    div.style.borderColor = factionC;
+    const _abilGlow = card.ability ? ', inset 0 0 24px #ff0000ee, inset 0 0 8px #ff0000cc' : '';
+    // Special ability: red border + inner glow; normal: faction color border
+    div.style.borderColor = card.ability ? '#ff3333' : factionC;
     div.style.boxShadow   = isSelected
-      ? `0 0 22px ${factionC}88, 0 0 44px ${factionC}44${_abilGlow}`
-      : `0 0 8px ${factionC}33${_abilGlow}`;
+      ? `0 0 22px ${card.ability?'#ff3333':factionC}88, 0 0 44px ${card.ability?'#ff3333':factionC}44${_abilGlow}`
+      : `0 0 10px ${card.ability?'#ff333344':factionC+'33'}${_abilGlow}`;
 
     div.innerHTML = `
       <span class="hc-e-n" style="color:${factionC}">${card.edges.n}</span>
