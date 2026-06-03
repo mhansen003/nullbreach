@@ -340,6 +340,16 @@ body {
   100% { opacity:0; transform:translateY(-20px) scale(0.9); }
 }
 
+/* AMBUSH / STONEWALL hit flash */
+@keyframes ambushHit {
+  0%   { box-shadow: 0 0 0 3px #cc44ff, 0 0 22px #cc44ff88, inset 0 0 18px #cc44ff44; border-color: #cc44ff !important; }
+  50%  { box-shadow: 0 0 0 5px #ff0088, 0 0 36px #ff008888, inset 0 0 28px #ff008844; border-color: #ff0088 !important; }
+  100% { box-shadow: none; border-color: inherit; }
+}
+.ambush-hit {
+  animation: ambushHit 0.8s ease forwards !important;
+}
+
 /* LOG — hidden, board takes full width */
 .log-panel {
   display: none !important;
@@ -1426,6 +1436,33 @@ function initGame() {
   const _aRace = window.aiRaceId     || 'entropy';
   assignRandomAbilities(G.playerHand, _pRace);
   assignRandomAbilities(G.aiHand,     _aRace);
+
+  // Ensure all cards have edgeMod initialized
+  G.playerHand.forEach(c => { if (!c.edgeMod) c.edgeMod = {n:0,s:0,e:0,w:0}; });
+  G.aiHand.forEach(c => { if (!c.edgeMod) c.edgeMod = {n:0,s:0,e:0,w:0}; });
+
+  // BIRTHRIGHT: if any player card has birthright ability, add bonus T2 unit
+  if (G.playerHand.some(c => c.ability === 'birthright')) {
+    const bonusCard = {
+      id: 'birthright_bonus',
+      name: 'BONUS UNIT',
+      tier: 'II',
+      tierLabel: 'BONUS',
+      zone: 'wide_cross',
+      edges: { n:4, s:3, e:4, w:4 },
+      power: 2,
+      ability: null,
+      abilityText: 'Spawned by BIRTHRIGHT',
+      art: G.playerHand.find(c => c.tier === 'II')?.art || '',
+      shieldExpended: false,
+      used: false,
+      edgeMod: { n:0, s:0, e:0, w:0 },
+      _isBirthrightBonus: true
+    };
+    G.playerHand.push(bonusCard);
+    addLog('system', 'BIRTHRIGHT — bonus T2 unit added to your hand');
+  }
+
   renderHand(); // re-evaluate eligibility now that abilities (e.g. RUSH) are assigned
   addLog('system', 'GAME START -- place from your home row');
 }
@@ -1460,6 +1497,9 @@ function computeBattleResults() {
           const pierceThem = east.card.ability === 'pierce';
           if (me > them || (me === them && pierce && !pierceThem)) {
             b[r][c].hW++;
+            const hMargin = me - them;
+            // OVERWHELM: H win by 3+ → bonus V win
+            if (cell.card.ability === 'overwhelm' && hMargin >= 3) b[r][c].vW++;
             if (east.card.ability === 'shield' && !east.card.shieldExpended) {
               east.card.shieldExpended = true;
             } else { b[r][c+1].hL++; }
@@ -1473,6 +1513,9 @@ function computeBattleResults() {
             }
           } else if (them > me || (me === them && pierceThem && !pierce)) {
             b[r][c+1].hW++;
+            const hMargin = them - me;
+            // OVERWHELM on east card
+            if (east.card.ability === 'overwhelm' && hMargin >= 3) b[r][c+1].vW++;
             if (cell.card.ability === 'shield' && !cell.card.shieldExpended) {
               cell.card.shieldExpended = true;
             } else { b[r][c].hL++; }
@@ -1491,9 +1534,13 @@ function computeBattleResults() {
       if (r < 4) {
         const south = G.grid[r+1][c];
         if (south.card && south.owner !== cell.owner) {
-          const me = cell.card.edges.s, them = south.card.edges.n;
+          const me = (cell.card.edges.s + (cell.card.edgeMod?.s || 0));
+          const them = (south.card.edges.n + (south.card.edgeMod?.n || 0));
           if (me > them) {
             b[r][c].vW++;
+            const margin = me - them;
+            // OVERWHELM: win by 3+ → bonus win on H axis too
+            if (cell.card.ability === 'overwhelm' && margin >= 3) b[r][c].hW++;
             // SHIELD V: south card blocks first V loss
             if (south.card.ability === 'shield' && !south.card.shieldExpended) {
               south.card.shieldExpended = true;
@@ -1508,6 +1555,9 @@ function computeBattleResults() {
             }
           } else if (me < them) {
             b[r+1][c].vW++;
+            const margin = them - me;
+            // OVERWHELM on south card
+            if (south.card.ability === 'overwhelm' && margin >= 3) b[r+1][c].hW++;
             // SHIELD V: cell (north card) blocks first V loss
             if (cell.card.ability === 'shield' && !cell.card.shieldExpended) {
               cell.card.shieldExpended = true;
@@ -1521,6 +1571,55 @@ function computeBattleResults() {
               }
             }
           } else { b[r][c].vL++; b[r+1][c].vL++; } // tie = neither wins
+        }
+      }
+    }
+  }
+
+  // ── EDGE PLAY: border cards fight opposite-edge enemies (wrap) ────────
+  for (let r = 0; r < 5; r++) {
+    for (let c = 0; c < 7; c++) {
+      const cell = G.grid[r][c];
+      if (!cell.card || cell.card.ability !== 'edge_play') continue;
+      const thisOwner = cell.owner;
+      // West border: wrap fight with col 6
+      if (c === 0) {
+        const opp = G.grid[r][6];
+        if (opp.card && opp.owner !== thisOwner) {
+          const me = cell.card.edges.w + (cell.card.edgeMod?.w||0);
+          const them = opp.card.edges.e + (opp.card.edgeMod?.e||0);
+          if (me > them) { b[r][c].hW++; b[r][6].hL++; }
+          else if (me < them) { b[r][6].hW++; b[r][c].hL++; }
+        }
+      }
+      // East border: wrap fight with col 0
+      if (c === 6) {
+        const opp = G.grid[r][0];
+        if (opp.card && opp.owner !== thisOwner) {
+          const me = cell.card.edges.e + (cell.card.edgeMod?.e||0);
+          const them = opp.card.edges.w + (opp.card.edgeMod?.w||0);
+          if (me > them) { b[r][c].hW++; b[r][0].hL++; }
+          else if (me < them) { b[r][0].hW++; b[r][c].hL++; }
+        }
+      }
+      // North border: wrap fight with row 4
+      if (r === 0) {
+        const opp = G.grid[4][c];
+        if (opp.card && opp.owner !== thisOwner) {
+          const me = cell.card.edges.n + (cell.card.edgeMod?.n||0);
+          const them = opp.card.edges.s + (opp.card.edgeMod?.s||0);
+          if (me > them) { b[r][c].vW++; b[4][c].vL++; }
+          else if (me < them) { b[4][c].vW++; b[r][c].vL++; }
+        }
+      }
+      // South border: wrap fight with row 0
+      if (r === 4) {
+        const opp = G.grid[0][c];
+        if (opp.card && opp.owner !== thisOwner) {
+          const me = cell.card.edges.s + (cell.card.edgeMod?.s||0);
+          const them = opp.card.edges.n + (opp.card.edgeMod?.n||0);
+          if (me > them) { b[r][c].vW++; b[0][c].vL++; }
+          else if (me < them) { b[0][c].vW++; b[r][c].vL++; }
         }
       }
     }
@@ -1559,35 +1658,85 @@ function computeScores() {
     for (let c = 0; c < 7; c++) {
       const cell = G.grid[r][c];
       if (!cell.card) continue;
+      // STONEWALL: this card or victim contributes 0 VP
+      if (cell.card.stonewalled || cell.card.stonewall_victim) continue;
+      // SNIPER: sniped card contributes 0 VP
+      if (cell.card.sniped) continue;
       const bat = battles[r][c];
       const countsH = bat.h === 'win' || bat.h === 'none';
       const countsV = bat.v === 'win' || bat.v === 'none';
-      if (countsH) { if (cell.owner==='player') rows[r].p += cell.card.power; else rows[r].a += cell.card.power; }
-      if (countsV) { if (cell.owner==='player') cols[c].p += cell.card.power; else cols[c].a += cell.card.power; }
+      // DENSITY: 1.5x power for player cards with this ability
+      const basePower = (cell.owner === 'player' && cell.card.ability === 'density')
+        ? Math.ceil(cell.card.power * 1.5)
+        : (cell.owner === 'ai' && cell.card.ability === 'density')
+          ? Math.ceil(cell.card.power * 1.5)
+          : cell.card.power;
+      if (countsH) { if (cell.owner==='player') rows[r].p += basePower; else rows[r].a += basePower; }
+      if (countsV) { if (cell.owner==='player') cols[c].p += basePower; else cols[c].a += basePower; }
     }
   }
 
   // Who wins each row/col (for badge coloring + chip display)
-  const rowResults = rows.map(r => r.p > r.a ? 'p' : r.a > r.p ? 'a' : 'tie');
-  const colResults = cols.map(c => c.p > c.a ? 'p' : c.a > c.p ? 'a' : 'tie');
+  let rowResults = rows.map(r => r.p > r.a ? 'p' : r.a > r.p ? 'a' : 'tie');
+  let colResults = cols.map(c => c.p > c.a ? 'p' : c.a > c.p ? 'a' : 'tie');
+
+  // DECIDING FACTOR: player ties become player wins
+  for (let r = 0; r < 5; r++) {
+    if (rowResults[r] === 'tie') {
+      const hasDf = G.grid[r].some(cell => cell.card && cell.owner === 'player' && cell.card.ability === 'deciding_factor');
+      if (hasDf) rowResults[r] = 'p';
+    }
+  }
+  for (let c = 0; c < 7; c++) {
+    if (colResults[c] === 'tie') {
+      let hasDf = false;
+      for (let r = 0; r < 5; r++) {
+        const cell = G.grid[r][c];
+        if (cell.card && cell.owner === 'player' && cell.card.ability === 'deciding_factor') { hasDf = true; break; }
+      }
+      if (hasDf) colResults[c] = 'p';
+    }
+  }
 
   // Net VP scoring: winner earns (their power − loser power) for each line
-  // A row with 6 vs 3 → winner gets 3 VP. A tie gets 0 for both.
-  let pWins = 0, aWins = 0; // line-win count (kept for breakdown display)
+  let pWins = 0, aWins = 0;
   rowResults.forEach(r => { if(r==='p')pWins++; if(r==='a')aWins++; });
   colResults.forEach(c => { if(c==='p')pWins++; if(c==='a')aWins++; });
 
   let pVP = 0, aVP = 0;
-  rows.forEach(row => {
+  rows.forEach((row, ri) => {
     const net = row.p - row.a;
     if (net > 0) pVP += net;
     else if (net < 0) aVP += (-net);
   });
-  cols.forEach(col => {
+  cols.forEach((col, ci) => {
     const net = col.p - col.a;
     if (net > 0) pVP += net;
     else if (net < 0) aVP += (-net);
   });
+
+  // ECHO: player card with echo in a row AND col both won → count its power again
+  for (let r = 0; r < 5; r++) {
+    for (let c = 0; c < 7; c++) {
+      const cell = G.grid[r][c];
+      if (!cell.card || cell.owner !== 'player' || cell.card.ability !== 'echo') continue;
+      if (cell.card.stonewalled || cell.card.stonewall_victim || cell.card.sniped) continue;
+      if (rowResults[r] === 'p' && colResults[c] === 'p') {
+        pVP += cell.card.power; // count once more (double total)
+      }
+    }
+  }
+  // AI ECHO too
+  for (let r = 0; r < 5; r++) {
+    for (let c = 0; c < 7; c++) {
+      const cell = G.grid[r][c];
+      if (!cell.card || cell.owner !== 'ai' || cell.card.ability !== 'echo') continue;
+      if (cell.card.stonewalled || cell.card.stonewall_victim || cell.card.sniped) continue;
+      if (rowResults[r] === 'a' && colResults[c] === 'a') {
+        aVP += cell.card.power;
+      }
+    }
+  }
 
   return { rows, cols, rowResults, colResults, pWins, aWins, pVP, aVP };
 }
@@ -1797,7 +1946,14 @@ function renderGrid() {
 }
 
 function ab(a) {
-  return {shield:'SHD', phantom:'PHT', chain:'CHN', double_strike:'DBL'}[a] || '';
+  return {
+    shield:'SHD', phantom:'PHT', chain:'CHN', double_strike:'DBL',
+    intimidate:'INT', mirror:'MRR', ambush:'AMB', stonewall:'STW',
+    sniper:'SNP', birthright:'BRT', deciding_factor:'DF', echo:'ECH',
+    overwhelm:'OVR', density:'DNS', hat_trick:'HAT', edge_play:'EPY',
+    boost:'BST', commander:'CMD', sweep:'SWP', flank:'FLK',
+    rush:'RSH', pierce:'PRC', spawn:'SPN', surge:'SRG'
+  }[a] || (a ? a.slice(0,3).toUpperCase() : '');
 }
 
 function renderBattleIndicators(el) {
@@ -2634,6 +2790,10 @@ function playCardSfx() {
 // Apply ability effects when a card is placed on the board
 function applyPlacementAbility(card, r, c, owner) {
   const dirs = [{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}];
+  const enemy = owner === 'player' ? 'ai' : 'player';
+
+  // Ensure edgeMod is initialized on the placed card
+  card.edgeMod = card.edgeMod || {n:0,s:0,e:0,w:0};
 
   // BOOST: adjacent friendly cards +1 all edges
   // COMMANDER: adjacent same-tier friendly cards +2 all edges
@@ -2655,22 +2815,161 @@ function applyPlacementAbility(card, r, c, owner) {
     if (card.ability === 'spawn') addLog('compare', `SPAWN: ${card.name} coordinates the hive — adjacent same-tier allies +2`);
   }
 
-  // SWEEP (Brood): normalise all edges to the 2nd highest edge value.
-  // e.g. edges 8/7/3/2 → 2nd highest = 7 → all edges become 7.
-  // Trades dominant-direction advantage for total coverage from all sides.
+  // SWEEP: normalise all edges to the 2nd highest edge value
   if (card.ability === 'sweep') {
     const base = card.edges;
     const existing = card.edgeMod || {n:0,s:0,e:0,w:0};
     const effN = base.n + existing.n, effS = base.s + existing.s;
     const effE = base.e + existing.e, effW = base.w + existing.w;
     const sorted = [effN, effS, effE, effW].sort((a,b) => b-a);
-    const target = sorted[1]; // 2nd highest effective edge
+    const target = sorted[1];
     card.edgeMod = {
       n: target - base.n, s: target - base.s,
       e: target - base.e, w: target - base.w,
     };
     addLog('compare', `SWEEP: ${card.name} normalises all edges to ${target} (2nd highest was ${sorted[0]}→${target})`);
   }
+
+  // INTIMIDATE: find adjacent enemies, reduce their highest edge by -1 via edgeMod
+  if (card.ability === 'intimidate') {
+    dirs.forEach(({dr,dc}) => {
+      const nr=r+dr, nc=c+dc;
+      if (nr<0||nr>=5||nc<0||nc>=7) return;
+      const nb = G.grid[nr][nc];
+      if (!nb.card || nb.owner === owner) return;
+      nb.card.edgeMod = nb.card.edgeMod || {n:0,s:0,e:0,w:0};
+      const effN = nb.card.edges.n + nb.card.edgeMod.n;
+      const effS = nb.card.edges.s + nb.card.edgeMod.s;
+      const effE = nb.card.edges.e + nb.card.edgeMod.e;
+      const effW = nb.card.edges.w + nb.card.edgeMod.w;
+      const max = Math.max(effN, effS, effE, effW);
+      let edgeName = 'N';
+      if (effN === max) { nb.card.edgeMod.n -= 1; edgeName = 'N'; }
+      else if (effS === max) { nb.card.edgeMod.s -= 1; edgeName = 'S'; }
+      else if (effE === max) { nb.card.edgeMod.e -= 1; edgeName = 'E'; }
+      else { nb.card.edgeMod.w -= 1; edgeName = 'W'; }
+      addLog('compare', `INTIMIDATE — ${nb.card.name} loses 1 from ${edgeName}`);
+    });
+  }
+
+  // MIRROR: sandwiched between enemies on same axis — swap their facing edges
+  if (card.ability === 'mirror') {
+    const northCell = (r > 0) ? G.grid[r-1][c] : null;
+    const southCell = (r < 4) ? G.grid[r+1][c] : null;
+    const westCell  = (c > 0) ? G.grid[r][c-1] : null;
+    const eastCell  = (c < 6) ? G.grid[r][c+1] : null;
+    const nEnemy = northCell && northCell.card && northCell.owner !== owner;
+    const sEnemy = southCell && southCell.card && southCell.owner !== owner;
+    const wEnemy = westCell  && westCell.card  && westCell.owner  !== owner;
+    const eEnemy = eastCell  && eastCell.card  && eastCell.owner  !== owner;
+    if (nEnemy && sEnemy) {
+      const nc = northCell.card, sc = southCell.card;
+      nc.edgeMod = nc.edgeMod || {n:0,s:0,e:0,w:0};
+      sc.edgeMod = sc.edgeMod || {n:0,s:0,e:0,w:0};
+      // Swap their facing edge effective values: nc's S and sc's N
+      const ncSeff = nc.edges.s + nc.edgeMod.s;
+      const scNeff = sc.edges.n + sc.edgeMod.n;
+      nc.edgeMod.s = scNeff - nc.edges.s;
+      sc.edgeMod.n = ncSeff - sc.edges.n;
+      addLog('compare', `MIRROR — ${nc.name} and ${sc.name} edges reversed (V)`);
+    }
+    if (wEnemy && eEnemy) {
+      const wc = westCell.card, ec = eastCell.card;
+      wc.edgeMod = wc.edgeMod || {n:0,s:0,e:0,w:0};
+      ec.edgeMod = ec.edgeMod || {n:0,s:0,e:0,w:0};
+      // Swap: wc's E and ec's W
+      const wcEeff = wc.edges.e + wc.edgeMod.e;
+      const ecWeff = ec.edges.w + ec.edgeMod.w;
+      wc.edgeMod.e = ecWeff - wc.edges.e;
+      ec.edgeMod.w = wcEeff - ec.edges.w;
+      addLog('compare', `MIRROR — ${wc.name} and ${ec.name} edges reversed (H)`);
+    }
+  }
+
+  // AMBUSH: randomly pick up to 2 adjacent enemies, weaken all 4 edges -1
+  if (card.ability === 'ambush') {
+    const adjEnemies = [];
+    dirs.forEach(({dr,dc}) => {
+      const nr=r+dr, nc=c+dc;
+      if (nr<0||nr>=5||nc<0||nc>=7) return;
+      const nb = G.grid[nr][nc];
+      if (nb.card && nb.owner !== owner) adjEnemies.push({r:nr, c:nc, card:nb.card});
+    });
+    // Shuffle and pick up to 2
+    adjEnemies.sort(() => Math.random() - 0.5);
+    const targets = adjEnemies.slice(0, 2);
+    const names = [];
+    targets.forEach(({r:nr, c:nc, card:tc}) => {
+      tc.edgeMod = tc.edgeMod || {n:0,s:0,e:0,w:0};
+      tc.edgeMod.n -= 1; tc.edgeMod.s -= 1;
+      tc.edgeMod.e -= 1; tc.edgeMod.w -= 1;
+      names.push(tc.name);
+      // Visual flash
+      const cellEl = document.querySelector(`.cell[data-r="${nr}"][data-c="${nc}"]`);
+      if (cellEl) {
+        cellEl.classList.add('ambush-hit');
+        setTimeout(() => cellEl.classList.remove('ambush-hit'), 850);
+      }
+    });
+    if (names.length) addLog('compare', `AMBUSH — ${names.join(', ')} weakened`);
+  }
+
+  // STONEWALL: mark this card + up to 2 adjacent enemies as VP-silent
+  if (card.ability === 'stonewall') {
+    card.stonewalled = true;
+    const adjEnemies = [];
+    dirs.forEach(({dr,dc}) => {
+      const nr=r+dr, nc=c+dc;
+      if (nr<0||nr>=5||nc<0||nc>=7) return;
+      const nb = G.grid[nr][nc];
+      if (nb.card && nb.owner !== owner) adjEnemies.push({r:nr, c:nc, card:nb.card});
+    });
+    adjEnemies.sort(() => Math.random() - 0.5);
+    const targets = adjEnemies.slice(0, 2);
+    targets.forEach(({r:nr, c:nc, card:tc}) => {
+      tc.stonewall_victim = true;
+      const cellEl = document.querySelector(`.cell[data-r="${nr}"][data-c="${nc}"]`);
+      if (cellEl) {
+        cellEl.classList.add('ambush-hit');
+        setTimeout(() => cellEl.classList.remove('ambush-hit'), 850);
+      }
+    });
+    addLog('compare', `STONEWALL — ${targets.length} enemies silenced (and self)`);
+  }
+
+  // SNIPER: silence enemy home-row card in this column
+  if (card.ability === 'sniper') {
+    const enemyHomeRow = owner === 'player' ? 0 : 4;
+    const target = G.grid[enemyHomeRow][c];
+    if (target.card && target.owner !== owner) {
+      target.card.sniped = true;
+      addLog('compare', `SNIPER — ${target.card.name} at row ${enemyHomeRow} col ${c} silenced`);
+    }
+  }
+
+  // HAT TRICK: middle of 3-card vertical line — spread N/S edges to flankers
+  if (card.ability === 'hat_trick') {
+    if (r >= 1 && r <= 3) {
+      const northCell = G.grid[r-1][c];
+      const southCell = G.grid[r+1][c];
+      if (northCell.card && northCell.owner === owner && southCell.card && southCell.owner === owner) {
+        // Card at r-1: add floor(thisCard.edges.n / 3) to its S, E, W
+        const bonusN = Math.floor(card.edges.n / 3);
+        northCell.card.edgeMod = northCell.card.edgeMod || {n:0,s:0,e:0,w:0};
+        northCell.card.edgeMod.s += bonusN;
+        northCell.card.edgeMod.e += bonusN;
+        northCell.card.edgeMod.w += bonusN;
+        // Card at r+1: add floor(thisCard.edges.s / 3) to its N, E, W
+        const bonusS = Math.floor(card.edges.s / 3);
+        southCell.card.edgeMod = southCell.card.edgeMod || {n:0,s:0,e:0,w:0};
+        southCell.card.edgeMod.n += bonusS;
+        southCell.card.edgeMod.e += bonusS;
+        southCell.card.edgeMod.w += bonusS;
+        addLog('compare', `HAT TRICK — vertical formation bonus applied (+${bonusN}/${bonusS})`);
+      }
+    }
+  }
+
   // Update surge trigger state (used in computeBattleResults)
   if (!G.surgeTrigger) G.surgeTrigger = {player:false, ai:false};
   const s = computeScores();
@@ -3054,6 +3353,19 @@ const ABILITY_TEXT = {
   spawn:         'SPAWN: Adjacent same-tier Brood cards +2 all edges (hive coordination)',
   rush:          'RUSH: Can be placed adjacent to any enemy card',
   pierce:        'PIERCE: Ties count as wins for this card',
+  phantom:       'PHANTOM: Free placement in own home 2 rows',
+  intimidate:    'INTIMIDATE: Adjacent enemies lose -1 from their highest edge',
+  mirror:        'MIRROR: When sandwiched between 2 enemies same axis, their facing edges swap',
+  ambush:        'AMBUSH: 2 random adjacent enemies lose -1 to all 4 edges',
+  stonewall:     'STONEWALL: This card + 2 random adjacent enemies contribute 0 VP',
+  sniper:        'SNIPER: Cancels the enemy home-row card in this column (0 VP)',
+  birthright:    'BIRTHRIGHT: Spawns a weak bonus T2 card into your hand at game start',
+  deciding_factor:'DECIDING FACTOR: Tied rows/cols tip +1 to your favor',
+  echo:          'ECHO: If both row AND col are won, this card scores double VP',
+  overwhelm:     'OVERWHELM: Win by 3+ on one axis also wins the other axis',
+  density:       'DENSITY: This card counts as 1.5x power in VP calculation',
+  hat_trick:     'HAT TRICK: Middle of 3-card vertical line — N/S edges spread to flankers',
+  edge_play:     'EDGE PLAY: Border placement wraps to fight opposite-edge enemy',
 };
 
 // Brief toast notification (used by FLANK)
@@ -3079,17 +3391,16 @@ function showToast(msg, color='#ffcc00', duration=1800) {
 // Faction ability pools for random assignment (5 per deck at game start)
 const FACTION_ABILITY_POOLS = {
   terran:     ['shield','double_strike','commander','flank'],
-  brood:      ['spawn','sweep','rush','boost'],  // SPAWN = Brood's COMMANDER
-  // 9 new races — abilities will be finalized in race interview
-  crystallis: ['shield','commander','pierce','boost'],
-  mycos:      ['boost','sweep','rush','commander'],
-  veil:       ['pierce','double_strike','flank','sweep'],
-  entropy:    ['mirror','sweep','shield','double_strike'],
-  void:       ['double_strike','pierce','rush','flank'],
-  gas:        ['ambush','sweep','boost','flank'],
-  lithos:     ['shield','commander','boost','pierce'],
-  quantum:    ['pierce','double_strike','flank','rush'],
-  choir:      ['sweep','boost','double_strike','commander'],
+  brood:      ['spawn','sweep','rush','boost'],
+  crystallis: ['stonewall','mirror','shield','density'],
+  mycos:      ['hat_trick','birthright','echo','intimidate'],
+  veil:       ['phantom','flank','edge_play','pierce'],
+  entropy:    ['mirror','sweep','double_strike','ambush'],
+  void:       ['sniper','ambush','rush','pierce'],
+  gas:        ['edge_play','overwhelm','birthright','double_strike'],
+  lithos:     ['stonewall','deciding_factor','commander','density'],
+  quantum:    ['echo','deciding_factor','phantom','sniper'],
+  choir:      ['hat_trick','overwhelm','boost','intimidate'],
   _default:   ['shield','double_strike','boost','sweep','pierce','flank'],
 };
 
@@ -3133,6 +3444,18 @@ const ABILITY_ICONS = {
   rush:           { icon:'▶!',  color:'#ff6644', label:'RUSH'           },
   ambush_strike:  { icon:'◉◉',  color:'#cc44ff', label:'AMBUSH STRIKE'  },
   spawn:          { icon:'★★',  color:'#88cc44', label:'SPAWN'          },
+  intimidate:     { icon:'↓↓',  color:'#ff6644', label:'INTIMIDATE'     },
+  mirror:         { icon:'⇔',   color:'#cc44ff', label:'MIRROR'         },
+  ambush:         { icon:'✕✕',  color:'#cc44ff', label:'AMBUSH'         },
+  stonewall:      { icon:'▣',   color:'#6688aa', label:'STONEWALL'      },
+  sniper:         { icon:'◎',   color:'#ff8800', label:'SNIPER'         },
+  birthright:     { icon:'✦+',  color:'#ffaaff', label:'BIRTHRIGHT'     },
+  deciding_factor:{ icon:'⚖',   color:'#ffdd88', label:'DECIDING FACTOR'},
+  echo:           { icon:'◈◈',  color:'#c8c8ff', label:'ECHO'           },
+  overwhelm:      { icon:'▲▲',  color:'#88cc44', label:'OVERWHELM'      },
+  density:        { icon:'⬛+',  color:'#9b59b6', label:'DENSITY'        },
+  hat_trick:      { icon:'↑↓↑', color:'#00ddff', label:'HAT TRICK'      },
+  edge_play:      { icon:'↩↪',  color:'#ff55aa', label:'EDGE PLAY'      },
 };
 
 // Delayed tooltip for hand cards (2.5s) — instant for board
@@ -3346,6 +3669,8 @@ const PLAYLIST = [
   'assets/music4.mp3',
   'assets/music5.mp3',
   'assets/music6.mp3',
+  'assets/music7.mp3',
+  'assets/music9.mp3',
 ];
 let playlistOrder = [];
 let trackIdx = 0;
