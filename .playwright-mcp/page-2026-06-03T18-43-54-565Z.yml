@@ -1,0 +1,174 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e3]:
+      - img [ref=e4]
+      - generic [ref=e5]:
+        - generic [ref=e6]: TERRAN ACCORD
+        - generic [ref=e7]:
+          - generic [ref=e8]: "0"
+          - generic [ref=e9]: VP
+    - generic [ref=e11]:
+      - img [ref=e12]
+      - generic [ref=e13]:
+        - generic [ref=e14]: LITHOS
+        - generic [ref=e15]:
+          - generic [ref=e16]: "0"
+          - generic [ref=e17]: VP
+    - button "? USER GUIDE" [ref=e19] [cursor=pointer]
+  - generic [ref=e20]:
+    - generic [ref=e21]: GALACTIC ZERO
+    - generic "Menu" [ref=e22] [cursor=pointer]: ☰
+  - generic [ref=e25]:
+    - generic [ref=e26]:
+      - generic [ref=e27]:
+        - generic [ref=e35]:
+          - generic:
+            - generic: +
+        - generic [ref=e36]:
+          - generic:
+            - generic: +
+        - generic [ref=e37]:
+          - generic:
+            - generic: +
+        - generic [ref=e38]:
+          - generic:
+            - generic: +
+        - generic [ref=e39]:
+          - generic:
+            - generic: +
+        - generic [ref=e40]:
+          - generic:
+            - generic: +
+        - generic [ref=e41]:
+          - generic:
+            - generic: +
+        - generic [ref=e42]:
+          - generic:
+            - generic: +
+        - generic [ref=e43]:
+          - generic:
+            - generic: +
+        - generic [ref=e44]:
+          - generic:
+            - generic: +
+        - generic [ref=e45]:
+          - generic:
+            - generic: +
+        - generic [ref=e46]:
+          - generic:
+            - generic: +
+        - generic [ref=e47]:
+          - generic:
+            - generic: +
+        - generic [ref=e48]:
+          - generic:
+            - generic: +
+        - generic [ref=e49]:
+          - generic:
+            - generic: +
+        - generic [ref=e51]: ⚠ PULSAR
+        - generic [ref=e52]:
+          - generic:
+            - generic: +
+        - generic [ref=e54]: ⚠ PLASMA PULSE
+        - generic [ref=e55]:
+          - generic:
+            - generic: +
+        - generic [ref=e56]:
+          - generic:
+            - generic: +
+        - generic [ref=e57]:
+          - generic:
+            - generic: +
+      - generic [ref=e65]:
+        - generic [ref=e66]:
+          - generic: "--"
+        - generic [ref=e67]:
+          - generic: "--"
+        - generic [ref=e68]:
+          - generic: "--"
+        - generic [ref=e69]:
+          - generic: "--"
+        - generic [ref=e70]:
+          - generic: "--"
+        - generic [ref=e71]:
+          - generic: "--"
+        - generic [ref=e72]:
+          - generic: "--"
+    - generic [ref=e73]:
+      - generic [ref=e74]:
+        - generic: "--"
+      - generic [ref=e75]:
+        - generic: "--"
+      - generic [ref=e76]:
+        - generic: "--"
+      - generic [ref=e77]:
+        - generic: "--"
+      - generic [ref=e78]:
+        - generic: "--"
+  - generic [ref=e81]:
+    - generic [ref=e82]: TIER I
+    - generic [ref=e83] [cursor=pointer]:
+      - generic [ref=e84]: "6"
+      - generic [ref=e85]: "2"
+      - generic [ref=e86]: "4"
+      - generic [ref=e87]: "3"
+      - generic [ref=e91]: "1"
+    - generic [ref=e92] [cursor=pointer]:
+      - generic [ref=e93]: "5"
+      - generic [ref=e94]: "2"
+      - generic [ref=e95]: "5"
+      - generic [ref=e96]: "3"
+      - generic [ref=e100]: "1"
+    - generic [ref=e101] [cursor=pointer]:
+      - generic [ref=e102]: "6"
+      - generic [ref=e103]: "2"
+      - generic [ref=e104]: "4"
+      - generic [ref=e105]: "3"
+      - generic [ref=e109]: "1"
+    - generic [ref=e110] [cursor=pointer]:
+      - generic [ref=e111]: "3"
+      - generic [ref=e112]: "6"
+      - generic [ref=e113]: "4"
+      - generic [ref=e114]: "3"
+      - generic [ref=e118]: "1"
+    - generic [ref=e119] [cursor=pointer]:
+      - generic [ref=e120]: "4"
+      - generic [ref=e121]: "4"
+      - generic [ref=e122]: "4"
+      - generic [ref=e123]: "4"
+      - generic [ref=e127]: "1"
+    - generic [ref=e128] [cursor=pointer]:
+      - generic [ref=e129]: "5"
+      - generic [ref=e130]: "5"
+      - generic [ref=e131]: "6"
+      - generic [ref=e132]: "5"
+      - generic [ref=e136]: "1"
+  - generic [ref=e138]:
+    - generic [ref=e139]:
+      - generic [ref=e140]:
+        - generic [ref=e141]: THE BATTLEFIELD
+        - generic [ref=e142]: PAGE 1 OF 4
+      - button "✕ CLOSE" [ref=e143] [cursor=pointer]
+    - generic [ref=e144]:
+      - generic [ref=e145]:
+        - generic [ref=e146]: OPPONENT
+        - generic [ref=e147]:
+          - img [ref=e153]
+          - img [ref=e166]
+          - img [ref=e168]
+        - generic [ref=e172]: YOU
+      - generic [ref=e173]:
+        - generic [ref=e174]:
+          - generic [ref=e175]: STEP 1
+          - generic [ref=e176]: Place a Tier I card on your home row (bottom). The opponent does the same from the top.
+        - generic [ref=e177]:
+          - generic [ref=e178]: STEP 2
+          - generic [ref=e179]: Yellow cells unlock around each card. Your next card must go in one of those cells.
+    - generic [ref=e180]:
+      - generic [ref=e181] [cursor=pointer]:
+        - checkbox "Don't show again" [ref=e182]
+        - text: Don't show again
+      - generic [ref=e183]:
+        - button "← PREV" [ref=e184] [cursor=pointer]
+        - button "NEXT →" [ref=e185] [cursor=pointer]

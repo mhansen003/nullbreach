@@ -921,7 +921,7 @@ button, [onclick] { touch-action: manipulation; }
 <!-- AI area: minimal — no portrait, no score, just spacing -->
 <div class="ai-area" style="min-height:4px;padding:0;">
   <!-- hidden compat stubs -->
-  <span id="sbAiName" style="display:none"></span>
+  <span id="_sbAiNameStub" style="display:none"></span>
   <span id="aiFactionLabel" style="display:none"></span>
   <span id="aiNameEl" style="display:none"></span>
   <span id="aiQuote" style="display:none"></span>
@@ -1819,7 +1819,9 @@ function computeScores() {
   for (let r = 0; r < 5; r++) {
     if (rowResults[r] === 'tie') {
       const hasDf = G.grid[r].some(cell => cell.card && cell.owner === 'player' && cell.card.ability === 'deciding_factor' && !cell.card.stonewalled && !cell.card.sniped);
-      if (hasDf) rowResults[r] = 'p';
+      if (hasDf) { rowResults[r] = 'p'; continue; }
+      const hasAiDfRow = G.grid[r].some(cell => cell.card && cell.owner === 'ai' && cell.card.ability === 'deciding_factor' && !cell.card.stonewalled && !cell.card.sniped);
+      if (hasAiDfRow) rowResults[r] = 'a';
     }
   }
   for (let c = 0; c < 7; c++) {
@@ -1858,13 +1860,17 @@ function computeScores() {
     else if (net < 0) aVP += (-net);
   });
 
+  // Snapshot results before DECIDING_FACTOR mutates them — ECHO must use raw wins
+  const rawRowResults = rowResults.slice();
+  const rawColResults = colResults.slice();
+
   // ECHO: player card with echo in a row AND col both won → count its power again
   for (let r = 0; r < 5; r++) {
     for (let c = 0; c < 7; c++) {
       const cell = G.grid[r][c];
       if (!cell.card || cell.owner !== 'player' || cell.card.ability !== 'echo') continue;
       if (cell.card.stonewalled || cell.card.stonewall_victim || cell.card.sniped) continue;
-      if (rowResults[r] === 'p' && colResults[c] === 'p') {
+      if (rawRowResults[r] === 'p' && rawColResults[c] === 'p') {
         pVP += cell.card.power; // count once more (double total)
       }
     }
@@ -1875,7 +1881,7 @@ function computeScores() {
       const cell = G.grid[r][c];
       if (!cell.card || cell.owner !== 'ai' || cell.card.ability !== 'echo') continue;
       if (cell.card.stonewalled || cell.card.stonewall_victim || cell.card.sniped) continue;
-      if (rowResults[r] === 'a' && colResults[c] === 'a') {
+      if (rawRowResults[r] === 'a' && rawColResults[c] === 'a') {
         aVP += cell.card.power;
       }
     }
@@ -2633,6 +2639,16 @@ function renderHand() {
       e.dataTransfer.effectAllowed = 'move';
       e.dataTransfer.setData('text/plain', card.id);
     });
+    div.addEventListener('dragend', function() {
+      // Clean up if drag was cancelled (ESC, drop outside board, etc.)
+      setTimeout(() => {
+        const ghost = document.getElementById('dragCard');
+        if (ghost && ghost.style.display !== 'none' && !G.selectedCard) {
+          ghost.style.display = 'none';
+          document.body.style.cursor = 'default';
+        }
+      }, 50);
+    });
     return div;
   }
 
@@ -3283,6 +3299,16 @@ function animateAiCard(card, r, c) {
       G._flankTriggered = null;
       addLog('ai', '\u21BA FLANK \u2014 AI takes extra turn');
       setTimeout(aiTurn, 1000);
+      return;
+    }
+    if (!G.gameOver) {
+      G.turn = 'player';
+      renderScoreHeader();
+      if (!hasAnyMoves('player')) {
+        G.turn = 'ai';
+        addLog('system', 'You have no moves -- AI goes again');
+        setTimeout(aiTurn, 1200);
+      }
     }
   }, 580);
 }
@@ -3324,16 +3350,12 @@ function aiTurn() {
     }
   }
 
-  if (bestCard && bestR >= 0) animateAiCard(bestCard, bestR, bestC);
-  if (G.gameOver) return;
-  G.turn = 'player';
-  renderScoreHeader();
-
-  if (!hasAnyMoves('player')) {
-    G.turn = 'ai';
-    addLog('system', 'You have no moves -- AI goes again');
-    setTimeout(aiTurn, 1200);
-    return;
+  if (bestCard && bestR >= 0) {
+    animateAiCard(bestCard, bestR, bestC);
+    // Turn flip happens inside animateAiCard callback after card lands
+  } else if (!G.gameOver) {
+    G.turn = 'player';
+    renderScoreHeader();
   }
 }
 
@@ -3418,41 +3440,7 @@ function checkWin() {
           onmouseleave="this.style.background='#1a0a2e'">← DECK SELECT</button>
       </div>
     </div>`;
-  overlay.classList.add('show');
-
-  if (s.pVP > s.aVP) {
-    title.className = 'overlay-title win';
-    title.textContent = 'BREACH COMPLETE';
-    sub.textContent   = `${s.pVP} VP vs ${s.aVP} VP`;
-  } else if (s.aVP > s.pVP) {
-    title.className = 'overlay-title lose';
-    title.textContent = 'BREACH FAILED';
-    sub.textContent   = `AI wins ${s.aVP} VP vs your ${s.pVP} VP`;
-  } else {
-    title.className = 'overlay-title draw';
-    title.textContent = 'STALEMATE';
-    sub.textContent   = `${s.pWins} lines each`;
-  }
-
-  const rowW_p = s.rowResults.filter(r=>r==='p').length;
-  const rowW_a = s.rowResults.filter(r=>r==='a').length;
-  const colW_p = s.colResults.filter(c=>c==='p').length;
-  const colW_a = s.colResults.filter(c=>c==='a').length;
-
-  bkdn.innerHTML = `
-    <div class="ob-col">
-      <div class="ob-label">ROWS WON</div>
-      <div class="ob-val" style="color:#00ffcc">${rowW_p}</div>
-    </div>
-    <div class="ob-col">
-      <div class="ob-label">COLS WON</div>
-      <div class="ob-val" style="color:#00ffcc">${colW_p}</div>
-    </div>
-    <div class="ob-col">
-      <div class="ob-label">TOTAL</div>
-      <div class="ob-val" style="color:#00ffcc">${s.pWins}/12</div>
-    </div>
-  `;
+  overlay.classList.add('show'); // content already in innerHTML above
 }
 
 // ── EVENTS ────────────────────────────────────
