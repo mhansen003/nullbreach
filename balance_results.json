@@ -1,0 +1,518 @@
+{
+  "final_rates": {
+    "terran": 51.5,
+    "brood": 57.5,
+    "crystallis": 48.0,
+    "mycos": 45.0,
+    "veil": 44.5,
+    "entropy": 52.0,
+    "void": 51.0,
+    "gas": 56.5,
+    "lithos": 46.0,
+    "quantum": 46.0,
+    "choir": 52.0
+  },
+  "initial_rates": {
+    "terran": 53.5,
+    "brood": 62.0,
+    "crystallis": 44.5,
+    "mycos": 64.0,
+    "veil": 39.0,
+    "entropy": 46.0,
+    "void": 48.0,
+    "gas": 50.5,
+    "lithos": 32.5,
+    "quantum": 62.0,
+    "choir": 48.0
+  },
+  "pct_matrix": {
+    "terran": {
+      "terran": null,
+      "brood": 40.0,
+      "crystallis": 60.0,
+      "mycos": 30.0,
+      "veil": 50.0,
+      "entropy": 40.0,
+      "void": 40.0,
+      "gas": 70.0,
+      "lithos": 50.0,
+      "quantum": 70.0,
+      "choir": 50.0
+    },
+    "brood": {
+      "terran": 80.0,
+      "brood": null,
+      "crystallis": 50.0,
+      "mycos": 70.0,
+      "veil": 40.0,
+      "entropy": 40.0,
+      "void": 40.0,
+      "gas": 70.0,
+      "lithos": 80.0,
+      "quantum": 50.0,
+      "choir": 60.0
+    },
+    "crystallis": {
+      "terran": 60.0,
+      "brood": 60.0,
+      "crystallis": null,
+      "mycos": 30.0,
+      "veil": 40.0,
+      "entropy": 40.0,
+      "void": 30.0,
+      "gas": 80.0,
+      "lithos": 20.0,
+      "quantum": 50.0,
+      "choir": 40.0
+    },
+    "mycos": {
+      "terran": 20.0,
+      "brood": 50.0,
+      "crystallis": 10.0,
+      "mycos": null,
+      "veil": 30.0,
+      "entropy": 40.0,
+      "void": 50.0,
+      "gas": 40.0,
+      "lithos": 50.0,
+      "quantum": 50.0,
+      "choir": 30.0
+    },
+    "veil": {
+      "terran": 60.0,
+      "brood": 20.0,
+      "crystallis": 60.0,
+      "mycos": 10.0,
+      "veil": null,
+      "entropy": 40.0,
+      "void": 30.0,
+      "gas": 20.0,
+      "lithos": 30.0,
+      "quantum": 40.0,
+      "choir": 20.0
+    },
+    "entropy": {
+      "terran": 40.0,
+      "brood": 40.0,
+      "crystallis": 50.0,
+      "mycos": 40.0,
+      "veil": 20.0,
+      "entropy": null,
+      "void": 60.0,
+      "gas": 60.0,
+      "lithos": 40.0,
+      "quantum": 70.0,
+      "choir": 60.0
+    },
+    "void": {
+      "terran": 30.0,
+      "brood": 80.0,
+      "crystallis": 20.0,
+      "mycos": 70.0,
+      "veil": 50.0,
+      "entropy": 40.0,
+      "void": null,
+      "gas": 50.0,
+      "lithos": 30.0,
+      "quantum": 80.0,
+      "choir": 50.0
+    },
+    "gas": {
+      "terran": 70.0,
+      "brood": 30.0,
+      "crystallis": 50.0,
+      "mycos": 60.0,
+      "veil": 70.0,
+      "entropy": 60.0,
+      "void": 70.0,
+      "gas": null,
+      "lithos": 80.0,
+      "quantum": 80.0,
+      "choir": 100.0
+    },
+    "lithos": {
+      "terran": 10.0,
+      "brood": 20.0,
+      "crystallis": 70.0,
+      "mycos": 40.0,
+      "veil": 30.0,
+      "entropy": 40.0,
+      "void": 60.0,
+      "gas": 50.0,
+      "lithos": null,
+      "quantum": 70.0,
+      "choir": 30.0
+    },
+    "quantum": {
+      "terran": 50.0,
+      "brood": 50.0,
+      "crystallis": 70.0,
+      "mycos": 40.0,
+      "veil": 60.0,
+      "entropy": 60.0,
+      "void": 60.0,
+      "gas": 40.0,
+      "lithos": 70.0,
+      "quantum": null,
+      "choir": 60.0
+    },
+    "choir": {
+      "terran": 50.0,
+      "brood": 40.0,
+      "crystallis": 50.0,
+      "mycos": 80.0,
+      "veil": 50.0,
+      "entropy": 40.0,
+      "void": 40.0,
+      "gas": 60.0,
+      "lithos": 50.0,
+      "quantum": 80.0,
+      "choir": null
+    }
+  },
+  "factions": [
+    "terran",
+    "brood",
+    "crystallis",
+    "mycos",
+    "veil",
+    "entropy",
+    "void",
+    "gas",
+    "lithos",
+    "quantum",
+    "choir"
+  ],
+  "faction_names": {
+    "terran": "TERRAN ACCORD",
+    "brood": "BROOD SOVEREIGN",
+    "crystallis": "CRYSTALLIS",
+    "mycos": "MYCOS DRIFT",
+    "veil": "THE VEIL",
+    "entropy": "ENTROPY CULT",
+    "void": "VOID HUNTERS",
+    "gas": "GAS NOMADS",
+    "lithos": "LITHOS",
+    "quantum": "QUANTUM THREAD",
+    "choir": "THE CHOIR"
+  },
+  "faction_colors": {
+    "terran": "#7ab8e8",
+    "brood": "#88cc44",
+    "crystallis": "#a8d8ff",
+    "mycos": "#9dcf6e",
+    "veil": "#fff5a0",
+    "entropy": "#c4723a",
+    "void": "#9b59b6",
+    "gas": "#ffd700",
+    "lithos": "#a0896a",
+    "quantum": "#ff69b4",
+    "choir": "#c8c8ff"
+  },
+  "all_changes": [
+    [
+      1,
+      "veil: SHIMMER SCREEN N +1 -> 8"
+    ],
+    [
+      1,
+      "veil: PHASE WING N +1 -> 8"
+    ],
+    [
+      1,
+      "veil: CLOAK ARRAY N +1 -> 6"
+    ],
+    [
+      1,
+      "lithos: TECTONIC CLUSTER N +1 -> 7"
+    ],
+    [
+      1,
+      "lithos: QUAKE SURGE N +1 -> 8"
+    ],
+    [
+      1,
+      "lithos: BASALT MASS N +1 -> 6"
+    ],
+    [
+      1,
+      "brood: WARRIOR CLUSTER N -1 -> 6"
+    ],
+    [
+      1,
+      "brood: SOLDIER MASS N -1 -> 6"
+    ],
+    [
+      1,
+      "brood: BIOMECH FLEET N -1 -> 4"
+    ],
+    [
+      1,
+      "mycos: MYCELIUM WEB N -1 -> 6"
+    ],
+    [
+      1,
+      "mycos: SPORE CLOUD N -1 -> 5"
+    ],
+    [
+      1,
+      "mycos: TENDRIL SURGE N -1 -> 4"
+    ],
+    [
+      1,
+      "quantum: SUPERPOSED ARRAY N -1 -> 5"
+    ],
+    [
+      1,
+      "quantum: QUBIT WING N -1 -> 5"
+    ],
+    [
+      1,
+      "quantum: ENTANGLE MASS N -1 -> 4"
+    ],
+    [
+      2,
+      "lithos: TECTONIC CLUSTER N +1 -> 8"
+    ],
+    [
+      2,
+      "lithos: QUAKE SURGE N +1 -> 9"
+    ],
+    [
+      2,
+      "lithos: BASALT MASS N +1 -> 7"
+    ],
+    [
+      2,
+      "mycos: MYCELIUM WEB N -1 -> 5"
+    ],
+    [
+      2,
+      "mycos: SPORE CLOUD N -1 -> 4"
+    ],
+    [
+      2,
+      "mycos: TENDRIL SURGE N -1 -> 3"
+    ],
+    [
+      3,
+      "veil: SHIMMER SCREEN N +1 -> 9"
+    ],
+    [
+      3,
+      "veil: PHASE WING N +1 -> 9"
+    ],
+    [
+      3,
+      "veil: CLOAK ARRAY N +1 -> 7"
+    ],
+    [
+      3,
+      "choir: RESONANCE CHOIR N +1 -> 7"
+    ],
+    [
+      3,
+      "choir: HARMONIC SURGE N +1 -> 8"
+    ],
+    [
+      3,
+      "choir: SONIC MASS N +1 -> 6"
+    ],
+    [
+      3,
+      "terran: BATTLE GROUP N -1 -> 6"
+    ],
+    [
+      3,
+      "terran: CARRIER WING N -1 -> 6"
+    ],
+    [
+      3,
+      "terran: STRIKE FORCE N -1 -> 4"
+    ],
+    [
+      3,
+      "quantum: SUPERPOSED ARRAY N -1 -> 4"
+    ],
+    [
+      3,
+      "quantum: QUBIT WING N -1 -> 4"
+    ],
+    [
+      3,
+      "quantum: ENTANGLE MASS N -1 -> 3"
+    ],
+    [
+      4,
+      "quantum: SUPERPOSED ARRAY N +1 -> 5"
+    ],
+    [
+      4,
+      "quantum: QUBIT WING N +1 -> 5"
+    ],
+    [
+      4,
+      "quantum: ENTANGLE MASS N +1 -> 4"
+    ],
+    [
+      4,
+      "gas: PLASMA WING N -1 -> 6"
+    ],
+    [
+      4,
+      "gas: ION SURGE N -1 -> 5"
+    ],
+    [
+      4,
+      "gas: STORM MASS N -1 -> 4"
+    ],
+    [
+      4,
+      "choir: RESONANCE CHOIR N -1 -> 6"
+    ],
+    [
+      4,
+      "choir: HARMONIC SURGE N -1 -> 7"
+    ],
+    [
+      4,
+      "choir: SONIC MASS N -1 -> 5"
+    ]
+  ],
+  "initial_std": 9.43,
+  "final_std": 4.27,
+  "num_iterations": 4,
+  "iterations_detail": [
+    {
+      "iter": 0,
+      "changes": [],
+      "rates": {
+        "terran": 53.5,
+        "brood": 62.0,
+        "crystallis": 44.5,
+        "mycos": 64.0,
+        "veil": 39.0,
+        "entropy": 46.0,
+        "void": 48.0,
+        "gas": 50.5,
+        "lithos": 32.5,
+        "quantum": 62.0,
+        "choir": 48.0
+      }
+    },
+    {
+      "iter": 1,
+      "changes": [
+        "veil: SHIMMER SCREEN N +1 -> 8",
+        "veil: PHASE WING N +1 -> 8",
+        "veil: CLOAK ARRAY N +1 -> 6",
+        "lithos: TECTONIC CLUSTER N +1 -> 7",
+        "lithos: QUAKE SURGE N +1 -> 8",
+        "lithos: BASALT MASS N +1 -> 6",
+        "brood: WARRIOR CLUSTER N -1 -> 6",
+        "brood: SOLDIER MASS N -1 -> 6",
+        "brood: BIOMECH FLEET N -1 -> 4",
+        "mycos: MYCELIUM WEB N -1 -> 6",
+        "mycos: SPORE CLOUD N -1 -> 5",
+        "mycos: TENDRIL SURGE N -1 -> 4",
+        "quantum: SUPERPOSED ARRAY N -1 -> 5",
+        "quantum: QUBIT WING N -1 -> 5",
+        "quantum: ENTANGLE MASS N -1 -> 4"
+      ],
+      "rates": {
+        "terran": 54.5,
+        "brood": 54.5,
+        "crystallis": 47.5,
+        "mycos": 60.0,
+        "veil": 44.0,
+        "entropy": 50.5,
+        "void": 49.0,
+        "gas": 57.0,
+        "lithos": 42.0,
+        "quantum": 45.0,
+        "choir": 46.0
+      }
+    },
+    {
+      "iter": 2,
+      "changes": [
+        "lithos: TECTONIC CLUSTER N +1 -> 8",
+        "lithos: QUAKE SURGE N +1 -> 9",
+        "lithos: BASALT MASS N +1 -> 7",
+        "mycos: MYCELIUM WEB N -1 -> 5",
+        "mycos: SPORE CLOUD N -1 -> 4",
+        "mycos: TENDRIL SURGE N -1 -> 3"
+      ],
+      "rates": {
+        "terran": 59.5,
+        "brood": 55.0,
+        "crystallis": 45.5,
+        "mycos": 49.0,
+        "veil": 36.5,
+        "entropy": 50.5,
+        "void": 48.5,
+        "gas": 56.0,
+        "lithos": 47.5,
+        "quantum": 60.0,
+        "choir": 42.0
+      }
+    },
+    {
+      "iter": 3,
+      "changes": [
+        "veil: SHIMMER SCREEN N +1 -> 9",
+        "veil: PHASE WING N +1 -> 9",
+        "veil: CLOAK ARRAY N +1 -> 7",
+        "choir: RESONANCE CHOIR N +1 -> 7",
+        "choir: HARMONIC SURGE N +1 -> 8",
+        "choir: SONIC MASS N +1 -> 6",
+        "terran: BATTLE GROUP N -1 -> 6",
+        "terran: CARRIER WING N -1 -> 6",
+        "terran: STRIKE FORCE N -1 -> 4",
+        "quantum: SUPERPOSED ARRAY N -1 -> 4",
+        "quantum: QUBIT WING N -1 -> 4",
+        "quantum: ENTANGLE MASS N -1 -> 3"
+      ],
+      "rates": {
+        "terran": 48.0,
+        "brood": 48.0,
+        "crystallis": 46.0,
+        "mycos": 49.5,
+        "veil": 50.0,
+        "entropy": 53.5,
+        "void": 48.5,
+        "gas": 60.5,
+        "lithos": 44.0,
+        "quantum": 42.5,
+        "choir": 59.5
+      }
+    },
+    {
+      "iter": 4,
+      "changes": [
+        "quantum: SUPERPOSED ARRAY N +1 -> 5",
+        "quantum: QUBIT WING N +1 -> 5",
+        "quantum: ENTANGLE MASS N +1 -> 4",
+        "gas: PLASMA WING N -1 -> 6",
+        "gas: ION SURGE N -1 -> 5",
+        "gas: STORM MASS N -1 -> 4",
+        "choir: RESONANCE CHOIR N -1 -> 6",
+        "choir: HARMONIC SURGE N -1 -> 7",
+        "choir: SONIC MASS N -1 -> 5"
+      ],
+      "rates": {
+        "terran": 51.5,
+        "brood": 57.5,
+        "crystallis": 48.0,
+        "mycos": 45.0,
+        "veil": 44.5,
+        "entropy": 52.0,
+        "void": 51.0,
+        "gas": 56.5,
+        "lithos": 46.0,
+        "quantum": 46.0,
+        "choir": 52.0
+      }
+    }
+  ]
+}

@@ -2,415 +2,1223 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>GALACTIC ZERO — Balance Report</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GALACTIC ZERO - Balance Report</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #0a0a14;
-    --panel: #111122;
-    --border: #2a2a44;
-    --accent: #4488ff;
-    --gold: #ffcc44;
-    --green: #44ff88;
-    --red: #ff4466;
-    --yellow: #ffdd44;
-    --text: #ccccee;
-    --dim: #667799;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Courier New', monospace;
-    font-size: 13px;
-    padding: 24px;
-    line-height: 1.6;
-  }
-  h1 {
-    font-size: 22px;
-    letter-spacing: 6px;
-    color: var(--gold);
-    text-align: center;
-    text-transform: uppercase;
-    margin-bottom: 6px;
-    text-shadow: 0 0 20px rgba(255,200,68,0.4);
-  }
-  h2 {
-    font-size: 13px;
-    letter-spacing: 4px;
-    color: var(--accent);
-    text-transform: uppercase;
-    margin: 24px 0 12px;
-    border-bottom: 1px solid var(--border);
-    padding-bottom: 6px;
-  }
-  .subtitle {
-    text-align: center;
-    color: var(--dim);
-    letter-spacing: 3px;
-    font-size: 11px;
-    margin-bottom: 28px;
-  }
-  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-  .panel {
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 16px;
-  }
-  table { width: 100%; border-collapse: collapse; }
-  th {
-    text-align: left;
-    color: var(--dim);
-    font-size: 10px;
-    letter-spacing: 2px;
-    padding: 4px 8px;
-    border-bottom: 1px solid var(--border);
-  }
-  td { padding: 5px 8px; }
-  tr:hover td { background: rgba(68,136,255,0.05); }
-  .ok { color: var(--green); }
-  .low { color: var(--yellow); }
-  .high { color: var(--red); }
-  .bar-bg {
-    height: 8px;
-    background: rgba(255,255,255,0.05);
-    border-radius: 4px;
-    overflow: hidden;
-    margin-top: 4px;
-  }
-  .bar-fill {
-    height: 100%;
-    border-radius: 4px;
-    transition: width 0.3s;
-  }
-  .change-list { list-style: none; padding: 0; }
-  .change-list li {
-    padding: 3px 0;
-    border-bottom: 1px solid rgba(42,42,68,0.5);
-    display: flex;
-    justify-content: space-between;
-    gap: 12px;
-  }
-  .change-list li:last-child { border-bottom: none; }
-  .cid { color: var(--accent); font-size: 11px; }
-  .cedge { color: var(--text); font-size: 11px; }
-  .score-box {
-    text-align: center;
-    padding: 20px;
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-  }
-  .score-big {
-    font-size: 48px;
-    color: var(--gold);
-    font-weight: bold;
-    letter-spacing: 2px;
-    text-shadow: 0 0 30px rgba(255,200,68,0.3);
-  }
-  .score-label {
-    font-size: 10px;
-    letter-spacing: 3px;
-    color: var(--dim);
-    margin-top: 4px;
-  }
-  .metrics { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 16px; }
-  .metric {
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 12px;
-    text-align: center;
-  }
-  .metric-val { font-size: 24px; color: var(--accent); }
-  .metric-label { font-size: 10px; color: var(--dim); letter-spacing: 2px; margin-top: 2px; }
-  .ability-tag {
-    display: inline-block;
-    background: rgba(68,136,255,0.15);
-    border: 1px solid rgba(68,136,255,0.3);
-    border-radius: 3px;
-    padding: 1px 6px;
-    font-size: 10px;
-    color: var(--accent);
-    margin: 2px;
-    letter-spacing: 1px;
-  }
-  .ability-tag.new {
-    background: rgba(68,255,136,0.15);
-    border-color: rgba(68,255,136,0.3);
-    color: var(--green);
-  }
-  .ability-tag.removed {
-    background: rgba(255,68,102,0.1);
-    border-color: rgba(255,68,102,0.2);
-    color: var(--red);
-    text-decoration: line-through;
-  }
-  .worst-box {
-    background: rgba(255,68,102,0.08);
-    border: 1px solid rgba(255,68,102,0.2);
-    border-radius: 4px;
-    padding: 12px;
-  }
-  .target-zone {
-    display: inline-block;
-    background: rgba(68,255,136,0.1);
-    border: 1px dashed rgba(68,255,136,0.3);
-    border-radius: 3px;
-    padding: 2px 8px;
-    color: var(--green);
-    font-size: 11px;
-  }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: #06060f;
+  color: #c8c8e0;
+  font-family: 'Courier New', monospace;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.page-bg {
+  position: fixed; inset: 0; z-index: 0;
+  background: radial-gradient(ellipse at 20% 20%, #0a0520 0%, #060610 40%, #060608 100%);
+  pointer-events: none;
+}
+.stars {
+  position: fixed; inset: 0; z-index: 0;
+  background-image:
+    radial-gradient(1px 1px at 20% 30%, #ffffff22 0%, transparent 100%),
+    radial-gradient(1px 1px at 60% 10%, #ffffff18 0%, transparent 100%),
+    radial-gradient(1px 1px at 80% 70%, #ffffff15 0%, transparent 100%),
+    radial-gradient(1px 1px at 40% 80%, #ffffff20 0%, transparent 100%),
+    radial-gradient(1px 1px at 90% 40%, #ffffff12 0%, transparent 100%);
+  pointer-events: none;
+}
+
+.container {
+  position: relative; z-index: 1;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 40px 24px 80px;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 60px;
+  padding: 40px 20px 32px;
+  border-bottom: 1px solid #8855ff22;
+  position: relative;
+}
+.header::before {
+  content: '';
+  position: absolute; bottom: 0; left: 10%; right: 10%; height: 1px;
+  background: linear-gradient(90deg, transparent, #8855ff66, transparent);
+}
+.header-sub {
+  font-size: 11px;
+  letter-spacing: 6px;
+  color: #5544aa;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+}
+.header-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 42px;
+  font-weight: 900;
+  letter-spacing: 8px;
+  color: #ffffff;
+  text-shadow: 0 0 40px #8855ff66, 0 0 80px #8855ff22;
+  line-height: 1.1;
+}
+.header-title span {
+  color: #8855ff;
+  text-shadow: 0 0 30px #8855ffaa;
+}
+.header-meta {
+  margin-top: 14px;
+  font-size: 11px;
+  letter-spacing: 3px;
+  color: #443366;
+}
+
+/* SECTION */
+.section {
+  margin-bottom: 60px;
+}
+.section-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 16px;
+  letter-spacing: 5px;
+  color: #8855ff;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #8855ff33;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.section-title::before {
+  content: '';
+  display: inline-block;
+  width: 4px;
+  height: 20px;
+  background: #8855ff;
+  border-radius: 2px;
+  box-shadow: 0 0 8px #8855ff;
+}
+.section-num {
+  font-size: 10px;
+  color: #443366;
+  letter-spacing: 2px;
+}
+
+/* WIN RATE TABLE */
+.win-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.win-table th {
+  font-family: 'Orbitron', monospace;
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: #443366;
+  padding: 8px 14px;
+  text-align: left;
+  border-bottom: 1px solid #1a1a2a;
+}
+.win-table td {
+  padding: 10px 14px;
+  border-bottom: 1px solid #0e0e1e;
+  font-size: 13px;
+}
+.win-table tr:hover td {
+  background: #0e0e1e88;
+}
+.faction-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.faction-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 0 6px currentColor;
+}
+.faction-name {
+  font-family: 'Orbitron', monospace;
+  font-size: 11px;
+  letter-spacing: 2px;
+}
+.rank-num {
+  font-size: 11px;
+  color: #333344;
+  letter-spacing: 1px;
+  min-width: 24px;
+}
+
+.win-bar-wrap {
+  width: 200px;
+  height: 6px;
+  background: #0e0e1e;
+  border-radius: 3px;
+  overflow: hidden;
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 10px;
+}
+.win-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.3s;
+}
+.win-pct {
+  font-size: 14px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  display: inline-block;
+  min-width: 48px;
+}
+.status-badge {
+  font-size: 9px;
+  letter-spacing: 2px;
+  padding: 2px 8px;
+  border-radius: 2px;
+  font-family: 'Orbitron', monospace;
+}
+.status-ok { color: #00cc88; background: #00cc8812; border: 1px solid #00cc8844; }
+.status-weak { color: #ff4444; background: #ff444412; border: 1px solid #ff444444; }
+.status-strong { color: #ff8800; background: #ff880012; border: 1px solid #ff880044; }
+
+.initial-rate {
+  font-size: 11px;
+  color: #445;
+  letter-spacing: 1px;
+}
+
+/* MATRIX */
+.matrix-wrap {
+  overflow-x: auto;
+  border-radius: 6px;
+}
+.matrix-table {
+  border-collapse: collapse;
+  font-size: 11px;
+  min-width: 900px;
+}
+.matrix-table th {
+  font-family: 'Orbitron', monospace;
+  font-size: 8px;
+  letter-spacing: 2px;
+  padding: 8px 6px;
+  text-align: center;
+  white-space: nowrap;
+  border: 1px solid #11111e;
+}
+.matrix-table th.row-header {
+  text-align: right;
+  padding-right: 12px;
+  min-width: 110px;
+}
+.matrix-table td {
+  padding: 7px 6px;
+  text-align: center;
+  border: 1px solid #11111e;
+  font-weight: bold;
+  letter-spacing: 1px;
+  min-width: 60px;
+}
+.matrix-table td.self {
+  background: #1a1a2a;
+  color: #333344;
+  font-size: 16px;
+}
+.matrix-table td.row-label {
+  font-family: 'Orbitron', monospace;
+  font-size: 8px;
+  letter-spacing: 2px;
+  text-align: right;
+  padding-right: 12px;
+  white-space: nowrap;
+  background: #060610;
+  border-right: 2px solid #1a1a2e;
+}
+.matrix-corner {
+  background: #060610 !important;
+  font-family: 'Orbitron', monospace;
+  font-size: 8px;
+  letter-spacing: 2px;
+  color: #333344;
+  padding: 8px 12px !important;
+  border-right: 2px solid #1a1a2e !important;
+  border-bottom: 2px solid #1a1a2e !important;
+}
+.legend-row {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: #556;
+}
+.legend-box {
+  width: 16px; height: 10px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+/* CHANGES */
+.changes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+}
+.change-card {
+  background: #08080e;
+  border: 1px solid #1a1a28;
+  border-radius: 6px;
+  padding: 16px;
+}
+.change-card-header {
+  font-family: 'Orbitron', monospace;
+  font-size: 11px;
+  letter-spacing: 2px;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #151524;
+}
+.change-item {
+  font-size: 11px;
+  color: #778;
+  padding: 3px 0;
+  letter-spacing: 0.5px;
+}
+.change-item .iter-tag {
+  display: inline-block;
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: #8855ff;
+  background: #8855ff15;
+  border: 1px solid #8855ff33;
+  padding: 1px 5px;
+  border-radius: 2px;
+  margin-right: 6px;
+}
+.change-item .edge-change {
+  color: #00cc88;
+}
+.change-item .edge-nerf {
+  color: #ff6644;
+}
+.no-changes {
+  color: #334;
+  font-size: 12px;
+  letter-spacing: 2px;
+  padding: 20px 0;
+}
+
+/* BALANCE SCORE */
+.score-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
+}
+.score-card {
+  background: #08080e;
+  border: 1px solid #1a1a28;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+}
+.score-card-val {
+  font-family: 'Orbitron', monospace;
+  font-size: 36px;
+  font-weight: 900;
+  letter-spacing: 2px;
+  line-height: 1;
+  margin: 8px 0;
+}
+.score-card-label {
+  font-size: 10px;
+  letter-spacing: 3px;
+  color: #445;
+  margin-top: 6px;
+}
+.score-card-sub {
+  font-size: 11px;
+  color: #556;
+  margin-top: 4px;
+  letter-spacing: 1px;
+}
+
+.improvement-bar-wrap {
+  background: #0a0a18;
+  border: 1px solid #1a1a28;
+  border-radius: 8px;
+  padding: 20px;
+  margin-top: 20px;
+}
+.improvement-label {
+  font-size: 10px;
+  letter-spacing: 3px;
+  color: #445;
+  margin-bottom: 10px;
+}
+.progress-bar {
+  height: 12px;
+  background: #111120;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+.progress-fill {
+  height: 100%;
+  border-radius: 6px;
+  background: linear-gradient(90deg, #8855ff, #00cc88);
+  box-shadow: 0 0 10px #8855ff44;
+}
+.progress-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: #556;
+  letter-spacing: 1px;
+}
+
+.iter-timeline {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+.iter-pill {
+  background: #08080e;
+  border: 1px solid #1a1a28;
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: #8855ff;
+  font-family: 'Orbitron', monospace;
+}
+.iter-pill.active {
+  border-color: #8855ff66;
+  background: #8855ff12;
+}
+
+.footer {
+  text-align: center;
+  padding: 40px 0 20px;
+  font-size: 10px;
+  letter-spacing: 3px;
+  color: #222233;
+  border-top: 1px solid #0e0e1e;
+  margin-top: 60px;
+}
 </style>
 </head>
 <body>
+<div class="page-bg"></div>
+<div class="stars"></div>
 
-<h1>GALACTIC ZERO</h1>
-<div class="subtitle">BALANCE REPORT &nbsp;&mdash;&nbsp; GREEDY AI SIMULATION &nbsp;&mdash;&nbsp; 2026-06-03</div>
+<div class="container">
 
-<div class="metrics">
-  <div class="metric">
-    <div class="metric-val">8/11</div>
-    <div class="metric-label">FACTIONS IN RANGE</div>
+  <div class="header">
+    <div class="header-sub">Simulation Analysis Report</div>
+    <div class="header-title">GALACTIC ZERO<br><span>BALANCE REPORT</span></div>
+    <div class="header-meta">1,100 SIMULATED GAMES &middot; 11 FACTIONS &middot; GREEDY AI HEURISTIC &middot; DELTA VP SCORING</div>
   </div>
-  <div class="metric">
-    <div class="metric-val">7.77%</div>
-    <div class="metric-label">STD DEV FROM 50%</div>
-  </div>
-  <div class="metric">
-    <div class="metric-val">880</div>
-    <div class="metric-label">GAMES SIMULATED</div>
-  </div>
-  <div class="metric">
-    <div class="metric-val">43-58%</div>
-    <div class="metric-label">TARGET WIN RANGE</div>
-  </div>
-</div>
 
-<h2>Final Win Rate Table (Weakest to Strongest)</h2>
-<div class="panel">
-<table>
-  <tr>
-    <th>Faction</th>
-    <th>Final Win %</th>
-    <th>Starting Win %</th>
-    <th>Delta</th>
-    <th>Status</th>
-    <th style="width:180px">Distribution</th>
-  </tr>
-  <tr>
-    <td>QUANTUM</td>
-    <td class="low">34.6%</td>
-    <td>32.5%</td>
-    <td>+2.1%</td>
-    <td class="low">TOO LOW</td>
-    <td><div class="bar-bg"><div class="bar-fill" style="width:34.6%;background:#ffdd44"></div></div></td>
-  </tr>
-  <tr>
-    <td>CHOIR</td>
-    <td class="low">35.0%</td>
-    <td>27.5%</td>
-    <td>+7.5%</td>
-    <td class="low">TOO LOW</td>
-    <td><div class="bar-bg"><div class="bar-fill" style="width:35%;background:#ffdd44"></div></div></td>
-  </tr>
-  <tr>
-    <td>MYCOS</td>
-    <td class="low">38.8%</td>
-    <td>56.2%</td>
-    <td>-17.4%</td>
-    <td class="low">TOO LOW</td>
-    <td><div class="bar-bg"><div class="bar-fill" style="width:38.8%;background:#ffdd44"></div></div></td>
-  </tr>
-  <tr>
-    <td>BROOD</td>
-    <td class="ok">44.2%</td>
-    <td>40.0%</td>
-    <td>+4.2%</td>
-    <td class="ok">IN RANGE</td>
-    <td><div class="bar-bg"><div class="bar-fill" style="width:44.2%;background:#44ff88"></div></div></td>
-  </tr>
-  <tr>
-    <td>VOID</td>
-    <td class="ok">45.8%</td>
-    <td>78.8%</td>
-    <td>-33.0%</td>
-    <td class="ok">IN RANGE</td>
-    <td><div class="bar-bg"><div class="bar-fill" style="width:45.8%;background:#44ff88"></div></div></td>
-  </tr>
-  <tr>
-    <td>GAS</td>
-    <td class="ok">46.2%</td>
-    <td>17.5%</td>
-    <td>+28.7%</td>
-    <td class="ok">IN RANGE</td>
-    <td><div class="bar-bg"><div class="bar-fill" style="width:46.2%;background:#44ff88"></div></div></td>
-  </tr>
-  <tr>
-    <td>LITHOS</td>
-    <td class="ok">48.3%</td>
-    <td>61.3%</td>
-    <td>-13.0%</td>
-    <td class="ok">IN RANGE</td>
-    <td><div class="bar-bg"><div class="bar-fill" style="width:48.3%;background:#44ff88"></div></div></td>
-  </tr>
-  <tr>
-    <td>CRYSTALLIS</td>
-    <td class="ok">48.8%</td>
-    <td>58.8%</td>
-    <td>-10.0%</td>
-    <td class="ok">IN RANGE</td>
-    <td><div class="bar-bg"><div class="bar-fill" style="width:48.8%;background:#44ff88"></div></div></td>
-  </tr>
-  <tr>
-    <td>VEIL</td>
-    <td class="ok">50.0%</td>
-    <td>61.3%</td>
-    <td>-11.3%</td>
-    <td class="ok">IN RANGE</td>
-    <td><div class="bar-bg"><div class="bar-fill" style="width:50%;background:#44ff88"></div></div></td>
-  </tr>
-  <tr>
-    <td>TERRAN</td>
-    <td class="ok">51.2%</td>
-    <td>15.0%</td>
-    <td>+36.2%</td>
-    <td class="ok">IN RANGE</td>
-    <td><div class="bar-bg"><div class="bar-fill" style="width:51.2%;background:#44ff88"></div></div></td>
-  </tr>
-  <tr>
-    <td>ENTROPY</td>
-    <td class="ok">51.7%</td>
-    <td>35.0%</td>
-    <td>+16.7%</td>
-    <td class="ok">IN RANGE</td>
-    <td><div class="bar-bg"><div class="bar-fill" style="width:51.7%;background:#44ff88"></div></div></td>
-  </tr>
-</table>
-<p style="margin-top:8px;color:var(--dim);font-size:10px">
-  Target range shown as <span class="target-zone">43-58%</span> &nbsp;|&nbsp;
-  Simulation: 3 seeds x 8 games per ordered pair (110 ordered pairs) = 2,640 total games
-</p>
-</div>
 
-<div class="grid-2" style="margin-top:16px">
+  <!-- SECTION 1: WIN RATE TABLE -->
+  <div class="section">
+    <div class="section-title">
+      <span>WIN RATE TABLE</span>
+      <span class="section-num">01 / 04</span>
+    </div>
+    <table class="win-table">
+      <thead>
+        <tr>
+          <th style="width:40px">RANK</th>
+          <th>FACTION</th>
+          <th>WIN RATE (FINAL)</th>
+          <th>INITIAL RATE</th>
+          <th>STATUS</th>
+        </tr>
+      </thead>
+      <tbody>
 
-  <div>
-    <h2>Edge Changes by Faction</h2>
-    <div class="panel" style="max-height:400px;overflow-y:auto">
-      <p style="color:var(--dim);font-size:11px;margin-bottom:8px">Key changes from baseline (Balance Pass 4):</p>
-      <table style="font-size:11px">
-        <tr><th>Faction</th><th>Change</th><th>Reason</th></tr>
-        <tr><td>GAS</td><td>T2/T3 E: 2-3 <span style="color:var(--accent)">+2</span></td><td>Fix column losses (weak E/W)</td></tr>
-        <tr><td>VOID</td><td>T3 N: 7 <span style="color:var(--red)">-1</span>, S <span style="color:var(--accent)">+1</span></td><td>Reduce dominance</td></tr>
-        <tr><td>QUANTUM</td><td>T2/T3 N: 6 <span style="color:var(--accent)">+1</span></td><td>User-specified N boost</td></tr>
-        <tr><td>ENTROPY</td><td>T2/T3 N: 6 <span style="color:var(--accent)">+1</span></td><td>User-specified N boost</td></tr>
-        <tr><td>VEIL</td><td>T2/T3 S: 4 <span style="color:var(--red)">-1</span>, E <span style="color:var(--accent)">+1</span></td><td>Fix Crystallis matchup + E boost</td></tr>
-        <tr><td>CRYSTALLIS</td><td>T2/T3 E <span style="color:var(--accent)">+1</span>, S <span style="color:var(--accent)">+1</span></td><td>Weaker-as-AI compensation</td></tr>
-        <tr><td>TERRAN</td><td>T2/T3 N+1, S+1, T1 S+1</td><td>Symmetric buff for AI performance</td></tr>
-        <tr><td>CHOIR</td><td>T2/T3 N+1, S+1</td><td>Symmetric buff for AI performance</td></tr>
-        <tr><td>BROOD</td><td>T2/T3 N+1, S+1</td><td>Symmetric buff for AI performance</td></tr>
-        <tr><td>ENTROPY</td><td>T1 S: 5 <span style="color:var(--red)">-1</span></td><td>Moderate AI nerf</td></tr>
-        <tr><td>LITHOS</td><td>T2/T3 E <span style="color:var(--accent)">+1</span></td><td>Horizontal reach boost</td></tr>
-        <tr><td>MYCOS</td><td>T3 S+1</td><td>Micro AI boost</td></tr>
+        <tr>
+          <td><span class="rank-num">#1</span></td>
+          <td>
+            <div class="faction-cell">
+              <span class="faction-dot" style="background:#fff5a0;color:#fff5a0;"></span>
+              <span class="faction-name" style="color:#fff5a0">THE VEIL</span>
+            </div>
+          </td>
+          <td>
+            <span class="win-bar-wrap">
+              <span class="win-bar-fill" style="width:44.5%;background:#00cc88;box-shadow:0 0 6px #00cc8844;"></span>
+            </span>
+            <span class="win-pct" style="color:#00cc88">44.5%</span>
+          </td>
+          <td>
+            <span class="initial-rate">39.0%
+              <span style="color:#00cc88;font-size:10px;margin-left:4px">(+5.5%)</span>
+            </span>
+          </td>
+          <td><span class="status-badge status-ok">BALANCED</span></td>
+        </tr>
+
+        <tr>
+          <td><span class="rank-num">#2</span></td>
+          <td>
+            <div class="faction-cell">
+              <span class="faction-dot" style="background:#9dcf6e;color:#9dcf6e;"></span>
+              <span class="faction-name" style="color:#9dcf6e">MYCOS DRIFT</span>
+            </div>
+          </td>
+          <td>
+            <span class="win-bar-wrap">
+              <span class="win-bar-fill" style="width:45.0%;background:#00cc88;box-shadow:0 0 6px #00cc8844;"></span>
+            </span>
+            <span class="win-pct" style="color:#00cc88">45.0%</span>
+          </td>
+          <td>
+            <span class="initial-rate">64.0%
+              <span style="color:#ff4444;font-size:10px;margin-left:4px">(-19.0%)</span>
+            </span>
+          </td>
+          <td><span class="status-badge status-ok">BALANCED</span></td>
+        </tr>
+
+        <tr>
+          <td><span class="rank-num">#3</span></td>
+          <td>
+            <div class="faction-cell">
+              <span class="faction-dot" style="background:#a0896a;color:#a0896a;"></span>
+              <span class="faction-name" style="color:#a0896a">LITHOS</span>
+            </div>
+          </td>
+          <td>
+            <span class="win-bar-wrap">
+              <span class="win-bar-fill" style="width:46.0%;background:#00cc88;box-shadow:0 0 6px #00cc8844;"></span>
+            </span>
+            <span class="win-pct" style="color:#00cc88">46.0%</span>
+          </td>
+          <td>
+            <span class="initial-rate">32.5%
+              <span style="color:#00cc88;font-size:10px;margin-left:4px">(+13.5%)</span>
+            </span>
+          </td>
+          <td><span class="status-badge status-ok">BALANCED</span></td>
+        </tr>
+
+        <tr>
+          <td><span class="rank-num">#4</span></td>
+          <td>
+            <div class="faction-cell">
+              <span class="faction-dot" style="background:#ff69b4;color:#ff69b4;"></span>
+              <span class="faction-name" style="color:#ff69b4">QUANTUM THREAD</span>
+            </div>
+          </td>
+          <td>
+            <span class="win-bar-wrap">
+              <span class="win-bar-fill" style="width:46.0%;background:#00cc88;box-shadow:0 0 6px #00cc8844;"></span>
+            </span>
+            <span class="win-pct" style="color:#00cc88">46.0%</span>
+          </td>
+          <td>
+            <span class="initial-rate">62.0%
+              <span style="color:#ff4444;font-size:10px;margin-left:4px">(-16.0%)</span>
+            </span>
+          </td>
+          <td><span class="status-badge status-ok">BALANCED</span></td>
+        </tr>
+
+        <tr>
+          <td><span class="rank-num">#5</span></td>
+          <td>
+            <div class="faction-cell">
+              <span class="faction-dot" style="background:#a8d8ff;color:#a8d8ff;"></span>
+              <span class="faction-name" style="color:#a8d8ff">CRYSTALLIS</span>
+            </div>
+          </td>
+          <td>
+            <span class="win-bar-wrap">
+              <span class="win-bar-fill" style="width:48.0%;background:#00cc88;box-shadow:0 0 6px #00cc8844;"></span>
+            </span>
+            <span class="win-pct" style="color:#00cc88">48.0%</span>
+          </td>
+          <td>
+            <span class="initial-rate">44.5%
+              <span style="color:#00cc88;font-size:10px;margin-left:4px">(+3.5%)</span>
+            </span>
+          </td>
+          <td><span class="status-badge status-ok">BALANCED</span></td>
+        </tr>
+
+        <tr>
+          <td><span class="rank-num">#6</span></td>
+          <td>
+            <div class="faction-cell">
+              <span class="faction-dot" style="background:#9b59b6;color:#9b59b6;"></span>
+              <span class="faction-name" style="color:#9b59b6">VOID HUNTERS</span>
+            </div>
+          </td>
+          <td>
+            <span class="win-bar-wrap">
+              <span class="win-bar-fill" style="width:51.0%;background:#00cc88;box-shadow:0 0 6px #00cc8844;"></span>
+            </span>
+            <span class="win-pct" style="color:#00cc88">51.0%</span>
+          </td>
+          <td>
+            <span class="initial-rate">48.0%
+              <span style="color:#00cc88;font-size:10px;margin-left:4px">(+3.0%)</span>
+            </span>
+          </td>
+          <td><span class="status-badge status-ok">BALANCED</span></td>
+        </tr>
+
+        <tr>
+          <td><span class="rank-num">#7</span></td>
+          <td>
+            <div class="faction-cell">
+              <span class="faction-dot" style="background:#7ab8e8;color:#7ab8e8;"></span>
+              <span class="faction-name" style="color:#7ab8e8">TERRAN ACCORD</span>
+            </div>
+          </td>
+          <td>
+            <span class="win-bar-wrap">
+              <span class="win-bar-fill" style="width:51.5%;background:#00cc88;box-shadow:0 0 6px #00cc8844;"></span>
+            </span>
+            <span class="win-pct" style="color:#00cc88">51.5%</span>
+          </td>
+          <td>
+            <span class="initial-rate">53.5%
+              <span style="color:#ff4444;font-size:10px;margin-left:4px">(-2.0%)</span>
+            </span>
+          </td>
+          <td><span class="status-badge status-ok">BALANCED</span></td>
+        </tr>
+
+        <tr>
+          <td><span class="rank-num">#8</span></td>
+          <td>
+            <div class="faction-cell">
+              <span class="faction-dot" style="background:#c4723a;color:#c4723a;"></span>
+              <span class="faction-name" style="color:#c4723a">ENTROPY CULT</span>
+            </div>
+          </td>
+          <td>
+            <span class="win-bar-wrap">
+              <span class="win-bar-fill" style="width:52.0%;background:#00cc88;box-shadow:0 0 6px #00cc8844;"></span>
+            </span>
+            <span class="win-pct" style="color:#00cc88">52.0%</span>
+          </td>
+          <td>
+            <span class="initial-rate">46.0%
+              <span style="color:#00cc88;font-size:10px;margin-left:4px">(+6.0%)</span>
+            </span>
+          </td>
+          <td><span class="status-badge status-ok">BALANCED</span></td>
+        </tr>
+
+        <tr>
+          <td><span class="rank-num">#9</span></td>
+          <td>
+            <div class="faction-cell">
+              <span class="faction-dot" style="background:#c8c8ff;color:#c8c8ff;"></span>
+              <span class="faction-name" style="color:#c8c8ff">THE CHOIR</span>
+            </div>
+          </td>
+          <td>
+            <span class="win-bar-wrap">
+              <span class="win-bar-fill" style="width:52.0%;background:#00cc88;box-shadow:0 0 6px #00cc8844;"></span>
+            </span>
+            <span class="win-pct" style="color:#00cc88">52.0%</span>
+          </td>
+          <td>
+            <span class="initial-rate">48.0%
+              <span style="color:#00cc88;font-size:10px;margin-left:4px">(+4.0%)</span>
+            </span>
+          </td>
+          <td><span class="status-badge status-ok">BALANCED</span></td>
+        </tr>
+
+        <tr>
+          <td><span class="rank-num">#10</span></td>
+          <td>
+            <div class="faction-cell">
+              <span class="faction-dot" style="background:#ffd700;color:#ffd700;"></span>
+              <span class="faction-name" style="color:#ffd700">GAS NOMADS</span>
+            </div>
+          </td>
+          <td>
+            <span class="win-bar-wrap">
+              <span class="win-bar-fill" style="width:56.5%;background:#00cc88;box-shadow:0 0 6px #00cc8844;"></span>
+            </span>
+            <span class="win-pct" style="color:#00cc88">56.5%</span>
+          </td>
+          <td>
+            <span class="initial-rate">50.5%
+              <span style="color:#00cc88;font-size:10px;margin-left:4px">(+6.0%)</span>
+            </span>
+          </td>
+          <td><span class="status-badge status-ok">BALANCED</span></td>
+        </tr>
+
+        <tr>
+          <td><span class="rank-num">#11</span></td>
+          <td>
+            <div class="faction-cell">
+              <span class="faction-dot" style="background:#88cc44;color:#88cc44;"></span>
+              <span class="faction-name" style="color:#88cc44">BROOD SOVEREIGN</span>
+            </div>
+          </td>
+          <td>
+            <span class="win-bar-wrap">
+              <span class="win-bar-fill" style="width:57.5%;background:#00cc88;box-shadow:0 0 6px #00cc8844;"></span>
+            </span>
+            <span class="win-pct" style="color:#00cc88">57.5%</span>
+          </td>
+          <td>
+            <span class="initial-rate">62.0%
+              <span style="color:#ff4444;font-size:10px;margin-left:4px">(-4.5%)</span>
+            </span>
+          </td>
+          <td><span class="status-badge status-ok">BALANCED</span></td>
+        </tr>
+
+      </tbody>
+    </table>
+  </div>
+
+  <!-- SECTION 2: FACTION VS FACTION MATRIX -->
+  <div class="section">
+    <div class="section-title">
+      <span>FACTION VS FACTION MATRIX</span>
+      <span class="section-num">02 / 04</span>
+    </div>
+    <p style="font-size:11px;color:#445;letter-spacing:1px;margin-bottom:16px;">
+      Row faction plays as PLAYER, column faction plays as AI (N/S edges flipped).
+      Cell shows win % of the row faction.
+    </p>
+    <div class="matrix-wrap">
+      <table class="matrix-table">
+        <thead>
+          <tr>
+            <th class="matrix-corner">vs</th>
+<th style="color:#fff5a0">VEIL</th>
+<th style="color:#9dcf6e">MYCOS</th>
+<th style="color:#a0896a">LITHOS</th>
+<th style="color:#ff69b4">QUANTUM</th>
+<th style="color:#a8d8ff">CRYS</th>
+<th style="color:#9b59b6">VOID</th>
+<th style="color:#7ab8e8">TERRAN</th>
+<th style="color:#c4723a">ENTROPY</th>
+<th style="color:#c8c8ff">CHOIR</th>
+<th style="color:#ffd700">GAS</th>
+<th style="color:#88cc44">BROOD</th>
+</tr>
+</thead>
+<tbody>
+<tr><td class="row-label" style="color:#fff5a0">VEIL</td>
+<td class="self">--</td>
+<td style="background:#330011;color:#ff4444">10%</td>
+<td style="background:#330011;color:#ff4444">30%</td>
+<td style="background:#1a1a2a;color:#ffcc55">40%</td>
+<td style="background:#1a1a2a;color:#ffcc55">60%</td>
+<td style="background:#330011;color:#ff4444">30%</td>
+<td style="background:#1a1a2a;color:#ffcc55">60%</td>
+<td style="background:#1a1a2a;color:#ffcc55">40%</td>
+<td style="background:#330011;color:#ff4444">20%</td>
+<td style="background:#330011;color:#ff4444">20%</td>
+<td style="background:#330011;color:#ff4444">20%</td>
+</tr>
+<tr><td class="row-label" style="color:#9dcf6e">MYCOS</td>
+<td style="background:#330011;color:#ff4444">30%</td>
+<td class="self">--</td>
+<td style="background:#1a1a2a;color:#ffcc55">50%</td>
+<td style="background:#1a1a2a;color:#ffcc55">50%</td>
+<td style="background:#330011;color:#ff4444">10%</td>
+<td style="background:#1a1a2a;color:#ffcc55">50%</td>
+<td style="background:#330011;color:#ff4444">20%</td>
+<td style="background:#1a1a2a;color:#ffcc55">40%</td>
+<td style="background:#330011;color:#ff4444">30%</td>
+<td style="background:#1a1a2a;color:#ffcc55">40%</td>
+<td style="background:#1a1a2a;color:#ffcc55">50%</td>
+</tr>
+<tr><td class="row-label" style="color:#a0896a">LITHOS</td>
+<td style="background:#330011;color:#ff4444">30%</td>
+<td style="background:#1a1a2a;color:#ffcc55">40%</td>
+<td class="self">--</td>
+<td style="background:#004422;color:#00ff88">70%</td>
+<td style="background:#004422;color:#00ff88">70%</td>
+<td style="background:#1a1a2a;color:#ffcc55">60%</td>
+<td style="background:#330011;color:#ff4444">10%</td>
+<td style="background:#1a1a2a;color:#ffcc55">40%</td>
+<td style="background:#330011;color:#ff4444">30%</td>
+<td style="background:#1a1a2a;color:#ffcc55">50%</td>
+<td style="background:#330011;color:#ff4444">20%</td>
+</tr>
+<tr><td class="row-label" style="color:#ff69b4">QUANTUM</td>
+<td style="background:#1a1a2a;color:#ffcc55">60%</td>
+<td style="background:#1a1a2a;color:#ffcc55">40%</td>
+<td style="background:#004422;color:#00ff88">70%</td>
+<td class="self">--</td>
+<td style="background:#004422;color:#00ff88">70%</td>
+<td style="background:#1a1a2a;color:#ffcc55">60%</td>
+<td style="background:#1a1a2a;color:#ffcc55">50%</td>
+<td style="background:#1a1a2a;color:#ffcc55">60%</td>
+<td style="background:#1a1a2a;color:#ffcc55">60%</td>
+<td style="background:#1a1a2a;color:#ffcc55">40%</td>
+<td style="background:#1a1a2a;color:#ffcc55">50%</td>
+</tr>
+<tr><td class="row-label" style="color:#a8d8ff">CRYS</td>
+<td style="background:#1a1a2a;color:#ffcc55">40%</td>
+<td style="background:#330011;color:#ff4444">30%</td>
+<td style="background:#330011;color:#ff4444">20%</td>
+<td style="background:#1a1a2a;color:#ffcc55">50%</td>
+<td class="self">--</td>
+<td style="background:#330011;color:#ff4444">30%</td>
+<td style="background:#1a1a2a;color:#ffcc55">60%</td>
+<td style="background:#1a1a2a;color:#ffcc55">40%</td>
+<td style="background:#1a1a2a;color:#ffcc55">40%</td>
+<td style="background:#004422;color:#00ff88">80%</td>
+<td style="background:#1a1a2a;color:#ffcc55">60%</td>
+</tr>
+<tr><td class="row-label" style="color:#9b59b6">VOID</td>
+<td style="background:#1a1a2a;color:#ffcc55">50%</td>
+<td style="background:#004422;color:#00ff88">70%</td>
+<td style="background:#330011;color:#ff4444">30%</td>
+<td style="background:#004422;color:#00ff88">80%</td>
+<td style="background:#330011;color:#ff4444">20%</td>
+<td class="self">--</td>
+<td style="background:#330011;color:#ff4444">30%</td>
+<td style="background:#1a1a2a;color:#ffcc55">40%</td>
+<td style="background:#1a1a2a;color:#ffcc55">50%</td>
+<td style="background:#1a1a2a;color:#ffcc55">50%</td>
+<td style="background:#004422;color:#00ff88">80%</td>
+</tr>
+<tr><td class="row-label" style="color:#7ab8e8">TERRAN</td>
+<td style="background:#1a1a2a;color:#ffcc55">50%</td>
+<td style="background:#330011;color:#ff4444">30%</td>
+<td style="background:#1a1a2a;color:#ffcc55">50%</td>
+<td style="background:#004422;color:#00ff88">70%</td>
+<td style="background:#1a1a2a;color:#ffcc55">60%</td>
+<td style="background:#1a1a2a;color:#ffcc55">40%</td>
+<td class="self">--</td>
+<td style="background:#1a1a2a;color:#ffcc55">40%</td>
+<td style="background:#1a1a2a;color:#ffcc55">50%</td>
+<td style="background:#004422;color:#00ff88">70%</td>
+<td style="background:#1a1a2a;color:#ffcc55">40%</td>
+</tr>
+<tr><td class="row-label" style="color:#c4723a">ENTROPY</td>
+<td style="background:#330011;color:#ff4444">20%</td>
+<td style="background:#1a1a2a;color:#ffcc55">40%</td>
+<td style="background:#1a1a2a;color:#ffcc55">40%</td>
+<td style="background:#004422;color:#00ff88">70%</td>
+<td style="background:#1a1a2a;color:#ffcc55">50%</td>
+<td style="background:#1a1a2a;color:#ffcc55">60%</td>
+<td style="background:#1a1a2a;color:#ffcc55">40%</td>
+<td class="self">--</td>
+<td style="background:#1a1a2a;color:#ffcc55">60%</td>
+<td style="background:#1a1a2a;color:#ffcc55">60%</td>
+<td style="background:#1a1a2a;color:#ffcc55">40%</td>
+</tr>
+<tr><td class="row-label" style="color:#c8c8ff">CHOIR</td>
+<td style="background:#1a1a2a;color:#ffcc55">50%</td>
+<td style="background:#004422;color:#00ff88">80%</td>
+<td style="background:#1a1a2a;color:#ffcc55">50%</td>
+<td style="background:#004422;color:#00ff88">80%</td>
+<td style="background:#1a1a2a;color:#ffcc55">50%</td>
+<td style="background:#1a1a2a;color:#ffcc55">40%</td>
+<td style="background:#1a1a2a;color:#ffcc55">50%</td>
+<td style="background:#1a1a2a;color:#ffcc55">40%</td>
+<td class="self">--</td>
+<td style="background:#1a1a2a;color:#ffcc55">60%</td>
+<td style="background:#1a1a2a;color:#ffcc55">40%</td>
+</tr>
+<tr><td class="row-label" style="color:#ffd700">GAS</td>
+<td style="background:#004422;color:#00ff88">70%</td>
+<td style="background:#1a1a2a;color:#ffcc55">60%</td>
+<td style="background:#004422;color:#00ff88">80%</td>
+<td style="background:#004422;color:#00ff88">80%</td>
+<td style="background:#1a1a2a;color:#ffcc55">50%</td>
+<td style="background:#004422;color:#00ff88">70%</td>
+<td style="background:#004422;color:#00ff88">70%</td>
+<td style="background:#1a1a2a;color:#ffcc55">60%</td>
+<td style="background:#004422;color:#00ff88">100%</td>
+<td class="self">--</td>
+<td style="background:#330011;color:#ff4444">30%</td>
+</tr>
+<tr><td class="row-label" style="color:#88cc44">BROOD</td>
+<td style="background:#1a1a2a;color:#ffcc55">40%</td>
+<td style="background:#004422;color:#00ff88">70%</td>
+<td style="background:#004422;color:#00ff88">80%</td>
+<td style="background:#1a1a2a;color:#ffcc55">50%</td>
+<td style="background:#1a1a2a;color:#ffcc55">50%</td>
+<td style="background:#1a1a2a;color:#ffcc55">40%</td>
+<td style="background:#004422;color:#00ff88">80%</td>
+<td style="background:#1a1a2a;color:#ffcc55">40%</td>
+<td style="background:#1a1a2a;color:#ffcc55">60%</td>
+<td style="background:#004422;color:#00ff88">70%</td>
+<td class="self">--</td>
+</tr>
+
+      </tbody>
       </table>
     </div>
-  </div>
-
-  <div>
-    <h2>Ability Pool Changes</h2>
-    <div class="panel">
-      <p style="color:var(--dim);font-size:11px;margin-bottom:12px">3 factions received stronger ability pools to compensate for structural edge constraints:</p>
-
-      <div style="margin-bottom:12px">
-        <div style="color:var(--text);font-size:12px;margin-bottom:6px">QUANTUM <span style="color:var(--dim);font-size:10px">— Superposition Entities</span></div>
-        <span class="ability-tag removed">QUANTUM ENTANGLEMENT</span>
-        <span style="color:var(--dim);font-size:10px">&rarr;</span>
-        <span class="ability-tag new">PROBABILITY CASCADE</span>
-        <div style="color:var(--dim);font-size:10px;margin-top:4px">FLANK: After placing, take an immediate extra turn</div>
+    <div class="legend-row">
+      <div class="legend-item">
+        <span class="legend-box" style="background:#004422;border:1px solid #00ff8844;"></span>
+        <span>DOMINANT (&gt;60%)</span>
       </div>
-
-      <div style="margin-bottom:12px">
-        <div style="color:var(--text);font-size:12px;margin-bottom:6px">CHOIR <span style="color:var(--dim);font-size:10px">— Resonant Frequency Entities</span></div>
-        <span class="ability-tag removed">DISSONANCE</span>
-        <span style="color:var(--dim);font-size:10px">&rarr;</span>
-        <span class="ability-tag new">SONIC RUSH</span>
-        <div style="color:var(--dim);font-size:10px;margin-top:4px">RUSH: Can be placed adjacent to any enemy card anywhere</div>
+      <div class="legend-item">
+        <span class="legend-box" style="background:#1a1a2a;border:1px solid #ffcc5544;"></span>
+        <span>COMPETITIVE (40-60%)</span>
       </div>
-
-      <div>
-        <div style="color:var(--text);font-size:12px;margin-bottom:6px">MYCOS <span style="color:var(--dim);font-size:10px">— Distributed Fungal Intelligence</span></div>
-        <span class="ability-tag removed">MYCO TOXIN</span>
-        <span style="color:var(--dim);font-size:10px">&rarr;</span>
-        <span class="ability-tag new">MYCO SURGE</span>
-        <div style="color:var(--dim);font-size:10px;margin-top:4px">OVERWHELM: Win by 3+ on one axis and both row and column are claimed</div>
+      <div class="legend-item">
+        <span class="legend-box" style="background:#330011;border:1px solid #ff444444;"></span>
+        <span>UNFAVORABLE (&lt;40%)</span>
       </div>
-
-      <p style="color:var(--dim);font-size:10px;margin-top:12px">
-        All 3 files kept in sync: FACTION_ABILITY_POOLS, RACE_ABILITY_NAMES (game.html) and RACES abilities + ABILITY_DESC (index.html).
-      </p>
+      <div class="legend-item">
+        <span class="legend-box" style="background:#1a1a2a;border:1px solid #33334488;"></span>
+        <span>SELF-MATCH (--)</span>
+      </div>
     </div>
   </div>
 
-</div>
-
-<div class="grid-2" style="margin-top:16px">
-
-  <div>
-    <h2>Worst Remaining Matchup</h2>
-    <div class="worst-box">
-      <p style="color:var(--text);font-size:12px;margin-bottom:8px">
-        Structural asymmetry: Low-S factions (Crystallis S=3.1, Lithos S=3.2) are inherently weaker as AI since their S-edge becomes N-attack when playing from top. This is partially compensated by high E/W edges but cannot be fully overcome without losing faction identity.
-      </p>
-      <p style="color:var(--dim);font-size:11px">
-        Known worst matchup (pre-fix): <span style="color:var(--red)">Crystallis vs Veil (Veil wins 100%)</span> due to Veil's high N vs Crystallis's low S.
-        Fixed by reducing Veil S from 4 to 3 and boosting Veil E by 1.
-      </p>
-      <p style="color:var(--dim);font-size:11px;margin-top:8px">
-        Remaining challenge: Quantum/Choir/Mycos at 35-39% due to:
-        1) Simulation using fixed seed (variance at 880 games is ~5-7%)
-        2) Complex multi-faction VP redistribution effects
-        3) Ability pool improvements (Flank, Rush, Overwhelm) should help in real gameplay
-      </p>
+  <!-- SECTION 3: WHAT CHANGED -->
+  <div class="section">
+    <div class="section-title">
+      <span>WHAT CHANGED</span>
+      <span class="section-num">03 / 04</span>
     </div>
-  </div>
-
-  <div>
-    <h2>Balance Score</h2>
-    <div style="text-align:center;padding:16px">
-      <div class="score-big">7.77%</div>
-      <div class="score-label">STD DEV FROM 50% (lower is better)</div>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 16px">
-      <div class="score-box">
-        <div style="font-size:20px;color:var(--accent)">8 / 11</div>
-        <div class="score-label">IN TARGET RANGE</div>
-      </div>
-      <div class="score-box">
-        <div style="font-size:20px;color:var(--green)">-11.3%</div>
-        <div class="score-label">STD DEV IMPROVEMENT</div>
-      </div>
-    </div>
-    <p style="color:var(--dim);font-size:10px;padding:12px;text-align:center">
-      Starting std dev: ~19.2% &rarr; Final: 7.77%<br>
-      A 59% improvement in overall balance
+    <p style="font-size:11px;color:#445;letter-spacing:1px;margin-bottom:20px;">
+      Edge adjustments made across 4 iterations. Only outlier factions adjusted.
+      Changes target N edges of T2/T3 cards (+1 buff for weak factions, -1 nerf for strong factions).
     </p>
+<div class="iter-timeline">
+<span class="iter-pill">BASELINE</span>
+<span class="iter-pill active">ITER 1</span>
+<span class="iter-pill active">ITER 2</span>
+<span class="iter-pill active">ITER 3</span>
+<span class="iter-pill active">ITER 4</span>
+</div>
+<div class="changes-grid" style="margin-top:24px;">
+
+      <div class="change-card" style="border-color:#fff5a022;">
+        <div class="change-card-header" style="color:#fff5a0">THE VEIL</div>
+        <div class="change-item">
+          <span class="iter-tag">ITER 1</span>
+          <span class="edge-change">SHIMMER SCREEN N +1 -> 8</span>
+        </div>
+        <div class="change-item">
+          <span class="iter-tag">ITER 1</span>
+          <span class="edge-change">PHASE WING N +1 -> 8</span>
+        </div>
+        <div class="change-item">
+          <span class="iter-tag">ITER 1</span>
+          <span class="edge-change">CLOAK ARRAY N +1 -> 6</span>
+        </div>
+        <div class="change-item">
+          <span class="iter-tag">ITER 3</span>
+          <span class="edge-change">SHIMMER SCREEN N +1 -> 9</span>
+        </div>
+        <div class="change-item">
+          <span class="iter-tag">ITER 3</span>
+          <span class="edge-change">PHASE WING N +1 -> 9</span>
+        </div>
+        <div class="change-item">
+          <span class="iter-tag">ITER 3</span>
+          <span class="edge-change">CLOAK ARRAY N +1 -> 7</span>
+        </div>
+      </div>
+
+      <div class="change-card" style="border-color:#9dcf6e22;">
+        <div class="change-card-header" style="color:#9dcf6e">MYCOS DRIFT</div>
+        <div class="change-item">
+          <span class="iter-tag">ITER 1</span>
+          <span class="edge-nerf">MYCELIUM WEB N -1 -> 6</span>
+        </div>
+        <div class="change-item">
+          <span class="iter-tag">ITER 1</span>
+          <span class="edge-nerf">SPORE CLOUD N -1 -> 5</span>
+        </div>
+        <div class="change-item">
+          <span class="iter-tag">ITER 1</span>
+          <span class="edge-nerf">TENDRIL SURGE N -1 -> 4</span>
+        </div>
+        <div class="change-item">
+          <span class="iter-tag">ITER 2</span>
+          <span class="edge-nerf">MYCELIUM WEB N -1 -> 5</span>
+        </div>
+        <div class="change-item">
+          <span class="iter-tag">ITER 2</span>
+          <span class="edge-nerf">SPORE CLOUD N -1 -> 4</span>
+        </div>
+        <div class="change-item">
+          <span class="iter-tag">ITER 2</span>
+          <span class="edge-nerf">TENDRIL SURGE N -1 -> 3</span>
+        </div>
+      </div>
+
+      <div class="change-card" style="border-color:#a0896a22;">
+        <div class="change-card-header" style="color:#a0896a">LITHOS</div>
+        <div class="change-item">
+          <span class="iter-tag">ITER 1</span>
+          <span class="edge-change">TECTONIC CLUSTER N +1 -> 7</span>
+        </div>
+        <div class="change-item">
+          <span class="iter-tag">ITER 1</span>
+          <span class="edge-change">QUAKE SURGE N +1 -> 8</span>
+        </div>
+        <div class="change-item">
+          <span class="iter-tag">ITER 1</span>
+          <span class="edge-change">BASALT MASS N +1 -> 6</span>
+        </div>
+        <div class="change-item">
+          <span class="iter-tag">ITER 2</span>
+          <span class="edge-change">TECTONIC CLUSTER N +1 -> 8</span>
+        </div>
+        <div class="change-item">
+          <span class="iter-tag">ITER 2</span>
+          <span class="edge-change">QUAKE SURGE N +1 -> 9</span>
+        </div>
+        <div class="change-item">
+          <span class="iter-tag">ITER 2</span>
+          <span class="edge-change">BASALT MASS N +1 -> 7</span>
+        </div>
+      </div>
+
+      <div class="change-card" style="border-color:#ff69b422;">
+        <div class="change-card-header" style="color:#ff69b4">QUANTUM THREAD</div>
+        <div class="change-item">
+          <span class="iter-tag">ITER 1</span>
+          <span class="edge-nerf">SUPERPOSED ARRAY N -1 -> 5</span>
+        </div>
+        <div class="change-item">
+          <span class="iter-tag">ITER 1</span>
+          <span class="edge-nerf">QUBIT WING N -1 -> 5</span>
+        </div>
+        <div class="change-item">
+          <span class="iter-tag">ITER 1</span>
+          <span class="edge-nerf">ENTANGLE MASS N -1 -> 4</span>
+        </div>
+        <div class="change-item">
+          <span class="iter-tag">ITER 3</span>
+          <span class="edge-nerf">SUPERPOSED ARRAY N -1 -> 4</span>
+        </div>
+        <div class="change-item">
+          <span class="iter-tag">ITER 3</span>
+          <span class="edge-nerf">QUBIT WING N -1 -> 4</span>
+        </div>
+        <div class="change-item">
+          <span class="iter-tag">ITER 3</span>
+          <span class="edge-nerf">ENTANGLE MASS N -1 -> 3</span>
+        </div>
+        <div class="change-item">
+          <span class="iter-tag">ITER 4</span>
+          <span class="edge-change">SUPERPOSED ARRAY N +1 -> 5</span>
+        </div>
+        <div class="change-item">
+          <span class="iter-tag">ITER 4</span>
+          <span class="edge-change">QUBIT WING N +1 -> 5</span>
+        </div>
+        <div class="change-item">
+          <span class="iter-tag">ITER 4</span>
+          <span class="edge-change">ENTANGLE MASS N +1 -> 4</span>
+        </div>
+      </div>
+
+      <div class="change-card" style="border-color:#a8d8ff22;">
+        <div class="change-card-header" style="color:#a8d8ff">CRYSTALLIS</div>
+        <div class="no-changes">NO CHANGES REQUIRED</div>
+      </div>
+
+      <div class="change-card" style="border-color:#9b59b622;">
+        <div class="change-card-header" style="color:#9b59b6">VOID HUNTERS</div>
+        <div class="no-changes">NO CHANGES REQUIRED</div>
+      </div>
+
+      <div class="change-card" style="border-color:#7ab8e822;">
+        <div class="change-card-header" style="color:#7ab8e8">TERRAN ACCORD</div>
+        <div class="change-item">
+          <span class="iter-tag">ITER 3</span>
+          <span class="edge-nerf">BATTLE GROUP N -1 -> 6</span>
+        </div>
+        <div class="change-item">
+          <span class="iter-tag">ITER 3</span>
+          <span class="edge-nerf">CARRIER WING N -1 -> 6</span>
+        </div>
+        <div class="change-item">
+          <span class="iter-tag">ITER 3</span>
+          <span class="edge-nerf">STRIKE FORCE N -1 -> 4</span>
+        </div>
+      </div>
+
+      <div class="change-card" style="border-color:#c4723a22;">
+        <div class="change-card-header" style="color:#c4723a">ENTROPY CULT</div>
+        <div class="no-changes">NO CHANGES REQUIRED</div>
+      </div>
+
+      <div class="change-card" style="border-color:#c8c8ff22;">
+        <div class="change-card-header" style="color:#c8c8ff">THE CHOIR</div>
+        <div class="change-item">
+          <span class="iter-tag">ITER 3</span>
+          <span class="edge-change">RESONANCE CHOIR N +1 -> 7</span>
+        </div>
+        <div class="change-item">
+          <span class="iter-tag">ITER 3</span>
+          <span class="edge-change">HARMONIC SURGE N +1 -> 8</span>
+        </div>
+        <div class="change-item">
+          <span class="iter-tag">ITER 3</span>
+          <span class="edge-change">SONIC MASS N +1 -> 6</span>
+        </div>
+        <div class="change-item">
+          <span class="iter-tag">ITER 4</span>
+          <span class="edge-nerf">RESONANCE CHOIR N -1 -> 6</span>
+        </div>
+        <div class="change-item">
+          <span class="iter-tag">ITER 4</span>
+          <span class="edge-nerf">HARMONIC SURGE N -1 -> 7</span>
+        </div>
+        <div class="change-item">
+          <span class="iter-tag">ITER 4</span>
+          <span class="edge-nerf">SONIC MASS N -1 -> 5</span>
+        </div>
+      </div>
+
+      <div class="change-card" style="border-color:#ffd70022;">
+        <div class="change-card-header" style="color:#ffd700">GAS NOMADS</div>
+        <div class="change-item">
+          <span class="iter-tag">ITER 4</span>
+          <span class="edge-nerf">PLASMA WING N -1 -> 6</span>
+        </div>
+        <div class="change-item">
+          <span class="iter-tag">ITER 4</span>
+          <span class="edge-nerf">ION SURGE N -1 -> 5</span>
+        </div>
+        <div class="change-item">
+          <span class="iter-tag">ITER 4</span>
+          <span class="edge-nerf">STORM MASS N -1 -> 4</span>
+        </div>
+      </div>
+
+      <div class="change-card" style="border-color:#88cc4422;">
+        <div class="change-card-header" style="color:#88cc44">BROOD SOVEREIGN</div>
+        <div class="change-item">
+          <span class="iter-tag">ITER 1</span>
+          <span class="edge-nerf">WARRIOR CLUSTER N -1 -> 6</span>
+        </div>
+        <div class="change-item">
+          <span class="iter-tag">ITER 1</span>
+          <span class="edge-nerf">SOLDIER MASS N -1 -> 6</span>
+        </div>
+        <div class="change-item">
+          <span class="iter-tag">ITER 1</span>
+          <span class="edge-nerf">BIOMECH FLEET N -1 -> 4</span>
+        </div>
+      </div>
+</div>
+</div>
+
+  <!-- SECTION 4: BALANCE SCORE -->
+  <div class="section">
+    <div class="section-title">
+      <span>BALANCE SCORE</span>
+      <span class="section-num">04 / 04</span>
+    </div>
+
+    <div class="score-cards">
+      <div class="score-card">
+        <div class="score-card-label">INITIAL STD DEV</div>
+        <div class="score-card-val" style="color:#ff4444">9.43%</div>
+        <div class="score-card-sub">from 50% target</div>
+      </div>
+      <div class="score-card">
+        <div class="score-card-label">FINAL STD DEV</div>
+        <div class="score-card-val" style="color:#00cc88">4.27%</div>
+        <div class="score-card-sub">from 50% target</div>
+      </div>
+      <div class="score-card">
+        <div class="score-card-label">IMPROVEMENT</div>
+        <div class="score-card-val" style="color:#8855ff">5.16%</div>
+        <div class="score-card-sub">55% reduction in variance</div>
+      </div>
+      <div class="score-card">
+        <div class="score-card-label">FACTIONS IN RANGE</div>
+        <div class="score-card-val" style="color:#00cc88">11/11</div>
+        <div class="score-card-sub">43% - 58% win rate</div>
+      </div>
+      <div class="score-card">
+        <div class="score-card-label">ITERATIONS USED</div>
+        <div class="score-card-val" style="color:#ffcc55">4</div>
+        <div class="score-card-sub">of 5 maximum</div>
+      </div>
+      <div class="score-card">
+        <div class="score-card-label">TOTAL GAMES</div>
+        <div class="score-card-val" style="color:#a8d8ff">1,100</div>
+        <div class="score-card-sub">per iteration run</div>
+      </div>
+    </div>
+
+    <div class="improvement-bar-wrap">
+      <div class="improvement-label">VARIANCE REDUCTION PROGRESS</div>
+
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+        <span style="font-size:9px;letter-spacing:2px;color:#445;min-width:80px;">BASELINE</span>
+        <div class="progress-bar" style="flex:1;">
+          <div class="progress-fill" style="width:0.0%"></div>
+        </div>
+        <span style="font-size:11px;color:#8855ff;min-width:50px;text-align:right;">9.43%</span>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+        <span style="font-size:9px;letter-spacing:2px;color:#445;min-width:80px;">ITER 1</span>
+        <div class="progress-bar" style="flex:1;">
+          <div class="progress-fill" style="width:41.2%"></div>
+        </div>
+        <span style="font-size:11px;color:#8855ff;min-width:50px;text-align:right;">5.54%</span>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+        <span style="font-size:9px;letter-spacing:2px;color:#445;min-width:80px;">ITER 2</span>
+        <div class="progress-bar" style="flex:1;">
+          <div class="progress-fill" style="width:26.6%"></div>
+        </div>
+        <span style="font-size:11px;color:#8855ff;min-width:50px;text-align:right;">6.92%</span>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+        <span style="font-size:9px;letter-spacing:2px;color:#445;min-width:80px;">ITER 3</span>
+        <div class="progress-bar" style="flex:1;">
+          <div class="progress-fill" style="width:41.8%"></div>
+        </div>
+        <span style="font-size:11px;color:#8855ff;min-width:50px;text-align:right;">5.49%</span>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+        <span style="font-size:9px;letter-spacing:2px;color:#445;min-width:80px;">ITER 4</span>
+        <div class="progress-bar" style="flex:1;">
+          <div class="progress-fill" style="width:54.7%"></div>
+        </div>
+        <span style="font-size:11px;color:#8855ff;min-width:50px;text-align:right;">4.27%</span>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="footer">
+    GALACTIC ZERO &middot; AUTOMATED BALANCE ANALYSIS &middot; 1,100 SIMULATED GAMES &middot; GREEDY AI HEURISTIC
   </div>
 
 </div>
-
-<h2>Methodology Notes</h2>
-<div class="panel">
-  <p style="color:var(--dim);font-size:11px;line-height:1.8">
-    <strong style="color:var(--text)">Simulation:</strong> Python greedy AI plays all 110 ordered faction pairs (8 games each = 880 games per iteration). VP scoring uses pure delta: winner rows/cols - loser rows/cols. Card edges are flipped N/S when deck plays as AI (top side).<br><br>
-    <strong style="color:var(--text)">Key Finding:</strong> Win rate is primarily driven by the faction's average (N+S)/2 value (determines performance as both player and AI). Factions with low S (Terran S=2.7, Brood S=2.7, Choir S=3.4) were structurally weak as AI until S edges were boosted. Gas's problem was pure E/W weakness (E=2-3) causing systematic column losses.<br><br>
-    <strong style="color:var(--text)">Structural Limitation:</strong> High N/low S factions (Crystallis, Lithos, Veil) maintain identity tradeoffs. 3 factions remain slightly below range (34-39%) due to inherent asymmetry and simulation variance at 880-game sample size.
-  </p>
-</div>
-
-<div style="text-align:center;color:var(--dim);font-size:10px;margin-top:24px;letter-spacing:2px;border-top:1px solid var(--border);padding-top:12px">
-  GENERATED BY BALANCE LOOP v2 &nbsp;&bull;&nbsp; 2026-06-03 &nbsp;&bull;&nbsp; GALACTIC ZERO BALANCE SYSTEM &nbsp;&bull;&nbsp; mhansen003/nullbreach
-</div>
-
 </body>
 </html>
