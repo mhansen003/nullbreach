@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>GALACTIC ZERO — Ability Design</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body {
+    background:#030308;
+    color:#ccc;
+    font-family:'Share Tech Mono','Courier New',monospace;
+    min-height:100vh;
+    padding:32px 40px 80px;
+  }
+  h1 { font-family:'Orbitron',monospace; font-size:22px; letter-spacing:6px; color:#fff; margin-bottom:4px; }
+  .sub { font-size:11px; color:#555; letter-spacing:3px; margin-bottom:40px; }
+
+  /* ─── SECTION HEADER ─────────────────────── */
+  .sec { font-family:'Orbitron',monospace; font-size:13px; letter-spacing:4px; color:#8855ff; margin:36px 0 16px; border-bottom:1px solid #1a1a28; padding-bottom:6px; }
+
+  /* ─── RACE CARD ──────────────────────────── */
+  .races { display:flex; gap:24px; flex-wrap:wrap; margin-bottom:8px; }
+  .race-card {
+    border:1px solid var(--rc, #555);
+    border-radius:10px;
+    background:#07070f;
+    padding:18px 22px;
+    min-width:320px;
+    flex:1;
+    max-width:480px;
+  }
+  .race-card h2 { font-family:'Orbitron',monospace; font-size:16px; letter-spacing:3px; color:var(--rc,#fff); margin-bottom:2px; }
+  .race-sub { font-size:9px; color:#555; letter-spacing:2px; margin-bottom:14px; }
+  .race-play-style { font-size:10px; color:#888; letter-spacing:1px; margin-bottom:14px; font-style:italic; }
+  .abilities-list { display:flex; flex-direction:column; gap:8px; }
+  .ab-row {
+    display:flex; align-items:flex-start; gap:10px;
+    background:#0a0a18; border:1px solid #1a1a28;
+    border-left:3px solid var(--ac,#555);
+    border-radius:5px; padding:8px 12px;
+  }
+  .ab-icon { font-size:14px; flex-shrink:0; margin-top:1px; }
+  .ab-name { font-family:'Orbitron',monospace; font-size:10px; letter-spacing:2px; color:var(--ac,#888); font-weight:700; }
+  .ab-custom { font-size:9px; color:#555; letter-spacing:1px; margin-top:1px; }
+  .ab-desc { font-size:10px; color:#888; margin-top:3px; line-height:1.5; }
+  .ab-mechanic { font-size:9px; color:#555; margin-top:3px; font-style:italic; }
+
+  /* ─── ABILITY TAXONOMY TABLE ─────────────── */
+  .tax-section { margin-bottom:32px; }
+  .tax-header {
+    display:flex; align-items:center; gap:10px;
+    margin-bottom:12px;
+  }
+  .tax-category {
+    font-family:'Orbitron',monospace; font-size:11px;
+    letter-spacing:3px; padding:4px 12px;
+    border-radius:4px; border:1px solid var(--cat,#555);
+    color:var(--cat,#888); background:var(--cat-bg,#0a0a18);
+  }
+  .tax-desc { font-size:10px; color:#555; }
+  .ab-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:10px; }
+  .ab-tile {
+    background:#07070f;
+    border:1px solid #1a1a28;
+    border-left:3px solid var(--at,#333);
+    border-radius:6px;
+    padding:10px 14px;
+  }
+  .ab-tile.implemented { border-color:#1a1a28; border-left-color:var(--at,#333); }
+  .ab-tile.new { border-left-color:#8855ff; }
+  .at-name { font-family:'Orbitron',monospace; font-size:11px; letter-spacing:2px; color:var(--at,#888); font-weight:700; }
+  .at-tag { display:inline-block; font-size:8px; letter-spacing:1px; padding:1px 5px; border-radius:3px; margin-left:6px; vertical-align:middle; }
+  .at-tag.live { background:#00ffcc18; color:#00ffcc; border:1px solid #00ffcc44; }
+  .at-tag.new  { background:#8855ff18; color:#8855ff; border:1px solid #8855ff44; }
+  .at-desc { font-size:10px; color:#888; margin-top:5px; line-height:1.55; }
+  .at-uses { font-size:9px; color:#555; margin-top:4px; }
+
+  /* ─── MATRIX ────────────────────────────── */
+  .matrix-wrap { overflow-x:auto; margin-bottom:16px; }
+  table { border-collapse:collapse; min-width:900px; width:100%; }
+  thead th {
+    font-family:'Orbitron',monospace; font-size:8px; letter-spacing:1px;
+    color:#555; padding:6px 8px; text-align:center;
+    border-bottom:1px solid #1a1a28;
+    white-space:nowrap;
+  }
+  thead th.race-col { text-align:left; min-width:140px; }
+  tbody tr { border-bottom:1px solid #0e0e1a; }
+  tbody tr:hover { background:#0a0a18; }
+  td { padding:8px; font-size:10px; }
+  td.race-name {
+    font-family:'Orbitron',monospace; font-size:10px; letter-spacing:1px;
+    white-space:nowrap; padding-left:12px;
+  }
+  td.cell-check { text-align:center; }
+  .check { color:#00ffcc; font-size:13px; }
+  .dash  { color:#1a1a28; }
+  .tbd   { color:#8855ff44; font-size:9px; letter-spacing:1px; }
+
+  /* ─── NOTES / SCRATCH ────────────────────── */
+  .notes-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:16px; }
+  .note-card {
+    background:#07070f;
+    border:1px solid #1a1a28;
+    border-radius:8px;
+    padding:14px 16px;
+  }
+  .note-race { font-family:'Orbitron',monospace; font-size:11px; letter-spacing:2px; color:var(--nr,#888); margin-bottom:6px; }
+  .note-tag  { font-size:9px; color:#555; letter-spacing:1px; margin-bottom:8px; font-style:italic; }
+  .note-slot {
+    display:flex; gap:8px; align-items:center;
+    padding:5px 0; border-bottom:1px solid #0e0e1a;
+    font-size:10px; color:#666;
+  }
+  .note-slot:last-child { border-bottom:none; }
+  .slot-num { color:#333; font-size:9px; width:16px; flex-shrink:0; }
+  .slot-fill { color:#aaa; }
+  .slot-fill.live { color:var(--nr,#aaa); }
+</style>
+</head>
+<body>
+
+<h1>GALACTIC ZERO</h1>
+<div class="sub">ABILITY DESIGN CANVAS — RACE INTERVIEW PREP</div>
+
+<!-- ═══════════════════════════════════════════
+     SECTION 1: REFERENCE RACES (WIRED UP)
+═══════════════════════════════════════════ -->
+<div class="sec">① REFERENCE RACES — TERRAN + BROOD (FULLY WIRED)</div>
+
+<div class="races">
+
+  <!-- TERRAN -->
+  <div class="race-card" style="--rc:#7ab8e8">
+    <h2>THE TERRAN ACCORD</h2>
+    <div class="race-sub">UNITED COLONIAL FEDERATION</div>
+    <div class="race-play-style">Play style: Control / Attrition. Defend the home row, buff forward units, punish over-extension.</div>
+    <div class="abilities-list">
+      <div class="ab-row" style="--ac:#aaaaff">
+        <div class="ab-icon">🛡</div>
+        <div>
+          <div class="ab-name">SHIELD</div>
+          <div class="ab-custom">Custom name idea: "COLONIAL BULWARK"</div>
+          <div class="ab-desc">Blocks the first edge-comparison loss this card would suffer. One-time use per card.</div>
+          <div class="ab-mechanic">Mechanic: defense/reactive — reduces downside</div>
+        </div>
+      </div>
+      <div class="ab-row" style="--ac:#ffdd00">
+        <div class="ab-icon">⚡⚡</div>
+        <div>
+          <div class="ab-name">DOUBLE STRIKE</div>
+          <div class="ab-custom">Custom name idea: "ACCORD BARRAGE"</div>
+          <div class="ab-desc">Fires a second hit at half-strength after the primary comparison. Can flip close battles.</div>
+          <div class="ab-mechanic">Mechanic: offense/combat — bonus damage</div>
+        </div>
+      </div>
+      <div class="ab-row" style="--ac:#ffcc00">
+        <div class="ab-icon">★★</div>
+        <div>
+          <div class="ab-name">COMMANDER</div>
+          <div class="ab-custom">Custom name idea: "FLEET ADMIRAL"</div>
+          <div class="ab-desc">On placement, all adjacent same-tier friendly cards gain +2 to all edges permanently.</div>
+          <div class="ab-mechanic">Mechanic: aura/placement — buff allies</div>
+        </div>
+      </div>
+      <div class="ab-row" style="--ac:#ff9900">
+        <div class="ab-icon">↺↺</div>
+        <div>
+          <div class="ab-name">FLANK</div>
+          <div class="ab-custom">Custom name idea: "PINCER MANEUVER"</div>
+          <div class="ab-desc">After placing this card, take an extra turn immediately before the AI responds.</div>
+          <div class="ab-mechanic">Mechanic: action/tempo — double placement</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BROOD -->
+  <div class="race-card" style="--rc:#88cc44">
+    <h2>THE BROOD SOVEREIGN</h2>
+    <div class="race-sub">INSECTOID HIVE-MIND</div>
+    <div class="race-play-style">Play style: Swarm / Coordination. Rush adjacent to enemies, normalize weak cards, chain hive buffs.</div>
+    <div class="abilities-list">
+      <div class="ab-row" style="--ac:#88cc44">
+        <div class="ab-icon">★★</div>
+        <div>
+          <div class="ab-name">SPAWN</div>
+          <div class="ab-custom">Brood-specific COMMANDER — "HIVE PULSE"</div>
+          <div class="ab-desc">On placement, adjacent same-tier BROOD cards gain +2 to all edges. Hive synergy only.</div>
+          <div class="ab-mechanic">Mechanic: aura/faction-gated — buff same-race allies only</div>
+        </div>
+      </div>
+      <div class="ab-row" style="--ac:#ff88ff">
+        <div class="ab-icon">↔↕</div>
+        <div>
+          <div class="ab-name">SWEEP</div>
+          <div class="ab-custom">Custom name idea: "MANDIBLE LEVEL"</div>
+          <div class="ab-desc">On placement, all 4 edges normalize to the card's 2nd-highest edge value — trades spike for even coverage.</div>
+          <div class="ab-mechanic">Mechanic: self-modifier/placement — redistribute edge values</div>
+        </div>
+      </div>
+      <div class="ab-row" style="--ac:#ff6644">
+        <div class="ab-icon">▶!</div>
+        <div>
+          <div class="ab-name">RUSH</div>
+          <div class="ab-custom">Custom name idea: "ACID CHARGE"</div>
+          <div class="ab-desc">Can be placed adjacent to any enemy card anywhere on the board, bypassing tier zone rules.</div>
+          <div class="ab-mechanic">Mechanic: placement/mobility — bypass zone restrictions</div>
+        </div>
+      </div>
+      <div class="ab-row" style="--ac:#44ffcc">
+        <div class="ab-icon">⬆</div>
+        <div>
+          <div class="ab-name">BOOST</div>
+          <div class="ab-custom">Custom name idea: "QUEEN'S FAVOR"</div>
+          <div class="ab-desc">On placement, all adjacent friendly cards (any tier) gain +1 to all edges permanently.</div>
+          <div class="ab-mechanic">Mechanic: aura/placement — wide buff (any tier, not just same)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SECTION 2: ABILITY TAXONOMY
+═══════════════════════════════════════════ -->
+<div class="sec">② FULL ABILITY TAXONOMY — ALL TYPES</div>
+
+<!-- PLACEMENT -->
+<div class="tax-section">
+  <div class="tax-header">
+    <div class="tax-category" style="--cat:#ff6644;--cat-bg:#ff664408">PLACEMENT</div>
+    <div class="tax-desc">Controls WHERE and WHEN a card can be placed</div>
+  </div>
+  <div class="ab-grid">
+    <div class="ab-tile" style="--at:#ff6644">
+      <div class="at-name">RUSH <span class="at-tag live">LIVE</span></div>
+      <div class="at-desc">Place adjacent to any enemy, bypass tier zones. Only restriction: cannot enter enemy home row.</div>
+      <div class="at-uses">Best for: aggressive factions, swarm decks</div>
+    </div>
+    <div class="ab-tile" style="--at:#ff9900">
+      <div class="at-name">FLANK <span class="at-tag live">LIVE</span></div>
+      <div class="at-desc">After placing, take an immediate extra turn before the AI responds.</div>
+      <div class="at-uses">Best for: tempo factions, mid-game momentum</div>
+    </div>
+    <div class="ab-tile" style="--at:#88ffff">
+      <div class="at-name">PHANTOM <span class="at-tag new">NEW IDEA</span></div>
+      <div class="at-desc">Can be placed anywhere in own home 2 rows — ignores zone expansion rules entirely. Flexible anchor.</div>
+      <div class="at-uses">Best for: evasive/light factions (Veil?)</div>
+    </div>
+    <div class="ab-tile" style="--at:#ffcc00">
+      <div class="at-name">ANCHOR <span class="at-tag new">NEW IDEA</span></div>
+      <div class="at-desc">When placed, permanently claims the cell — enemy cannot displace or overwrite via game effects. (Lithos?)</div>
+      <div class="at-uses">Best for: defensive/immovable factions</div>
+    </div>
+    <div class="ab-tile" style="--at:#cc44ff">
+      <div class="at-name">AMBUSH <span class="at-tag new">NEW IDEA</span></div>
+      <div class="at-desc">If placed adjacent to an enemy, that enemy immediately loses 1 from its facing edge (permanent debuff on placement).</div>
+      <div class="at-uses">Best for: precision/assassin factions (Void?)</div>
+    </div>
+    <div class="ab-tile" style="--at:#ff4422">
+      <div class="at-name">SURGE <span class="at-tag live">LIVE</span></div>
+      <div class="at-desc">When this card is losing a line at placement time, it gains +3 to all edges. Comeback mechanic.</div>
+      <div class="at-uses">Best for: volatile/unstable factions (Gas?)</div>
+    </div>
+  </div>
+</div>
+
+<!-- COMBAT -->
+<div class="tax-section">
+  <div class="tax-header">
+    <div class="tax-category" style="--cat:#ffdd00;--cat-bg:#ffdd0008">COMBAT MODIFIERS</div>
+    <div class="tax-desc">Changes HOW edge comparisons resolve</div>
+  </div>
+  <div class="ab-grid">
+    <div class="ab-tile" style="--at:#ffdd00">
+      <div class="at-name">DOUBLE STRIKE <span class="at-tag live">LIVE</span></div>
+      <div class="at-desc">Fires a second comparison at half-strength after the primary. Can flip near-ties into wins.</div>
+      <div class="at-uses">Best for: offensive factions, high edge-value decks</div>
+    </div>
+    <div class="ab-tile" style="--at:#ff8844">
+      <div class="at-name">PIERCE <span class="at-tag live">LIVE</span></div>
+      <div class="at-desc">Ties in edge comparisons count as wins for this card. Eliminates draw outcomes.</div>
+      <div class="at-uses">Best for: balanced-edge factions (Quantum?)</div>
+    </div>
+    <div class="ab-tile" style="--at:#aaaaff">
+      <div class="at-name">SHIELD <span class="at-tag live">LIVE</span></div>
+      <div class="at-desc">Absorbs the first edge-comparison loss. One-time defensive barrier per card.</div>
+      <div class="at-uses">Best for: defensive anchors, T1 home row holders</div>
+    </div>
+    <div class="ab-tile" style="--at:#cc44ff">
+      <div class="at-name">MIRROR <span class="at-tag new">NEW IDEA</span></div>
+      <div class="at-desc">When this card loses an edge comparison, the attacker also loses 1 from that edge permanently (punish aggression).</div>
+      <div class="at-uses">Best for: reactive/counter-play factions (Crystallis?)</div>
+    </div>
+    <div class="ab-tile" style="--at:#ff4444">
+      <div class="at-name">DRAIN <span class="at-tag live">LIVE</span></div>
+      <div class="at-desc">When this card wins an edge comparison, the losing enemy card permanently loses 1 from that edge.</div>
+      <div class="at-uses">Best for: attrition/decay factions (Entropy?)</div>
+    </div>
+    <div class="ab-tile" style="--at:#88cc44">
+      <div class="at-name">OVERWHELM <span class="at-tag new">NEW IDEA</span></div>
+      <div class="at-desc">If this card wins by 3+, it wins BOTH the row AND column for that cell simultaneously (double-line claim).</div>
+      <div class="at-uses">Best for: high-power flagship/T4 cards</div>
+    </div>
+  </div>
+</div>
+
+<!-- AURA -->
+<div class="tax-section">
+  <div class="tax-header">
+    <div class="tax-category" style="--cat:#44ffcc;--cat-bg:#44ffcc08">AURA / BUFF</div>
+    <div class="tax-desc">Affects adjacent cards on or after placement</div>
+  </div>
+  <div class="ab-grid">
+    <div class="ab-tile" style="--at:#ffcc00">
+      <div class="at-name">COMMANDER <span class="at-tag live">LIVE</span></div>
+      <div class="at-desc">Adjacent same-tier friendly cards get +2 all edges on placement. Tier-gated buff.</div>
+      <div class="at-uses">Best for: structured/military factions (Terran)</div>
+    </div>
+    <div class="ab-tile" style="--at:#88cc44">
+      <div class="at-name">SPAWN <span class="at-tag live">LIVE</span></div>
+      <div class="at-desc">Adjacent same-tier BROOD (faction-gated) cards get +2 all edges. Faction-identity version of COMMANDER.</div>
+      <div class="at-uses">Brood-exclusive. Encourage mono-faction hive play.</div>
+    </div>
+    <div class="ab-tile" style="--at:#44ffcc">
+      <div class="at-name">BOOST <span class="at-tag live">LIVE</span></div>
+      <div class="at-desc">Adjacent friendly cards (any tier) get +1 all edges. Wider but shallower than COMMANDER.</div>
+      <div class="at-uses">Best for: support roles, swarm factions</div>
+    </div>
+    <div class="ab-tile" style="--at:#ff88ff">
+      <div class="at-name">SWEEP <span class="at-tag live">LIVE</span></div>
+      <div class="at-desc">On placement, this card's edges all normalize to its 2nd-highest value. Spreads power evenly.</div>
+      <div class="at-uses">Best for: cards with extreme spike-low profiles</div>
+    </div>
+    <div class="ab-tile" style="--at:#ffd700">
+      <div class="at-name">RESONATE <span class="at-tag new">NEW IDEA</span></div>
+      <div class="at-desc">Adjacent friendly cards with ANY ability get +1 to their highest edge. Chains through ability networks.</div>
+      <div class="at-uses">Best for: ability-heavy factions (Choir — sound resonance?)</div>
+    </div>
+    <div class="ab-tile" style="--at:#ff6644">
+      <div class="at-name">INTIMIDATE <span class="at-tag new">NEW IDEA</span></div>
+      <div class="at-desc">Adjacent enemy cards lose -1 from their highest edge on placement. Targeted debuff.</div>
+      <div class="at-uses">Best for: aggressive/dominance factions (Void?)</div>
+    </div>
+  </div>
+</div>
+
+<!-- SCORING -->
+<div class="tax-section">
+  <div class="tax-header">
+    <div class="tax-category" style="--cat:#9b59b6;--cat-bg:#9b59b608">SCORING / VICTORY</div>
+    <div class="tax-desc">Changes how VP is calculated or won</div>
+  </div>
+  <div class="ab-grid">
+    <div class="ab-tile" style="--at:#ff88ff">
+      <div class="at-name">PIERCE <span class="at-tag live">LIVE</span></div>
+      <div class="at-desc">Tie = win for this card (affects line-win calculation). Removes draws from equation.</div>
+      <div class="at-uses">Strongest in balanced-edge decks</div>
+    </div>
+    <div class="ab-tile" style="--at:#9b59b6">
+      <div class="at-name">DENSITY <span class="at-tag new">NEW IDEA</span></div>
+      <div class="at-desc">This card counts as 1.5× its power when calculating VP for its row/col (rounded up). Scoring multiplier.</div>
+      <div class="at-uses">Best for: heavy flagship cards</div>
+    </div>
+    <div class="ab-tile" style="--at:#c8c8ff">
+      <div class="at-name">ECHO <span class="at-tag new">NEW IDEA</span></div>
+      <div class="at-desc">If this card's row AND col are both won, scores double VP for this card only. Corner-play reward.</div>
+      <div class="at-uses">Best for: factions that reward positioning (Quantum, Choir)</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SECTION 3: 11-RACE ASSIGNMENT MATRIX
+═══════════════════════════════════════════ -->
+<div class="sec">③ CURRENT ASSIGNMENT MATRIX — ABILITY POOLS PER RACE</div>
+<p style="font-size:10px;color:#555;margin-bottom:16px;">Green = currently wired. Purple = assigned to pool but may need custom name/flavor. Blank = open slot.</p>
+
+<div class="matrix-wrap">
+<table>
+<thead>
+  <tr>
+    <th class="race-col">RACE</th>
+    <th>SHIELD</th>
+    <th>DOUBLE<br>STRIKE</th>
+    <th>CMDR/SPAWN</th>
+    <th>BOOST</th>
+    <th>SWEEP</th>
+    <th>FLANK</th>
+    <th>RUSH</th>
+    <th>PIERCE</th>
+    <th>SURGE</th>
+    <th>DRAIN</th>
+    <th>NEW 1</th>
+    <th>NEW 2</th>
+    <th>PLAY STYLE</th>
+  </tr>
+</thead>
+<tbody>
+  <tr style="--rc:#7ab8e8">
+    <td class="race-name" style="color:#7ab8e8">TERRAN</td>
+    <td class="cell-check"><span class="check">✓</span></td>
+    <td class="cell-check"><span class="check">✓</span></td>
+    <td class="cell-check"><span class="check">✓</span></td>
+    <td class="cell-check"><span class="dash">—</span></td>
+    <td class="cell-check"><span class="dash">—</span></td>
+    <td class="cell-check"><span class="check">✓</span></td>
+    <td class="cell-check"><span class="dash">—</span></td>
+    <td class="cell-check"><span class="dash">—</span></td>
+    <td class="cell-check"><span class="dash">—</span></td>
+    <td class="cell-check"><span class="dash">—</span></td>
+    <td class="cell-check"><span class="tbd">TBD</span></td>
+    <td class="cell-check"><span class="dash">—</span></td>
+    <td style="font-size:9px;color:#555;">Control / Attrition</td>
+  </tr>
+  <tr>
+    <td class="race-name" style="color:#88cc44">BROOD</td>
+    <td class="cell-check"><span class="dash">—</span></td>
+    <td class="cell-check"><span class="dash">—</span></td>
+    <td class="cell-check"><span class="check">✓ SPAWN</span></td>
+    <td class="cell-check"><span class="check">✓</span></td>
+    <td class="cell-check"><span class="check">✓</span></td>
+    <td class="cell-check"><span class="dash">—</span></td>
+    <td class="cell-check"><span class="check">✓</span></td>
+    <td class="cell-check"><span class="dash">—</span></td>
+    <td class="cell-check"><span class="dash">—</span></td>
+    <td class="cell-check"><span class="dash">—</span></td>
+    <td class="cell-check"><span class="dash">—</span></td>
+    <td class="cell-check"><span class="dash">—</span></td>
+    <td style="font-size:9px;color:#555;">Swarm / Rush</td>
+  </tr>
+  <tr>
+    <td class="race-name" style="color:#a8d8ff">CRYSTALLIS</td>
+    <td class="cell-check"><span style="color:#8855ff">●</span></td>
+    <td class="cell-check"><span class="dash">—</span></td>
+    <td class="cell-check"><span style="color:#8855ff">●</span></td>
+    <td class="cell-check"><span style="color:#8855ff">●</span></td>
+    <td class="cell-check"><span class="dash">—</span></td>
+    <td class="cell-check"><span class="dash">—</span></td>
+    <td class="cell-check"><span class="dash">—</span></td>
+    <td class="cell-check"><span style="color:#8855ff">●</span></td>
+    <td class="cell-check"><span class="dash">—</span></td>
+    <td class="cell-check"><span class="dash">—</span></td>
+    <td class="cell-check"><span class="tbd">MIRROR?</span></td>
+    <td class="cell-check"><span class="tbd">ANCHOR?</span></td>
+    <td style="font-size:9px;color:#555;">Fortress / Counter</td>
+  </tr>
+  <tr>
+    <td class="race-name" style="color:#9dcf6e">MYCOS</td>
+    <td class="cell-check"><span class="dash">—</span></td>
+    <td class="cell-check"><span class="dash">—</span></td>
+    <td class="cell-check"><span style="color:#8855ff">●</span></td>
+    <td class="cell-check"><span style="color:#8855ff">●</span></td>
+    <td class="cell-check"><span style="color:#8855ff">●</span></td>
+    <td class="cell-check"><span class="dash">—</span></td>
+    <td class="cell-check"><span style="color:#8855ff">●</span></td>
+    <td class="cell-check"><span class="dash">—</span></td>
+    <td class="cell-check"><span class="dash">—</span></td>
+    <td class="cell-check"><span class="dash">—</span></td>
+    <td class="cell-check"><span class="tbd">SPREAD?</span></td>
+    <td class="cell-check"><span class="dash">—</span></td>
+    <td style="font-size:9px;color:#555;">Growth / Network</td>
+  </tr>
+  <tr>
+    <td class="race-name" style="color:#fff5a0">VEIL</td>
+    <td class="cell-check"><span class="dash">—</span></td>
+    <td class="cell-check"><span style="color:#8855ff">●</span></td>
+    <td class="cell-check"><span class="dash">—</span></td>
+    <td class="cell-check"><span class="dash">—</span></td>
+    <td class="cell-check"><span style="color:#8855ff">●</span></td>
+    <td class="cell-check"><span style="color:#8855ff">●</span></td>
+    <td class="cell-check"><span class="dash">—</span></td>
+    <td class="cell-check"><span style="color:#8855ff">●</span></td>
+    <td class="cell-check"><span class="dash">—</span></td>
+    <td class="cell-check"><span class="dash">—</span></td>
+    <td class="cell-check"><span class="tbd">PHANTOM?</span></td>
+    <td class="cell-check"><span class="dash">—</span></td>
+    <td style="font-size:9px;color:#555;">Evasion / Speed</td>
+  </tr>
+  <tr>
+    <td class="race-name" style="color:#c4723a">ENTROPY</td>
+    <td class="cell-check"><span style="color:#8855ff">●</span></td>
+    <td class="cell-check"><span style="color:#8855ff">●</span></td>
+    <td class="cell-check"><span class="dash">—</span></td>
+    <td class="cell-check"><span class="dash">—</span></td>
+    <td class="cell-check"><span style="color:#8855ff">●</span></td>
+    <td class="cell-check"><span class="dash">—</span></td>
+    <td class="cell-check"><span class="dash">—</span></td>
+    <td class="cell-check"><span class="dash">—</span></td>
+    <td class="cell-check"><span class="dash">—</span></td>
+    <td class="cell-check"><span style="color:#8855ff">●</span></td>
+    <td class="cell-check"><span class="tbd">DRAIN+?</span></td>
+    <td class="cell-check"><span class="dash">—</span></td>
+    <td style="font-size:9px;color:#555;">Decay / Attrition</td>
+  </tr>
+  <tr>
+    <td class="race-name" style="color:#9b59b6">VOID</td>
+    <td class="cell-check"><span class="dash">—</span></td>
+    <td class="cell-check"><span style="color:#8855ff">●</span></td>
+    <td class="cell-check"><span class="dash">—</span></td>
+    <td class="cell-check"><span class="dash">—</span></td>
+    <td class="cell-check"><span class="dash">—</span></td>
+    <td class="cell-check"><span style="color:#8855ff">●</span></td>
+    <td class="cell-check"><span style="color:#8855ff">●</span></td>
+    <td class="cell-check"><span style="color:#8855ff">●</span></td>
+    <td class="cell-check"><span class="dash">—</span></td>
+    <td class="cell-check"><span class="dash">—</span></td>
+    <td class="cell-check"><span class="tbd">AMBUSH?</span></td>
+    <td class="cell-check"><span class="tbd">INTIMIDATE?</span></td>
+    <td style="font-size:9px;color:#555;">Assassin / Blitz</td>
+  </tr>
+  <tr>
+    <td class="race-name" style="color:#ffd700">GAS</td>
+    <td class="cell-check"><span class="dash">—</span></td>
+    <td class="cell-check"><span class="dash">—</span></td>
+    <td class="cell-check"><span class="dash">—</span></td>
+    <td class="cell-check"><span style="color:#8855ff">●</span></td>
+    <td class="cell-check"><span style="color:#8855ff">●</span></td>
+    <td class="cell-check"><span style="color:#8855ff">●</span></td>
+    <td class="cell-check"><span class="dash">—</span></td>
+    <td class="cell-check"><span class="dash">—</span></td>
+    <td class="cell-check"><span style="color:#8855ff">●</span></td>
+    <td class="cell-check"><span class="dash">—</span></td>
+    <td class="cell-check"><span class="tbd">SURGE+?</span></td>
+    <td class="cell-check"><span class="dash">—</span></td>
+    <td style="font-size:9px;color:#555;">Volatile / Comeback</td>
+  </tr>
+  <tr>
+    <td class="race-name" style="color:#a0896a">LITHOS</td>
+    <td class="cell-check"><span style="color:#8855ff">●</span></td>
+    <td class="cell-check"><span class="dash">—</span></td>
+    <td class="cell-check"><span style="color:#8855ff">●</span></td>
+    <td class="cell-check"><span style="color:#8855ff">●</span></td>
+    <td class="cell-check"><span class="dash">—</span></td>
+    <td class="cell-check"><span class="dash">—</span></td>
+    <td class="cell-check"><span class="dash">—</span></td>
+    <td class="cell-check"><span style="color:#8855ff">●</span></td>
+    <td class="cell-check"><span class="dash">—</span></td>
+    <td class="cell-check"><span class="dash">—</span></td>
+    <td class="cell-check"><span class="tbd">ANCHOR?</span></td>
+    <td class="cell-check"><span class="tbd">FORTIFY?</span></td>
+    <td style="font-size:9px;color:#555;">Fortress / Wall</td>
+  </tr>
+  <tr>
+    <td class="race-name" style="color:#ff69b4">QUANTUM</td>
+    <td class="cell-check"><span class="dash">—</span></td>
+    <td class="cell-check"><span style="color:#8855ff">●</span></td>
+    <td class="cell-check"><span class="dash">—</span></td>
+    <td class="cell-check"><span class="dash">—</span></td>
+    <td class="cell-check"><span class="dash">—</span></td>
+    <td class="cell-check"><span style="color:#8855ff">●</span></td>
+    <td class="cell-check"><span style="color:#8855ff">●</span></td>
+    <td class="cell-check"><span style="color:#8855ff">●</span></td>
+    <td class="cell-check"><span class="dash">—</span></td>
+    <td class="cell-check"><span class="dash">—</span></td>
+    <td class="cell-check"><span class="tbd">PIERCE+?</span></td>
+    <td class="cell-check"><span class="tbd">ECHO?</span></td>
+    <td style="font-size:9px;color:#555;">Unpredictable / Probability</td>
+  </tr>
+  <tr>
+    <td class="race-name" style="color:#c8c8ff">CHOIR</td>
+    <td class="cell-check"><span class="dash">—</span></td>
+    <td class="cell-check"><span style="color:#8855ff">●</span></td>
+    <td class="cell-check"><span style="color:#8855ff">●</span></td>
+    <td class="cell-check"><span style="color:#8855ff">●</span></td>
+    <td class="cell-check"><span style="color:#8855ff">●</span></td>
+    <td class="cell-check"><span class="dash">—</span></td>
+    <td class="cell-check"><span class="dash">—</span></td>
+    <td class="cell-check"><span class="dash">—</span></td>
+    <td class="cell-check"><span class="dash">—</span></td>
+    <td class="cell-check"><span class="dash">—</span></td>
+    <td class="cell-check"><span class="tbd">RESONATE?</span></td>
+    <td class="cell-check"><span class="dash">—</span></td>
+    <td style="font-size:9px;color:#555;">Harmony / Chain</td>
+  </tr>
+</tbody>
+</table>
+</div>
+
+<p style="font-size:9px;color:#333;margin-top:8px;">
+  ✓ green = fully implemented &nbsp;|&nbsp; ● purple = in pool, needs custom name &nbsp;|&nbsp; TBD = proposed new ability
+</p>
+
+<!-- ═══════════════════════════════════════════
+     SECTION 4: SCRATCH PAD — PER-RACE NOTES
+═══════════════════════════════════════════ -->
+<div class="sec">④ RACE-BY-RACE SCRATCH PAD — ABILITY SLOT PLANNING</div>
+<p style="font-size:10px;color:#555;margin-bottom:16px;">Each race gets 4 ability slots randomly distributed across its deck. What should those 4 feel like thematically?</p>
+
+<div class="notes-grid">
+
+  <div class="note-card">
+    <div class="note-race" style="--nr:#7ab8e8">TERRAN ACCORD</div>
+    <div class="note-tag">"Defend, buff, punish"</div>
+    <div class="note-slot"><span class="slot-num">1</span><span class="slot-fill live">SHIELD — "Colonial Bulwark"</span></div>
+    <div class="note-slot"><span class="slot-num">2</span><span class="slot-fill live">DOUBLE STRIKE — "Accord Barrage"</span></div>
+    <div class="note-slot"><span class="slot-num">3</span><span class="slot-fill live">COMMANDER — "Fleet Admiral"</span></div>
+    <div class="note-slot"><span class="slot-num">4</span><span class="slot-fill live">FLANK — "Pincer Maneuver"</span></div>
+  </div>
+
+  <div class="note-card">
+    <div class="note-race" style="--nr:#88cc44">BROOD SOVEREIGN</div>
+    <div class="note-tag">"Swarm, rush, hive-buff"</div>
+    <div class="note-slot"><span class="slot-num">1</span><span class="slot-fill live">SPAWN — "Hive Pulse"</span></div>
+    <div class="note-slot"><span class="slot-num">2</span><span class="slot-fill live">SWEEP — "Mandible Level"</span></div>
+    <div class="note-slot"><span class="slot-num">3</span><span class="slot-fill live">RUSH — "Acid Charge"</span></div>
+    <div class="note-slot"><span class="slot-num">4</span><span class="slot-fill live">BOOST — "Queen's Favor"</span></div>
+  </div>
+
+  <div class="note-card">
+    <div class="note-race" style="--nr:#a8d8ff">CRYSTALLIS</div>
+    <div class="note-tag">"Crystal walls, counter-punch"</div>
+    <div class="note-slot"><span class="slot-num">1</span><span class="slot-fill">SHIELD → "Lattice Ward"?</span></div>
+    <div class="note-slot"><span class="slot-num">2</span><span class="slot-fill">COMMANDER → "Crystal Array"?</span></div>
+    <div class="note-slot"><span class="slot-num">3</span><span class="slot-fill">PIERCE → "Fracture Strike"?</span></div>
+    <div class="note-slot"><span class="slot-num">4</span><span class="slot-fill">MIRROR (new) → "Refract"?</span></div>
+  </div>
+
+  <div class="note-card">
+    <div class="note-race" style="--nr:#9dcf6e">MYCOS DRIFT</div>
+    <div class="note-tag">"Spread, grow, infect"</div>
+    <div class="note-slot"><span class="slot-num">1</span><span class="slot-fill">BOOST → "Spore Cloud"?</span></div>
+    <div class="note-slot"><span class="slot-num">2</span><span class="slot-fill">SWEEP → "Mycelium Spread"?</span></div>
+    <div class="note-slot"><span class="slot-num">3</span><span class="slot-fill">RUSH → "Root Burst"?</span></div>
+    <div class="note-slot"><span class="slot-num">4</span><span class="slot-fill">COMMANDER → "Bloom Network"?</span></div>
+  </div>
+
+  <div class="note-card">
+    <div class="note-race" style="--nr:#fff5a0">VEIL</div>
+    <div class="note-tag">"Light-speed, evasion, untouchable"</div>
+    <div class="note-slot"><span class="slot-num">1</span><span class="slot-fill">PHANTOM (new) → "Phase Shift"?</span></div>
+    <div class="note-slot"><span class="slot-num">2</span><span class="slot-fill">PIERCE → "Light Lancing"?</span></div>
+    <div class="note-slot"><span class="slot-num">3</span><span class="slot-fill">FLANK → "Afterimage"?</span></div>
+    <div class="note-slot"><span class="slot-num">4</span><span class="slot-fill">DOUBLE STRIKE → "Twin Beam"?</span></div>
+  </div>
+
+  <div class="note-card">
+    <div class="note-race" style="--nr:#c4723a">ENTROPY CULT</div>
+    <div class="note-tag">"Decay, corrode, attrition"</div>
+    <div class="note-slot"><span class="slot-num">1</span><span class="slot-fill">DRAIN → "Corrode"?</span></div>
+    <div class="note-slot"><span class="slot-num">2</span><span class="slot-fill">SWEEP → "Rust Equalize"?</span></div>
+    <div class="note-slot"><span class="slot-num">3</span><span class="slot-fill">SHIELD → "Decay Shell"?</span></div>
+    <div class="note-slot"><span class="slot-num">4</span><span class="slot-fill">DOUBLE STRIKE → "Second Rot"?</span></div>
+  </div>
+
+  <div class="note-card">
+    <div class="note-race" style="--nr:#9b59b6">VOID HUNTERS</div>
+    <div class="note-tag">"Assassins, dark matter, silence"</div>
+    <div class="note-slot"><span class="slot-num">1</span><span class="slot-fill">DOUBLE STRIKE → "Null Burst"?</span></div>
+    <div class="note-slot"><span class="slot-num">2</span><span class="slot-fill">PIERCE → "Event Horizon"?</span></div>
+    <div class="note-slot"><span class="slot-num">3</span><span class="slot-fill">RUSH → "Dark Lunge"?</span></div>
+    <div class="note-slot"><span class="slot-num">4</span><span class="slot-fill">AMBUSH (new) → "Shadow Strike"?</span></div>
+  </div>
+
+  <div class="note-card">
+    <div class="note-race" style="--nr:#ffd700">GAS NOMADS</div>
+    <div class="note-tag">"Volatile, comeback, storm"</div>
+    <div class="note-slot"><span class="slot-num">1</span><span class="slot-fill">SURGE → "Storm Surge"?</span></div>
+    <div class="note-slot"><span class="slot-num">2</span><span class="slot-fill">SWEEP → "Plasma Equalize"?</span></div>
+    <div class="note-slot"><span class="slot-num">3</span><span class="slot-fill">BOOST → "Ion Cloud"?</span></div>
+    <div class="note-slot"><span class="slot-num">4</span><span class="slot-fill">FLANK → "Gale Strike"?</span></div>
+  </div>
+
+  <div class="note-card">
+    <div class="note-race" style="--nr:#a0896a">LITHOS</div>
+    <div class="note-tag">"Immovable, fortress, seismic"</div>
+    <div class="note-slot"><span class="slot-num">1</span><span class="slot-fill">SHIELD → "Stone Skin"?</span></div>
+    <div class="note-slot"><span class="slot-num">2</span><span class="slot-fill">COMMANDER → "Tectonic Array"?</span></div>
+    <div class="note-slot"><span class="slot-num">3</span><span class="slot-fill">PIERCE → "Seismic Pierce"?</span></div>
+    <div class="note-slot"><span class="slot-num">4</span><span class="slot-fill">ANCHOR (new) → "Bedrock"?</span></div>
+  </div>
+
+  <div class="note-card">
+    <div class="note-race" style="--nr:#ff69b4">QUANTUM THREAD</div>
+    <div class="note-tag">"Probability, superposition, uncertainty"</div>
+    <div class="note-slot"><span class="slot-num">1</span><span class="slot-fill">PIERCE → "Collapse Function"?</span></div>
+    <div class="note-slot"><span class="slot-num">2</span><span class="slot-fill">DOUBLE STRIKE → "Superpose"?</span></div>
+    <div class="note-slot"><span class="slot-num">3</span><span class="slot-fill">FLANK → "Phase Jump"?</span></div>
+    <div class="note-slot"><span class="slot-num">4</span><span class="slot-fill">ECHO (new) → "Entangle"?</span></div>
+  </div>
+
+  <div class="note-card">
+    <div class="note-race" style="--nr:#c8c8ff">CHOIR</div>
+    <div class="note-tag">"Resonance, harmony, chain reaction"</div>
+    <div class="note-slot"><span class="slot-num">1</span><span class="slot-fill">SWEEP → "Harmonic Level"?</span></div>
+    <div class="note-slot"><span class="slot-num">2</span><span class="slot-fill">BOOST → "Resonant Pulse"?</span></div>
+    <div class="note-slot"><span class="slot-num">3</span><span class="slot-fill">DOUBLE STRIKE → "Overtone"?</span></div>
+    <div class="note-slot"><span class="slot-num">4</span><span class="slot-fill">RESONATE (new) → "The Crescendo"?</span></div>
+  </div>
+
+</div>
+
+<div style="margin-top:48px;padding:20px;background:#07070f;border:1px solid #1a1a28;border-radius:8px;">
+  <div style="font-family:'Orbitron',monospace;font-size:11px;letter-spacing:3px;color:#8855ff;margin-bottom:12px;">NEW ABILITIES NEEDING IMPLEMENTATION</div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;">
+    <div style="font-size:10px;color:#666;padding:8px;border:1px solid #1a1a28;border-radius:4px;border-left:3px solid #88ffff;"><b style="color:#88ffff">PHANTOM</b><br>Place in own 2 home rows freely</div>
+    <div style="font-size:10px;color:#666;padding:8px;border:1px solid #1a1a28;border-radius:4px;border-left:3px solid #cc44ff;"><b style="color:#cc44ff">MIRROR</b><br>Attacker loses 1 edge when they beat this card</div>
+    <div style="font-size:10px;color:#666;padding:8px;border:1px solid #1a1a28;border-radius:4px;border-left:3px solid #ff4444;"><b style="color:#ff4444">DRAIN</b><br>Winners strip 1 edge from loser permanently (needs full impl)</div>
+    <div style="font-size:10px;color:#666;padding:8px;border:1px solid #1a1a28;border-radius:4px;border-left:3px solid #ffcc00;"><b style="color:#ffcc00">ANCHOR</b><br>Cell cannot be overwritten by game effects</div>
+    <div style="font-size:10px;color:#666;padding:8px;border:1px solid #1a1a28;border-radius:4px;border-left:3px solid #cc44ff;"><b style="color:#cc44ff">AMBUSH</b><br>Adjacent enemy loses 1 from facing edge on placement</div>
+    <div style="font-size:10px;color:#666;padding:8px;border:1px solid #1a1a28;border-radius:4px;border-left:3px solid #ffd700;"><b style="color:#ffd700">RESONATE</b><br>Adjacent ability-cards get +1 to their highest edge</div>
+    <div style="font-size:10px;color:#666;padding:8px;border:1px solid #1a1a28;border-radius:4px;border-left:3px solid #9b59b6;"><b style="color:#9b59b6">ECHO</b><br>Double VP if row+col both won by this card</div>
+  </div>
+</div>
+
+</body>
+</html>
