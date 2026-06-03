@@ -1420,6 +1420,7 @@ function initGame() {
   const _aRace = window.aiRaceId     || 'entropy';
   assignRandomAbilities(G.playerHand, _pRace);
   assignRandomAbilities(G.aiHand,     _aRace);
+  renderHand(); // re-evaluate eligibility now that abilities (e.g. RUSH) are assigned
   addLog('system', 'GAME START -- place from your home row');
 }
 
