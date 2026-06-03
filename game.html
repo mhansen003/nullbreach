@@ -349,19 +349,20 @@ body {
 .log-entry.compare { color:#aaa; border-left-color:#333; }
 .log-entry.shield  { color:#aaaaff99; border-left-color:#aaaaff44; }
 
-/* PLAYER AREA */
+/* PLAYER AREA — column: portrait strip above, hand cards below */
 .player-area {
   background: #090912; border-top: 1px solid #131320;
-  padding: 8px 20px;
-  display: flex; align-items: flex-end; gap: 12px; flex-shrink: 0;
-  justify-content: center; /* center hand under board */
-  position: relative;      /* allow portrait to be absolute */
+  padding: 4px 14px 8px;
+  display: flex; flex-direction: column; align-items: center;
+  gap: 6px; flex-shrink: 0;
 }
 .player-portrait {
   display: flex; align-items: center; gap: 10px;
-  background: #0e0e1e; border: 1px solid #00ffcc22;
-  border-radius: 5px; padding: 6px 12px; min-width: 165px;
-  position: absolute; left: 20px; bottom: 8px; z-index: 5;
+  background: #0a0a1888; border: 1px solid #00ffcc22;
+  border-radius: 6px; padding: 5px 12px;
+  width: 100%; max-width: 860px; /* match board width */
+  backdrop-filter: blur(4px);
+  flex-shrink: 0;
 }
 .player-avatar {
   width: 80px; height: 80px; flex-shrink: 0;
@@ -763,48 +764,28 @@ button, [onclick] { touch-action: manipulation; }
 </div>
 
 <div class="ai-area">
+  <!-- AI portrait with score embedded inline -->
   <div class="ai-portrait">
     <div style="display:flex;flex-direction:column;align-items:center;">
       <div class="ai-avatar">&#x26A1;</div>
-      <div class="ai-faction-label" id="aiFactionLabel" style="font-size:8px;letter-spacing:1px;color:#ff008088;text-align:center;margin-top:3px;max-width:96px;"></div>
+      <div class="ai-faction-label" id="aiFactionLabel" style="font-size:7px;letter-spacing:1px;color:#ff008088;text-align:center;margin-top:2px;max-width:60px;overflow:hidden;white-space:nowrap;"></div>
     </div>
-    <div>
-      <div class="ai-name">SENTINEL-4</div>
-      <div class="ai-sub">FLOOR 2 BOSS</div>
+    <div style="display:flex;flex-direction:column;gap:1px;">
+      <div class="ai-name" id="aiNameEl">SENTINEL-4</div>
+      <div class="ai-sub">AI OPPONENT</div>
       <div class="ai-quote" id="aiQuote">"Your breach ends here."</div>
     </div>
-  </div>
-
-  <!-- SCORE SCOREBOARD — both sides, lives in AI bar -->
-  <div id="gameScoreboard" style="
-    margin-left:auto;display:flex;align-items:center;gap:10px;
-    background:#050510;border:1px solid #1a1a2e;border-radius:10px;
-    padding:8px 16px;font-family:'Courier New',monospace;flex-shrink:0;
-  ">
-    <!-- AI side -->
-    <div id="sbAiBlock" style="display:flex;flex-direction:column;align-items:center;gap:2px;">
-      <div style="display:flex;align-items:center;gap:6px;">
-        <img id="sbAiAvatar" src="" style="width:30px;height:30px;border-radius:50%;object-fit:cover;object-position:top;border:2px solid #333;transition:all 0.3s;">
-        <span id="sbAiNum" style="font-size:26px;font-weight:bold;color:#333;line-height:1;transition:all 0.3s;">0</span>
-      </div>
-      <span id="sbAiName" style="font-size:7px;letter-spacing:1px;color:#222;white-space:nowrap;transition:color 0.3s;"></span>
-      <span id="sbAiLead" style="font-size:7px;letter-spacing:2px;min-height:10px;font-weight:bold;"></span>
-    </div>
-    <!-- VS divider -->
-    <div style="display:flex;flex-direction:column;align-items:center;gap:3px;">
-      <span style="font-size:8px;color:#1a1a28;letter-spacing:2px;">vs</span>
-      <span style="font-size:7px;color:#111120;letter-spacing:1px;">/ 12</span>
-    </div>
-    <!-- Player side -->
-    <div id="sbPlayerBlock" style="display:flex;flex-direction:column;align-items:center;gap:2px;">
-      <div style="display:flex;align-items:center;gap:6px;">
-        <img id="sbPlayerAvatar" src="" style="width:30px;height:30px;border-radius:50%;object-fit:cover;object-position:top;border:2px solid #333;transition:all 0.3s;">
-        <span id="sbPlayerNum" style="font-size:26px;font-weight:bold;color:#333;line-height:1;transition:all 0.3s;">0</span>
-      </div>
-      <span id="sbPlayerName" style="font-size:7px;letter-spacing:1px;color:#222;white-space:nowrap;transition:color 0.3s;"></span>
-      <span id="sbPlayerLead" style="font-size:7px;letter-spacing:2px;min-height:10px;font-weight:bold;"></span>
+    <!-- AI score — inline with portrait -->
+    <div style="margin-left:10px;padding-left:10px;border-left:1px solid #1a1a28;display:flex;flex-direction:column;align-items:center;gap:1px;flex-shrink:0;">
+      <img id="sbAiAvatar" src="" style="width:28px;height:28px;border-radius:50%;object-fit:cover;object-position:top;border:2px solid #333;transition:all 0.3s;">
+      <span id="sbAiNum" style="font-size:22px;font-weight:bold;color:#333;line-height:1;font-family:'Courier New',monospace;transition:all 0.3s;">0</span>
+      <span id="sbAiLead" style="font-size:6px;letter-spacing:2px;font-weight:bold;min-height:8px;"></span>
     </div>
   </div>
+  <!-- hidden compat stubs -->
+  <span id="sbAiName" style="display:none"></span>
+  <span id="sbPlayerBlock" style="display:none"></span>
+  <span id="gameScoreboard" style="display:none"></span>
   <div class="ai-hand-row">
     <div class="hand-lbl-v">AI HAND</div>
     <div class="facedown" id="fd0">?</div>
@@ -852,23 +833,30 @@ button, [onclick] { touch-action: manipulation; }
 </div>
 
 <div class="player-area">
-  <div class="player-portrait">
-    <div style="display:flex;flex-direction:column;align-items:center;">
+  <!-- Portrait strip — full-width row ABOVE the hand cards -->
+  <div class="player-portrait" id="playerPortraitBar">
+    <!-- Avatar + score: LEFT side -->
+    <div style="display:flex;align-items:center;gap:10px;">
       <div class="player-avatar">&#x1F916;</div>
-      <div class="player-faction-label" id="playerFactionLabel" style="font-size:8px;letter-spacing:1px;color:#00ffcc88;text-align:center;margin-top:3px;max-width:80px;"></div>
+      <!-- Player score inline with avatar -->
+      <div style="display:flex;flex-direction:column;align-items:center;gap:1px;">
+        <span id="sbPlayerChipNum" style="font-size:22px;font-weight:bold;color:#2a2a3a;line-height:1;transition:all 0.3s;font-family:'Courier New',monospace;">0</span>
+        <span id="sbPlayerChipLead" style="font-size:6px;letter-spacing:2px;font-weight:bold;min-height:8px;"></span>
+      </div>
     </div>
-    <div>
+    <!-- Name + sub: middle -->
+    <div style="margin-left:10px;">
       <div class="player-name">NETRUNNER_7</div>
-      <div class="player-sub">CLICK CARD &rsaquo; CLICK VALID CELL</div>
+      <div class="player-sub" id="playerFactionLabel">CLICK CARD › CLICK CELL</div>
     </div>
-    <!-- Player score chip inside portrait -->
-    <div style="margin-left:auto;display:flex;flex-direction:column;align-items:center;padding-left:10px;border-left:1px solid #1a1a28;gap:2px;">
-      <span id="sbPlayerChipNum" style="font-size:24px;font-weight:bold;color:#2a2a3a;line-height:1;transition:all 0.3s;font-family:'Courier New',monospace;">0</span>
-      <span style="font-size:7px;letter-spacing:2px;color:#1a1a28;">LINES</span>
-      <span id="sbPlayerChipLead" style="font-size:7px;letter-spacing:2px;min-height:10px;font-weight:bold;"></span>
-    </div>
+    <!-- Stubs -->
+    <span id="sbPlayerAvatar" style="display:none"></span>
+    <span id="sbPlayerNum" style="display:none"></span>
+    <span id="sbPlayerName" style="display:none"></span>
+    <span id="sbPlayerLead" style="display:none"></span>
+    <span id="sbPlayerBlock" style="display:none"></span>
   </div>
-  <div class="hand-lbl-v" style="transform:rotate(180deg);font-size:8px;color:#333;letter-spacing:2px;">YOUR HAND</div>
+  <!-- Hand cards BELOW the portrait — centered, no overlap -->
   <div class="hand-cards" id="handCards"></div>
 </div>
 
@@ -1183,9 +1171,31 @@ function computeBattleResults() {
         const south = G.grid[r+1][c];
         if (south.card && south.owner !== cell.owner) {
           const me = cell.card.edges.s, them = south.card.edges.n;
-          if (me > them)      { b[r][c].v = 'win';  if (b[r+1][c].v !== 'win')  b[r+1][c].v = 'lose'; }
-          else if (me < them) { b[r+1][c].v = 'win'; if (b[r][c].v   !== 'win')  b[r][c].v   = 'lose'; }
-          else                { b[r][c].v = 'tie'; b[r+1][c].v = 'tie'; }
+          if (me > them) {
+            b[r][c].v = 'win';
+            if (b[r+1][c].v !== 'win') b[r+1][c].v = 'lose';
+            // DOUBLE STRIKE south (cell attacks downward): contest r+2 at half strength
+            if (cell.card.ability === 'double_strike' && r < 3) {
+              const far = G.grid[r+2][c];
+              if (far.card && far.owner !== cell.owner) {
+                const me2 = Math.max(1, Math.floor(me / 2));
+                if (me2 > far.card.edges.n + (far.card.edgeMod?.n||0))
+                  { if (b[r+2][c].v !== 'win') b[r+2][c].v = 'lose'; }
+              }
+            }
+          } else if (me < them) {
+            b[r+1][c].v = 'win';
+            if (b[r][c].v !== 'win') b[r][c].v = 'lose';
+            // DOUBLE STRIKE north (south card attacks upward): contest r-1 at half strength
+            if (south.card.ability === 'double_strike' && r > 0) {
+              const far = G.grid[r-1][c];
+              if (far.card && far.owner !== south.owner) {
+                const me2 = Math.max(1, Math.floor(them / 2));
+                if (me2 > far.card.edges.s + (far.card.edgeMod?.s||0))
+                  { if (b[r-1][c].v !== 'win') b[r-1][c].v = 'lose'; }
+              }
+            }
+          } else { b[r][c].v = 'tie'; b[r+1][c].v = 'tie'; }
         }
       }
     }
@@ -1263,7 +1273,8 @@ function renderGrid() {
           ? (window.playerFactionColor || '#00ffcc')
           : (window.aiFactionColor     || '#ff0080');
         div.style.borderColor = factionCol;
-        div.style.boxShadow = `0 0 10px ${factionCol}44`;
+        const _bInner = cell.card.ability ? `, inset 0 0 14px #ff333366` : '';
+        div.style.boxShadow = `0 0 10px ${factionCol}44${_bInner}`;
         const tierDotCol = TIER_COLORS[cell.card.tier] || '#888';
         const tierNum    = {'I':1,'II':2,'III':3,'IV':4}[cell.card.tier] || 1;
         const col = cell.owner === 'player' ? '#00ffcc' : '#ff0080';
@@ -1302,11 +1313,25 @@ function renderGrid() {
         // Show tooltip on placed board cards (shows card info + buff status)
         div.onmouseenter = (ev) => {
           const cardWithBuf = {...cell.card};
-          // Pass battle state so compass edges are colored by win/lose
           if (cell.battle) cardWithBuf._bat = cell.battle;
           showTip(ev, cardWithBuf);
+          // Yellow dotted lines on adjacent cells showing influence range
+          [{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}].forEach(({dr,dc}) => {
+            const nr2 = r+dr, nc2 = c+dc;
+            if (nr2<0||nr2>=5||nc2<0||nc2>=7) return;
+            const adjEl = document.querySelector(`.cell[data-r="${nr2}"][data-c="${nc2}"]`);
+            if (adjEl) {
+              const g = G.grid[nr2][nc2];
+              adjEl.style.outline = (g.card && g.owner !== cell.owner)
+                ? '2px dashed #ff555588'   // enemy — red dashed
+                : '2px dashed #ffdd0066';  // empty or friendly — yellow dashed
+            }
+          });
         };
-        div.onmouseleave = hideTip;
+        div.onmouseleave = () => {
+          document.querySelectorAll('.cell[style*="dashed"]').forEach(el => el.style.outline = '');
+          hideTip();
+        };
       } else {
         div.classList.add('empty');
         // Tier indicator: row 4 = T1 home, rows 1-3 = T2+ battle zone, row 0 = AI home
@@ -1785,10 +1810,11 @@ function renderHand() {
       div.style.animationDelay = `${idx * 55}ms`; // stagger when multiple unlock at once
     }
     if (card.art) div.style.backgroundImage = `url('${card.art}')`;
+    const _abilGlow = card.ability ? ', inset 0 0 12px #ff333355' : '';
     div.style.borderColor = factionC;
     div.style.boxShadow   = isSelected
-      ? `0 0 22px ${factionC}88, 0 0 44px ${factionC}44`
-      : `0 0 8px ${factionC}33`;
+      ? `0 0 22px ${factionC}88, 0 0 44px ${factionC}44${_abilGlow}`
+      : `0 0 8px ${factionC}33${_abilGlow}`;
 
     div.innerHTML = `
       <span class="hc-e-n" style="color:${factionC}">${card.edges.n}</span>
@@ -2343,9 +2369,8 @@ function buildZoneGrid(card) {
   }
 
   const tierCol = TIER_COLORS[card.tier] || '#888';
-  let html = `<div style="margin-top:10px;">
-    <div style="font-size:9px;letter-spacing:2px;color:#555;margin-bottom:5px;">EXPANSION ZONE</div>
-    <div style="display:grid;grid-template-columns:repeat(${COLS},12px);gap:2px;">`;
+  let html = `<div>
+    <div style="display:grid;grid-template-columns:repeat(${COLS},14px);gap:2px;">`;
   for (let r = 0; r < ROWS; r++) {
     for (let c = 0; c < COLS; c++) {
       let bg, border;
@@ -2356,7 +2381,7 @@ function buildZoneGrid(card) {
       } else {
         bg = '#0e0c18'; border = '1px solid #1a1428'; // empty
       }
-      html += `<div style="width:12px;height:12px;border-radius:2px;background:${bg};border:${border};"></div>`;
+      html += `<div style="width:14px;height:14px;border-radius:2px;background:${bg};border:${border};"></div>`;
     }
   }
   html += `</div>
@@ -2477,7 +2502,7 @@ function showTip(e, card) {
     <!-- ③ ATTACK POWER COMPASS  +  ZONE EXPANSION -->
     <div style="display:flex;padding:12px 16px;gap:0;">
       <div style="flex:1;">
-        <div style="font-size:9px;letter-spacing:2px;color:#777;margin-bottom:8px;">ATTACK POWER</div>
+        <div style="font-size:11px;letter-spacing:2px;color:#aaa;margin-bottom:8px;">ATTACK POWER</div>
         <div style="position:relative;width:120px;height:120px;border:1px solid var(--tc-dim);border-radius:6px;background:#040410;">
           <div style="position:absolute;top:6px;left:50%;transform:translateX(-50%);text-align:center;">
             <div style="font-size:7px;color:#444;letter-spacing:1px;">N</div>
@@ -2500,27 +2525,22 @@ function showTip(e, card) {
       </div>
       <div style="width:1px;background:var(--tc-dim);opacity:0.35;flex-shrink:0;margin:0 12px;"></div>
       <div style="flex:1;">
-        <div style="font-size:9px;letter-spacing:2px;color:#777;margin-bottom:8px;">ZONE EXPANSION</div>
+        <div style="font-size:11px;letter-spacing:2px;color:#aaa;margin-bottom:8px;">ZONE EXPANSION</div>
         ${card.zone ? buildZoneGrid(card) : `<div style="font-size:10px;color:#2a2a3a;">No expansion</div>`}
       </div>
     </div>
 
     <div style="height:1px;background:linear-gradient(90deg,transparent,var(--tc-dim),transparent);margin:0 14px;"></div>
 
-    <!-- ④ SPECIAL ABILITY / POWER -->
+    <!-- ④ SPECIAL ABILITY / POWER — yellow standard, no emoji -->
     <div style="padding:10px 16px 12px;">
       ${abi ? `
-      <div style="border:1px solid ${abi.color}55;border-radius:6px;padding:9px 12px;background:${abi.color}0e;">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">
-          <span style="font-size:16px;filter:drop-shadow(0 0 5px ${abi.color});">${abi.icon}</span>
-          <span style="font-family:'Orbitron',monospace;font-size:10px;letter-spacing:2px;color:${abi.color};font-weight:700;">${abi.label}</span>
-        </div>
-        <div style="font-style:italic;font-size:10px;color:#ccc;line-height:1.65;letter-spacing:0.3px;">
-          Special Ability / Power: ${card.abilityText}
-        </div>
+      <div style="border:1px solid #ffdd0055;border-radius:6px;padding:10px 14px;background:#ffdd0008;">
+        <div style="font-family:'Orbitron',monospace;font-size:12px;letter-spacing:2px;color:#ffdd00;font-weight:700;margin-bottom:6px;">${abi.label}</div>
+        <div style="font-size:13px;color:#ffffff;line-height:1.7;letter-spacing:0.3px;">${card.abilityText}</div>
       </div>` : `
-      <div style="border:1px solid #1a1a28;border-radius:6px;padding:9px 12px;">
-        <div style="font-style:italic;font-size:10px;color:#2a2a3a;letter-spacing:1px;">No special ability — pure positioning card</div>
+      <div style="border:1px solid #1a1a28;border-radius:6px;padding:10px 14px;">
+        <div style="font-size:12px;color:#555;letter-spacing:1px;">No special ability — pure positioning</div>
       </div>`}
     </div>
 

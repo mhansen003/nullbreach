@@ -1396,9 +1396,9 @@ function setDiff(d) {
     const btn = document.getElementById('diff-' + k);
     if (!btn) return;
     const a = k === d;
-    btn.style.background   = a ? '#1a0a2e' : '#0a0a18';
-    btn.style.borderColor  = a ? '#8855ff' : '#443355';
-    btn.style.color        = a ? '#aa88ff' : '#7755aa';
+    btn.style.background   = a ? '#1a0a2e' : '#0d0a18';
+    btn.style.borderColor  = a ? '#8855ff' : '#554477';
+    btn.style.color        = a ? '#cc99ff' : '#aa88cc';
   });
 }
 setTimeout(() => setDiff('balanced'), 0);
@@ -1476,10 +1476,10 @@ Promise.all(
   <div style="font-family:'Orbitron',monospace;font-size:20px;letter-spacing:5px;color:#fff;text-shadow:0 0 20px #8855ffaa;">SELECT YOUR OPPONENT</div>
   <div style="font-size:10px;letter-spacing:3px;color:#554477;margin-bottom:8px;">CHOOSE WHO YOU WILL FACE AT SECTOR GZ-0</div>
   <div style="display:flex;gap:8px;align-items:center;margin-bottom:4px;">
-    <span style="font-size:9px;letter-spacing:2px;color:#443355;">DIFFICULTY:</span>
-    <button id="diff-passive" onclick="setDiff('passive')" style="background:#0a0a18;border:1px solid #443355;color:#7755aa;font-family:inherit;font-size:9px;letter-spacing:2px;padding:6px 14px;cursor:pointer;border-radius:4px;transition:all 0.2s;">PASSIVE</button>
-    <button id="diff-balanced" onclick="setDiff('balanced')" style="background:#1a0a2e;border:1px solid #8855ff;color:#aa88ff;font-family:inherit;font-size:9px;letter-spacing:2px;padding:6px 14px;cursor:pointer;border-radius:4px;transition:all 0.2s;">BALANCED</button>
-    <button id="diff-aggressive" onclick="setDiff('aggressive')" style="background:#0a0a18;border:1px solid #443355;color:#7755aa;font-family:inherit;font-size:9px;letter-spacing:2px;padding:6px 14px;cursor:pointer;border-radius:4px;transition:all 0.2s;">AGGRESSIVE</button>
+    <span style="font-size:10px;letter-spacing:2px;color:#9977cc;">DIFFICULTY:</span>
+    <button id="diff-passive" onclick="setDiff('passive')" style="background:#0d0a18;border:1px solid #554477;color:#aa88cc;font-family:inherit;font-size:10px;letter-spacing:2px;padding:7px 16px;cursor:pointer;border-radius:4px;transition:all 0.2s;">PASSIVE</button>
+    <button id="diff-balanced" onclick="setDiff('balanced')" style="background:#1a0a2e;border:1px solid #8855ff;color:#cc99ff;font-family:inherit;font-size:10px;letter-spacing:2px;padding:7px 16px;cursor:pointer;border-radius:4px;transition:all 0.2s;">BALANCED</button>
+    <button id="diff-aggressive" onclick="setDiff('aggressive')" style="background:#0d0a18;border:1px solid #554477;color:#aa88cc;font-family:inherit;font-size:10px;letter-spacing:2px;padding:7px 16px;cursor:pointer;border-radius:4px;transition:all 0.2s;">AGGRESSIVE</button>
   </div>
   <div id="opponentGrid" style="display:grid;grid-template-columns:repeat(4,200px);gap:14px;max-width:860px;overflow:visible;padding:16px;"></div>
   <div style="display:flex;gap:12px;margin-top:4px;">
