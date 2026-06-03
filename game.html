@@ -2310,13 +2310,15 @@ function renderScoreBadges() {
     badge.addEventListener('mouseenter', () => {
       document.querySelectorAll('.cell').forEach(el => {
         const er = el.dataset.r;
+        const ec = el.dataset.c;
         if (er == r) {
-          // In this row: highlight winners, dim cancelled (tie) cards
-          const cell = G.grid[er][el.dataset.c];
+          const cell = G.grid[er][ec];
           const bat  = cell?.card ? (cell.battle || {h:'none',v:'none'}) : null;
           const cancelled = bat && (bat.h === 'tie' || bat.h === 'lose');
-          el.style.outline = '2px solid #ffff0099';
-          el.style.filter  = cancelled ? 'brightness(0.45) saturate(0.3)' : 'none';
+          const hazardHit = cell?.card && cell.owner !== 'hazard' && [{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}]
+            .some(({dr,dc}) => { const rr=+er+dr,cc=+ec+dc; return rr>=0&&rr<5&&cc>=0&&cc<7&&G.grid[rr][cc].owner==='hazard'; });
+          el.style.outline = cell?.owner === 'hazard' ? '2px solid #ff660099' : '2px solid #ffff0099';
+          el.style.filter  = (cancelled || hazardHit) ? 'brightness(0.4) saturate(0.2)' : 'none';
           el.style.opacity = '1';
         } else {
           el.style.filter  = 'brightness(0.55)';
@@ -2354,13 +2356,16 @@ function renderScoreBadges() {
     _prevBadgeRes.cols[c] = res;
     badge.addEventListener('mouseenter', () => {
       document.querySelectorAll('.cell').forEach(el => {
+        const er = el.dataset.r;
         const ec = el.dataset.c;
         if (ec == c) {
-          const cell = G.grid[el.dataset.r][ec];
+          const cell = G.grid[er][ec];
           const bat  = cell?.card ? (cell.battle || {h:'none',v:'none'}) : null;
           const cancelled = bat && (bat.v === 'tie' || bat.v === 'lose');
-          el.style.outline = '2px solid #ffff0099';
-          el.style.filter  = cancelled ? 'brightness(0.45) saturate(0.3)' : 'none';
+          const hazardHit = cell?.card && cell.owner !== 'hazard' && [{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}]
+            .some(({dr,dc}) => { const rr=+er+dr,cc=+ec+dc; return rr>=0&&rr<5&&cc>=0&&cc<7&&G.grid[rr][cc].owner==='hazard'; });
+          el.style.outline = cell?.owner === 'hazard' ? '2px solid #ff660099' : '2px solid #ffff0099';
+          el.style.filter  = (cancelled || hazardHit) ? 'brightness(0.4) saturate(0.2)' : 'none';
           el.style.opacity = '1';
         } else {
           el.style.filter  = 'brightness(0.55)';
