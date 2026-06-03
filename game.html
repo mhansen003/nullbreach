@@ -80,12 +80,9 @@ body {
 .turn-tag.player { color: #00ffcc; border: 1px solid #00ffcc44; }
 .turn-tag.ai     { color: #ff0080; border: 1px solid #ff008044; }
 
-/* AI TOP BAR — compact floating strip */
+/* AI area — invisible spacer only, portrait moved to fixed HUD */
 .ai-area {
-  display: flex; align-items: center; gap: 10px;
-  padding: 4px 14px;
-  flex-shrink: 0;
-  background: transparent;
+  display: none;
 }
 .ai-portrait {
   display: flex; align-items: center; gap: 8px;
@@ -354,14 +351,13 @@ body {
   background: #090912; border-top: 1px solid #131320;
   padding: 4px 14px 8px;
   display: flex; flex-direction: column; align-items: center;
-  gap: 6px; flex-shrink: 0;
+  gap: 5px; flex-shrink: 0;
 }
 .player-portrait {
-  display: flex; align-items: center; gap: 10px;
-  background: #0a0a1888; border: 1px solid #00ffcc22;
-  border-radius: 6px; padding: 5px 12px;
-  width: 100%; max-width: 860px; /* match board width */
-  backdrop-filter: blur(4px);
+  display: flex; align-items: center; gap: 8px;
+  background: transparent;
+  padding: 2px 0;
+  width: 100%; max-width: 860px;
   flex-shrink: 0;
 }
 .player-avatar {
@@ -742,50 +738,74 @@ button, [onclick] { touch-action: manipulation; }
 <div id="game-top-bg" style="position:fixed;top:0;left:0;right:0;height:50%;background-size:cover;background-position:center top;z-index:0;opacity:0;transition:opacity 1s;pointer-events:none;mask-image:linear-gradient(to bottom,black 0%,black 50%,transparent 100%);-webkit-mask-image:linear-gradient(to bottom,black 0%,black 50%,transparent 100%);"></div>
 <div id="game-bottom-bg" style="position:fixed;bottom:0;left:0;right:0;height:50%;background-size:cover;background-position:center bottom;z-index:0;opacity:0;transition:opacity 1s;pointer-events:none;mask-image:linear-gradient(to top,black 0%,black 50%,transparent 100%);-webkit-mask-image:linear-gradient(to top,black 0%,black 50%,transparent 100%);"></div>
 
+<!-- FACTION HUD — fixed upper-right, both avatars + scores + winner highlight -->
+<div id="factionHUD" style="
+  position:fixed;top:10px;right:16px;z-index:500;
+  background:#000000cc;border:1px solid #1a1a28;border-radius:10px;
+  padding:8px 10px;font-family:'Courier New',monospace;
+  display:flex;flex-direction:column;gap:5px;min-width:170px;
+  backdrop-filter:blur(4px);
+">
+  <!-- AI row (top) -->
+  <div id="fhAi" style="display:flex;align-items:center;gap:8px;padding:4px 6px;border-radius:6px;transition:all 0.3s;">
+    <img id="sbAiAvatar" src="" style="width:38px;height:38px;border-radius:50%;object-fit:cover;object-position:top;border:2px solid #333;flex-shrink:0;transition:all 0.3s;">
+    <div style="flex:1;min-width:0;">
+      <div id="sbAiName" style="font-size:9px;letter-spacing:1px;color:#555;overflow:hidden;white-space:nowrap;transition:color 0.3s;"></div>
+      <div style="display:flex;align-items:baseline;gap:4px;">
+        <span id="sbAiNum" style="font-size:22px;font-weight:bold;color:#444;line-height:1;transition:all 0.3s;">0</span>
+        <span style="font-size:7px;color:#2a2a3a;letter-spacing:1px;">LINES</span>
+        <span id="sbAiLead" style="font-size:7px;font-weight:bold;letter-spacing:2px;margin-left:2px;"></span>
+      </div>
+    </div>
+  </div>
+  <div style="height:1px;background:#111120;"></div>
+  <!-- Player row (bottom) -->
+  <div id="fhPlayer" style="display:flex;align-items:center;gap:8px;padding:4px 6px;border-radius:6px;transition:all 0.3s;">
+    <img id="sbPlayerAvatar" src="" style="width:38px;height:38px;border-radius:50%;object-fit:cover;object-position:top;border:2px solid #333;flex-shrink:0;transition:all 0.3s;">
+    <div style="flex:1;min-width:0;">
+      <div id="sbPlayerName" style="font-size:9px;letter-spacing:1px;color:#555;overflow:hidden;white-space:nowrap;transition:color 0.3s;"></div>
+      <div style="display:flex;align-items:baseline;gap:4px;">
+        <span id="sbPlayerNum" style="font-size:22px;font-weight:bold;color:#444;line-height:1;transition:all 0.3s;">0</span>
+        <span style="font-size:7px;color:#2a2a3a;letter-spacing:1px;">LINES</span>
+        <span id="sbPlayerLead" style="font-size:7px;font-weight:bold;letter-spacing:2px;margin-left:2px;"></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Hidden compat stubs -->
+<span id="sbAiNum_stub" style="display:none"></span>
+<span id="sbPlayerBlock" style="display:none"></span>
+<span id="gameScoreboard" style="display:none"></span>
+<span id="sbAiLead_s" style="display:none"></span>
+<span id="sbPlayerChipNum" style="display:none"></span>
+<span id="sbPlayerChipLead" style="display:none"></span>
+
 <div class="header">
   <div class="title">GALACTIC ZERO</div>
-  <!-- Score removed from header — use the row/col score badges instead -->
-  <div style="display:flex;align-items:center;gap:10px;">
-    <div class="turn-tag player" id="turnTag">YOUR TURN</div>
-    <!-- Hidden elements kept for JS compatibility -->
-    <span id="scoreP" style="display:none">0</span>
-    <span id="scoreA" style="display:none">0</span>
-    <span id="linesLbl" style="display:none"></span>
-    <span id="totalP" style="display:none"></span>
-    <span id="totalA" style="display:none"></span>
-  </div>
+  <!-- Hidden compat elements -->
+  <span id="scoreP" style="display:none">0</span>
+  <span id="scoreA" style="display:none">0</span>
+  <span id="linesLbl" style="display:none"></span>
+  <span id="totalP" style="display:none"></span>
+  <span id="totalA" style="display:none"></span>
+  <span id="turnTag" style="display:none"></span>
   <!-- Hamburger menu button -->
   <div id="menuToggleBtn" onclick="toggleMenu()" style="
     background:#000000aa;border:1px solid #8855ff44;color:#aa88ff;
     font-size:18px;width:36px;height:30px;cursor:pointer;border-radius:3px;
     display:flex;align-items:center;justify-content:center;transition:all 0.2s;
+    margin-left:auto;
   " title="Menu">☰</div>
-
 </div>
 
-<div class="ai-area">
-  <!-- AI portrait with score embedded inline -->
-  <div class="ai-portrait">
-    <div style="display:flex;flex-direction:column;align-items:center;">
-      <div class="ai-avatar">&#x26A1;</div>
-      <div class="ai-faction-label" id="aiFactionLabel" style="font-size:7px;letter-spacing:1px;color:#ff008088;text-align:center;margin-top:2px;max-width:60px;overflow:hidden;white-space:nowrap;"></div>
-    </div>
-    <div style="display:flex;flex-direction:column;gap:1px;">
-      <div class="ai-name" id="aiNameEl">SENTINEL-4</div>
-      <div class="ai-sub">AI OPPONENT</div>
-      <div class="ai-quote" id="aiQuote">"Your breach ends here."</div>
-    </div>
-    <!-- AI score — inline with portrait -->
-    <div style="margin-left:10px;padding-left:10px;border-left:1px solid #1a1a28;display:flex;flex-direction:column;align-items:center;gap:1px;flex-shrink:0;">
-      <img id="sbAiAvatar" src="" style="width:28px;height:28px;border-radius:50%;object-fit:cover;object-position:top;border:2px solid #333;transition:all 0.3s;">
-      <span id="sbAiNum" style="font-size:22px;font-weight:bold;color:#333;line-height:1;font-family:'Courier New',monospace;transition:all 0.3s;">0</span>
-      <span id="sbAiLead" style="font-size:6px;letter-spacing:2px;font-weight:bold;min-height:8px;"></span>
-    </div>
-  </div>
+<!-- AI area: minimal — no portrait, no score, just spacing -->
+<div class="ai-area" style="min-height:4px;padding:0;">
   <!-- hidden compat stubs -->
   <span id="sbAiName" style="display:none"></span>
-  <span id="sbPlayerBlock" style="display:none"></span>
-  <span id="gameScoreboard" style="display:none"></span>
+  <span id="aiFactionLabel" style="display:none"></span>
+  <span id="aiNameEl" style="display:none"></span>
+  <span id="aiQuote" style="display:none"></span>
   <div class="ai-hand-row">
     <div class="hand-lbl-v">AI HAND</div>
     <div class="facedown" id="fd0">?</div>
@@ -833,30 +853,18 @@ button, [onclick] { touch-action: manipulation; }
 </div>
 
 <div class="player-area">
-  <!-- Portrait strip — full-width row ABOVE the hand cards -->
-  <div class="player-portrait" id="playerPortraitBar">
-    <!-- Avatar + score: LEFT side -->
-    <div style="display:flex;align-items:center;gap:10px;">
-      <div class="player-avatar">&#x1F916;</div>
-      <!-- Player score inline with avatar -->
-      <div style="display:flex;flex-direction:column;align-items:center;gap:1px;">
-        <span id="sbPlayerChipNum" style="font-size:22px;font-weight:bold;color:#2a2a3a;line-height:1;transition:all 0.3s;font-family:'Courier New',monospace;">0</span>
-        <span id="sbPlayerChipLead" style="font-size:6px;letter-spacing:2px;font-weight:bold;min-height:8px;"></span>
-      </div>
+  <!-- Minimal portrait strip: avatar + faction name + instruction hint -->
+  <div class="player-portrait">
+    <div class="player-avatar">&#x1F916;</div>
+    <div>
+      <div class="player-name" id="playerNameEl">NETRUNNER_7</div>
+      <div class="player-sub" id="playerFactionLabel">CLICK CARD › CLICK VALID CELL</div>
     </div>
-    <!-- Name + sub: middle -->
-    <div style="margin-left:10px;">
-      <div class="player-name">NETRUNNER_7</div>
-      <div class="player-sub" id="playerFactionLabel">CLICK CARD › CLICK CELL</div>
-    </div>
-    <!-- Stubs -->
-    <span id="sbPlayerAvatar" style="display:none"></span>
-    <span id="sbPlayerNum" style="display:none"></span>
-    <span id="sbPlayerName" style="display:none"></span>
-    <span id="sbPlayerLead" style="display:none"></span>
-    <span id="sbPlayerBlock" style="display:none"></span>
+    <div id="aiQuote" style="display:none"></div>
+    <span id="aiFactionLabel" style="display:none"></span>
+    <span id="aiNameEl" style="display:none"></span>
   </div>
-  <!-- Hand cards BELOW the portrait — centered, no overlap -->
+  <!-- Hand cards centered below portrait -->
   <div class="hand-cards" id="handCards"></div>
 </div>
 
@@ -973,15 +981,15 @@ function initRaceTheme() {
   document.documentElement.style.setProperty('--player-safe-col', player.color + '66');
   document.documentElement.style.setProperty('--ai-safe-col',     ai.color     + '66');
 
-  // Seed scoreboard avatars immediately so they show on game start
+  // Seed faction HUD immediately
   const sbAi = document.getElementById('sbAiAvatar');
   const sbPl = document.getElementById('sbPlayerAvatar');
   if (sbAi) sbAi.src = ai.avatarImg || `assets/avatars/${aiRaceId}.png`;
   if (sbPl) sbPl.src = player.avatarImg || `assets/avatars/${raceId}.png`;
   const sbAN = document.getElementById('sbAiName');
   const sbPN = document.getElementById('sbPlayerName');
-  if (sbAN) { sbAN.textContent = aiWords.slice(0,2).join(' '); }
-  if (sbPN) { sbPN.textContent = playerWords.slice(0,2).join(' '); }
+  if (sbAN) { sbAN.textContent = aiWords.slice(0,2).join(' '); sbAN.style.color = ai.color+'99'; }
+  if (sbPN) { sbPN.textContent = playerWords.slice(0,2).join(' '); sbPN.style.color = player.color+'99'; }
 
   // Update faction labels below avatars
   const aiFactionLbl = document.getElementById('aiFactionLabel');
@@ -1273,7 +1281,7 @@ function renderGrid() {
           ? (window.playerFactionColor || '#00ffcc')
           : (window.aiFactionColor     || '#ff0080');
         div.style.borderColor = factionCol;
-        const _bInner = cell.card.ability ? `, inset 0 0 14px #ff333366` : '';
+        const _bInner = cell.card.ability ? `, inset 0 0 20px #ff0000cc, inset 0 0 8px #ff000088` : '';
         div.style.boxShadow = `0 0 10px ${factionCol}44${_bInner}`;
         const tierDotCol = TIER_COLORS[cell.card.tier] || '#888';
         const tierNum    = {'I':1,'II':2,'III':3,'IV':4}[cell.card.tier] || 1;
@@ -1283,8 +1291,8 @@ function renderGrid() {
         // Edge: glow on winning direction, dim on losing
         const hLost = bat.h === 'lose' || bat.h === 'tie';
         const vLost = bat.v === 'lose' || bat.v === 'tie';
-        const hAlpha = hLost ? '30' : 'ff';
-        const vAlpha = vLost ? '30' : 'ff';
+        const hAlpha = hLost ? '66' : 'ff';  // losing edges still readable
+        const vAlpha = vLost ? '66' : 'ff';
         const hGlow  = hLost ? '' : `text-shadow:0 0 8px ${col},0 0 3px #000;`;
         const vGlow  = vLost ? '' : `text-shadow:0 0 8px ${col},0 0 3px #000;`;
 
@@ -1652,8 +1660,8 @@ function renderScoreBadges() {
           el.style.filter  = 'none';
           el.style.opacity = '1';
         } else {
-          el.style.filter  = 'grayscale(1) brightness(0.35)';
-          el.style.opacity = '0.5';
+          el.style.filter  = 'brightness(0.55)';
+          el.style.opacity = '0.72';
         }
       });
     });
@@ -1691,8 +1699,8 @@ function renderScoreBadges() {
           el.style.filter  = 'none';
           el.style.opacity = '1';
         } else {
-          el.style.filter  = 'grayscale(1) brightness(0.35)';
-          el.style.opacity = '0.5';
+          el.style.filter  = 'brightness(0.55)';
+          el.style.opacity = '0.72';
         }
       });
     });
@@ -1732,37 +1740,35 @@ function renderScoreHeader() {
   const pLeading = s.pWins > s.aWins;
   const aLeading = s.aWins > s.pWins;
 
-  // ── EMBEDDED SCOREBOARD (in AI bar) ──────────────────
-  const sbAiAv   = document.getElementById('sbAiAvatar');
-  const sbAiNum  = document.getElementById('sbAiNum');
-  const sbAiName = document.getElementById('sbAiName');
-  const sbAiLead = document.getElementById('sbAiLead');
-  const sbPAv    = document.getElementById('sbPlayerAvatar');
-  const sbPNum   = document.getElementById('sbPlayerNum');
-  const sbPName  = document.getElementById('sbPlayerName');
-  const sbPLead  = document.getElementById('sbPlayerLead');
-  const sbBoard  = document.getElementById('gameScoreboard');
+  // ── FACTION HUD (fixed upper-right) ──────────────────
+  const hud = document.getElementById('factionHUD');
+  const fhAiEl  = document.getElementById('fhAi');
+  const fhPEl   = document.getElementById('fhPlayer');
+  const sbAiAv  = document.getElementById('sbAiAvatar');
+  const sbAiNum = document.getElementById('sbAiNum');
+  const sbAiName= document.getElementById('sbAiName');
+  const sbAiLead= document.getElementById('sbAiLead');
+  const sbPAv   = document.getElementById('sbPlayerAvatar');
+  const sbPNum  = document.getElementById('sbPlayerNum');
+  const sbPName = document.getElementById('sbPlayerName');
+  const sbPLead = document.getElementById('sbPlayerLead');
 
-  // AI side
-  if (sbAiAv)   { sbAiAv.src = aAvg; sbAiAv.style.borderColor = aLeading ? aCol : '#2a2a3a'; sbAiAv.style.boxShadow = aLeading ? `0 0 10px ${aCol}66` : 'none'; }
-  if (sbAiNum)  { sbAiNum.textContent = s.aWins; sbAiNum.style.color = aLeading ? aCol : '#444455'; sbAiNum.style.fontSize = aLeading ? '34px' : '22px'; sbAiNum.style.textShadow = aLeading ? `0 0 14px ${aCol}` : 'none'; }
-  if (sbAiName) { sbAiName.textContent = aNam; sbAiName.style.color = aLeading ? aCol + '88' : '#222233'; }
-  if (sbAiLead) { sbAiLead.textContent = aLeading ? 'LEADS' : (pLeading ? 'TRAILING' : ''); sbAiLead.style.color = aLeading ? aCol : '#333344'; }
+  // AI faction row
+  if (sbAiAv) { sbAiAv.src = aAvg; sbAiAv.style.borderColor = aLeading ? aCol : '#2a2a3a'; sbAiAv.style.boxShadow = aLeading ? `0 0 12px ${aCol}88` : 'none'; }
+  if (sbAiNum) { sbAiNum.textContent = s.aWins; sbAiNum.style.color = aLeading ? aCol : '#555566'; sbAiNum.style.textShadow = aLeading ? `0 0 12px ${aCol}` : 'none'; }
+  if (sbAiName) { sbAiName.textContent = aNam; sbAiName.style.color = aLeading ? aCol : '#555566'; }
+  if (sbAiLead) { sbAiLead.textContent = aLeading ? 'LEADS' : ''; sbAiLead.style.color = aCol; }
+  if (fhAiEl) { fhAiEl.style.background = aLeading ? aCol + '18' : 'transparent'; fhAiEl.style.boxShadow = aLeading ? `0 0 0 1px ${aCol}44` : 'none'; }
 
-  // Player side
-  if (sbPAv)    { sbPAv.src = pAvg; sbPAv.style.borderColor = pLeading ? pCol : '#2a2a3a'; sbPAv.style.boxShadow = pLeading ? `0 0 10px ${pCol}66` : 'none'; }
-  if (sbPNum)   { sbPNum.textContent = s.pWins; sbPNum.style.color = pLeading ? pCol : '#444455'; sbPNum.style.fontSize = pLeading ? '34px' : '22px'; sbPNum.style.textShadow = pLeading ? `0 0 14px ${pCol}` : 'none'; }
-  if (sbPName)  { sbPName.textContent = pNam; sbPName.style.color = pLeading ? pCol + '88' : '#222233'; }
-  if (sbPLead)  { sbPLead.textContent = pLeading ? 'LEADS' : (aLeading ? 'TRAILING' : ''); sbPLead.style.color = pLeading ? pCol : '#333344'; }
+  // Player faction row
+  if (sbPAv) { sbPAv.src = pAvg; sbPAv.style.borderColor = pLeading ? pCol : '#2a2a3a'; sbPAv.style.boxShadow = pLeading ? `0 0 12px ${pCol}88` : 'none'; }
+  if (sbPNum) { sbPNum.textContent = s.pWins; sbPNum.style.color = pLeading ? pCol : '#555566'; sbPNum.style.textShadow = pLeading ? `0 0 12px ${pCol}` : 'none'; }
+  if (sbPName) { sbPName.textContent = pNam; sbPName.style.color = pLeading ? pCol : '#555566'; }
+  if (sbPLead) { sbPLead.textContent = pLeading ? 'LEADS' : ''; sbPLead.style.color = pCol; }
+  if (fhPEl) { fhPEl.style.background = pLeading ? pCol + '18' : 'transparent'; fhPEl.style.boxShadow = pLeading ? `0 0 0 1px ${pCol}44` : 'none'; }
 
-  // Scoreboard border glow for the overall leader
-  if (sbBoard) sbBoard.style.borderColor = pLeading ? pCol + '44' : aLeading ? aCol + '44' : '#1a1a2e';
-
-  // ── PLAYER PORTRAIT CHIP ──────────────────
-  const chipNum  = document.getElementById('sbPlayerChipNum');
-  const chipLead = document.getElementById('sbPlayerChipLead');
-  if (chipNum)  { chipNum.textContent = s.pWins; chipNum.style.color = pLeading ? pCol : '#333344'; chipNum.style.textShadow = pLeading ? `0 0 10px ${pCol}` : 'none'; }
-  if (chipLead) { chipLead.textContent = pLeading ? '▲ LEADING' : (aLeading ? '▼ TRAILING' : ''); chipLead.style.color = pLeading ? pCol : '#444'; }
+  // HUD outer glow
+  if (hud) hud.style.borderColor = pLeading ? pCol+'33' : aLeading ? aCol+'33' : '#1a1a28';
 }
 
 // Helper: has the player placed at least one card of the given tier on the board?
@@ -1810,7 +1816,7 @@ function renderHand() {
       div.style.animationDelay = `${idx * 55}ms`; // stagger when multiple unlock at once
     }
     if (card.art) div.style.backgroundImage = `url('${card.art}')`;
-    const _abilGlow = card.ability ? ', inset 0 0 12px #ff333355' : '';
+    const _abilGlow = card.ability ? ', inset 0 0 18px #ff0000bb, inset 0 0 7px #ff000077' : '';
     div.style.borderColor = factionC;
     div.style.boxShadow   = isSelected
       ? `0 0 22px ${factionC}88, 0 0 44px ${factionC}44${_abilGlow}`
