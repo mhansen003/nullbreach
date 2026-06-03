@@ -1424,6 +1424,13 @@ Promise.all(
   }))
 ).then(() => {
   buildRaceGrid();
+  // Position Terran (index 0) toward the right side of viewport on initial load
+  // One tile pitch = TILE_COUNT * (240+22) ≈ set to start near end of first set
+  // so Terran appears roughly centered-right before auto-select fires
+  const TILE_PITCH_EST = 240 + 22;
+  const viewportTiles = Math.floor(window.innerWidth / TILE_PITCH_EST);
+  // Start scrolled so tile[0] (Terran) is at right portion of visible area
+  cvPos = Math.max(0, (TILE_COUNT - viewportTiles + 1) * TILE_PITCH_EST);
   requestAnimationFrame(runConveyor); // must use rAF to pass timestamp, else NaN delta
   // Auto-select Terran fires in showDeckSelect, not here (prevents lore bg on splash)
 });
