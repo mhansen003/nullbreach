@@ -331,7 +331,7 @@ body {
 .absc-desc  { font-size: 13px; letter-spacing: 0.2px; color: #ffffffdd; line-height: 1.6; }
 
 .lore-divider { height: 1px; flex-shrink: 0; opacity: 0.3; }
-.lore-label { font-size: 11px; letter-spacing: 3px; opacity: 0.7; text-transform: uppercase; margin-bottom: 6px; }
+.lore-label { font-size: 13px; letter-spacing: 3px; font-weight: bold; text-transform: uppercase; margin-bottom: 6px; }
 .lore-text { font-size: 14px; letter-spacing: 0.2px; color: #ffffff; line-height: 1.85; }
 .lore-weakness { font-size: 13px; letter-spacing: 0.2px; color: #ffffffcc; line-height: 1.8; font-style: italic; }
 
@@ -731,7 +731,7 @@ button, [onclick] { touch-action: manipulation; }
           <div class="ds-race-name" id="loreName">—</div>
           <div class="ds-race-sub" id="loreSub">—</div>
           <div class="ds-race-quote" id="loreQuote">—</div>
-          <div class="ds-abilities-row" id="loreAbilities"></div>
+          
         </div>
 
         <!-- RIGHT: Tier card previews -->
@@ -1189,11 +1189,6 @@ function selectRace(race, tileEl) {
     document.getElementById('loreLabel3').style.color = race.color;
     document.getElementById('loreDivider').style.background =
       `linear-gradient(90deg, ${race.color}, transparent)`;
-
-    const ab = document.getElementById('loreAbilities');
-    ab.innerHTML = race.abilities.map(a =>
-      `<span class="ability-pill" style="color:${race.color};border-color:${race.color}44">${a}</span>`
-    ).join('');
 
     // Ability showcase cards — show ALL abilities
     const ac = document.getElementById('abilityCards');
