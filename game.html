@@ -2716,13 +2716,11 @@ function renderHand() {
 
         cards.forEach(function(card, idx) {
           var div = buildCard(card, idx);
-          // Active tier cards get tier-color border
-          var ag2 = card.ability ? ', inset 0 0 24px #ff0000ee' : '';
-          var borderC = card.ability ? '#ff3333' : tCol;
-          div.style.borderColor = borderC;
+          // All hand cards use faction color — tier group gives context
+          div.style.borderColor = factionC;
           div.style.boxShadow   = G.selectedCard===card
-            ? '0 0 22px '+borderC+'88, 0 0 44px '+borderC+'44'+ag2
-            : '0 0 12px '+borderC+'55, 0 0 0 1px '+borderC+'33'+ag2;
+            ? '0 0 22px '+factionC+'88, 0 0 44px '+factionC+'44'
+            : '0 0 12px '+factionC+'44, 0 0 0 1px '+factionC+'22';
           group.appendChild(div);
         });
         el.appendChild(group);
