@@ -3287,7 +3287,8 @@ function placeCard(card, r, c, owner) {
 }
 
 // ── AI CARD FLY ANIMATION ─────────────────────
-function animateAiCard(card, r, c) {
+// noTurnFlip: true when opponent played a FLANK card — don't give turn back yet
+function animateAiCard(card, r, c, noTurnFlip = false) {
   const grid   = document.getElementById('grid');
   const target = grid?.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`);
   // Source: AI avatar in the faction HUD (top-left), or top-center of viewport
@@ -3334,17 +3335,27 @@ function animateAiCard(card, r, c) {
     placeCard(card, r, c, 'ai');
     if (G._flankTriggered === 'ai' && !G.gameOver) {
       G._flankTriggered = null;
-      addLog('ai', '\u21BA FLANK \u2014 AI takes extra turn');
-      setTimeout(aiTurn, 1000);
+      if (_mpRoom && _mpPlayer) {
+        addLog('ai', '\u21BA FLANK \u2014 opponent takes extra turn');
+        mpStartPolling();
+      } else {
+        addLog('ai', '\u21BA FLANK \u2014 AI takes extra turn');
+        setTimeout(aiTurn, 1000);
+      }
       return;
     }
-    if (!G.gameOver) {
+    if (!G.gameOver && !noTurnFlip) {
       G.turn = 'player';
       renderScoreHeader();
       if (!hasAnyMoves('player')) {
         G.turn = 'ai';
-        addLog('system', 'You have no moves -- AI goes again');
-        setTimeout(aiTurn, 1200);
+        if (_mpRoom && _mpPlayer) {
+          addLog('system', 'You have no valid moves — opponent continues');
+          mpStartPolling();
+        } else {
+          addLog('system', 'You have no moves -- AI goes again');
+          setTimeout(aiTurn, 1200);
+        }
       }
     }
   }, 580);
@@ -3418,6 +3429,11 @@ function checkWin() {
   }
 
   G.gameOver = true;
+  if (_mpRoom) {
+    fetch(`${_SB_URL}/rest/v1/gz_rooms?id=eq.${_mpRoom}`, {
+      method:'PATCH', headers:_SB_H, body: JSON.stringify({ status:'done' })
+    }).catch(()=>{});
+  }
   const s = computeScores();
   const overlay = document.getElementById('overlay');
   const title   = document.getElementById('overlayTitle');
@@ -3535,6 +3551,12 @@ function onCellClick(r, c) {
   if (G._flankTriggered === 'player') {
     G._flankTriggered = null;
     G.turn = 'player';
+    if (_mpRoom && _mpPlayer) {
+      // Must submit the FLANK card before the extra turn so opponent can track it
+      const _fSeed = Math.floor(Math.random() * 1000000);
+      window._mpSeed = seededRand(_fSeed);
+      mpSubmitMove(_placedCardId || 'unknown', r, c, _fSeed, true); // isFlank=true
+    }
     showToast('\u21BA FLANK \u2014 EXTRA TURN!', '#ff9900');
     renderAll();
     return;
@@ -3549,8 +3571,12 @@ function onCellClick(r, c) {
     const seed = Math.floor(Math.random() * 1000000);
     window._mpSeed = seededRand(seed);
     mpSubmitMove(_placedCardId || 'unknown', r, c, seed).then(() => {
-      if (!G.gameOver && !G.playerHand.every(c=>c.used)) mpStartPolling();
-      else checkWin();
+      if (!G.gameOver) {
+        // Keep polling until opponent finishes their cards too
+        const allUsed = G.playerHand.every(c=>c.used) && G.aiHand.every(c=>c.used);
+        if (!allUsed) mpStartPolling();
+        else checkWin();
+      }
     });
     return;
   }
@@ -4202,6 +4228,10 @@ const _mpP2Fac  = _mpParams.get('p2faction') || ''; // P1 knows P2's faction fro
 if (_mpPlayer === 2 && _mpParams.get('aifaction')) {
   sessionStorage.setItem('gz_ai_race', _mpParams.get('aifaction'));
 }
+// P1: set P2's faction as the AI race so the correct deck loads (and mpApplyMove finds cards)
+if (_mpPlayer === 1 && _mpP2Fac) {
+  sessionStorage.setItem('gz_ai_race', _mpP2Fac);
+}
 
 let _mpTurnNum  = 0;   // moves processed so far
 let _mpPollInt  = null; // polling interval handle
@@ -4214,18 +4244,24 @@ function mpShowWaiting(show) {
 }
 
 // Submit player's move to Supabase
-async function mpSubmitMove(cardId, r, c, seed) {
+// isFlank: true when this card triggered a FLANK extra turn
+async function mpSubmitMove(cardId, r, c, seed, isFlank = false) {
   const move = { player:_mpPlayer, turn:_mpTurnNum, cardId, r, c, seed };
-  // Fetch current moves array first, then append
-  const res = await fetch(`${_SB_URL}/rest/v1/gz_rooms?id=eq.${_mpRoom}&select=moves`, { headers:_SB_H });
-  const data = await res.json();
-  const moves = (data[0]?.moves || []);
-  moves.push(move);
-  await fetch(`${_SB_URL}/rest/v1/gz_rooms?id=eq.${_mpRoom}`, {
-    method:'PATCH', headers:_SB_H,
-    body: JSON.stringify({ moves, updated_at: new Date().toISOString() })
-  });
-  _mpTurnNum++;
+  if (isFlank) move.flank = true;
+  try {
+    const res = await fetch(`${_SB_URL}/rest/v1/gz_rooms?id=eq.${_mpRoom}&select=moves`, { headers:_SB_H });
+    const data = await res.json();
+    const moves = (data[0]?.moves || []);
+    moves.push(move);
+    const patch = await fetch(`${_SB_URL}/rest/v1/gz_rooms?id=eq.${_mpRoom}`, {
+      method:'PATCH', headers:_SB_H,
+      body: JSON.stringify({ moves, updated_at: new Date().toISOString() })
+    });
+    if (!patch.ok) throw new Error('PATCH ' + patch.status);
+    _mpTurnNum++; // only advance on confirmed write
+  } catch(e) {
+    console.error('MP: move submit failed', e);
+  }
 }
 
 // Reconstruct opponent's card object from cardId
@@ -4242,16 +4278,24 @@ function mpFindCard(cardId, opponentFaction) {
 
 // Apply opponent's move (received from Supabase)
 function mpApplyMove(move) {
-  const opFaction = _mpPlayer === 1 ? _mpP2Fac : window.playerRaceId;
-  let card = mpFindCard(move.cardId, opFaction ? (window.aiRaceId||opFaction) : opFaction);
+  // P1's opponent is P2 (p2faction param); P2's opponent is P1 (aifaction param)
+  const opFaction = _mpPlayer === 1 ? _mpP2Fac : (_mpParams.get('aifaction') || window.aiRaceId);
+  let card = mpFindCard(move.cardId, opFaction);
   if (!card) { console.warn('MP: card not found', move.cardId); return; }
   // Find the card in aiHand (it might have been modified by abilities/edgeMod)
   const handCard = G.aiHand.find(c => c.id === move.cardId && !c.used) || {...card, used:false, shieldExpended:false, edgeMod:{n:0,s:0,e:0,w:0}};
   // Use seeded random for AMBUSH/STONEWALL so both clients get same sides
   if (move.seed) window._mpSeed = seededRand(move.seed);
-  animateAiCard(handCard, move.r, move.c);
+  const isFlank = move.flank === true;
+  // noTurnFlip=true: opponent has an extra FLANK turn, don't give control to this player yet
+  animateAiCard(handCard, move.r, move.c, isFlank);
   _mpTurnNum++;
-  _mpMyTurn = true;
+  if (isFlank) {
+    // Keep G.turn as 'ai' and poll for opponent's extra-turn card
+    setTimeout(() => { if (!G.gameOver) { G.turn = 'ai'; mpStartPolling(); } }, 620);
+  } else {
+    _mpMyTurn = true;
+  }
 }
 
 // Poll Supabase for opponent's move
@@ -4259,11 +4303,12 @@ function mpStartPolling() {
   if (_mpPollInt) clearInterval(_mpPollInt);
   mpShowWaiting(true);
   _mpPollInt = setInterval(async () => {
+    if (G.gameOver) { clearInterval(_mpPollInt); _mpPollInt = null; return; }
     try {
       const res = await fetch(`${_SB_URL}/rest/v1/gz_rooms?id=eq.${_mpRoom}&select=moves,status`, { headers:_SB_H });
       const data = await res.json();
       if (!data[0]) return;
-      if (data[0].status === 'done') { clearInterval(_mpPollInt); return; }
+      if (data[0].status === 'done') { clearInterval(_mpPollInt); _mpPollInt = null; return; }
       const moves = data[0].moves || [];
       if (moves.length > _mpTurnNum) {
         const nextMove = moves[_mpTurnNum];
@@ -4277,9 +4322,7 @@ function mpStartPolling() {
   }, 2000);
 }
 
-// ── MULTIPLAYER HOOKS ON onCellClick ─────────────────────────────────────────
-// Overrides the normal aiTurn call with multiplayer move submission
-const _origOnCellClick = window.onCellClick;
+// ── MULTIPLAYER HOOKS ─────────────────────────────────────────────────────────
 if (_mpRoom && _mpPlayer) {
   // After game init, replace turn flow with MP version
   window.addEventListener('load', () => {
