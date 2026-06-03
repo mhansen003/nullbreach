@@ -710,45 +710,17 @@ button, [onclick] { touch-action: manipulation; }
 <audio id="bgTrack"    preload="none"></audio>
 
 <!-- Music controls: mute + volume -->
-<!-- Total score HUD — bottom right, faction-colored, avatar-driven -->
-<div id="scoreHud" style="
-  position:fixed;bottom:16px;right:16px;z-index:100;
-  background:#000000cc;border:1px solid #1a1a2e;
-  border-radius:8px;padding:10px 12px;
-  font-family:'Courier New',monospace;
-  min-width:180px;
-">
-  <!-- Player row -->
-  <div id="hudPlayerRow" style="display:flex;align-items:center;gap:8px;padding:4px 0;">
-    <img id="hudPlayerAvatar" src="" style="width:28px;height:28px;border-radius:50%;object-fit:cover;object-position:top;border:2px solid #444;flex-shrink:0;">
-    <span id="hudPlayerName" style="font-size:9px;letter-spacing:1px;color:#666;flex:1;overflow:hidden;white-space:nowrap;">YOU</span>
-    <span id="hudPlayerScore" style="font-size:20px;font-weight:bold;color:#666;">0</span>
-  </div>
-  <div style="height:1px;background:#1a1a2e;margin:2px 0;"></div>
-  <!-- AI row -->
-  <div id="hudAiRow" style="display:flex;align-items:center;gap:8px;padding:4px 0;">
-    <img id="hudAiAvatar" src="" style="width:28px;height:28px;border-radius:50%;object-fit:cover;object-position:top;border:2px solid #444;flex-shrink:0;">
-    <span id="hudAiName" style="font-size:9px;letter-spacing:1px;color:#666;flex:1;overflow:hidden;white-space:nowrap;">AI</span>
-    <span id="hudAiScore" style="font-size:20px;font-weight:bold;color:#666;">0</span>
-  </div>
-  <div style="height:1px;background:#1a1a2e;margin:4px 0 3px;"></div>
-  <!-- Leader strip -->
-  <div id="hudWinner" style="display:flex;align-items:center;justify-content:center;gap:6px;min-height:16px;">
-    <span style="font-size:8px;letter-spacing:2px;color:#333;">0 / 12 LINES</span>
-  </div>
-</div>
-
-<div style="position:fixed;bottom:16px;right:200px;z-index:100;display:flex;align-items:center;gap:8px;">
-  <input id="volSlider" type="range" min="0" max="100" value="40"
-    oninput="setVolume(this.value)"
-    style="width:70px;accent-color:#00ffcc;cursor:pointer;opacity:0.5;"
-    title="Volume">
-  <div id="gameMuteBtn" onclick="toggleGameMusic()" style="
-    padding:5px 10px;border-radius:4px;background:#000000bb;
-    border:1px solid #00ffcc22;color:#00ffcc66;font-size:9px;
-    letter-spacing:1px;cursor:pointer;font-family:inherit;
-  ">🔊</div>
-</div>
+<!-- Hidden score elements kept for JS compatibility -->
+<span id="hudPlayerScore" style="display:none">0</span>
+<span id="hudAiScore"     style="display:none">0</span>
+<span id="hudWinner"      style="display:none"></span>
+<span id="hudPlayerAvatar" style="display:none"></span>
+<span id="hudAiAvatar"     style="display:none"></span>
+<span id="hudPlayerName"   style="display:none"></span>
+<span id="hudAiName"       style="display:none"></span>
+<span id="hudPlayerRow"    style="display:none"></span>
+<span id="hudAiRow"        style="display:none"></span>
+<span id="scoreHud"        style="display:none"></span>
 
 <div id="game-top-bg" style="position:fixed;top:0;left:0;right:0;height:50%;background-size:cover;background-position:center top;z-index:0;opacity:0;transition:opacity 1s;pointer-events:none;mask-image:linear-gradient(to bottom,black 0%,black 50%,transparent 100%);-webkit-mask-image:linear-gradient(to bottom,black 0%,black 50%,transparent 100%);"></div>
 <div id="game-bottom-bg" style="position:fixed;bottom:0;left:0;right:0;height:50%;background-size:cover;background-position:center bottom;z-index:0;opacity:0;transition:opacity 1s;pointer-events:none;mask-image:linear-gradient(to top,black 0%,black 50%,transparent 100%);-webkit-mask-image:linear-gradient(to top,black 0%,black 50%,transparent 100%);"></div>
@@ -784,6 +756,33 @@ button, [onclick] { touch-action: manipulation; }
       <div class="ai-name">SENTINEL-4</div>
       <div class="ai-sub">FLOOR 2 BOSS</div>
       <div class="ai-quote" id="aiQuote">"Your breach ends here."</div>
+    </div>
+  </div>
+
+  <!-- SCORE SCOREBOARD — both sides, lives in AI bar -->
+  <div id="gameScoreboard" style="
+    margin-left:auto;display:flex;align-items:center;gap:10px;
+    background:#050510;border:1px solid #1a1a2e;border-radius:10px;
+    padding:8px 16px;font-family:'Courier New',monospace;flex-shrink:0;
+  ">
+    <!-- AI side -->
+    <div id="sbAiBlock" style="display:flex;flex-direction:column;align-items:center;gap:3px;min-width:64px;">
+      <img id="sbAiAvatar" src="" style="width:32px;height:32px;border-radius:50%;object-fit:cover;object-position:top;border:2px solid #333;transition:all 0.3s;">
+      <span id="sbAiNum"  style="font-size:26px;font-weight:bold;color:#333;line-height:1;transition:all 0.3s;">0</span>
+      <span id="sbAiName" style="font-size:7px;letter-spacing:1px;color:#222;white-space:nowrap;transition:color 0.3s;"></span>
+      <span id="sbAiLead" style="font-size:7px;letter-spacing:2px;min-height:10px;font-weight:bold;"></span>
+    </div>
+    <!-- VS divider -->
+    <div style="display:flex;flex-direction:column;align-items:center;gap:3px;">
+      <span style="font-size:8px;color:#1a1a28;letter-spacing:2px;">vs</span>
+      <span style="font-size:7px;color:#111120;letter-spacing:1px;">/ 12</span>
+    </div>
+    <!-- Player side -->
+    <div id="sbPlayerBlock" style="display:flex;flex-direction:column;align-items:center;gap:3px;min-width:64px;">
+      <img id="sbPlayerAvatar" src="" style="width:32px;height:32px;border-radius:50%;object-fit:cover;object-position:top;border:2px solid #333;transition:all 0.3s;">
+      <span id="sbPlayerNum"  style="font-size:26px;font-weight:bold;color:#333;line-height:1;transition:all 0.3s;">0</span>
+      <span id="sbPlayerName" style="font-size:7px;letter-spacing:1px;color:#222;white-space:nowrap;transition:color 0.3s;"></span>
+      <span id="sbPlayerLead" style="font-size:7px;letter-spacing:2px;min-height:10px;font-weight:bold;"></span>
     </div>
   </div>
   <div class="ai-hand-row">
@@ -841,6 +840,12 @@ button, [onclick] { touch-action: manipulation; }
     <div>
       <div class="player-name">NETRUNNER_7</div>
       <div class="player-sub">CLICK CARD &rsaquo; CLICK VALID CELL</div>
+    </div>
+    <!-- Player score chip inside portrait -->
+    <div style="margin-left:auto;display:flex;flex-direction:column;align-items:center;padding-left:10px;border-left:1px solid #1a1a28;gap:2px;">
+      <span id="sbPlayerChipNum" style="font-size:24px;font-weight:bold;color:#2a2a3a;line-height:1;transition:all 0.3s;font-family:'Courier New',monospace;">0</span>
+      <span style="font-size:7px;letter-spacing:2px;color:#1a1a28;">LINES</span>
+      <span id="sbPlayerChipLead" style="font-size:7px;letter-spacing:2px;min-height:10px;font-weight:bold;"></span>
     </div>
   </div>
   <div class="hand-lbl-v" style="transform:rotate(180deg);font-size:8px;color:#333;letter-spacing:2px;">YOUR HAND</div>
@@ -955,6 +960,16 @@ function initRaceTheme() {
   window.aiRaceId           = aiRaceId;
   window.playerAvatarImg    = player.avatarImg || `assets/avatars/${raceId}.png`;
   window.aiAvatarImg        = ai.avatarImg     || `assets/avatars/${aiRaceId}.png`;
+
+  // Seed scoreboard avatars immediately so they show on game start
+  const sbAi = document.getElementById('sbAiAvatar');
+  const sbPl = document.getElementById('sbPlayerAvatar');
+  if (sbAi) sbAi.src = ai.avatarImg || `assets/avatars/${aiRaceId}.png`;
+  if (sbPl) sbPl.src = player.avatarImg || `assets/avatars/${raceId}.png`;
+  const sbAN = document.getElementById('sbAiName');
+  const sbPN = document.getElementById('sbPlayerName');
+  if (sbAN) { sbAN.textContent = aiWords.slice(0,2).join(' '); }
+  if (sbPN) { sbPN.textContent = playerWords.slice(0,2).join(' '); }
 
   // Update faction labels below avatars
   const aiFactionLbl = document.getElementById('aiFactionLabel');
@@ -1257,13 +1272,11 @@ function renderGrid() {
         div.onmouseleave = hideTip;
       } else {
         div.classList.add('empty');
-        // Tier indicator dots (player perspective only — row 0 is AI home, no player dots)
+        // Tier indicator: row 4 = T1 home, rows 1-3 = T2+ battle zone, row 0 = AI home
         const _triHtml = r === 4
           ? `<div class="tri-dots"><span class="tri-d white"></span></div>`
-          : r === 3
-          ? `<div class="tri-dots"><span class="tri-d green"></span><span class="tri-d green"></span></div>`
           : r === 0
-          ? `` // AI home row — no player indicator
+          ? `` // AI home — no player indicator
           : `<div class="tri-dots"><span class="tri-d green"></span><span class="tri-d green"></span><span class="tri-plus">+</span></div>`;
         div.innerHTML = _triHtml;
         if (valid.some(v => v.r===r && v.c===c)) {
@@ -1299,8 +1312,8 @@ function renderGrid() {
               reason = 'Tier II+ cannot go in your home row';
             } else if (_r === 0) {
               reason = 'Enemy home row — no placement allowed here';
-            } else if ((tier === 'III' || tier === 'IV') && (_r === 3 || _r === 1)) {
-              reason = 'Tier III/IV: middle rows only (rows 2–3 from your side)';
+            } else if (tier !== 'I' && (_r === 4 || _r === 0)) {
+              reason = 'Tier II+: battle zone only (rows 1–3)';
             }
             showErrorTip(ev, reason);
           };
@@ -1568,10 +1581,22 @@ function renderScoreBadges() {
     }
     badge.innerHTML = rowBadgeHtml(p, a, res);
     badge.addEventListener('mouseenter', () => {
-      document.querySelectorAll(`.cell[data-r="${r}"]`).forEach(el => el.style.outline='2px solid #ffff0055');
+      // Highlight the active row, dim everything else
+      document.querySelectorAll('.cell').forEach(el => {
+        if (el.dataset.r == r) {
+          el.style.outline = '2px solid #ffff0099';
+          el.style.filter  = 'none';
+          el.style.opacity = '1';
+        } else {
+          el.style.filter  = 'grayscale(1) brightness(0.35)';
+          el.style.opacity = '0.5';
+        }
+      });
     });
     badge.addEventListener('mouseleave', () => {
-      document.querySelectorAll(`.cell[data-r="${r}"]`).forEach(el => el.style.outline='');
+      document.querySelectorAll('.cell').forEach(el => {
+        el.style.outline = ''; el.style.filter = ''; el.style.opacity = '';
+      });
     });
     rowEl.appendChild(badge);
   }
@@ -1595,10 +1620,22 @@ function renderScoreBadges() {
     }
     badge.innerHTML = colBadgeHtml(p, a, res);
     badge.addEventListener('mouseenter', () => {
-      document.querySelectorAll(`.cell[data-c="${c}"]`).forEach(el => el.style.outline='2px solid #ffff0055');
+      // Highlight active column, dim everything else
+      document.querySelectorAll('.cell').forEach(el => {
+        if (el.dataset.c == c) {
+          el.style.outline = '2px solid #ffff0099';
+          el.style.filter  = 'none';
+          el.style.opacity = '1';
+        } else {
+          el.style.filter  = 'grayscale(1) brightness(0.35)';
+          el.style.opacity = '0.5';
+        }
+      });
     });
     badge.addEventListener('mouseleave', () => {
-      document.querySelectorAll(`.cell[data-c="${c}"]`).forEach(el => el.style.outline='');
+      document.querySelectorAll('.cell').forEach(el => {
+        el.style.outline = ''; el.style.filter = ''; el.style.opacity = '';
+      });
     });
     colEl.appendChild(badge);
   }
@@ -1631,39 +1668,37 @@ function renderScoreHeader() {
   const pLeading = s.pWins > s.aWins;
   const aLeading = s.aWins > s.pWins;
 
-  // Player row
-  const hudPAv = document.getElementById('hudPlayerAvatar');
-  const hudPNm = document.getElementById('hudPlayerName');
-  const hudPSc = document.getElementById('hudPlayerScore');
-  const hudARow= document.getElementById('hudAiRow');
-  const hudPRow= document.getElementById('hudPlayerRow');
-  if (hudPAv) { hudPAv.src = pAvg; hudPAv.style.borderColor = pLeading ? pCol : '#333'; hudPAv.style.filter = pLeading ? 'none' : 'grayscale(0.6)'; hudPAv.style.width = pLeading ? '34px' : '24px'; hudPAv.style.height = pLeading ? '34px' : '24px'; }
-  if (hudPNm) { hudPNm.textContent = pNam; hudPNm.style.color = pLeading ? pCol : '#555'; }
-  if (hudPSc) { hudPSc.textContent = s.pWins; hudPSc.style.color = pLeading ? pCol : '#444'; hudPSc.style.textShadow = pLeading ? `0 0 10px ${pCol}` : 'none'; hudPSc.style.fontSize = pLeading ? '22px' : '16px'; }
+  // ── EMBEDDED SCOREBOARD (in AI bar) ──────────────────
+  const sbAiAv   = document.getElementById('sbAiAvatar');
+  const sbAiNum  = document.getElementById('sbAiNum');
+  const sbAiName = document.getElementById('sbAiName');
+  const sbAiLead = document.getElementById('sbAiLead');
+  const sbPAv    = document.getElementById('sbPlayerAvatar');
+  const sbPNum   = document.getElementById('sbPlayerNum');
+  const sbPName  = document.getElementById('sbPlayerName');
+  const sbPLead  = document.getElementById('sbPlayerLead');
+  const sbBoard  = document.getElementById('gameScoreboard');
 
-  // AI row
-  const hudAAv = document.getElementById('hudAiAvatar');
-  const hudANm = document.getElementById('hudAiName');
-  const hudASc = document.getElementById('hudAiScore');
-  if (hudAAv) { hudAAv.src = aAvg; hudAAv.style.borderColor = aLeading ? aCol : '#333'; hudAAv.style.filter = aLeading ? 'none' : 'grayscale(0.6)'; hudAAv.style.width = aLeading ? '34px' : '24px'; hudAAv.style.height = aLeading ? '34px' : '24px'; }
-  if (hudANm) { hudANm.textContent = aNam; hudANm.style.color = aLeading ? aCol : '#555'; }
-  if (hudASc) { hudASc.textContent = s.aWins; hudASc.style.color = aLeading ? aCol : '#444'; hudASc.style.textShadow = aLeading ? `0 0 10px ${aCol}` : 'none'; hudASc.style.fontSize = aLeading ? '22px' : '16px'; }
+  // AI side
+  if (sbAiAv)   { sbAiAv.src = aAvg; sbAiAv.style.borderColor = aLeading ? aCol : '#2a2a3a'; sbAiAv.style.boxShadow = aLeading ? `0 0 10px ${aCol}66` : 'none'; }
+  if (sbAiNum)  { sbAiNum.textContent = s.aWins; sbAiNum.style.color = aLeading ? aCol : '#444455'; sbAiNum.style.fontSize = aLeading ? '34px' : '22px'; sbAiNum.style.textShadow = aLeading ? `0 0 14px ${aCol}` : 'none'; }
+  if (sbAiName) { sbAiName.textContent = aNam; sbAiName.style.color = aLeading ? aCol + '88' : '#222233'; }
+  if (sbAiLead) { sbAiLead.textContent = aLeading ? 'LEADS' : (pLeading ? 'TRAILING' : ''); sbAiLead.style.color = aLeading ? aCol : '#333344'; }
 
-  // HUD border glow
-  const hud = document.getElementById('scoreHud');
-  if (hud) hud.style.borderColor = pLeading ? pCol+'44' : aLeading ? aCol+'44' : '#1a1a2e';
+  // Player side
+  if (sbPAv)    { sbPAv.src = pAvg; sbPAv.style.borderColor = pLeading ? pCol : '#2a2a3a'; sbPAv.style.boxShadow = pLeading ? `0 0 10px ${pCol}66` : 'none'; }
+  if (sbPNum)   { sbPNum.textContent = s.pWins; sbPNum.style.color = pLeading ? pCol : '#444455'; sbPNum.style.fontSize = pLeading ? '34px' : '22px'; sbPNum.style.textShadow = pLeading ? `0 0 14px ${pCol}` : 'none'; }
+  if (sbPName)  { sbPName.textContent = pNam; sbPName.style.color = pLeading ? pCol + '88' : '#222233'; }
+  if (sbPLead)  { sbPLead.textContent = pLeading ? 'LEADS' : (aLeading ? 'TRAILING' : ''); sbPLead.style.color = pLeading ? pCol : '#333344'; }
 
-  // Leader strip
-  const wEl = document.getElementById('hudWinner');
-  if (wEl) {
-    if (pLeading) {
-      wEl.innerHTML = `<img src="${pAvg}" style="width:14px;height:14px;border-radius:50%;object-fit:cover;border:1px solid ${pCol};"><span style="font-size:8px;letter-spacing:2px;color:${pCol};">${pNam} LEADS</span>`;
-    } else if (aLeading) {
-      wEl.innerHTML = `<img src="${aAvg}" style="width:14px;height:14px;border-radius:50%;object-fit:cover;border:1px solid ${aCol};"><span style="font-size:8px;letter-spacing:2px;color:${aCol};">${aNam} LEADS</span>`;
-    } else {
-      wEl.innerHTML = `<span style="font-size:8px;letter-spacing:2px;color:#333;">${s.pWins} / 12 LINES</span>`;
-    }
-  }
+  // Scoreboard border glow for the overall leader
+  if (sbBoard) sbBoard.style.borderColor = pLeading ? pCol + '44' : aLeading ? aCol + '44' : '#1a1a2e';
+
+  // ── PLAYER PORTRAIT CHIP ──────────────────
+  const chipNum  = document.getElementById('sbPlayerChipNum');
+  const chipLead = document.getElementById('sbPlayerChipLead');
+  if (chipNum)  { chipNum.textContent = s.pWins; chipNum.style.color = pLeading ? pCol : '#333344'; chipNum.style.textShadow = pLeading ? `0 0 10px ${pCol}` : 'none'; }
+  if (chipLead) { chipLead.textContent = pLeading ? '▲ LEADING' : (aLeading ? '▼ TRAILING' : ''); chipLead.style.color = pLeading ? pCol : '#444'; }
 }
 
 // Helper: has the player placed at least one card of the given tier on the board?
@@ -1872,20 +1907,13 @@ function getValidPlacements(owner, card) {
   // Tier placement rules — symmetric, no side may enter the opponent's home row
   //   Row 4 = player home (T1 only for player; forbidden for AI)
   //   Row 0 = AI home    (T1 only for AI;     forbidden for player)
-  //   Rows 1–3 = contested battle zone
-  //     T2 = rows 1–3 (advance + middle, no home rows)
-  //     T3/T4 = rows 1–2 (player) / rows 2–3 (AI) — skip T2 advance row too
+  //   Rows 1–3 = battle zone for all T2+ cards (no sub-row restrictions)
   let minAllowed, maxAllowed;
   if (card.tier === 'I') {
-    // T1: own home row only
     minAllowed = homeRow; maxAllowed = homeRow;
-  } else if (card.tier === 'II') {
-    // T2: battle zone only (rows 1–3), never enter either home row
-    minAllowed = 1; maxAllowed = 3;
   } else {
-    // T3/T4: deep battle zone — skip T2 advance row, never home rows
-    minAllowed = owner === 'player' ? 1 : 2;
-    maxAllowed = owner === 'player' ? 2 : 3;
+    // T2+ anywhere in the battle zone — no sub-row split
+    minAllowed = 1; maxAllowed = 3;
   }
 
   return [...set]
