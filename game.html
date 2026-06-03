@@ -2167,6 +2167,7 @@ function renderBattleIndicators(el) {
       if (nr<0||nr>=5||nc<0||nc>=7) continue;
       const nb = G.grid[nr][nc];
       if (!nb.card || nb.owner === cell.owner) continue;
+      if (cell.owner === 'hazard' || nb.owner === 'hazard') continue;
 
       // Recompute edge values with mods + surge bonus
       const surgeBonus = (cell.card.ability==='surge' && G.surgeTrigger?.[cell.owner]) ? 3 : 0;
@@ -2611,7 +2612,8 @@ function renderHand() {
 
     // Front card — same format as real hand cards: art bg + tier dots top-left
     var front = document.createElement('div');
-    front.style.cssText = 'position:absolute;top:0;left:0;width:112px;height:148px;border-radius:6px;background-color:#10101e;background-size:cover;background-position:center top;border:1px solid '+(canOpen?tCol+'55':'#1a1a28')+';box-shadow:'+(canOpen?'0 0 10px '+tCol+'22':'none')+';overflow:hidden;transition:border-color 0.2s,box-shadow 0.2s,transform 0.15s;';
+    var _fc = factionC || '#00ffcc';
+    front.style.cssText = 'position:absolute;top:0;left:0;width:112px;height:148px;border-radius:6px;background-color:#10101e;background-size:cover;background-position:center top;border:1px solid '+(canOpen?_fc+'55':'#1a1a28')+';box-shadow:'+(canOpen?'0 0 10px '+_fc+'22':'none')+';overflow:hidden;transition:border-color 0.2s,box-shadow 0.2s,transform 0.15s;';
 
     if (cards[0] && cards[0].art) {
       front.style.backgroundImage = "url('"+cards[0].art+"')";
@@ -2625,27 +2627,29 @@ function renderHand() {
       return '<span style="width:5px;height:5px;border-radius:50%;background:'+tCol+';box-shadow:0 0 3px '+tCol+';display:inline-block;"></span>';
     }).join('');
 
-    // Count badge top-right (only if >1 card)
-    var countBadge = cards.length > 1
-      ? '<div style="position:absolute;top:4px;right:4px;background:#000000cc;border:1px solid '+tCol+'44;border-radius:10px;padding:1px 5px;font-size:9px;font-weight:bold;color:'+tCol+';font-family:\'Courier New\',monospace;">'+cards.length+'</div>'
-      : '';
-
     front.innerHTML =
       '<div style="position:absolute;top:4px;left:4px;display:flex;gap:2px;z-index:2;">'+dots+'</div>' +
-      countBadge +
       (locked>0 ? '<div style="position:absolute;bottom:4px;right:4px;font-size:8px;color:#444;">+'+locked+'</div>' : '');
 
     wrap.appendChild(front);
 
+    // Count pill floating to the right of the stack
+    if (cards.length > 1) {
+      var countPill = document.createElement('div');
+      countPill.style.cssText = 'position:absolute;bottom:8px;right:-18px;background:#0a0a1a;border:1px solid '+_fc+'66;border-radius:10px;padding:2px 6px;font-size:11px;font-weight:bold;color:'+_fc+';font-family:\'Courier New\',monospace;z-index:5;white-space:nowrap;pointer-events:none;';
+      countPill.textContent = '×' + cards.length;
+      wrap.appendChild(countPill);
+    }
+
     if (canOpen) {
       wrap.onmouseenter = function() {
-        front.style.borderColor = tCol+'aa';
-        front.style.boxShadow   = '0 0 20px '+tCol+'55';
+        front.style.borderColor = _fc+'cc';
+        front.style.boxShadow   = '0 0 20px '+_fc+'55';
         wrap.style.transform    = 'translateY(-5px)';
       };
       wrap.onmouseleave = function() {
-        front.style.borderColor = tCol+'55';
-        front.style.boxShadow   = '0 0 10px '+tCol+'22';
+        front.style.borderColor = _fc+'55';
+        front.style.boxShadow   = '0 0 10px '+_fc+'22';
         wrap.style.transform    = '';
       };
       wrap.onclick = function() {

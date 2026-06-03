@@ -1475,7 +1475,6 @@ function selectOpponent(raceId, tileEl) {
 function showOpponentPicker() {
   if (!selectedRace) return;
   stopCivVoice(); // Stop voice on launch
-  setTimeout(() => setDiff('balanced'), 0); // pre-select balanced
   const modal = document.getElementById('opponentModal');
   const grid  = document.getElementById('opponentGrid');
   if (!modal || !grid) { launchGame('random'); return; }
@@ -1519,6 +1518,10 @@ function showOpponentPicker() {
   if (_autoTile) selectOpponent(_autoRace, _autoTile);
 
   modal.style.display = 'flex';
+  // Auto-select VS Computer and enable NEXT
+  _resetMode();
+  setTimeout(() => { selectMode('computer'); }, 0);
+  setTimeout(() => setDiff('balanced'), 0);
 }
 
 // ── SUPABASE CONFIG ─────────────────────────────────────────────────────────
