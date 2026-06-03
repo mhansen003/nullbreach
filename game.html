@@ -474,6 +474,14 @@ body {
 }
 .btn-restart:hover { background:#1a3a26; }
 
+@keyframes badgeFlip {
+  0%   { transform: rotateY(0deg) scale(1); }
+  40%  { transform: rotateY(90deg) scale(1.1); }
+  60%  { transform: rotateY(-90deg) scale(1.1); }
+  100% { transform: rotateY(0deg) scale(1); }
+}
+.badge-flip { animation: badgeFlip 0.45s ease-in-out; }
+
 /* TOOLTIP — shiny, tier-color-driven */
 @keyframes tipGlow {
   0%,100% { box-shadow: 0 0 0 1px var(--tc-dim,#8855ff33), 0 24px 64px #000000cc, 0 0 22px var(--tc-glow,#8855ff18); }
@@ -1951,6 +1959,7 @@ function showBattleTip(e, d) {
   tt.style.left = Math.max(8, left) + 'px';
 }
 
+const _prevBadgeRes = { rows: Array(5).fill(null), cols: Array(7).fill(null) };
 function renderScoreBadges() {
   const s = computeScores();
 
@@ -2030,6 +2039,13 @@ function renderScoreBadges() {
     const rowBorder  = res==='p' ? pCol+'55' : res==='a' ? aCol+'55' : (p===0&&a===0)?'#111120':'#221a33';
     badge.style.cssText = `background:${rowBg};border:1px solid ${rowBorder};border-left:3px solid ${rowWinCol};`;
     badge.innerHTML = rowBadgeHtml(p, a, res);
+    // Flip animation when leadership changes between renders
+    const prevRes = _prevBadgeRes.rows[r];
+    if (prevRes !== null && prevRes !== res && (res==='p'||res==='a') && (prevRes==='p'||prevRes==='a')) {
+      badge.classList.add('badge-flip');
+      setTimeout(() => badge.classList.remove('badge-flip'), 450);
+    }
+    _prevBadgeRes.rows[r] = res;
     badge.addEventListener('mouseenter', () => {
       document.querySelectorAll('.cell').forEach(el => {
         const er = el.dataset.r;
@@ -2069,6 +2085,12 @@ function renderScoreBadges() {
     const colBorder  = res==='p' ? pCol+'55' : res==='a' ? aCol+'55' : (p===0&&a===0)?'#111120':'#221a33';
     badge.style.cssText = `background:${colBg};border:1px solid ${colBorder};border-top:3px solid ${colWinCol};`;
     badge.innerHTML = colBadgeHtml(p, a, res);
+    const prevResC = _prevBadgeRes.cols[c];
+    if (prevResC !== null && prevResC !== res && (res==='p'||res==='a') && (prevResC==='p'||prevResC==='a')) {
+      badge.classList.add('badge-flip');
+      setTimeout(() => badge.classList.remove('badge-flip'), 450);
+    }
+    _prevBadgeRes.cols[c] = res;
     badge.addEventListener('mouseenter', () => {
       document.querySelectorAll('.cell').forEach(el => {
         const ec = el.dataset.c;
@@ -3110,14 +3132,38 @@ function showTip(e, card) {
   tt.style.setProperty('--tc-dim', tierCol + '55');
   tt.style.setProperty('--tc-glow',tierCol + '18');
 
-  // For placed cards: color winning edges brighter, losing edges dimmer
+  // Per-direction battle result — scan grid to find this card's position
+  let _cardPos = null;
+  if (typeof G !== 'undefined' && G.grid) {
+    outer: for (let _r = 0; _r < 5; _r++)
+      for (let _c = 0; _c < 7; _c++)
+        if (G.grid[_r][_c].card === card) { _cardPos = {r:_r, c:_c, own:G.grid[_r][_c].owner}; break outer; }
+  }
+  const _dir = {n:null, s:null, e:null, w:null};
+  if (_cardPos) {
+    const {r:_r, c:_c, own:_own} = _cardPos;
+    const _emy = _own === 'player' ? 'ai' : 'player';
+    const _cmp = (my, their) => my > their ? 'W' : my < their ? 'L' : 'T';
+    const _em  = (rr,cc) => G.grid[rr] && G.grid[rr][cc] && G.grid[rr][cc].owner === _emy && G.grid[rr][cc].card ? G.grid[rr][cc].card : null;
+    const _ev  = (c, edge) => c.edges[edge] + (c.edgeMod?.[edge]||0);
+    if (_em(_r-1,_c)) _dir.n = _cmp(n,    _ev(_em(_r-1,_c),'s'));
+    if (_em(_r+1,_c)) _dir.s = _cmp(s,    _ev(_em(_r+1,_c),'n'));
+    if (_em(_r,_c-1)) _dir.w = _cmp(w,    _ev(_em(_r,_c-1),'e'));
+    if (_em(_r,_c+1)) _dir.e = _cmp(e_,   _ev(_em(_r,_c+1),'w'));
+  }
+  function _badge(res) {
+    if (!res) return '';
+    const bc = res==='W'?'#00ffcc':res==='L'?'#ff4444':'#888888';
+    return `<div style="font-size:9px;font-weight:bold;color:${bc};background:${bc}22;border:1px solid ${bc}88;border-radius:3px;padding:0 4px;line-height:15px;margin-top:1px;">${res}</div>`;
+  }
+  const _edgeCol = (res, col) => res==='W' ? col : res==='L' ? col+'44' : col+'99';
   const bat  = card._bat || { h:'none', v:'none' };
-  const nCol = bat.v==='win' ? tierCol : bat.v==='lose' ? tierCol+'44' : tierCol+'cc';
-  const sCol = bat.v==='win' ? tierCol : bat.v==='lose' ? tierCol+'44' : tierCol+'cc';
-  const wCol = bat.h==='win' ? tierCol : bat.h==='lose' ? tierCol+'44' : tierCol+'cc';
-  const eCol = bat.h==='win' ? tierCol : bat.h==='lose' ? tierCol+'44' : tierCol+'cc';
-  const nGlow = bat.v==='win' ? `text-shadow:0 0 8px ${tierCol};` : '';
-  const wGlow = bat.h==='win' ? `text-shadow:0 0 8px ${tierCol};` : '';
+  const nCol = _dir.n ? _edgeCol(_dir.n, tierCol) : (bat.v==='win' ? tierCol : bat.v==='lose' ? tierCol+'44' : tierCol+'cc');
+  const sCol = _dir.s ? _edgeCol(_dir.s, tierCol) : (bat.v==='win' ? tierCol : bat.v==='lose' ? tierCol+'44' : tierCol+'cc');
+  const wCol = _dir.w ? _edgeCol(_dir.w, tierCol) : (bat.h==='win' ? tierCol : bat.h==='lose' ? tierCol+'44' : tierCol+'cc');
+  const eCol = _dir.e ? _edgeCol(_dir.e, tierCol) : (bat.h==='win' ? tierCol : bat.h==='lose' ? tierCol+'44' : tierCol+'cc');
+  const nGlow = (_dir.n==='W' || bat.v==='win') ? `text-shadow:0 0 8px ${tierCol};` : '';
+  const wGlow = (_dir.w==='W' || bat.h==='win') ? `text-shadow:0 0 8px ${tierCol};` : '';
 
   tt.innerHTML = `
   <div class="tip-shine-layer"></div>
@@ -3152,21 +3198,25 @@ function showTip(e, card) {
       <div style="flex:1;">
         <div style="font-size:8px;letter-spacing:2px;color:#555;margin-bottom:4px;">ATTACK POWER</div>
         <div style="position:relative;width:96px;height:96px;border:1px solid var(--tc-dim);border-radius:5px;background:#030310;">
-          <div style="position:absolute;top:4px;left:50%;transform:translateX(-50%);text-align:center;">
+          <div style="position:absolute;top:3px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;">
             <div style="font-size:7px;color:#444;">N</div>
             <div style="font-size:18px;font-weight:bold;${nGlow}color:${nCol};line-height:1;">${n}</div>
+            ${_badge(_dir.n)}
           </div>
-          <div style="position:absolute;bottom:4px;left:50%;transform:translateX(-50%);text-align:center;">
-            <div style="font-size:7px;color:#444;">S</div>
+          <div style="position:absolute;bottom:3px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;">
+            ${_badge(_dir.s)}
             <div style="font-size:18px;font-weight:bold;color:${sCol};line-height:1;">${s}</div>
+            <div style="font-size:7px;color:#444;">S</div>
           </div>
-          <div style="position:absolute;left:3px;top:50%;transform:translateY(-50%);text-align:center;min-width:18px;">
+          <div style="position:absolute;left:3px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;align-items:center;min-width:22px;">
             <div style="font-size:7px;color:#444;">W</div>
             <div style="font-size:18px;font-weight:bold;${wGlow}color:${wCol};line-height:1;">${w}</div>
+            ${_badge(_dir.w)}
           </div>
-          <div style="position:absolute;right:3px;top:50%;transform:translateY(-50%);text-align:center;min-width:18px;">
+          <div style="position:absolute;right:3px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;align-items:center;min-width:22px;">
             <div style="font-size:7px;color:#444;">E</div>
             <div style="font-size:18px;font-weight:bold;${wGlow}color:${eCol};line-height:1;">${e_}</div>
+            ${_badge(_dir.e)}
           </div>
           <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:4px;height:4px;border-radius:50%;background:var(--tc-dim);"></div>
         </div>
