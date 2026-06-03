@@ -936,13 +936,13 @@ const BROOD_CARDS = [
   { id:'br_t2b', name:'SOLDIER MASS',    tier:'II', tierLabel:'WARRIOR CLUSTER', zone:'launch',     edges:{n:7,s:3,e:5,w:6}, power:3, ability:'boost',       abilityText:'BOOST: Adjacent friendly cards +1 all edges', art:'assets/cards/brood/soldier-mass.png' },
   { id:'br_t2c', name:'BIOMECH FLEET',   tier:'II', tierLabel:'WARRIOR CLUSTER', zone:'command',    edges:{n:6,s:3,e:7,w:5}, power:2, ability:'sweep',       abilityText:'SWEEP: Contests all 4 adjacent cells on placement', art:'assets/cards/brood/biomech-fleet.png' },
   { id:'br_t3a', name:'SKIMMER',         tier:'III',tierLabel:'SKIMMER',         zone:'flanker',    edges:{n:7,s:2,e:8,w:3}, power:3, ability:'rush',        abilityText:'RUSH: Can be placed adjacent to any enemy card', art:'assets/cards/brood/skimmer.png' },
-  { id:'br_t3b', name:'VOID SKIMMER',    tier:'III',tierLabel:'SKIMMER',         zone:'flanker',    edges:{n:7,s:2,e:7,w:4}, power:2, ability:'ambush_strike',abilityText:'AMBUSH STRIKE: Adjacent to 2+ enemies? +2 all edges', art:'assets/cards/brood/void-skimmer.png' },
-  { id:'br_t3c', name:'LARVAE STRIKE',   tier:'III',tierLabel:'SKIMMER',         zone:'lance',      edges:{n:8,s:2,e:6,w:4}, power:2, ability:'ambush_strike',abilityText:'AMBUSH STRIKE: Adjacent to 2+ enemies? +2 all edges', art:'assets/cards/brood/skimmer.png' },
+  { id:'br_t3b', name:'VOID SKIMMER',    tier:'III',tierLabel:'SKIMMER',         zone:'flanker',    edges:{n:7,s:2,e:7,w:4}, power:2, ability:'surge',        abilityText:'SURGE: When losing rows, +3 to all edges',           art:'assets/cards/brood/void-skimmer.png' },
+  { id:'br_t3c', name:'LARVAE STRIKE',   tier:'III',tierLabel:'SKIMMER',         zone:'lance',      edges:{n:8,s:2,e:7,w:4}, power:2, ability:'ambush_strike', abilityText:'AMBUSH STRIKE: Adjacent to 2+ enemies? +2 all edges', art:'assets/cards/brood/skimmer.png' },
   { id:'br_t4',  name:'THE SOVEREIGN',   tier:'IV', tierLabel:'SOVEREIGN',       zone:'dreadnaught',edges:{n:8,s:5,e:8,w:7}, power:4, ability:'commander',   abilityText:'COMMANDER: Adjacent same-tier cards +2 all edges', art:'assets/cards/brood/the-sovereign.png' },
   // Extra cards
   { id:'br_x1', name:'HIVE NODE',        tier:'I',  tierLabel:'HIVE NODE',       zone:'wide_cross', edges:{n:5,s:2,e:4,w:4}, power:1, ability:null,          abilityText:'Basic Hive Node', art:'assets/cards/brood/hive-node.png' },
   { id:'br_x2', name:'SWARM WING',       tier:'II', tierLabel:'WARRIOR CLUSTER', zone:'flanker',    edges:{n:6,s:2,e:7,w:5}, power:3, ability:'sweep',       abilityText:'SWEEP: Contests all 4 adjacent cells', art:'assets/cards/brood/biomech-fleet.png' },
-  { id:'br_x3', name:'HIVE LANCE',       tier:'III',tierLabel:'SKIMMER',         zone:'lance',      edges:{n:9,s:2,e:6,w:3}, power:2, ability:'pierce',      abilityText:'PIERCE: Ties count as wins', art:'assets/cards/brood/void-skimmer.png' },
+  { id:'br_x3', name:'HIVE LANCE',       tier:'III',tierLabel:'SKIMMER',         zone:'lance',      edges:{n:9,s:2,e:7,w:3}, power:2, ability:'pierce',      abilityText:'PIERCE: Ties count as wins', art:'assets/cards/brood/void-skimmer.png' },
 ];
 
 // ── CARD DEFINITIONS — TERRAN ACCORD ─────────────────────────────
@@ -1167,23 +1167,21 @@ function renderGrid() {
         const col = cell.owner === 'player' ? '#00ffcc' : '#ff0080';
         const bat = cell.battle || { h: 'none', v: 'none' };
 
-        // Edge opacity: dim + show X if losing/tied in that direction
+        // Edge opacity: dim if losing/tied in that direction (color only — no ✗ marks)
         const hLost = bat.h === 'lose' || bat.h === 'tie';
         const vLost = bat.v === 'lose' || bat.v === 'tie';
-        const hDim  = hLost ? '33' : 'ff';
-        const vDim  = vLost ? '33' : 'ff';
-        const hMark = hLost ? ' ✗' : '';
-        const vMark = vLost ? ' ✗' : '';
+        const hAlpha = hLost ? '30' : 'ee';
+        const vAlpha = vLost ? '30' : 'ee';
 
         // Power dims if BOTH directions are lost
         const bothLost = hLost && vLost;
         const pwrColor = bothLost ? col + '44' : col;
 
         div.innerHTML = `
-          <span class="edge n" style="color:${col}${vDim}">${cell.card.edges.n}${vMark}</span>
-          <span class="edge s" style="color:${col}${vDim}">${cell.card.edges.s}${vMark}</span>
-          <span class="edge w" style="color:${col}${hDim}">${cell.card.edges.w}${hMark}</span>
-          <span class="edge e" style="color:${col}${hDim}">${cell.card.edges.e}${hMark}</span>
+          <span class="edge n" style="color:${col}${vAlpha}">${cell.card.edges.n}</span>
+          <span class="edge s" style="color:${col}${vAlpha}">${cell.card.edges.s}</span>
+          <span class="edge w" style="color:${col}${hAlpha}">${cell.card.edges.w}</span>
+          <span class="edge e" style="color:${col}${hAlpha}">${cell.card.edges.e}</span>
           <!-- Tier dots: top-left, color = tier, count = tier number -->
           <div class="tier-dots">
             ${Array.from({length: tierNum}, () =>
@@ -1279,7 +1277,7 @@ function renderBattleIndicators(el) {
     if (!cell.card) continue;
     for (const d of pairs) {
       const nr = r+d.dr, nc = c+d.dc;
-      if (nr>=5||nc>=6) continue;
+      if (nr<0||nr>=5||nc<0||nc>=7) continue;
       const nb = G.grid[nr][nc];
       if (!nb.card || nb.owner === cell.owner) continue;
 
@@ -1726,7 +1724,7 @@ function doComparisons(r, c, owner, card, depth=0) {
 
   for (const d of DIRS4) {
     const nr=r+d.dr, nc=c+d.dc;
-    if (nr<0||nr>=5||nc<0||nc>=6) continue;
+    if (nr<0||nr>=5||nc<0||nc>=7) continue;
     const target = G.grid[nr][nc];
     if (!target.card || target.owner !== enemy) continue;
 
@@ -1786,7 +1784,7 @@ function applyPlacementAbility(card, r, c, owner) {
     const bonus = card.ability === 'commander' ? 2 : 1;
     dirs.forEach(({dr,dc}) => {
       const nr=r+dr, nc=c+dc;
-      if (nr<0||nr>=5||nc<0||nc>=6) return;
+      if (nr<0||nr>=5||nc<0||nc>=7) return;
       const nb = G.grid[nr][nc];
       if (nb.card && nb.owner === owner) {
         if (card.ability === 'commander' && nb.card.tier !== card.tier) return;
@@ -1830,6 +1828,55 @@ function placeCard(card, r, c, owner) {
   checkWin();
 }
 
+// ── AI CARD FLY ANIMATION ─────────────────────
+function animateAiCard(card, r, c) {
+  const grid   = document.getElementById('grid');
+  const target = grid?.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`);
+  // Source: first unused face-down AI deck card, or fall back to AI avatar
+  const srcEl  = document.querySelector('.fd-card:not(.used)') ||
+                 document.querySelector('.ai-avatar');
+
+  if (!target || !srcEl) { placeCard(card, r, c, 'ai'); return; }
+
+  const src  = srcEl.getBoundingClientRect();
+  const tgt  = target.getBoundingClientRect();
+  const aCol = window.aiFactionColor || '#ff0080';
+
+  // Start position: center of source element
+  const startL = src.left + src.width  / 2 - tgt.width  / 2;
+  const startT = src.top  + src.height / 2 - tgt.height / 2;
+
+  const floater = document.createElement('div');
+  floater.style.cssText = `
+    position:fixed; z-index:9200; pointer-events:none;
+    width:${tgt.width}px; height:${tgt.height}px;
+    left:${startL}px; top:${startT}px;
+    border-radius:6px;
+    background:#050510 center/cover no-repeat;
+    ${card.art ? `background-image:url('${card.art}');` : ''}
+    border:2px solid ${aCol}99;
+    box-shadow: 0 0 28px ${aCol}66, 0 8px 32px #000000cc;
+    opacity:1;
+    transition: left 0.42s cubic-bezier(0.4,0,0.2,1),
+                top  0.42s cubic-bezier(0.4,0,0.2,1),
+                opacity 0.18s ease;
+  `;
+  document.body.appendChild(floater);
+
+  // Double rAF: first frame paints start pos; second starts the transition
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    floater.style.left = tgt.left + 'px';
+    floater.style.top  = tgt.top  + 'px';
+  }));
+
+  // Fade out as it arrives, then place
+  setTimeout(() => { floater.style.opacity = '0'; }, 360);
+  setTimeout(() => {
+    floater.remove();
+    placeCard(card, r, c, 'ai');
+  }, 580);
+}
+
 // ── AI TURN ───────────────────────────────────
 function aiTurn() {
   const avail = G.aiHand.filter(c => !c.used);
@@ -1845,7 +1892,7 @@ function aiTurn() {
       if (s.colResults[c] !== 'a') score += 2;
       for (const d of DIRS4) {
         const nr=r+d.dr, nc=c+d.dc;
-        if (nr<0||nr>=5||nc<0||nc>=6) continue;
+        if (nr<0||nr>=5||nc<0||nc>=7) continue;
         const t = G.grid[nr][nc];
         if (t.card && t.owner==='player' && card.edges[d.myE] > t.card.edges[d.theirE])
           score += 1;
@@ -1855,7 +1902,7 @@ function aiTurn() {
     }
   }
 
-  if (bestCard && bestR >= 0) placeCard(bestCard, bestR, bestC, 'ai');
+  if (bestCard && bestR >= 0) animateAiCard(bestCard, bestR, bestC);
   if (G.gameOver) return;
   G.turn = 'player';
   renderScoreHeader();
@@ -2031,16 +2078,18 @@ function buildZoneGrid(card) {
 
 // Ability visual icons and colors for the tooltip
 const ABILITY_ICONS = {
-  double_strike: { icon:'⚡⚡', color:'#ffdd00', label:'DOUBLE STRIKE' },
-  pierce:        { icon:'▶▶',  color:'#ff8844', label:'PIERCE'        },
-  chain:         { icon:'🔗',  color:'#ff44ff', label:'CHAIN'         },
-  boost:         { icon:'⬆',   color:'#44ffcc', label:'BOOST'         },
-  commander:     { icon:'★★',  color:'#ffcc00', label:'COMMANDER'     },
-  surge:         { icon:'⚡+',  color:'#ff6600', label:'SURGE'         },
-  shield:        { icon:'🛡',   color:'#aaaaff', label:'SHIELD'        },
-  sweep:         { icon:'↔↕',  color:'#ff88ff', label:'SWEEP'         },
-  phantom:       { icon:'◈',   color:'#88ffff', label:'PHANTOM'       },
-  drain:         { icon:'▼▼',  color:'#ff4444', label:'DRAIN'         },
+  double_strike:  { icon:'⚡⚡', color:'#ffdd00', label:'DOUBLE STRIKE'  },
+  pierce:         { icon:'▶▶',  color:'#ff8844', label:'PIERCE'         },
+  chain:          { icon:'🔗',  color:'#ff44ff', label:'CHAIN'          },
+  boost:          { icon:'⬆',   color:'#44ffcc', label:'BOOST'          },
+  commander:      { icon:'★★',  color:'#ffcc00', label:'COMMANDER'      },
+  surge:          { icon:'⚡+',  color:'#ff6600', label:'SURGE'          },
+  shield:         { icon:'🛡',   color:'#aaaaff', label:'SHIELD'         },
+  sweep:          { icon:'↔↕',  color:'#ff88ff', label:'SWEEP'          },
+  phantom:        { icon:'◈',   color:'#88ffff', label:'PHANTOM'        },
+  drain:          { icon:'▼▼',  color:'#ff4444', label:'DRAIN'          },
+  rush:           { icon:'▶!',  color:'#ff6644', label:'RUSH'           },
+  ambush_strike:  { icon:'◉◉',  color:'#cc44ff', label:'AMBUSH STRIKE'  },
 };
 
 function showTip(e, card) {
@@ -2125,7 +2174,7 @@ function showErrorTip(e, reason) {
       <span style="font-size:15px;filter:drop-shadow(0 0 5px #ff3333);">✗</span>
       <span style="font-family:'Orbitron',monospace;font-size:9px;letter-spacing:2px;color:#ff6666;font-weight:700;">INVALID PLACEMENT</span>
     </div>
-    <div style="padding:8px 12px 10px;font-size:10px;color:#ffaaaa;letter-spacing:0.5px;line-height:1.6;">${reason}</div>`;
+    <div style="padding:8px 12px 10px;font-size:12px;color:#ffbbbb;letter-spacing:0.5px;line-height:1.7;">${reason}</div>`;
   et.style.display = 'block';
   const etH = et.offsetHeight || 60;
   const etW = et.offsetWidth  || 220;
@@ -2244,11 +2293,41 @@ function updateMuteLabel() {
 // Menu closes via backdrop click (see menuBackdrop div)
 
 function goToMenu() {
-  G.gameOver = true; // allow navigation without beforeunload warning
+  G.gameOver = true;
   window.location.href = 'index.html?screen=deck';
 }
-// Alias used by hamburger menu button
 function goToMenuNow() { closeMenu(); goToMenu(); }
+
+function confirmRestart() {
+  closeMenu();
+  const m = document.createElement('div');
+  m.id = 'restartConfirm';
+  m.style.cssText = `position:fixed;inset:0;z-index:150000;background:#000000bb;
+    display:flex;align-items:center;justify-content:center;font-family:'Courier New',monospace;`;
+  m.innerHTML = `
+    <div style="background:#0a0a18;border:1px solid #8855ffaa;border-radius:10px;
+      padding:28px 36px;text-align:center;box-shadow:0 0 48px #8855ff22;">
+      <div style="font-family:'Orbitron',monospace;font-size:14px;letter-spacing:3px;
+        color:#fff;margin-bottom:6px;">RESTART GAME?</div>
+      <div style="font-size:10px;color:#444;letter-spacing:2px;margin-bottom:22px;">
+        Current battle will be lost</div>
+      <div style="display:flex;gap:12px;justify-content:center;">
+        <button onclick="document.getElementById('restartConfirm').remove();initGame();"
+          style="background:#0a1a14;border:1px solid #226644;color:#00ffcc;
+          font-family:inherit;font-size:11px;letter-spacing:2px;padding:9px 22px;
+          cursor:pointer;border-radius:4px;transition:all 0.2s;"
+          onmouseenter="this.style.background='#0e2a1e'"
+          onmouseleave="this.style.background='#0a1a14'">CONFIRM</button>
+        <button onclick="document.getElementById('restartConfirm').remove();"
+          style="background:#1a0a2e;border:1px solid #443366;color:#8866aa;
+          font-family:inherit;font-size:11px;letter-spacing:2px;padding:9px 22px;
+          cursor:pointer;border-radius:4px;transition:all 0.2s;"
+          onmouseenter="this.style.background='#2a1040'"
+          onmouseleave="this.style.background='#1a0a2e'">CANCEL</button>
+      </div>
+    </div>`;
+  document.body.appendChild(m);
+}
 
 function toggleGameMusic() {
   const audio = document.getElementById('bgTrack');
@@ -2364,7 +2443,7 @@ document.addEventListener('keydown', e => {
        onmouseleave="this.style.background='#1a0a2e';this.style.borderColor='#6644aa'">
       🔊 MUTE / UNMUTE
     </button>
-    <button onclick="initGame();closeMenu()" style="
+    <button onclick="confirmRestart()" style="
       background:#0a1a14;border:1px solid #226644;color:#ffffff;
       font-family:inherit;font-size:11px;letter-spacing:2px;padding:9px 14px;
       cursor:pointer;border-radius:4px;text-align:left;width:100%;transition:all 0.2s;
