@@ -2454,6 +2454,7 @@ function renderScoreBadges() {
       setTimeout(() => badge.classList.remove('badge-flip'), 450);
     }
     _prevBadgeRes.rows[r] = res;
+    const _rowHlCol = res==='p' ? pCol : res==='a' ? aCol : '#ffffff';
     badge.addEventListener('mouseenter', () => {
       document.querySelectorAll('.cell').forEach(el => {
         const er = el.dataset.r;
@@ -2464,19 +2465,21 @@ function renderScoreBadges() {
           const cancelled = bat && (bat.h === 'tie' || bat.h === 'lose');
           const hazardHit = cell?.card && cell.owner !== 'hazard' && [{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}]
             .some(({dr,dc}) => { const rr=+er+dr,cc=+ec+dc; return rr>=0&&rr<5&&cc>=0&&cc<7&&G.grid[rr][cc].owner==='hazard'; });
-          el.style.outline = cell?.owner === 'hazard' ? '2px solid #ff660099' : '2px solid #55aaff99';
-          el.style.filter  = (cancelled || hazardHit) ? 'brightness(0.4) saturate(0.2)' : 'none';
+          el.style.outline = cell?.owner === 'hazard' ? '2px solid #ff660099' : 'none';
+          el.style.filter  = (cancelled || hazardHit) ? 'brightness(0.4) saturate(0.2)' : 'brightness(1.1)';
           el.style.opacity = '1';
-        } else {
-          el.style.filter  = 'brightness(0.55)';
-          el.style.opacity = '0.72';
-        }
+        } else { el.style.filter='brightness(0.38)'; el.style.opacity='0.5'; }
       });
+      const gridEl = document.getElementById('grid');
+      const ov = document.createElement('div');
+      ov.className = 'score-hl';
+      const gw = GRID_COLS * 124 + (GRID_COLS-1) * 6;
+      ov.style.cssText = `position:absolute;pointer-events:none;z-index:8;top:${r*CS_H}px;left:0;width:${gw}px;height:152px;border:3px solid ${_rowHlCol}cc;border-radius:6px;box-shadow:0 0 22px ${_rowHlCol}55,inset 0 0 10px ${_rowHlCol}11;`;
+      gridEl.appendChild(ov);
     });
     badge.addEventListener('mouseleave', () => {
-      document.querySelectorAll('.cell').forEach(el => {
-        el.style.outline = ''; el.style.filter = ''; el.style.opacity = '';
-      });
+      document.querySelectorAll('.cell').forEach(el => { el.style.outline=''; el.style.filter=''; el.style.opacity=''; });
+      document.querySelectorAll('.score-hl').forEach(el=>el.remove());
     });
     rowEl.appendChild(badge);
   }
@@ -2501,6 +2504,7 @@ function renderScoreBadges() {
       setTimeout(() => badge.classList.remove('badge-flip'), 450);
     }
     _prevBadgeRes.cols[c] = res;
+    const _colHlCol = res==='p' ? pCol : res==='a' ? aCol : '#ffffff';
     badge.addEventListener('mouseenter', () => {
       document.querySelectorAll('.cell').forEach(el => {
         const er = el.dataset.r;
@@ -2511,19 +2515,21 @@ function renderScoreBadges() {
           const cancelled = bat && (bat.v === 'tie' || bat.v === 'lose');
           const hazardHit = cell?.card && cell.owner !== 'hazard' && [{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}]
             .some(({dr,dc}) => { const rr=+er+dr,cc=+ec+dc; return rr>=0&&rr<5&&cc>=0&&cc<7&&G.grid[rr][cc].owner==='hazard'; });
-          el.style.outline = cell?.owner === 'hazard' ? '2px solid #ff660099' : '2px solid #55aaff99';
-          el.style.filter  = (cancelled || hazardHit) ? 'brightness(0.4) saturate(0.2)' : 'none';
+          el.style.outline = cell?.owner === 'hazard' ? '2px solid #ff660099' : 'none';
+          el.style.filter  = (cancelled || hazardHit) ? 'brightness(0.4) saturate(0.2)' : 'brightness(1.1)';
           el.style.opacity = '1';
-        } else {
-          el.style.filter  = 'brightness(0.55)';
-          el.style.opacity = '0.72';
-        }
+        } else { el.style.filter='brightness(0.38)'; el.style.opacity='0.5'; }
       });
+      const gridEl = document.getElementById('grid');
+      const ov = document.createElement('div');
+      ov.className = 'score-hl';
+      const gh = GRID_ROWS * 152 + (GRID_ROWS-1) * 6;
+      ov.style.cssText = `position:absolute;pointer-events:none;z-index:8;top:0;left:${c*CS_W}px;width:124px;height:${gh}px;border:3px solid ${_colHlCol}cc;border-radius:6px;box-shadow:0 0 22px ${_colHlCol}55,inset 0 0 10px ${_colHlCol}11;`;
+      gridEl.appendChild(ov);
     });
     badge.addEventListener('mouseleave', () => {
-      document.querySelectorAll('.cell').forEach(el => {
-        el.style.outline = ''; el.style.filter = ''; el.style.opacity = '';
-      });
+      document.querySelectorAll('.cell').forEach(el => { el.style.outline=''; el.style.filter=''; el.style.opacity=''; });
+      document.querySelectorAll('.score-hl').forEach(el=>el.remove());
     });
     colEl.appendChild(badge);
   }
