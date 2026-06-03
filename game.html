@@ -38,8 +38,8 @@ body {
   background: linear-gradient(to bottom, #020208cc 0%, #020208aa 100%);
 }
 .player-area::before {
-  /* transparent at bottom so lore background shows through; subtle shadow only at top edge for readability */
-  background: linear-gradient(to bottom, #020208cc 0%, #02020855 40%, transparent 100%);
+  /* fully transparent so lore image bleeds through edge to edge */
+  background: transparent;
 }
 /* Ensure all children sit above the overlay */
 .ai-area > *, .player-area > * { position: relative; z-index: 1; }
@@ -166,7 +166,7 @@ body {
   gap: 6px;
 }
 .row-score-badge {
-  width: 90px; height: 144px;
+  width: 90px; height: 54px;
   border-radius: 4px;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   gap: 4px; overflow: hidden; position: relative;
@@ -245,7 +245,11 @@ body {
 /* Card face -- all absolutely positioned inside position:relative .cell */
 .edge {
   position: absolute; font-size: 15px; font-weight: bold; line-height: 1; z-index: 2;
-  min-width: 16px; text-align: center; background: transparent;
+  min-width: 22px; text-align: center;
+  background: rgba(0,0,0,0.72);
+  border-radius: 50%;
+  padding: 2px 3px;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.5);
 }
 .edge.n { top: 5px;    left: 50%; transform: translateX(-50%); }
 .edge.s { bottom: 5px; left: 50%; transform: translateX(-50%); }
@@ -917,8 +921,7 @@ button, [onclick] { touch-action: manipulation; }
 <div class="main-area">
   <div class="board-wrap">
     <div class="board-dir-row">
-      <span class="dir-lbl" style="color:#ff008055">&#x25BC; AI FROM TOP (ROW 0)</span>
-      <span class="dir-lbl" style="color:#00ffcc55">&#x25B2; YOU FROM BOTTOM (ROW 4)</span>
+
     </div>
     <div class="board-and-scores">
       <!-- GRID -->
@@ -1503,7 +1506,9 @@ function computeBattleResults() {
             if (cell.card.ability === 'overwhelm' && hMargin >= 3) b[r][c].vW++;
             if (east.card.ability === 'shield' && !east.card.shieldExpended) {
               east.card.shieldExpended = true;
-            } else { b[r][c+1].hL++; }
+              east.card.shieldBlockH = true; // permanently block H losses
+            }
+            if (!east.card.shieldBlockH) b[r][c+1].hL++;
             // DOUBLE STRIKE 2nd hit at half strength
             if (cell.card.ability === 'double_strike' && c < 5) {
               const far = G.grid[r][c+2];
@@ -1519,7 +1524,9 @@ function computeBattleResults() {
             if (east.card.ability === 'overwhelm' && hMargin >= 3) b[r][c+1].vW++;
             if (cell.card.ability === 'shield' && !cell.card.shieldExpended) {
               cell.card.shieldExpended = true;
-            } else { b[r][c].hL++; }
+              cell.card.shieldBlockH = true; // permanently block H losses
+            }
+            if (!cell.card.shieldBlockH) b[r][c].hL++;
             if (east.card.ability === 'double_strike' && c > 1) {
               const far = G.grid[r][c-1];
               if (far.card && far.owner !== east.owner) {
@@ -1542,10 +1549,12 @@ function computeBattleResults() {
             const margin = me - them;
             // OVERWHELM: win by 3+ → bonus win on H axis too
             if (cell.card.ability === 'overwhelm' && margin >= 3) b[r][c].hW++;
-            // SHIELD V: south card blocks first V loss
+            // SHIELD V: south card blocks first V loss — permanently
             if (south.card.ability === 'shield' && !south.card.shieldExpended) {
               south.card.shieldExpended = true;
-            } else { b[r+1][c].vL++; }
+              south.card.shieldBlockV = true;
+            }
+            if (!south.card.shieldBlockV) b[r+1][c].vL++;
             // DOUBLE STRIKE downward at half strength
             if (cell.card.ability === 'double_strike' && r < 3) {
               const far = G.grid[r+2][c];
@@ -1559,10 +1568,12 @@ function computeBattleResults() {
             const margin = them - me;
             // OVERWHELM on south card
             if (south.card.ability === 'overwhelm' && margin >= 3) b[r+1][c].hW++;
-            // SHIELD V: cell (north card) blocks first V loss
+            // SHIELD V: cell (north card) blocks first V loss — permanently
             if (cell.card.ability === 'shield' && !cell.card.shieldExpended) {
               cell.card.shieldExpended = true;
-            } else { b[r][c].vL++; }
+              cell.card.shieldBlockV = true;
+            }
+            if (!cell.card.shieldBlockV) b[r][c].vL++;
             // DOUBLE STRIKE upward at half strength
             if (south.card.ability === 'double_strike' && r > 0) {
               const far = G.grid[r-1][c];
