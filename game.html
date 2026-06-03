@@ -1593,8 +1593,8 @@ function computeScores() {
 }
 
 // ── RENDERING ─────────────────────────────────
-const CS_W = 114;  // cell width + gap = 108 + 6
-const CS_H = 150;  // cell height + gap = 144 + 6
+const CS_W = 120;  // cell width + gap = 114 + 6
+const CS_H = 158;  // cell height + gap = 152 + 6
 const CS = CS_W;   // legacy alias for horizontal calc
 
 // Tier border colors — immediately readable at a glance
@@ -1812,14 +1812,14 @@ function renderBattleIndicators(el) {
   const pairs = [
     { dr:0, dc:1, myE:'e', theirE:'w', axis:'h',
       label: (c) => `E → W`,
-      // center in horizontal gap: x = c*CS_W + 108 + 3, y = r*CS_H + 72
-      chipX: (r,c) => c*CS_W + 108 + 3 - CHIP/2,
-      chipY: (r,c) => r*CS_H + 72 - CHIP/2 },
+      // center in horizontal gap: x = c*CS_W + 114 + 3, y = r*CS_H + 76
+      chipX: (r,c) => c*CS_W + 114 + 3 - CHIP/2,
+      chipY: (r,c) => r*CS_H + 76 - CHIP/2 },
     { dr:1, dc:0, myE:'s', theirE:'n', axis:'v',
       label: (c) => `S → N`,
-      // center in vertical gap: x = c*CS_W + 54, y = r*CS_H + 144 + 3
-      chipX: (r,c) => c*CS_W + 54 - CHIP/2,
-      chipY: (r,c) => r*CS_H + 144 + 3 - CHIP/2 },
+      // center in vertical gap: x = c*CS_W + 57, y = r*CS_H + 152 + 3
+      chipX: (r,c) => c*CS_W + 57 - CHIP/2,
+      chipY: (r,c) => r*CS_H + 152 + 3 - CHIP/2 },
   ];
 
   for (let r = 0; r < 5; r++) for (let c = 0; c < 7; c++) {
@@ -3181,7 +3181,8 @@ function showTip(e, card) {
   function _badge(res) {
     if (!res) return '';
     const bc = res==='W'?'#00ffcc':res==='L'?'#ff4444':'#888888';
-    return `<div style="font-size:9px;font-weight:bold;color:${bc};background:${bc}22;border:1px solid ${bc}88;border-radius:3px;padding:0 4px;line-height:15px;margin-top:1px;">${res}</div>`;
+    const label = res==='W'?'WIN':res==='L'?'LOSE':'TIE';
+    return `<div style="font-family:'Orbitron',monospace;font-size:8px;font-weight:700;letter-spacing:1px;color:${bc};background:${bc}22;border:1px solid ${bc}99;border-radius:3px;padding:1px 5px;margin-top:2px;text-shadow:0 0 6px ${bc};">${label}</div>`;
   }
   const _edgeCol = (res, col) => res==='W' ? col : res==='L' ? col+'44' : col+'99';
   const bat  = card._bat || { h:'none', v:'none' };

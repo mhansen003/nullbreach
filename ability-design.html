@@ -13,11 +13,11 @@
     min-height:100vh;
     padding:32px 40px 80px;
   }
-  h1 { font-family:'Orbitron',monospace; font-size:22px; letter-spacing:6px; color:#fff; margin-bottom:4px; }
-  .sub { font-size:11px; color:#555; letter-spacing:3px; margin-bottom:40px; }
+  h1 { font-family:'Orbitron',monospace; font-size:26px; letter-spacing:6px; color:#fff; margin-bottom:4px; }
+  .sub { font-size:14px; color:#555; letter-spacing:3px; margin-bottom:40px; }
 
   /* ─── SECTION HEADER ─────────────────────── */
-  .sec { font-family:'Orbitron',monospace; font-size:13px; letter-spacing:4px; color:#8855ff; margin:36px 0 16px; border-bottom:1px solid #1a1a28; padding-bottom:6px; }
+  .sec { font-family:'Orbitron',monospace; font-size:16px; letter-spacing:4px; color:#8855ff; margin:36px 0 16px; border-bottom:1px solid #1a1a28; padding-bottom:6px; }
 
   /* ─── RACE CARD ──────────────────────────── */
   .races { display:flex; gap:24px; flex-wrap:wrap; margin-bottom:8px; }
@@ -26,95 +26,95 @@
     border-radius:10px;
     background:#07070f;
     padding:18px 22px;
-    min-width:320px;
+    min-width:340px;
     flex:1;
-    max-width:480px;
+    max-width:520px;
   }
-  .race-card h2 { font-family:'Orbitron',monospace; font-size:16px; letter-spacing:3px; color:var(--rc,#fff); margin-bottom:2px; }
-  .race-sub { font-size:9px; color:#555; letter-spacing:2px; margin-bottom:14px; }
-  .race-play-style { font-size:10px; color:#888; letter-spacing:1px; margin-bottom:14px; font-style:italic; }
-  .abilities-list { display:flex; flex-direction:column; gap:8px; }
+  .race-card h2 { font-family:'Orbitron',monospace; font-size:18px; letter-spacing:3px; color:var(--rc,#fff); margin-bottom:4px; }
+  .race-sub { font-size:13px; color:#555; letter-spacing:2px; margin-bottom:14px; }
+  .race-play-style { font-size:14px; color:#888; letter-spacing:1px; margin-bottom:14px; font-style:italic; }
+  .abilities-list { display:flex; flex-direction:column; gap:10px; }
   .ab-row {
-    display:flex; align-items:flex-start; gap:10px;
+    display:flex; align-items:flex-start; gap:12px;
     background:#0a0a18; border:1px solid #1a1a28;
     border-left:3px solid var(--ac,#555);
-    border-radius:5px; padding:8px 12px;
+    border-radius:5px; padding:10px 14px;
   }
-  .ab-icon { font-size:14px; flex-shrink:0; margin-top:1px; }
-  .ab-name { font-family:'Orbitron',monospace; font-size:10px; letter-spacing:2px; color:var(--ac,#888); font-weight:700; }
-  .ab-custom { font-size:9px; color:#555; letter-spacing:1px; margin-top:1px; }
-  .ab-desc { font-size:10px; color:#888; margin-top:3px; line-height:1.5; }
-  .ab-mechanic { font-size:9px; color:#555; margin-top:3px; font-style:italic; }
+  .ab-icon { font-size:18px; flex-shrink:0; margin-top:1px; }
+  .ab-name { font-family:'Orbitron',monospace; font-size:13px; letter-spacing:2px; color:var(--ac,#888); font-weight:700; }
+  .ab-custom { font-size:12px; color:#555; letter-spacing:1px; margin-top:2px; }
+  .ab-desc { font-size:14px; color:#888; margin-top:4px; line-height:1.6; }
+  .ab-mechanic { font-size:12px; color:#555; margin-top:4px; font-style:italic; }
 
   /* ─── ABILITY TAXONOMY TABLE ─────────────── */
   .tax-section { margin-bottom:32px; }
   .tax-header {
-    display:flex; align-items:center; gap:10px;
+    display:flex; align-items:center; gap:12px;
     margin-bottom:12px;
   }
   .tax-category {
-    font-family:'Orbitron',monospace; font-size:11px;
-    letter-spacing:3px; padding:4px 12px;
+    font-family:'Orbitron',monospace; font-size:13px;
+    letter-spacing:3px; padding:6px 14px;
     border-radius:4px; border:1px solid var(--cat,#555);
     color:var(--cat,#888); background:var(--cat-bg,#0a0a18);
   }
-  .tax-desc { font-size:10px; color:#555; }
-  .ab-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:10px; }
+  .tax-desc { font-size:14px; color:#555; }
+  .ab-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:12px; }
   .ab-tile {
     background:#07070f;
     border:1px solid #1a1a28;
     border-left:3px solid var(--at,#333);
     border-radius:6px;
-    padding:10px 14px;
+    padding:12px 16px;
   }
   .ab-tile.implemented { border-color:#1a1a28; border-left-color:var(--at,#333); }
   .ab-tile.new { border-left-color:#8855ff; }
-  .at-name { font-family:'Orbitron',monospace; font-size:11px; letter-spacing:2px; color:var(--at,#888); font-weight:700; }
-  .at-tag { display:inline-block; font-size:8px; letter-spacing:1px; padding:1px 5px; border-radius:3px; margin-left:6px; vertical-align:middle; }
+  .at-name { font-family:'Orbitron',monospace; font-size:13px; letter-spacing:2px; color:var(--at,#888); font-weight:700; }
+  .at-tag { display:inline-block; font-size:11px; letter-spacing:1px; padding:2px 7px; border-radius:3px; margin-left:8px; vertical-align:middle; }
   .at-tag.live { background:#00ffcc18; color:#00ffcc; border:1px solid #00ffcc44; }
   .at-tag.new  { background:#8855ff18; color:#8855ff; border:1px solid #8855ff44; }
-  .at-desc { font-size:10px; color:#888; margin-top:5px; line-height:1.55; }
-  .at-uses { font-size:9px; color:#555; margin-top:4px; }
+  .at-desc { font-size:14px; color:#888; margin-top:6px; line-height:1.6; }
+  .at-uses { font-size:13px; color:#555; margin-top:5px; }
 
   /* ─── MATRIX ────────────────────────────── */
   .matrix-wrap { overflow-x:auto; margin-bottom:16px; }
   table { border-collapse:collapse; min-width:900px; width:100%; }
   thead th {
-    font-family:'Orbitron',monospace; font-size:8px; letter-spacing:1px;
-    color:#555; padding:6px 8px; text-align:center;
+    font-family:'Orbitron',monospace; font-size:12px; letter-spacing:1px;
+    color:#666; padding:10px 10px; text-align:center;
     border-bottom:1px solid #1a1a28;
     white-space:nowrap;
   }
-  thead th.race-col { text-align:left; min-width:140px; }
+  thead th.race-col { text-align:left; min-width:160px; }
   tbody tr { border-bottom:1px solid #0e0e1a; }
   tbody tr:hover { background:#0a0a18; }
-  td { padding:8px; font-size:10px; }
+  td { padding:10px; font-size:13px; }
   td.race-name {
-    font-family:'Orbitron',monospace; font-size:10px; letter-spacing:1px;
-    white-space:nowrap; padding-left:12px;
+    font-family:'Orbitron',monospace; font-size:13px; letter-spacing:1px;
+    white-space:nowrap; padding-left:14px;
   }
   td.cell-check { text-align:center; }
-  .check { color:#00ffcc; font-size:13px; }
+  .check { color:#00ffcc; font-size:15px; }
   .dash  { color:#1a1a28; }
-  .tbd   { color:#8855ff44; font-size:9px; letter-spacing:1px; }
+  .tbd   { color:#8855ff88; font-size:12px; letter-spacing:1px; }
 
   /* ─── NOTES / SCRATCH ────────────────────── */
-  .notes-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:16px; }
+  .notes-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:18px; }
   .note-card {
     background:#07070f;
     border:1px solid #1a1a28;
     border-radius:8px;
-    padding:14px 16px;
+    padding:16px 18px;
   }
-  .note-race { font-family:'Orbitron',monospace; font-size:11px; letter-spacing:2px; color:var(--nr,#888); margin-bottom:6px; }
-  .note-tag  { font-size:9px; color:#555; letter-spacing:1px; margin-bottom:8px; font-style:italic; }
+  .note-race { font-family:'Orbitron',monospace; font-size:14px; letter-spacing:2px; color:var(--nr,#888); margin-bottom:8px; }
+  .note-tag  { font-size:13px; color:#555; letter-spacing:1px; margin-bottom:10px; font-style:italic; }
   .note-slot {
-    display:flex; gap:8px; align-items:center;
-    padding:5px 0; border-bottom:1px solid #0e0e1a;
-    font-size:10px; color:#666;
+    display:flex; gap:10px; align-items:center;
+    padding:7px 0; border-bottom:1px solid #0e0e1a;
+    font-size:13px; color:#666;
   }
   .note-slot:last-child { border-bottom:none; }
-  .slot-num { color:#333; font-size:9px; width:16px; flex-shrink:0; }
+  .slot-num { color:#444; font-size:12px; width:20px; flex-shrink:0; font-weight:bold; }
   .slot-fill { color:#aaa; }
   .slot-fill.live { color:var(--nr,#aaa); }
 </style>
@@ -377,7 +377,7 @@
      SECTION 3: 11-RACE ASSIGNMENT MATRIX
 ═══════════════════════════════════════════ -->
 <div class="sec">③ CURRENT ASSIGNMENT MATRIX — ABILITY POOLS PER RACE</div>
-<p style="font-size:10px;color:#555;margin-bottom:16px;">Green = currently wired. Purple = assigned to pool but may need custom name/flavor. Blank = open slot.</p>
+<p style="font-size:14px;color:#555;margin-bottom:16px;">Green = currently wired. Purple = assigned to pool but may need custom name/flavor. Blank = open slot.</p>
 
 <div class="matrix-wrap">
 <table>
@@ -414,7 +414,7 @@
     <td class="cell-check"><span class="dash">—</span></td>
     <td class="cell-check"><span class="tbd">TBD</span></td>
     <td class="cell-check"><span class="dash">—</span></td>
-    <td style="font-size:9px;color:#555;">Control / Attrition</td>
+    <td style="font-size:13px;color:#555;">Control / Attrition</td>
   </tr>
   <tr>
     <td class="race-name" style="color:#88cc44">BROOD</td>
@@ -430,7 +430,7 @@
     <td class="cell-check"><span class="dash">—</span></td>
     <td class="cell-check"><span class="dash">—</span></td>
     <td class="cell-check"><span class="dash">—</span></td>
-    <td style="font-size:9px;color:#555;">Swarm / Rush</td>
+    <td style="font-size:13px;color:#555;">Swarm / Rush</td>
   </tr>
   <tr>
     <td class="race-name" style="color:#a8d8ff">CRYSTALLIS</td>
@@ -446,7 +446,7 @@
     <td class="cell-check"><span class="dash">—</span></td>
     <td class="cell-check"><span class="tbd">MIRROR?</span></td>
     <td class="cell-check"><span class="tbd">ANCHOR?</span></td>
-    <td style="font-size:9px;color:#555;">Fortress / Counter</td>
+    <td style="font-size:13px;color:#555;">Fortress / Counter</td>
   </tr>
   <tr>
     <td class="race-name" style="color:#9dcf6e">MYCOS</td>
@@ -462,7 +462,7 @@
     <td class="cell-check"><span class="dash">—</span></td>
     <td class="cell-check"><span class="tbd">SPREAD?</span></td>
     <td class="cell-check"><span class="dash">—</span></td>
-    <td style="font-size:9px;color:#555;">Growth / Network</td>
+    <td style="font-size:13px;color:#555;">Growth / Network</td>
   </tr>
   <tr>
     <td class="race-name" style="color:#fff5a0">VEIL</td>
@@ -478,7 +478,7 @@
     <td class="cell-check"><span class="dash">—</span></td>
     <td class="cell-check"><span class="tbd">PHANTOM?</span></td>
     <td class="cell-check"><span class="dash">—</span></td>
-    <td style="font-size:9px;color:#555;">Evasion / Speed</td>
+    <td style="font-size:13px;color:#555;">Evasion / Speed</td>
   </tr>
   <tr>
     <td class="race-name" style="color:#c4723a">ENTROPY</td>
@@ -494,7 +494,7 @@
     <td class="cell-check"><span style="color:#8855ff">●</span></td>
     <td class="cell-check"><span class="tbd">DRAIN+?</span></td>
     <td class="cell-check"><span class="dash">—</span></td>
-    <td style="font-size:9px;color:#555;">Decay / Attrition</td>
+    <td style="font-size:13px;color:#555;">Decay / Attrition</td>
   </tr>
   <tr>
     <td class="race-name" style="color:#9b59b6">VOID</td>
@@ -510,7 +510,7 @@
     <td class="cell-check"><span class="dash">—</span></td>
     <td class="cell-check"><span class="tbd">AMBUSH?</span></td>
     <td class="cell-check"><span class="tbd">INTIMIDATE?</span></td>
-    <td style="font-size:9px;color:#555;">Assassin / Blitz</td>
+    <td style="font-size:13px;color:#555;">Assassin / Blitz</td>
   </tr>
   <tr>
     <td class="race-name" style="color:#ffd700">GAS</td>
@@ -526,7 +526,7 @@
     <td class="cell-check"><span class="dash">—</span></td>
     <td class="cell-check"><span class="tbd">SURGE+?</span></td>
     <td class="cell-check"><span class="dash">—</span></td>
-    <td style="font-size:9px;color:#555;">Volatile / Comeback</td>
+    <td style="font-size:13px;color:#555;">Volatile / Comeback</td>
   </tr>
   <tr>
     <td class="race-name" style="color:#a0896a">LITHOS</td>
@@ -542,7 +542,7 @@
     <td class="cell-check"><span class="dash">—</span></td>
     <td class="cell-check"><span class="tbd">ANCHOR?</span></td>
     <td class="cell-check"><span class="tbd">FORTIFY?</span></td>
-    <td style="font-size:9px;color:#555;">Fortress / Wall</td>
+    <td style="font-size:13px;color:#555;">Fortress / Wall</td>
   </tr>
   <tr>
     <td class="race-name" style="color:#ff69b4">QUANTUM</td>
@@ -558,7 +558,7 @@
     <td class="cell-check"><span class="dash">—</span></td>
     <td class="cell-check"><span class="tbd">PIERCE+?</span></td>
     <td class="cell-check"><span class="tbd">ECHO?</span></td>
-    <td style="font-size:9px;color:#555;">Unpredictable / Probability</td>
+    <td style="font-size:13px;color:#555;">Unpredictable / Probability</td>
   </tr>
   <tr>
     <td class="race-name" style="color:#c8c8ff">CHOIR</td>
@@ -574,13 +574,13 @@
     <td class="cell-check"><span class="dash">—</span></td>
     <td class="cell-check"><span class="tbd">RESONATE?</span></td>
     <td class="cell-check"><span class="dash">—</span></td>
-    <td style="font-size:9px;color:#555;">Harmony / Chain</td>
+    <td style="font-size:13px;color:#555;">Harmony / Chain</td>
   </tr>
 </tbody>
 </table>
 </div>
 
-<p style="font-size:9px;color:#333;margin-top:8px;">
+<p style="font-size:13px;color:#333;margin-top:8px;">
   ✓ green = fully implemented &nbsp;|&nbsp; ● purple = in pool, needs custom name &nbsp;|&nbsp; TBD = proposed new ability
 </p>
 
@@ -588,7 +588,7 @@
      SECTION 4: SCRATCH PAD — PER-RACE NOTES
 ═══════════════════════════════════════════ -->
 <div class="sec">④ RACE-BY-RACE SCRATCH PAD — ABILITY SLOT PLANNING</div>
-<p style="font-size:10px;color:#555;margin-bottom:16px;">Each race gets 4 ability slots randomly distributed across its deck. What should those 4 feel like thematically?</p>
+<p style="font-size:14px;color:#555;margin-bottom:16px;">Each race gets 4 ability slots randomly distributed across its deck. What should those 4 feel like thematically?</p>
 
 <div class="notes-grid">
 
@@ -694,15 +694,15 @@
 </div>
 
 <div style="margin-top:48px;padding:20px;background:#07070f;border:1px solid #1a1a28;border-radius:8px;">
-  <div style="font-family:'Orbitron',monospace;font-size:11px;letter-spacing:3px;color:#8855ff;margin-bottom:12px;">NEW ABILITIES NEEDING IMPLEMENTATION</div>
+  <div style="font-family:'Orbitron',monospace;font-size:14px;letter-spacing:3px;color:#8855ff;margin-bottom:12px;">NEW ABILITIES NEEDING IMPLEMENTATION</div>
   <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;">
-    <div style="font-size:10px;color:#666;padding:8px;border:1px solid #1a1a28;border-radius:4px;border-left:3px solid #88ffff;"><b style="color:#88ffff">PHANTOM</b><br>Place in own 2 home rows freely</div>
-    <div style="font-size:10px;color:#666;padding:8px;border:1px solid #1a1a28;border-radius:4px;border-left:3px solid #cc44ff;"><b style="color:#cc44ff">MIRROR</b><br>Attacker loses 1 edge when they beat this card</div>
-    <div style="font-size:10px;color:#666;padding:8px;border:1px solid #1a1a28;border-radius:4px;border-left:3px solid #ff4444;"><b style="color:#ff4444">DRAIN</b><br>Winners strip 1 edge from loser permanently (needs full impl)</div>
-    <div style="font-size:10px;color:#666;padding:8px;border:1px solid #1a1a28;border-radius:4px;border-left:3px solid #ffcc00;"><b style="color:#ffcc00">ANCHOR</b><br>Cell cannot be overwritten by game effects</div>
-    <div style="font-size:10px;color:#666;padding:8px;border:1px solid #1a1a28;border-radius:4px;border-left:3px solid #cc44ff;"><b style="color:#cc44ff">AMBUSH</b><br>Adjacent enemy loses 1 from facing edge on placement</div>
-    <div style="font-size:10px;color:#666;padding:8px;border:1px solid #1a1a28;border-radius:4px;border-left:3px solid #ffd700;"><b style="color:#ffd700">RESONATE</b><br>Adjacent ability-cards get +1 to their highest edge</div>
-    <div style="font-size:10px;color:#666;padding:8px;border:1px solid #1a1a28;border-radius:4px;border-left:3px solid #9b59b6;"><b style="color:#9b59b6">ECHO</b><br>Double VP if row+col both won by this card</div>
+    <div style="font-size:14px;color:#666;padding:8px;border:1px solid #1a1a28;border-radius:4px;border-left:3px solid #88ffff;"><b style="color:#88ffff">PHANTOM</b><br>Place in own 2 home rows freely</div>
+    <div style="font-size:14px;color:#666;padding:8px;border:1px solid #1a1a28;border-radius:4px;border-left:3px solid #cc44ff;"><b style="color:#cc44ff">MIRROR</b><br>Attacker loses 1 edge when they beat this card</div>
+    <div style="font-size:14px;color:#666;padding:8px;border:1px solid #1a1a28;border-radius:4px;border-left:3px solid #ff4444;"><b style="color:#ff4444">DRAIN</b><br>Winners strip 1 edge from loser permanently (needs full impl)</div>
+    <div style="font-size:14px;color:#666;padding:8px;border:1px solid #1a1a28;border-radius:4px;border-left:3px solid #ffcc00;"><b style="color:#ffcc00">ANCHOR</b><br>Cell cannot be overwritten by game effects</div>
+    <div style="font-size:14px;color:#666;padding:8px;border:1px solid #1a1a28;border-radius:4px;border-left:3px solid #cc44ff;"><b style="color:#cc44ff">AMBUSH</b><br>Adjacent enemy loses 1 from facing edge on placement</div>
+    <div style="font-size:14px;color:#666;padding:8px;border:1px solid #1a1a28;border-radius:4px;border-left:3px solid #ffd700;"><b style="color:#ffd700">RESONATE</b><br>Adjacent ability-cards get +1 to their highest edge</div>
+    <div style="font-size:14px;color:#666;padding:8px;border:1px solid #1a1a28;border-radius:4px;border-left:3px solid #9b59b6;"><b style="color:#9b59b6">ECHO</b><br>Double VP if row+col both won by this card</div>
   </div>
 </div>
 
