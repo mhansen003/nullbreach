@@ -12,10 +12,12 @@ body {
   background: #080810;
   color: #e0e0e0;
   font-family: 'Courier New', monospace;
-  height: 100vh;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  /* Allow vertical scroll when monitor is reduced */
+  overflow-x: hidden;
+  overflow-y: auto;
   user-select: none;
 }
 
@@ -112,7 +114,7 @@ body {
 .facedown.used { opacity: 0.18; }
 
 /* MAIN AREA */
-.main-area { flex: 1; display: flex; overflow: hidden; }
+.main-area { flex: 1; display: flex; overflow: visible; min-height: 0; }
 
 /* BOARD WRAP */
 .board-wrap {
@@ -367,7 +369,14 @@ body {
 }
 .player-name  { color: #00ffcc; font-size: 10px; letter-spacing: 2px; }
 .player-sub   { color: #444; font-size: 8px; letter-spacing: 1px; margin-top: 2px; }
-.hand-cards { display: flex; gap: 8px; align-items: flex-end; }
+.hand-cards {
+  display: flex; gap: 8px; align-items: flex-end;
+  overflow-x: auto; overflow-y: visible; flex-wrap: nowrap;
+  max-width: 100%; padding-bottom: 4px;
+  scrollbar-width: thin; scrollbar-color: #2a2a3a transparent;
+}
+.hand-cards::-webkit-scrollbar { height: 3px; }
+.hand-cards::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
 
 /* Card pop-in: newly eligible cards fly in from below */
 @keyframes cardPopIn {
@@ -511,6 +520,18 @@ body {
 /* Touch & iOS baseline */
 html { -webkit-text-size-adjust: 100%; }
 button, [onclick] { touch-action: manipulation; }
+
+/* ── MEDIUM (900px – 1280px): scale board so it fits without scrolling ── */
+@media (max-width: 1280px) and (min-width: 901px) {
+  .board-and-scores { zoom: 0.85; }
+  .row-score-badge  { width: 76px; }
+  .col-score-badge  { width: 92px; }
+}
+@media (max-width: 1080px) and (min-width: 901px) {
+  .board-and-scores { zoom: 0.72; }
+  .row-score-badge  { width: 65px; }
+  .col-score-badge  { width: 78px; }
+}
 
 /* ── TABLET (600px – 900px) ── */
 @media (max-width: 900px) {
@@ -1023,6 +1044,231 @@ const BROOD_CARDS = [
   { id:'br_x3', name:'HIVE LANCE',       tier:'III',tierLabel:'SKIMMER',         zone:'lance',      edges:{n:9,s:2,e:7,w:3}, power:2, ability:null,        abilityText:'No special ability', art:'assets/cards/brood/void-skimmer.png' },
 ];
 
+// ── CRYSTALLIS DECK — Silicon Lattice Collective ──────────────────
+// Theme: crystal shards (T1) → resonance arrays (T2) → prism lances (T3) → The Lattice (T4)
+const CRYSTALLIS_CARDS = [
+  // T1 — CRYSTAL SHARDS (sum 14-16, power 1)
+  { id:'cr_t1a', name:'CRYSTAL SHARD',    tier:'I',  tierLabel:'CRYSTAL SHARD',    zone:'wide_cross', edges:{n:5,s:2,e:5,w:4}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/crystallis/t1_a.png' },
+  { id:'cr_t1b', name:'SHARD CLUSTER',    tier:'I',  tierLabel:'CRYSTAL SHARD',    zone:'wide_cross', edges:{n:4,s:2,e:5,w:5}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/crystallis/t1_b.png' },
+  { id:'cr_t1c', name:'SILICA NODE',      tier:'I',  tierLabel:'CRYSTAL SHARD',    zone:'wide_cross', edges:{n:5,s:2,e:4,w:5}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/crystallis/t1_c.png' },
+  { id:'cr_t1d', name:'LATTICE WALL',     tier:'I',  tierLabel:'CRYSTAL SHARD',    zone:'wall',       edges:{n:7,s:2,e:3,w:3}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/crystallis/t1_d.png' },
+  { id:'cr_t1e', name:'CRYSTAL CORE',     tier:'I',  tierLabel:'CRYSTAL SHARD',    zone:'full_ring',  edges:{n:4,s:3,e:4,w:5}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/crystallis/t1_e.png' },
+  // T2 — RESONANCE ARRAYS (sum 19-22, power 2)
+  { id:'cr_t2a', name:'RESONANCE ARRAY',  tier:'II', tierLabel:'RESONANCE ARRAY',  zone:'command',    edges:{n:6,s:3,e:7,w:5}, power:2, ability:null, abilityText:'No special ability', art:'assets/cards/crystallis/t2_a.png' },
+  { id:'cr_t2b', name:'PRISM BATTERY',    tier:'II', tierLabel:'RESONANCE ARRAY',  zone:'launch',     edges:{n:7,s:3,e:5,w:6}, power:2, ability:null, abilityText:'No special ability', art:'assets/cards/crystallis/t2_b.png' },
+  { id:'cr_t2c', name:'REFRACTION RING',  tier:'II', tierLabel:'RESONANCE ARRAY',  zone:'command',    edges:{n:6,s:3,e:6,w:6}, power:2, ability:null, abilityText:'No special ability', art:'assets/cards/crystallis/t2_c.png' },
+  // T3 — PRISM LANCES (sum 19-22, power 3)
+  { id:'cr_t3a', name:'PRISM LANCE',      tier:'III',tierLabel:'PRISM LANCE',      zone:'lance',      edges:{n:9,s:2,e:6,w:4}, power:3, ability:null, abilityText:'No special ability', art:'assets/cards/crystallis/t3_a.png' },
+  { id:'cr_t3b', name:'SHARD BLADE',      tier:'III',tierLabel:'PRISM LANCE',      zone:'flanker',    edges:{n:7,s:2,e:8,w:3}, power:3, ability:null, abilityText:'No special ability', art:'assets/cards/crystallis/t3_b.png' },
+  { id:'cr_t3c', name:'FACET STRIKE',     tier:'III',tierLabel:'PRISM LANCE',      zone:'lance',      edges:{n:8,s:2,e:7,w:4}, power:3, ability:null, abilityText:'No special ability', art:'assets/cards/crystallis/t3_c.png' },
+  // T4 — FLAGSHIP (sum 26-30, power 4)
+  { id:'cr_t4',  name:'THE LATTICE',      tier:'IV', tierLabel:'LATTICE PRIME',    zone:'dreadnaught',edges:{n:8,s:5,e:8,w:7}, power:4, ability:null, abilityText:'No special ability', art:'assets/cards/crystallis/t4.png' },
+  // EXTRAS
+  { id:'cr_x1',  name:'SHARD SPIRE',      tier:'I',  tierLabel:'CRYSTAL SHARD',    zone:'wide_cross', edges:{n:5,s:2,e:4,w:4}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/crystallis/extra_a.png' },
+  { id:'cr_x2',  name:'LENS BATTERY',     tier:'II', tierLabel:'RESONANCE ARRAY',  zone:'flanker',    edges:{n:6,s:2,e:7,w:5}, power:2, ability:null, abilityText:'No special ability', art:'assets/cards/crystallis/extra_b.png' },
+  { id:'cr_x3',  name:'CRYSTAL LANCE',    tier:'III',tierLabel:'PRISM LANCE',      zone:'lance',      edges:{n:9,s:2,e:7,w:3}, power:3, ability:null, abilityText:'No special ability', art:'assets/cards/crystallis/extra_c.png' },
+];
+
+// ── MYCOS DECK — Fungal Bloom Collective ──────────────────────────
+// Theme: spore anchors (T1) → mycelium webs (T2) → bloom surges (T3) → The Mycelord (T4)
+const MYCOS_CARDS = [
+  // T1 — SPORE ANCHORS (sum 14-16, power 1)
+  { id:'my_t1a', name:'SPORE ANCHOR',     tier:'I',  tierLabel:'SPORE ANCHOR',     zone:'wide_cross', edges:{n:5,s:2,e:5,w:4}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/mycos/t1_a.png' },
+  { id:'my_t1b', name:'FUNGAL GROWTH',    tier:'I',  tierLabel:'SPORE ANCHOR',     zone:'wide_cross', edges:{n:4,s:3,e:5,w:4}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/mycos/t1_b.png' },
+  { id:'my_t1c', name:'BLOOM SEED',       tier:'I',  tierLabel:'SPORE ANCHOR',     zone:'wide_cross', edges:{n:5,s:2,e:4,w:5}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/mycos/t1_c.png' },
+  { id:'my_t1d', name:'MYCO WALL',        tier:'I',  tierLabel:'SPORE ANCHOR',     zone:'wall',       edges:{n:6,s:2,e:4,w:3}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/mycos/t1_d.png' },
+  { id:'my_t1e', name:'HYPHAE RING',      tier:'I',  tierLabel:'SPORE ANCHOR',     zone:'full_ring',  edges:{n:4,s:3,e:5,w:4}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/mycos/t1_e.png' },
+  // T2 — MYCELIUM WEBS (sum 19-22, power 2)
+  { id:'my_t2a', name:'MYCELIUM WEB',     tier:'II', tierLabel:'MYCELIUM WEB',     zone:'command',    edges:{n:6,s:3,e:6,w:6}, power:2, ability:null, abilityText:'No special ability', art:'assets/cards/mycos/t2_a.png' },
+  { id:'my_t2b', name:'SPORE CLOUD',      tier:'II', tierLabel:'MYCELIUM WEB',     zone:'launch',     edges:{n:7,s:3,e:6,w:5}, power:2, ability:null, abilityText:'No special ability', art:'assets/cards/mycos/t2_b.png' },
+  { id:'my_t2c', name:'TENDRIL SURGE',    tier:'II', tierLabel:'MYCELIUM WEB',     zone:'flanker',    edges:{n:7,s:2,e:7,w:4}, power:2, ability:null, abilityText:'No special ability', art:'assets/cards/mycos/t2_c.png' },
+  // T3 — BLOOM SURGES (sum 19-22, power 3)
+  { id:'my_t3a', name:'BLOOM SURGE',      tier:'III',tierLabel:'BLOOM SURGE',      zone:'lance',      edges:{n:8,s:2,e:7,w:4}, power:3, ability:null, abilityText:'No special ability', art:'assets/cards/mycos/t3_a.png' },
+  { id:'my_t3b', name:'SPORE STRIKER',    tier:'III',tierLabel:'BLOOM SURGE',      zone:'flanker',    edges:{n:7,s:2,e:8,w:3}, power:3, ability:null, abilityText:'No special ability', art:'assets/cards/mycos/t3_b.png' },
+  { id:'my_t3c', name:'MOLD LANCE',       tier:'III',tierLabel:'BLOOM SURGE',      zone:'lance',      edges:{n:9,s:2,e:6,w:4}, power:3, ability:null, abilityText:'No special ability', art:'assets/cards/mycos/t3_c.png' },
+  // T4 — FLAGSHIP
+  { id:'my_t4',  name:'THE MYCELORD',     tier:'IV', tierLabel:'MYCELORD',         zone:'dreadnaught',edges:{n:8,s:5,e:8,w:7}, power:4, ability:null, abilityText:'No special ability', art:'assets/cards/mycos/t4.png' },
+  // EXTRAS
+  { id:'my_x1',  name:'FUNGAL NODE',      tier:'I',  tierLabel:'SPORE ANCHOR',     zone:'wide_cross', edges:{n:5,s:2,e:4,w:4}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/mycos/extra_a.png' },
+  { id:'my_x2',  name:'BLOOM BATTERY',    tier:'II', tierLabel:'MYCELIUM WEB',     zone:'command',    edges:{n:5,s:3,e:7,w:6}, power:2, ability:null, abilityText:'No special ability', art:'assets/cards/mycos/extra_b.png' },
+  { id:'my_x3',  name:'SPORE BLADE',      tier:'III',tierLabel:'BLOOM SURGE',      zone:'lance',      edges:{n:9,s:2,e:6,w:3}, power:3, ability:null, abilityText:'No special ability', art:'assets/cards/mycos/extra_c.png' },
+];
+
+// ── VEIL DECK — Photon Veil Ascendancy ────────────────────────────
+// Theme: light anchors (T1) → shimmer screens (T2) → null lances (T3) → The Refraction (T4)
+const VEIL_CARDS = [
+  // T1 — LIGHT ANCHORS (sum 14-16, power 1)
+  { id:'vl_t1a', name:'LIGHT ANCHOR',     tier:'I',  tierLabel:'LIGHT ANCHOR',     zone:'wide_cross', edges:{n:5,s:2,e:4,w:5}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/veil/t1_a.png' },
+  { id:'vl_t1b', name:'PHASE NODE',       tier:'I',  tierLabel:'LIGHT ANCHOR',     zone:'wide_cross', edges:{n:4,s:2,e:5,w:5}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/veil/t1_b.png' },
+  { id:'vl_t1c', name:'SHIMMER POINT',    tier:'I',  tierLabel:'LIGHT ANCHOR',     zone:'wide_cross', edges:{n:5,s:2,e:5,w:3}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/veil/t1_c.png' },
+  { id:'vl_t1d', name:'VEIL WALL',        tier:'I',  tierLabel:'LIGHT ANCHOR',     zone:'wall',       edges:{n:7,s:2,e:3,w:3}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/veil/t1_d.png' },
+  { id:'vl_t1e', name:'PHOTON RING',      tier:'I',  tierLabel:'LIGHT ANCHOR',     zone:'full_ring',  edges:{n:4,s:3,e:4,w:4}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/veil/t1_e.png' },
+  // T2 — SHIMMER SCREENS (sum 19-22, power 2)
+  { id:'vl_t2a', name:'SHIMMER SCREEN',   tier:'II', tierLabel:'SHIMMER SCREEN',   zone:'command',    edges:{n:6,s:3,e:6,w:6}, power:2, ability:null, abilityText:'No special ability', art:'assets/cards/veil/t2_a.png' },
+  { id:'vl_t2b', name:'PHASE WING',       tier:'II', tierLabel:'SHIMMER SCREEN',   zone:'launch',     edges:{n:7,s:3,e:6,w:5}, power:2, ability:null, abilityText:'No special ability', art:'assets/cards/veil/t2_b.png' },
+  { id:'vl_t2c', name:'CLOAK ARRAY',      tier:'II', tierLabel:'SHIMMER SCREEN',   zone:'flanker',    edges:{n:6,s:2,e:7,w:5}, power:2, ability:null, abilityText:'No special ability', art:'assets/cards/veil/t2_c.png' },
+  // T3 — NULL LANCES (sum 19-22, power 3)
+  { id:'vl_t3a', name:'NULL LANCE',       tier:'III',tierLabel:'NULL LANCE',       zone:'lance',      edges:{n:9,s:2,e:6,w:4}, power:3, ability:null, abilityText:'No special ability', art:'assets/cards/veil/t3_a.png' },
+  { id:'vl_t3b', name:'BLINK STRIKER',    tier:'III',tierLabel:'NULL LANCE',       zone:'flanker',    edges:{n:7,s:2,e:8,w:4}, power:3, ability:null, abilityText:'No special ability', art:'assets/cards/veil/t3_b.png' },
+  { id:'vl_t3c', name:'PHANTOM BLADE',    tier:'III',tierLabel:'NULL LANCE',       zone:'lance',      edges:{n:8,s:2,e:7,w:4}, power:3, ability:null, abilityText:'No special ability', art:'assets/cards/veil/t3_c.png' },
+  // T4 — FLAGSHIP
+  { id:'vl_t4',  name:'THE REFRACTION',   tier:'IV', tierLabel:'REFRACTION',       zone:'dreadnaught',edges:{n:8,s:5,e:8,w:7}, power:4, ability:null, abilityText:'No special ability', art:'assets/cards/veil/t4.png' },
+  // EXTRAS
+  { id:'vl_x1',  name:'GLIMMER NODE',     tier:'I',  tierLabel:'LIGHT ANCHOR',     zone:'wide_cross', edges:{n:4,s:2,e:5,w:4}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/veil/extra_a.png' },
+  { id:'vl_x2',  name:'PHASE BATTERY',    tier:'II', tierLabel:'SHIMMER SCREEN',   zone:'command',    edges:{n:5,s:3,e:7,w:6}, power:2, ability:null, abilityText:'No special ability', art:'assets/cards/veil/extra_b.png' },
+  { id:'vl_x3',  name:'GHOST LANCE',      tier:'III',tierLabel:'NULL LANCE',       zone:'lance',      edges:{n:9,s:2,e:7,w:3}, power:3, ability:null, abilityText:'No special ability', art:'assets/cards/veil/extra_c.png' },
+];
+
+// ── ENTROPY DECK — Decay Entropy Dominion ─────────────────────────
+// Theme: rust anchors (T1) → corrode clusters (T2) → dissolution lances (T3) → The Collapse (T4)
+const ENTROPY_CARDS = [
+  // T1 — RUST ANCHORS (sum 14-16, power 1)
+  { id:'en_t1a', name:'RUST ANCHOR',      tier:'I',  tierLabel:'RUST ANCHOR',      zone:'wide_cross', edges:{n:5,s:2,e:5,w:4}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/entropy/t1_a.png' },
+  { id:'en_t1b', name:'DECAY NODE',       tier:'I',  tierLabel:'RUST ANCHOR',      zone:'wide_cross', edges:{n:4,s:3,e:5,w:4}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/entropy/t1_b.png' },
+  { id:'en_t1c', name:'CORRODE POINT',    tier:'I',  tierLabel:'RUST ANCHOR',      zone:'wide_cross', edges:{n:5,s:2,e:4,w:5}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/entropy/t1_c.png' },
+  { id:'en_t1d', name:'ENTROPY WALL',     tier:'I',  tierLabel:'RUST ANCHOR',      zone:'wall',       edges:{n:6,s:2,e:4,w:3}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/entropy/t1_d.png' },
+  { id:'en_t1e', name:'DECAY RING',       tier:'I',  tierLabel:'RUST ANCHOR',      zone:'full_ring',  edges:{n:4,s:3,e:4,w:4}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/entropy/t1_e.png' },
+  // T2 — CORRODE CLUSTERS (sum 19-22, power 2)
+  { id:'en_t2a', name:'CORRODE CLUSTER',  tier:'II', tierLabel:'CORRODE CLUSTER',  zone:'command',    edges:{n:6,s:3,e:7,w:5}, power:2, ability:null, abilityText:'No special ability', art:'assets/cards/entropy/t2_a.png' },
+  { id:'en_t2b', name:'RUST SURGE',       tier:'II', tierLabel:'CORRODE CLUSTER',  zone:'launch',     edges:{n:7,s:3,e:6,w:5}, power:2, ability:null, abilityText:'No special ability', art:'assets/cards/entropy/t2_b.png' },
+  { id:'en_t2c', name:'BLIGHT MASS',      tier:'II', tierLabel:'CORRODE CLUSTER',  zone:'command',    edges:{n:6,s:3,e:6,w:6}, power:2, ability:null, abilityText:'No special ability', art:'assets/cards/entropy/t2_c.png' },
+  // T3 — DISSOLUTION LANCES (sum 19-22, power 3)
+  { id:'en_t3a', name:'DISSOLUTION LANCE',tier:'III',tierLabel:'DISSOLUTION',      zone:'lance',      edges:{n:9,s:2,e:6,w:4}, power:3, ability:null, abilityText:'No special ability', art:'assets/cards/entropy/t3_a.png' },
+  { id:'en_t3b', name:'DECAY STRIKER',    tier:'III',tierLabel:'DISSOLUTION',      zone:'flanker',    edges:{n:7,s:2,e:8,w:3}, power:3, ability:null, abilityText:'No special ability', art:'assets/cards/entropy/t3_b.png' },
+  { id:'en_t3c', name:'ENTROPY BLADE',    tier:'III',tierLabel:'DISSOLUTION',      zone:'lance',      edges:{n:8,s:2,e:7,w:4}, power:3, ability:null, abilityText:'No special ability', art:'assets/cards/entropy/t3_c.png' },
+  // T4 — FLAGSHIP
+  { id:'en_t4',  name:'THE COLLAPSE',     tier:'IV', tierLabel:'COLLAPSE',         zone:'dreadnaught',edges:{n:8,s:5,e:8,w:7}, power:4, ability:null, abilityText:'No special ability', art:'assets/cards/entropy/t4.png' },
+  // EXTRAS
+  { id:'en_x1',  name:'RUST NODE',        tier:'I',  tierLabel:'RUST ANCHOR',      zone:'wide_cross', edges:{n:5,s:2,e:4,w:4}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/entropy/extra_a.png' },
+  { id:'en_x2',  name:'BLIGHT BATTERY',   tier:'II', tierLabel:'CORRODE CLUSTER',  zone:'flanker',    edges:{n:6,s:2,e:7,w:5}, power:2, ability:null, abilityText:'No special ability', art:'assets/cards/entropy/extra_b.png' },
+  { id:'en_x3',  name:'DECAY LANCE',      tier:'III',tierLabel:'DISSOLUTION',      zone:'lance',      edges:{n:9,s:2,e:7,w:3}, power:3, ability:null, abilityText:'No special ability', art:'assets/cards/entropy/extra_c.png' },
+];
+
+// ── VOID DECK — Dark Matter Void Collective ────────────────────────
+// Theme: null nodes (T1) → dark clusters (T2) → singularity lances (T3) → The Abyss (T4)
+const VOID_CARDS = [
+  // T1 — NULL NODES (sum 14-16, power 1)
+  { id:'vo_t1a', name:'NULL NODE',        tier:'I',  tierLabel:'NULL NODE',        zone:'wide_cross', edges:{n:5,s:2,e:4,w:5}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/void/t1_a.png' },
+  { id:'vo_t1b', name:'DARK SEED',        tier:'I',  tierLabel:'NULL NODE',        zone:'wide_cross', edges:{n:4,s:2,e:5,w:5}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/void/t1_b.png' },
+  { id:'vo_t1c', name:'VOID ANCHOR',      tier:'I',  tierLabel:'NULL NODE',        zone:'wide_cross', edges:{n:5,s:2,e:5,w:3}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/void/t1_c.png' },
+  { id:'vo_t1d', name:'EVENT WALL',       tier:'I',  tierLabel:'NULL NODE',        zone:'wall',       edges:{n:7,s:2,e:3,w:3}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/void/t1_d.png' },
+  { id:'vo_t1e', name:'GRAVITY RING',     tier:'I',  tierLabel:'NULL NODE',        zone:'full_ring',  edges:{n:4,s:3,e:4,w:4}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/void/t1_e.png' },
+  // T2 — DARK CLUSTERS (sum 19-22, power 2)
+  { id:'vo_t2a', name:'DARK CLUSTER',     tier:'II', tierLabel:'DARK CLUSTER',     zone:'command',    edges:{n:6,s:3,e:7,w:5}, power:2, ability:null, abilityText:'No special ability', art:'assets/cards/void/t2_a.png' },
+  { id:'vo_t2b', name:'VOID WING',        tier:'II', tierLabel:'DARK CLUSTER',     zone:'launch',     edges:{n:7,s:3,e:5,w:6}, power:2, ability:null, abilityText:'No special ability', art:'assets/cards/void/t2_b.png' },
+  { id:'vo_t2c', name:'SHADOW MASS',      tier:'II', tierLabel:'DARK CLUSTER',     zone:'command',    edges:{n:6,s:3,e:6,w:6}, power:2, ability:null, abilityText:'No special ability', art:'assets/cards/void/t2_c.png' },
+  // T3 — SINGULARITY LANCES (sum 19-22, power 3)
+  { id:'vo_t3a', name:'SINGULARITY LANCE',tier:'III',tierLabel:'SINGULARITY',      zone:'lance',      edges:{n:9,s:2,e:6,w:4}, power:3, ability:null, abilityText:'No special ability', art:'assets/cards/void/t3_a.png' },
+  { id:'vo_t3b', name:'VOID STRIKER',     tier:'III',tierLabel:'SINGULARITY',      zone:'flanker',    edges:{n:7,s:2,e:8,w:4}, power:3, ability:null, abilityText:'No special ability', art:'assets/cards/void/t3_b.png' },
+  { id:'vo_t3c', name:'DARK LANCE',       tier:'III',tierLabel:'SINGULARITY',      zone:'lance',      edges:{n:8,s:2,e:7,w:4}, power:3, ability:null, abilityText:'No special ability', art:'assets/cards/void/t3_c.png' },
+  // T4 — FLAGSHIP
+  { id:'vo_t4',  name:'THE ABYSS',        tier:'IV', tierLabel:'ABYSS',            zone:'dreadnaught',edges:{n:8,s:5,e:8,w:7}, power:4, ability:null, abilityText:'No special ability', art:'assets/cards/void/t4.png' },
+  // EXTRAS
+  { id:'vo_x1',  name:'NULL SHARD',       tier:'I',  tierLabel:'NULL NODE',        zone:'wide_cross', edges:{n:5,s:2,e:4,w:4}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/void/extra_a.png' },
+  { id:'vo_x2',  name:'SHADOW BATTERY',   tier:'II', tierLabel:'DARK CLUSTER',     zone:'flanker',    edges:{n:6,s:2,e:7,w:5}, power:2, ability:null, abilityText:'No special ability', art:'assets/cards/void/extra_b.png' },
+  { id:'vo_x3',  name:'VOID LANCE',       tier:'III',tierLabel:'SINGULARITY',      zone:'lance',      edges:{n:9,s:2,e:7,w:3}, power:3, ability:null, abilityText:'No special ability', art:'assets/cards/void/extra_c.png' },
+];
+
+// ── GAS DECK — Plasma Storm Sovereignty ───────────────────────────
+// Theme: storm cells (T1) → plasma wings (T2) → tempest lances (T3) → The Maelstrom (T4)
+const GAS_CARDS = [
+  // T1 — STORM CELLS (sum 14-16, power 1)
+  { id:'gs_t1a', name:'STORM CELL',       tier:'I',  tierLabel:'STORM CELL',       zone:'wide_cross', edges:{n:5,s:2,e:5,w:4}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/gas/t1_a.png' },
+  { id:'gs_t1b', name:'PLASMA NODE',      tier:'I',  tierLabel:'STORM CELL',       zone:'wide_cross', edges:{n:4,s:2,e:5,w:5}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/gas/t1_b.png' },
+  { id:'gs_t1c', name:'ION SEED',         tier:'I',  tierLabel:'STORM CELL',       zone:'wide_cross', edges:{n:5,s:2,e:4,w:5}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/gas/t1_c.png' },
+  { id:'gs_t1d', name:'STORM WALL',       tier:'I',  tierLabel:'STORM CELL',       zone:'wall',       edges:{n:7,s:2,e:3,w:3}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/gas/t1_d.png' },
+  { id:'gs_t1e', name:'PLASMA RING',      tier:'I',  tierLabel:'STORM CELL',       zone:'full_ring',  edges:{n:4,s:3,e:4,w:4}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/gas/t1_e.png' },
+  // T2 — PLASMA WINGS (sum 19-22, power 2)
+  { id:'gs_t2a', name:'PLASMA WING',      tier:'II', tierLabel:'PLASMA WING',      zone:'launch',     edges:{n:7,s:3,e:6,w:5}, power:2, ability:null, abilityText:'No special ability', art:'assets/cards/gas/t2_a.png' },
+  { id:'gs_t2b', name:'ION SURGE',        tier:'II', tierLabel:'PLASMA WING',      zone:'command',    edges:{n:6,s:3,e:7,w:5}, power:2, ability:null, abilityText:'No special ability', art:'assets/cards/gas/t2_b.png' },
+  { id:'gs_t2c', name:'STORM MASS',       tier:'II', tierLabel:'PLASMA WING',      zone:'flanker',    edges:{n:6,s:2,e:7,w:5}, power:2, ability:null, abilityText:'No special ability', art:'assets/cards/gas/t2_c.png' },
+  // T3 — TEMPEST LANCES (sum 19-22, power 3)
+  { id:'gs_t3a', name:'TEMPEST LANCE',    tier:'III',tierLabel:'TEMPEST LANCE',    zone:'lance',      edges:{n:9,s:2,e:6,w:4}, power:3, ability:null, abilityText:'No special ability', art:'assets/cards/gas/t3_a.png' },
+  { id:'gs_t3b', name:'GALE STRIKER',     tier:'III',tierLabel:'TEMPEST LANCE',    zone:'flanker',    edges:{n:7,s:2,e:8,w:3}, power:3, ability:null, abilityText:'No special ability', art:'assets/cards/gas/t3_b.png' },
+  { id:'gs_t3c', name:'PLASMA BLADE',     tier:'III',tierLabel:'TEMPEST LANCE',    zone:'lance',      edges:{n:8,s:2,e:7,w:4}, power:3, ability:null, abilityText:'No special ability', art:'assets/cards/gas/t3_c.png' },
+  // T4 — FLAGSHIP
+  { id:'gs_t4',  name:'THE MAELSTROM',    tier:'IV', tierLabel:'MAELSTROM',        zone:'dreadnaught',edges:{n:8,s:5,e:8,w:7}, power:4, ability:null, abilityText:'No special ability', art:'assets/cards/gas/t4.png' },
+  // EXTRAS
+  { id:'gs_x1',  name:'ION NODE',         tier:'I',  tierLabel:'STORM CELL',       zone:'wide_cross', edges:{n:5,s:2,e:4,w:4}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/gas/extra_a.png' },
+  { id:'gs_x2',  name:'STORM BATTERY',    tier:'II', tierLabel:'PLASMA WING',      zone:'command',    edges:{n:5,s:3,e:7,w:6}, power:2, ability:null, abilityText:'No special ability', art:'assets/cards/gas/extra_b.png' },
+  { id:'gs_x3',  name:'GALE LANCE',       tier:'III',tierLabel:'TEMPEST LANCE',    zone:'lance',      edges:{n:9,s:2,e:7,w:3}, power:3, ability:null, abilityText:'No special ability', art:'assets/cards/gas/extra_c.png' },
+];
+
+// ── LITHOS DECK — Stone Geological Dominion ───────────────────────
+// Theme: stone anchors (T1) → tectonic walls (T2) → seismic lances (T3) — The Monolith (T4)
+const LITHOS_CARDS = [
+  // T1 — STONE ANCHORS (sum 14-16, power 1)
+  { id:'li_t1a', name:'STONE ANCHOR',     tier:'I',  tierLabel:'STONE ANCHOR',     zone:'wide_cross', edges:{n:5,s:3,e:4,w:4}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/lithos/t1_a.png' },
+  { id:'li_t1b', name:'ROCK NODE',        tier:'I',  tierLabel:'STONE ANCHOR',     zone:'wide_cross', edges:{n:4,s:2,e:5,w:5}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/lithos/t1_b.png' },
+  { id:'li_t1c', name:'BASALT POINT',     tier:'I',  tierLabel:'STONE ANCHOR',     zone:'wide_cross', edges:{n:5,s:2,e:5,w:4}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/lithos/t1_c.png' },
+  { id:'li_t1d', name:'TECTONIC WALL',    tier:'I',  tierLabel:'STONE ANCHOR',     zone:'wall',       edges:{n:6,s:2,e:4,w:3}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/lithos/t1_d.png' },
+  { id:'li_t1e', name:'GEODE RING',       tier:'I',  tierLabel:'STONE ANCHOR',     zone:'full_ring',  edges:{n:4,s:3,e:5,w:4}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/lithos/t1_e.png' },
+  // T2 — TECTONIC WALLS (sum 19-22, power 2)
+  { id:'li_t2a', name:'TECTONIC CLUSTER', tier:'II', tierLabel:'TECTONIC CLUSTER', zone:'command',    edges:{n:6,s:3,e:6,w:6}, power:2, ability:null, abilityText:'No special ability', art:'assets/cards/lithos/t2_a.png' },
+  { id:'li_t2b', name:'QUAKE SURGE',      tier:'II', tierLabel:'TECTONIC CLUSTER', zone:'launch',     edges:{n:7,s:3,e:6,w:5}, power:2, ability:null, abilityText:'No special ability', art:'assets/cards/lithos/t2_b.png' },
+  { id:'li_t2c', name:'BASALT MASS',      tier:'II', tierLabel:'TECTONIC CLUSTER', zone:'command',    edges:{n:7,s:3,e:5,w:6}, power:2, ability:null, abilityText:'No special ability', art:'assets/cards/lithos/t2_c.png' },
+  // T3 — SEISMIC LANCES (sum 19-22, power 3)
+  { id:'li_t3a', name:'SEISMIC LANCE',    tier:'III',tierLabel:'SEISMIC LANCE',    zone:'lance',      edges:{n:9,s:2,e:6,w:4}, power:3, ability:null, abilityText:'No special ability', art:'assets/cards/lithos/t3_a.png' },
+  { id:'li_t3b', name:'ROCK STRIKER',     tier:'III',tierLabel:'SEISMIC LANCE',    zone:'flanker',    edges:{n:7,s:2,e:8,w:4}, power:3, ability:null, abilityText:'No special ability', art:'assets/cards/lithos/t3_b.png' },
+  { id:'li_t3c', name:'GRAVEL BLADE',     tier:'III',tierLabel:'SEISMIC LANCE',    zone:'lance',      edges:{n:8,s:2,e:7,w:4}, power:3, ability:null, abilityText:'No special ability', art:'assets/cards/lithos/t3_c.png' },
+  // T4 — FLAGSHIP
+  { id:'li_t4',  name:'THE MONOLITH',     tier:'IV', tierLabel:'MONOLITH',         zone:'dreadnaught',edges:{n:8,s:5,e:8,w:7}, power:4, ability:null, abilityText:'No special ability', art:'assets/cards/lithos/t4.png' },
+  // EXTRAS
+  { id:'li_x1',  name:'FLINT NODE',       tier:'I',  tierLabel:'STONE ANCHOR',     zone:'wide_cross', edges:{n:5,s:2,e:4,w:4}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/lithos/extra_a.png' },
+  { id:'li_x2',  name:'SLATE BATTERY',    tier:'II', tierLabel:'TECTONIC CLUSTER', zone:'flanker',    edges:{n:6,s:2,e:7,w:5}, power:2, ability:null, abilityText:'No special ability', art:'assets/cards/lithos/extra_b.png' },
+  { id:'li_x3',  name:'QUAKE LANCE',      tier:'III',tierLabel:'SEISMIC LANCE',    zone:'lance',      edges:{n:9,s:2,e:7,w:3}, power:3, ability:null, abilityText:'No special ability', art:'assets/cards/lithos/extra_c.png' },
+];
+
+// ── QUANTUM DECK — Superposition Quantum Syndicate ─────────────────
+// Theme: probability nodes (T1) → superposed arrays (T2) → wave-collapse lances (T3) → The Observer (T4)
+const QUANTUM_CARDS = [
+  // T1 — PROBABILITY NODES (sum 14-16, power 1)
+  { id:'qu_t1a', name:'PROBABILITY NODE', tier:'I',  tierLabel:'PROB NODE',        zone:'wide_cross', edges:{n:5,s:2,e:4,w:5}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/quantum/t1_a.png' },
+  { id:'qu_t1b', name:'SUPERPOSED SEED',  tier:'I',  tierLabel:'PROB NODE',        zone:'wide_cross', edges:{n:4,s:2,e:5,w:5}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/quantum/t1_b.png' },
+  { id:'qu_t1c', name:'QUBIT ANCHOR',     tier:'I',  tierLabel:'PROB NODE',        zone:'wide_cross', edges:{n:5,s:2,e:5,w:3}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/quantum/t1_c.png' },
+  { id:'qu_t1d', name:'ENTANGLE WALL',    tier:'I',  tierLabel:'PROB NODE',        zone:'wall',       edges:{n:7,s:2,e:3,w:3}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/quantum/t1_d.png' },
+  { id:'qu_t1e', name:'SPIN RING',        tier:'I',  tierLabel:'PROB NODE',        zone:'full_ring',  edges:{n:4,s:3,e:4,w:4}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/quantum/t1_e.png' },
+  // T2 — SUPERPOSED ARRAYS (sum 19-22, power 2)
+  { id:'qu_t2a', name:'SUPERPOSED ARRAY', tier:'II', tierLabel:'SUPERPOSED ARRAY', zone:'command',    edges:{n:6,s:3,e:7,w:5}, power:2, ability:null, abilityText:'No special ability', art:'assets/cards/quantum/t2_a.png' },
+  { id:'qu_t2b', name:'QUBIT WING',       tier:'II', tierLabel:'SUPERPOSED ARRAY', zone:'launch',     edges:{n:7,s:3,e:6,w:5}, power:2, ability:null, abilityText:'No special ability', art:'assets/cards/quantum/t2_b.png' },
+  { id:'qu_t2c', name:'ENTANGLE MASS',    tier:'II', tierLabel:'SUPERPOSED ARRAY', zone:'flanker',    edges:{n:6,s:2,e:7,w:5}, power:2, ability:null, abilityText:'No special ability', art:'assets/cards/quantum/t2_c.png' },
+  // T3 — WAVE-COLLAPSE LANCES (sum 19-22, power 3)
+  { id:'qu_t3a', name:'WAVEFORM LANCE',   tier:'III',tierLabel:'WAVEFORM LANCE',   zone:'lance',      edges:{n:9,s:2,e:6,w:4}, power:3, ability:null, abilityText:'No special ability', art:'assets/cards/quantum/t3_a.png' },
+  { id:'qu_t3b', name:'COLLAPSE STRIKER', tier:'III',tierLabel:'WAVEFORM LANCE',   zone:'flanker',    edges:{n:7,s:2,e:8,w:4}, power:3, ability:null, abilityText:'No special ability', art:'assets/cards/quantum/t3_b.png' },
+  { id:'qu_t3c', name:'QUBIT BLADE',      tier:'III',tierLabel:'WAVEFORM LANCE',   zone:'lance',      edges:{n:8,s:2,e:7,w:4}, power:3, ability:null, abilityText:'No special ability', art:'assets/cards/quantum/t3_c.png' },
+  // T4 — FLAGSHIP
+  { id:'qu_t4',  name:'THE OBSERVER',     tier:'IV', tierLabel:'OBSERVER',         zone:'dreadnaught',edges:{n:8,s:5,e:8,w:7}, power:4, ability:null, abilityText:'No special ability', art:'assets/cards/quantum/t4.png' },
+  // EXTRAS
+  { id:'qu_x1',  name:'SPIN NODE',        tier:'I',  tierLabel:'PROB NODE',        zone:'wide_cross', edges:{n:5,s:2,e:4,w:4}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/quantum/extra_a.png' },
+  { id:'qu_x2',  name:'QUBIT BATTERY',    tier:'II', tierLabel:'SUPERPOSED ARRAY', zone:'command',    edges:{n:5,s:3,e:7,w:6}, power:2, ability:null, abilityText:'No special ability', art:'assets/cards/quantum/extra_b.png' },
+  { id:'qu_x3',  name:'COLLAPSE LANCE',   tier:'III',tierLabel:'WAVEFORM LANCE',   zone:'lance',      edges:{n:9,s:2,e:7,w:3}, power:3, ability:null, abilityText:'No special ability', art:'assets/cards/quantum/extra_c.png' },
+];
+
+// ── CHOIR DECK — Sound Resonance Choir ────────────────────────────
+// Theme: harmonic nodes (T1) → resonance choirs (T2) → sonic lances (T3) → The Crescendo (T4)
+const CHOIR_CARDS = [
+  // T1 — HARMONIC NODES (sum 14-16, power 1)
+  { id:'ch_t1a', name:'HARMONIC NODE',    tier:'I',  tierLabel:'HARMONIC NODE',    zone:'wide_cross', edges:{n:5,s:2,e:5,w:4}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/choir/t1_a.png' },
+  { id:'ch_t1b', name:'RESONANCE SEED',   tier:'I',  tierLabel:'HARMONIC NODE',    zone:'wide_cross', edges:{n:4,s:2,e:5,w:5}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/choir/t1_b.png' },
+  { id:'ch_t1c', name:'SONIC ANCHOR',     tier:'I',  tierLabel:'HARMONIC NODE',    zone:'wide_cross', edges:{n:5,s:2,e:4,w:5}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/choir/t1_c.png' },
+  { id:'ch_t1d', name:'TONE WALL',        tier:'I',  tierLabel:'HARMONIC NODE',    zone:'wall',       edges:{n:7,s:2,e:3,w:3}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/choir/t1_d.png' },
+  { id:'ch_t1e', name:'CHOIR RING',       tier:'I',  tierLabel:'HARMONIC NODE',    zone:'full_ring',  edges:{n:4,s:3,e:4,w:4}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/choir/t1_e.png' },
+  // T2 — RESONANCE CHOIRS (sum 19-22, power 2)
+  { id:'ch_t2a', name:'RESONANCE CHOIR',  tier:'II', tierLabel:'RESONANCE CHOIR',  zone:'command',    edges:{n:6,s:3,e:7,w:5}, power:2, ability:null, abilityText:'No special ability', art:'assets/cards/choir/t2_a.png' },
+  { id:'ch_t2b', name:'HARMONIC SURGE',   tier:'II', tierLabel:'RESONANCE CHOIR',  zone:'launch',     edges:{n:7,s:3,e:5,w:6}, power:2, ability:null, abilityText:'No special ability', art:'assets/cards/choir/t2_b.png' },
+  { id:'ch_t2c', name:'SONIC MASS',       tier:'II', tierLabel:'RESONANCE CHOIR',  zone:'flanker',    edges:{n:6,s:2,e:7,w:5}, power:2, ability:null, abilityText:'No special ability', art:'assets/cards/choir/t2_c.png' },
+  // T3 — SONIC LANCES (sum 19-22, power 3)
+  { id:'ch_t3a', name:'SONIC LANCE',      tier:'III',tierLabel:'SONIC LANCE',      zone:'lance',      edges:{n:9,s:2,e:6,w:4}, power:3, ability:null, abilityText:'No special ability', art:'assets/cards/choir/t3_a.png' },
+  { id:'ch_t3b', name:'TONE STRIKER',     tier:'III',tierLabel:'SONIC LANCE',      zone:'flanker',    edges:{n:7,s:2,e:8,w:4}, power:3, ability:null, abilityText:'No special ability', art:'assets/cards/choir/t3_b.png' },
+  { id:'ch_t3c', name:'DISCORD BLADE',    tier:'III',tierLabel:'SONIC LANCE',      zone:'lance',      edges:{n:8,s:2,e:7,w:4}, power:3, ability:null, abilityText:'No special ability', art:'assets/cards/choir/t3_c.png' },
+  // T4 — FLAGSHIP
+  { id:'ch_t4',  name:'THE CRESCENDO',    tier:'IV', tierLabel:'CRESCENDO',        zone:'dreadnaught',edges:{n:8,s:5,e:8,w:7}, power:4, ability:null, abilityText:'No special ability', art:'assets/cards/choir/t4.png' },
+  // EXTRAS
+  { id:'ch_x1',  name:'TONE NODE',        tier:'I',  tierLabel:'HARMONIC NODE',    zone:'wide_cross', edges:{n:5,s:2,e:4,w:4}, power:1, ability:null, abilityText:'No special ability', art:'assets/cards/choir/extra_a.png' },
+  { id:'ch_x2',  name:'CHORD BATTERY',    tier:'II', tierLabel:'RESONANCE CHOIR',  zone:'command',    edges:{n:5,s:3,e:7,w:6}, power:2, ability:null, abilityText:'No special ability', art:'assets/cards/choir/extra_b.png' },
+  { id:'ch_x3',  name:'SONIC BLADE',      tier:'III',tierLabel:'SONIC LANCE',      zone:'lance',      edges:{n:9,s:2,e:7,w:3}, power:3, ability:null, abilityText:'No special ability', art:'assets/cards/choir/extra_c.png' },
+];
+
 // ── CARD DEFINITIONS — TERRAN ACCORD ─────────────────────────────
 // Design rule: strong in attack direction = weak in opposite (rear S low on forward cards)
 // N=forward toward enemy | S=rear weakness | E/W=flanks
@@ -1081,12 +1327,17 @@ function initGame() {
       return {...c, power: tierPow, shieldExpended: false, used: false};
     }),
     aiHand: ((() => {
-      const factionDecks = { terran: PLAYER_CARDS, brood: BROOD_CARDS };
+      const factionDecks = {
+        terran: PLAYER_CARDS, brood: BROOD_CARDS,
+        crystallis: CRYSTALLIS_CARDS, mycos: MYCOS_CARDS, veil: VEIL_CARDS,
+        entropy: ENTROPY_CARDS, void: VOID_CARDS, gas: GAS_CARDS,
+        lithos: LITHOS_CARDS, quantum: QUANTUM_CARDS, choir: CHOIR_CARDS
+      };
       return factionDecks[window.aiRaceId] || AI_CARDS;
     })()).map(c => {
       const tierPow = {'I':1,'II':2,'III':3,'IV':4}[c.tier] || c.power;
       // Flip N↔S on faction decks used as AI — they attack downward (S faces player)
-      const useFlip = ['terran','brood'].includes(window.aiRaceId);
+      const useFlip = ['terran','brood','crystallis','mycos','veil','entropy','void','gas','lithos','quantum','choir'].includes(window.aiRaceId);
       const edges = useFlip
         ? { n: c.edges.s, s: c.edges.n, e: c.edges.e, w: c.edges.w }
         : c.edges;
@@ -2871,7 +3122,12 @@ document.addEventListener('click', ev => {
 // Set active deck from URL param BEFORE initGame reads it
 (function() {
   const raceId = new URLSearchParams(window.location.search).get('race') || 'terran';
-  window.__activeDeck = { terran: PLAYER_CARDS, brood: BROOD_CARDS }[raceId] || PLAYER_CARDS;
+  window.__activeDeck = {
+    terran: PLAYER_CARDS, brood: BROOD_CARDS,
+    crystallis: CRYSTALLIS_CARDS, mycos: MYCOS_CARDS, veil: VEIL_CARDS,
+    entropy: ENTROPY_CARDS, void: VOID_CARDS, gas: GAS_CARDS,
+    lithos: LITHOS_CARDS, quantum: QUANTUM_CARDS, choir: CHOIR_CARDS
+  }[raceId] || PLAYER_CARDS;
 })();
 initRaceTheme();
 initGame();
