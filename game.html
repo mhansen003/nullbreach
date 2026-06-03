@@ -936,13 +936,13 @@ const BROOD_CARDS = [
   { id:'br_t2b', name:'SOLDIER MASS',    tier:'II', tierLabel:'WARRIOR CLUSTER', zone:'launch',     edges:{n:7,s:3,e:5,w:6}, power:3, ability:'boost',       abilityText:'BOOST: Adjacent friendly cards +1 all edges', art:'assets/cards/brood/soldier-mass.png' },
   { id:'br_t2c', name:'BIOMECH FLEET',   tier:'II', tierLabel:'WARRIOR CLUSTER', zone:'command',    edges:{n:6,s:3,e:7,w:5}, power:2, ability:'sweep',       abilityText:'SWEEP: Contests all 4 adjacent cells on placement', art:'assets/cards/brood/biomech-fleet.png' },
   { id:'br_t3a', name:'SKIMMER',         tier:'III',tierLabel:'SKIMMER',         zone:'flanker',    edges:{n:7,s:2,e:8,w:3}, power:3, ability:'rush',        abilityText:'RUSH: Can be placed adjacent to any enemy card', art:'assets/cards/brood/skimmer.png' },
-  { id:'br_t3b', name:'VOID SKIMMER',    tier:'III',tierLabel:'SKIMMER',         zone:'flanker',    edges:{n:7,s:2,e:7,w:4}, power:2, ability:'surge',        abilityText:'SURGE: When losing rows, +3 to all edges',           art:'assets/cards/brood/void-skimmer.png' },
-  { id:'br_t3c', name:'LARVAE STRIKE',   tier:'III',tierLabel:'SKIMMER',         zone:'lance',      edges:{n:8,s:2,e:7,w:4}, power:2, ability:'ambush_strike', abilityText:'AMBUSH STRIKE: Adjacent to 2+ enemies? +2 all edges', art:'assets/cards/brood/skimmer.png' },
+  { id:'br_t3b', name:'VOID SKIMMER',    tier:'III',tierLabel:'SKIMMER',         zone:'flanker',    edges:{n:7,s:2,e:7,w:4}, power:2, ability:'boost',        abilityText:'BOOST: Adjacent friendly cards +1 all edges',          art:'assets/cards/brood/void-skimmer.png' },
+  { id:'br_t3c', name:'LARVAE STRIKE',   tier:'III',tierLabel:'SKIMMER',         zone:'lance',      edges:{n:8,s:2,e:7,w:4}, power:2, ability:'sweep',         abilityText:'SWEEP: Contests all 4 adjacent cells on placement',    art:'assets/cards/brood/skimmer.png' },
   { id:'br_t4',  name:'THE SOVEREIGN',   tier:'IV', tierLabel:'SOVEREIGN',       zone:'dreadnaught',edges:{n:8,s:5,e:8,w:7}, power:4, ability:'commander',   abilityText:'COMMANDER: Adjacent same-tier cards +2 all edges', art:'assets/cards/brood/the-sovereign.png' },
   // Extra cards
   { id:'br_x1', name:'HIVE NODE',        tier:'I',  tierLabel:'HIVE NODE',       zone:'wide_cross', edges:{n:5,s:2,e:4,w:4}, power:1, ability:null,          abilityText:'Basic Hive Node', art:'assets/cards/brood/hive-node.png' },
   { id:'br_x2', name:'SWARM WING',       tier:'II', tierLabel:'WARRIOR CLUSTER', zone:'flanker',    edges:{n:6,s:2,e:7,w:5}, power:3, ability:'sweep',       abilityText:'SWEEP: Contests all 4 adjacent cells', art:'assets/cards/brood/biomech-fleet.png' },
-  { id:'br_x3', name:'HIVE LANCE',       tier:'III',tierLabel:'SKIMMER',         zone:'lance',      edges:{n:9,s:2,e:7,w:3}, power:2, ability:'pierce',      abilityText:'PIERCE: Ties count as wins', art:'assets/cards/brood/void-skimmer.png' },
+  { id:'br_x3', name:'HIVE LANCE',       tier:'III',tierLabel:'SKIMMER',         zone:'lance',      edges:{n:9,s:2,e:7,w:3}, power:2, ability:'rush',        abilityText:'RUSH: Can be placed adjacent to any enemy card', art:'assets/cards/brood/void-skimmer.png' },
 ];
 
 // ── CARD DEFINITIONS — TERRAN ACCORD ─────────────────────────────
@@ -954,21 +954,21 @@ const PLAYER_CARDS = [
   { id:'ta_t1b', name:'COLONY WORLD B', tier:'I',  tierLabel:'COLONY WORLD', zone:'wide_cross',  edges:{n:4,s:2,e:4,w:6}, power:1, ability:null,            abilityText:'Basic Colony World', art:'assets/cards/terran/colony-world-b.png' },
   { id:'ta_t1c', name:'COLONY WORLD C', tier:'I',  tierLabel:'COLONY WORLD', zone:'wide_cross',  edges:{n:5,s:2,e:5,w:3}, power:1, ability:null,            abilityText:'Basic Colony World', art:'assets/cards/terran/colony-world-c.png' },
   { id:'ta_t1d', name:'FRONTIER POST', tier:'I',  tierLabel:'COLONY WORLD', zone:'wall',        edges:{n:7,s:2,e:3,w:3}, power:1, ability:'shield',        abilityText:'SHIELD: First comparison loss blocked', art:'assets/cards/terran/frontier-post.png' },
-  { id:'ta_t1e', name:'SUPPLY HUB',    tier:'I',  tierLabel:'COLONY WORLD', zone:'full_ring',   edges:{n:4,s:3,e:4,w:4}, power:2, ability:'boost',         abilityText:'BOOST: Adjacent friendly cards +1 all edges', art:'assets/cards/terran/supply-hub.png' },
-  // T2 — BATTLE GROUPS (moderate forward, clear rear weakness)
-  { id:'ta_t2a', name:'BATTLE GROUP',  tier:'II', tierLabel:'BATTLE GROUP', zone:'command',     edges:{n:6,s:3,e:7,w:5}, power:3, ability:'commander',     abilityText:'COMMANDER: Same-tier adjacents +2 all edges', art:'assets/cards/terran/battle-group.png' },
-  { id:'ta_t2b', name:'CARRIER WING',  tier:'II', tierLabel:'BATTLE GROUP', zone:'launch',      edges:{n:7,s:3,e:5,w:6}, power:3, ability:'boost',         abilityText:'BOOST: Adjacent friendly cards +1 all edges', art:'assets/cards/terran/carrier-wing.png' },
+  { id:'ta_t1e', name:'SUPPLY HUB',    tier:'I',  tierLabel:'COLONY WORLD', zone:'full_ring',   edges:{n:4,s:3,e:4,w:4}, power:2, ability:'commander',     abilityText:'COMMANDER: Adjacent same-tier cards +2 all edges', art:'assets/cards/terran/supply-hub.png' },
+  // T2 — BATTLE GROUPS
+  { id:'ta_t2a', name:'BATTLE GROUP',  tier:'II', tierLabel:'BATTLE GROUP', zone:'command',     edges:{n:6,s:3,e:7,w:5}, power:3, ability:'commander',     abilityText:'COMMANDER: Adjacent same-tier cards +2 all edges', art:'assets/cards/terran/battle-group.png' },
+  { id:'ta_t2b', name:'CARRIER WING',  tier:'II', tierLabel:'BATTLE GROUP', zone:'launch',      edges:{n:7,s:3,e:5,w:6}, power:3, ability:'double_strike', abilityText:'DOUBLE STRIKE: Comparison reaches 2 deep', art:'assets/cards/terran/carrier-wing.png' },
   { id:'ta_t2c', name:'STRIKE FORCE',  tier:'II', tierLabel:'BATTLE GROUP', zone:'lance',       edges:{n:7,s:2,e:7,w:3}, power:2, ability:'double_strike', abilityText:'DOUBLE STRIKE: Comparison reaches 2 deep', art:'assets/cards/terran/strike-force.png' },
-  // T3 — FIGHTERS (highly directional — dominant in ONE direction, very weak rear)
+  // T3 — FIGHTERS
   { id:'ta_t3a', name:'INTERCEPTOR',   tier:'III',tierLabel:'STRIKE CRAFT', zone:'lance',       edges:{n:9,s:2,e:7,w:3}, power:3, ability:'double_strike', abilityText:'DOUBLE STRIKE: Comparison reaches 2 deep', art:'assets/cards/terran/interceptor.png' },
-  { id:'ta_t3b', name:'FAST RUNNER',   tier:'III',tierLabel:'STRIKE CRAFT', zone:'flanker',     edges:{n:7,s:2,e:9,w:3}, power:2, ability:'surge',         abilityText:'SURGE: Losing rows? +3 to all edges', art:'assets/cards/terran/fast-runner.png' },
-  { id:'ta_t3c', name:'FLANKER',       tier:'III',tierLabel:'STRIKE CRAFT', zone:'flanker',     edges:{n:8,s:2,e:6,w:4}, power:2, ability:'pierce',        abilityText:'PIERCE: Ties count as wins for this card', art:'assets/cards/terran/flanker.png' },
-  // T4 — FLAGSHIP (strong everywhere but has real rear gap)
+  { id:'ta_t3b', name:'FAST RUNNER',   tier:'III',tierLabel:'STRIKE CRAFT', zone:'flanker',     edges:{n:7,s:2,e:9,w:3}, power:2, ability:'chain',         abilityText:'CHAIN: Wins cascade to adjacent enemies', art:'assets/cards/terran/fast-runner.png' },
+  { id:'ta_t3c', name:'FLANKER',       tier:'III',tierLabel:'STRIKE CRAFT', zone:'flanker',     edges:{n:8,s:2,e:6,w:4}, power:2, ability:'shield',        abilityText:'SHIELD: First comparison loss blocked', art:'assets/cards/terran/flanker.png' },
+  // T4 — FLAGSHIP
   { id:'ta_t4',  name:'THE ACCORD',    tier:'IV', tierLabel:'DREADNAUGHT',  zone:'dreadnaught', edges:{n:8,s:5,e:8,w:7}, power:4, ability:'chain',         abilityText:'CHAIN: Wins cascade to adjacent enemies', art:'assets/cards/terran/the-accord.png' },
-  // EXTRA CARDS (follow same directional principle)
+  // EXTRA
   { id:'ta_x1', name:'MINING COLONY', tier:'I',   tierLabel:'COLONY WORLD', zone:'wide_cross',  edges:{n:4,s:2,e:3,w:5}, power:1, ability:null,            abilityText:'Basic Colony World — pure foundation', art:'assets/cards/terran/colony-world-a.png' },
-  { id:'ta_x2', name:'GUNSHIP WING',  tier:'II',  tierLabel:'BATTLE GROUP', zone:'command',     edges:{n:5,s:3,e:6,w:6}, power:3, ability:'sweep',         abilityText:'SWEEP: Contests all 4 adjacent cells on placement', art:'assets/cards/terran/battle-group.png' },
-  { id:'ta_x3', name:'GHOST RUNNER',  tier:'III', tierLabel:'STRIKE CRAFT', zone:'lance',       edges:{n:8,s:2,e:5,w:4}, power:2, ability:'phantom',       abilityText:'PHANTOM: Free placement in home rows', art:'assets/cards/terran/fast-runner.png' },
+  { id:'ta_x2', name:'GUNSHIP WING',  tier:'II',  tierLabel:'BATTLE GROUP', zone:'command',     edges:{n:5,s:3,e:6,w:6}, power:3, ability:'commander',     abilityText:'COMMANDER: Adjacent same-tier cards +2 all edges', art:'assets/cards/terran/battle-group.png' },
+  { id:'ta_x3', name:'GHOST RUNNER',  tier:'III', tierLabel:'STRIKE CRAFT', zone:'lance',       edges:{n:8,s:2,e:5,w:4}, power:2, ability:'shield',        abilityText:'SHIELD: First comparison loss blocked', art:'assets/cards/terran/fast-runner.png' },
 ];
 const AI_CARDS = [
   { id:'a1',  name:'FANG',    tier:'I',   edges:{n:3,s:5,e:4,w:5}, power:2, ability:null,            abilityText:'Basic card' },

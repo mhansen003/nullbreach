@@ -1414,18 +1414,15 @@ function startGame() {
 document.addEventListener('contextmenu', e => e.preventDefault());
 
 // ── INIT ──────────────────────────────────────────
-// If returning from game with ?screen=deck, skip splash and show deck select directly
-if (new URLSearchParams(window.location.search).get('screen') === 'deck') {
+const _fromGame = new URLSearchParams(window.location.search).get('screen') === 'deck';
+
+// If returning from game, hide splash immediately (before tiles load)
+if (_fromGame) {
   document.getElementById('splash').classList.add('hidden');
   document.getElementById('splashBg').style.opacity = '0';
   document.getElementById('splashDim').style.opacity = '0';
   document.getElementById('deckselect').classList.remove('hidden');
-  // Auto-select Terran when arriving from game
-  setTimeout(() => {
-    const terranRace = RACES.find(r => r.id === 'terran');
-    const terranTile = document.querySelector('.race-tile[data-id="terran"]');
-    if (terranRace && terranTile) selectRace(terranRace, terranTile);
-  }, 200);
+  // Note: Terran auto-select fires AFTER buildRaceGrid() in the Promise below
 }
 
 initConveyorWheel();
@@ -1440,15 +1437,19 @@ Promise.all(
   }))
 ).then(() => {
   buildRaceGrid();
-  // Position Terran (index 0) toward the right side of viewport on initial load
-  // One tile pitch = TILE_COUNT * (240+22) ≈ set to start near end of first set
-  // so Terran appears roughly centered-right before auto-select fires
   const TILE_PITCH_EST = 240 + 22;
   const viewportTiles = Math.floor(window.innerWidth / TILE_PITCH_EST);
-  // Start scrolled so tile[0] (Terran) is at right portion of visible area
   cvPos = Math.max(0, (TILE_COUNT - viewportTiles + 1) * TILE_PITCH_EST);
-  requestAnimationFrame(runConveyor); // must use rAF to pass timestamp, else NaN delta
-  // Auto-select Terran fires in showDeckSelect, not here (prevents lore bg on splash)
+  requestAnimationFrame(runConveyor);
+  // Auto-select Terran: fires here when returning from game (tiles now exist),
+  // or in showDeckSelect() when entering normally (prevents lore bg on splash)
+  if (_fromGame) {
+    setTimeout(() => {
+      const terranRace = RACES.find(r => r.id === 'terran');
+      const terranTile = document.querySelector('.race-tile[data-id="terran"]');
+      if (terranRace && terranTile) selectRace(terranRace, terranTile);
+    }, 150);
+  }
 });
 </script>
 <div id="opponentModal" style="
