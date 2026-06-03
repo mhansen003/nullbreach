@@ -442,18 +442,15 @@ body {
 
 <div class="header">
   <div class="title">GALACTIC ZERO</div>
-  <div class="score-bar">
-    <span class="score-lbl">TOTAL PTS:</span>
-    <span class="score-p" id="scoreP">0</span>
-    <span style="color:#333;font-size:18px">&mdash;</span>
-    <span class="score-a" id="scoreA">0</span>
-    <span class="score-lbl" id="linesLbl">| LINES: 0/10</span>
+  <!-- Score removed from header — use the row/col score badges instead -->
+  <div style="display:flex;align-items:center;gap:10px;">
     <div class="turn-tag player" id="turnTag">YOUR TURN</div>
-    <div id="totalScore" style="font-size:11px;letter-spacing:2px;display:flex;gap:16px;align-items:center;font-family:'Courier New',monospace;">
-      <span id="totalP" style="color:#00ffcc;font-size:14px;font-weight:bold;">YOU: 0/10 lines</span>
-      <span style="color:#333">vs</span>
-      <span id="totalA" style="color:#ff0080;font-size:14px;font-weight:bold;">AI: 0/10 lines</span>
-    </div>
+    <!-- Hidden elements kept for JS compatibility -->
+    <span id="scoreP" style="display:none">0</span>
+    <span id="scoreA" style="display:none">0</span>
+    <span id="linesLbl" style="display:none"></span>
+    <span id="totalP" style="display:none"></span>
+    <span id="totalA" style="display:none"></span>
   </div>
   <!-- Hamburger menu button (id used to identify in click-outside handler) -->
   <div id="menuToggleBtn" onclick="toggleMenu()" style="
