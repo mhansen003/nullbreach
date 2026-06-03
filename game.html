@@ -210,6 +210,15 @@ body {
 .cell.ai     { background: linear-gradient(145deg, #1c0a0a, #150818); border: 2px solid #ff0080; box-shadow: 0 0 8px #ff008022; }
 .cell.just-placed { animation: placePulse 0.35s ease; }
 @keyframes placePulse { 0%{transform:scale(0.8);opacity:0.4} 100%{transform:scale(1);opacity:1} }
+/* Safe zone bars — player home (row 4) gets top bar, AI home (row 0) gets bottom bar */
+.cell[data-r="4"]::before {
+  content:''; position:absolute; top:0;left:0;right:0; height:3px; z-index:3; pointer-events:none;
+  background:linear-gradient(90deg,transparent,var(--player-safe-col,#00ffcc44),transparent);
+}
+.cell[data-r="0"]::after {
+  content:''; position:absolute; bottom:0;left:0;right:0; height:3px; z-index:3; pointer-events:none;
+  background:linear-gradient(90deg,transparent,var(--ai-safe-col,#ff008044),transparent);
+}
 /* Battle result chip — positioned in gap between battling cells */
 .bti {
   position:absolute; z-index:8; pointer-events:all; cursor:help;
@@ -479,6 +488,9 @@ body {
   animation: errGlow 2.5s ease-in-out infinite;
   overflow:hidden; font-family:'Courier New',monospace;
 }
+
+/* Tooltip redesign — wide portrait card layout */
+.tooltip { width: 430px !important; max-width: 430px !important; }
 
 /* Tier indicator dots — upper-left of each empty cell, always visible */
 .tri-dots {
@@ -964,6 +976,10 @@ function initRaceTheme() {
   window.playerAvatarImg    = player.avatarImg || `assets/avatars/${raceId}.png`;
   window.aiAvatarImg        = ai.avatarImg     || `assets/avatars/${aiRaceId}.png`;
 
+  // Safe zone bar colors — CSS custom properties on :root
+  document.documentElement.style.setProperty('--player-safe-col', player.color + '66');
+  document.documentElement.style.setProperty('--ai-safe-col',     ai.color     + '66');
+
   // Seed scoreboard avatars immediately so they show on game start
   const sbAi = document.getElementById('sbAiAvatar');
   const sbPl = document.getElementById('sbPlayerAvatar');
@@ -1264,12 +1280,8 @@ function renderGrid() {
         // Show tooltip on placed board cards (shows card info + buff status)
         div.onmouseenter = (ev) => {
           const cardWithBuf = {...cell.card};
-          // Include current edge modifiers in displayed values
-          if (cell.battle) {
-            const hStr = cell.battle.h === 'win' ? '✓ H WIN' : cell.battle.h === 'lose' ? '✗ H LOSE' : cell.battle.h === 'tie' ? '= TIE' : '';
-            const vStr = cell.battle.v === 'win' ? '✓ V WIN' : cell.battle.v === 'lose' ? '✗ V LOSE' : cell.battle.v === 'tie' ? '= TIE' : '';
-            cardWithBuf._battleStatus = `${hStr}  ${vStr}`.trim();
-          }
+          // Pass battle state so compass edges are colored by win/lose
+          if (cell.battle) cardWithBuf._bat = cell.battle;
           showTip(ev, cardWithBuf);
         };
         div.onmouseleave = hideTip;
@@ -2331,68 +2343,114 @@ function showTip(e, card) {
   const tierCol = TIER_COLORS[card.tier] || '#888';
   const abi     = card.ability ? (ABILITY_ICONS[card.ability] || {icon:'✦', color:tierCol, label:card.ability.toUpperCase()}) : null;
   const mod     = card.edgeMod;
-  const n = card.edges.n + (mod?.n||0), s = card.edges.s + (mod?.s||0);
-  const e_ = card.edges.e + (mod?.e||0), w = card.edges.w + (mod?.w||0);
+  const n  = card.edges.n + (mod?.n||0), s  = card.edges.s + (mod?.s||0);
+  const e_ = card.edges.e + (mod?.e||0), w  = card.edges.w + (mod?.w||0);
+  const tierNum = {'I':1,'II':2,'III':3,'IV':4}[card.tier] || 1;
 
-  // Drive all tier-color glows from CSS custom properties
   tt.style.setProperty('--tc',     tierCol);
   tt.style.setProperty('--tc-dim', tierCol + '55');
-  tt.style.setProperty('--tc-glow',tierCol + '22');
+  tt.style.setProperty('--tc-glow',tierCol + '18');
+
+  // For placed cards: color winning edges brighter, losing edges dimmer
+  const bat  = card._bat || { h:'none', v:'none' };
+  const nCol = bat.v==='win' ? tierCol : bat.v==='lose' ? tierCol+'44' : tierCol+'cc';
+  const sCol = bat.v==='win' ? tierCol : bat.v==='lose' ? tierCol+'44' : tierCol+'cc';
+  const wCol = bat.h==='win' ? tierCol : bat.h==='lose' ? tierCol+'44' : tierCol+'cc';
+  const eCol = bat.h==='win' ? tierCol : bat.h==='lose' ? tierCol+'44' : tierCol+'cc';
+  const nGlow = bat.v==='win' ? `text-shadow:0 0 8px ${tierCol};` : '';
+  const wGlow = bat.h==='win' ? `text-shadow:0 0 8px ${tierCol};` : '';
 
   tt.innerHTML = `
   <div class="tip-shine-layer"></div>
   <div class="tip-body">
-    <!-- Header: art + name/tier/stats -->
-    <div style="display:flex;gap:12px;padding:14px 14px 10px;">
+
+    <!-- ① TITLE -->
+    <div style="text-align:center;padding:10px 16px 8px;border-bottom:1px solid var(--tc-dim);">
+      <div style="font-family:'Orbitron',monospace;color:var(--tc);font-size:14px;letter-spacing:2px;font-weight:700;">${card.name}</div>
+    </div>
+
+    <!-- ② IMAGE + VICTORY POINTS + TIER -->
+    <div style="display:flex;gap:14px;padding:12px 16px 10px;">
       ${card.art ? `
-      <div style="position:relative;flex-shrink:0;width:82px;height:112px;">
+      <div style="position:relative;flex-shrink:0;width:130px;height:150px;">
         <img src="${card.art}" style="width:100%;height:100%;object-fit:cover;object-position:top;border-radius:6px;border:2px solid var(--tc-dim);">
-        <!-- scan sweep over art -->
         <div style="position:absolute;inset:0;border-radius:6px;overflow:hidden;pointer-events:none;">
           <div style="position:absolute;width:100%;height:35%;background:linear-gradient(transparent,var(--tc-glow),transparent);animation:tipScan 3.5s ease-in-out infinite;"></div>
         </div>
       </div>` : ''}
-      <div style="flex:1;min-width:0;">
-        <div style="font-family:'Orbitron',monospace;color:var(--tc);font-size:12px;letter-spacing:1.5px;font-weight:700;line-height:1.2;margin-bottom:2px;">${card.name}</div>
-        <div style="font-size:8px;letter-spacing:3px;color:var(--tc-dim);margin-bottom:8px;">${card.tierLabel || card.tier}</div>
-        <!-- N/S/W/E grid -->
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:6px;">
-          ${['N','S','W','E'].map((d,i)=>{
-            const val = [n,s,w,e_][i];
-            return `<div style="background:#ffffff07;border:1px solid var(--tc-dim);border-radius:4px;padding:3px 0;text-align:center;">
-              <div style="font-size:7px;color:#555;letter-spacing:1px;">${d}</div>
-              <div style="font-size:16px;font-weight:bold;color:var(--tc);line-height:1.1;">${val}</div>
-            </div>`;
-          }).join('')}
+      <div style="flex:1;display:flex;flex-direction:column;gap:12px;justify-content:center;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-size:9px;letter-spacing:2px;color:#555;">VICTORY PTS:</span>
+          <div style="width:42px;height:42px;border-radius:50%;border:2px solid var(--tc);display:flex;align-items:center;justify-content:center;box-shadow:0 0 12px var(--tc-glow);">
+            <span style="font-size:20px;font-weight:bold;color:var(--tc);">${card.power}</span>
+          </div>
         </div>
-        <!-- Power -->
-        <div style="background:var(--tc-glow);border:1px solid var(--tc-dim);border-radius:4px;padding:4px 8px;text-align:center;">
-          <span style="font-size:7px;color:#666;letter-spacing:2px;">POWER</span>
-          <span style="font-size:20px;font-weight:bold;color:var(--tc);margin-left:8px;">${card.power}</span>
+        <div style="display:flex;align-items:center;gap:5px;">
+          <span style="font-size:9px;letter-spacing:2px;color:#555;margin-right:3px;">TIER</span>
+          ${Array.from({length:tierNum},()=>`<div style="width:12px;height:12px;border-radius:50%;background:${tierCol};box-shadow:0 0 6px ${tierCol};"></div>`).join('')}
+          ${Array.from({length:4-tierNum},()=>`<div style="width:12px;height:12px;border-radius:50%;border:1px solid #2a2a3a;opacity:0.4;"></div>`).join('')}
         </div>
+        <div style="font-size:8px;letter-spacing:2px;color:var(--tc-dim);">${card.tierLabel || card.tier}</div>
       </div>
     </div>
-    <!-- Divider -->
-    <div style="height:1px;background:linear-gradient(90deg,transparent,var(--tc-dim),transparent);margin:0 12px;"></div>
-    <!-- Ability -->
-    ${abi ? `
-    <div style="padding:10px 14px;">
-      <div style="background:${abi.color}18;border:1px solid ${abi.color}55;border-radius:6px;padding:8px 10px;">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
-          <span style="font-size:18px;filter:drop-shadow(0 0 6px ${abi.color});">${abi.icon}</span>
+
+    <div style="height:1px;background:linear-gradient(90deg,transparent,var(--tc-dim),transparent);margin:0 14px;"></div>
+
+    <!-- ③ ATTACK POWER COMPASS  +  ZONE EXPANSION -->
+    <div style="display:flex;padding:12px 16px;gap:0;">
+      <div style="flex:1;">
+        <div style="font-size:9px;letter-spacing:2px;color:#777;margin-bottom:8px;">ATTACK POWER</div>
+        <div style="position:relative;width:120px;height:120px;border:1px solid var(--tc-dim);border-radius:6px;background:#040410;">
+          <div style="position:absolute;top:6px;left:50%;transform:translateX(-50%);text-align:center;">
+            <div style="font-size:7px;color:#444;letter-spacing:1px;">N</div>
+            <div style="font-size:21px;font-weight:bold;${nGlow}color:${nCol};line-height:1;">${n}</div>
+          </div>
+          <div style="position:absolute;bottom:6px;left:50%;transform:translateX(-50%);text-align:center;">
+            <div style="font-size:7px;color:#444;letter-spacing:1px;">S</div>
+            <div style="font-size:21px;font-weight:bold;${nGlow}color:${sCol};line-height:1;">${s}</div>
+          </div>
+          <div style="position:absolute;left:5px;top:50%;transform:translateY(-50%);text-align:center;min-width:22px;">
+            <div style="font-size:7px;color:#444;letter-spacing:1px;">W</div>
+            <div style="font-size:21px;font-weight:bold;${wGlow}color:${wCol};line-height:1;">${w}</div>
+          </div>
+          <div style="position:absolute;right:5px;top:50%;transform:translateY(-50%);text-align:center;min-width:22px;">
+            <div style="font-size:7px;color:#444;letter-spacing:1px;">E</div>
+            <div style="font-size:21px;font-weight:bold;${wGlow}color:${eCol};line-height:1;">${e_}</div>
+          </div>
+          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:5px;height:5px;border-radius:50%;background:var(--tc-dim);"></div>
+        </div>
+      </div>
+      <div style="width:1px;background:var(--tc-dim);opacity:0.35;flex-shrink:0;margin:0 12px;"></div>
+      <div style="flex:1;">
+        <div style="font-size:9px;letter-spacing:2px;color:#777;margin-bottom:8px;">ZONE EXPANSION</div>
+        ${card.zone ? buildZoneGrid(card) : `<div style="font-size:10px;color:#2a2a3a;">No expansion</div>`}
+      </div>
+    </div>
+
+    <div style="height:1px;background:linear-gradient(90deg,transparent,var(--tc-dim),transparent);margin:0 14px;"></div>
+
+    <!-- ④ SPECIAL ABILITY / POWER -->
+    <div style="padding:10px 16px 12px;">
+      ${abi ? `
+      <div style="border:1px solid ${abi.color}55;border-radius:6px;padding:9px 12px;background:${abi.color}0e;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">
+          <span style="font-size:16px;filter:drop-shadow(0 0 5px ${abi.color});">${abi.icon}</span>
           <span style="font-family:'Orbitron',monospace;font-size:10px;letter-spacing:2px;color:${abi.color};font-weight:700;">${abi.label}</span>
         </div>
-        <div style="font-size:10px;color:#ccc;line-height:1.65;">${card.abilityText}</div>
-      </div>
+        <div style="font-style:italic;font-size:10px;color:#ccc;line-height:1.65;letter-spacing:0.3px;">
+          Special Ability / Power: ${card.abilityText}
+        </div>
+      </div>` : `
+      <div style="border:1px solid #1a1a28;border-radius:6px;padding:9px 12px;">
+        <div style="font-style:italic;font-size:10px;color:#2a2a3a;letter-spacing:1px;">No special ability — pure positioning card</div>
+      </div>`}
     </div>
-    ` : `<div style="padding:8px 14px;font-size:10px;color:#2a2a3a;letter-spacing:1px;">No ability</div>`}
-    ${card._battleStatus ? `<div style="padding:4px 14px 10px;font-size:9px;letter-spacing:2px;color:#aaa;">${card._battleStatus}</div>` : ''}
-    ${!card._battleStatus && card.zone ? `<div style="padding:0 14px 10px;">${buildZoneGrid(card)}</div>` : ''}
+
   </div>`;
 
   tt.style.display = 'block';
-  const ttH = tt.offsetHeight || 320;
-  const ttW = tt.offsetWidth  || 315;
+  const ttH = tt.offsetHeight || 460;
+  const ttW = tt.offsetWidth  || 435;
   const spaceBelow = window.innerHeight - e.clientY;
   const top  = spaceBelow > ttH + 20 ? e.clientY + 14 : e.clientY - ttH - 14;
   const left = e.clientX + ttW + 20 > window.innerWidth ? e.clientX - ttW - 14 : e.clientX + 14;
