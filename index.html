@@ -319,26 +319,28 @@ body {
   border: 1px solid currentColor; opacity: 0.85;
 }
 
-/* Ability showcase cards */
-.ability-cards-row { display: flex; gap: 10px; flex-shrink: 0; margin: 6px 0 4px; }
+/* Ability showcase cards — full-width below avatar, bigger text */
+.ability-cards-row { display: flex; gap: 12px; flex-shrink: 0; margin: 10px 0 6px; }
 .ability-showcase {
   flex: 1; min-width: 0;
-  background: #000000aa; border-radius: 5px;
+  background: #000000bb; border-radius: 6px;
   border: 1px solid currentColor;
-  padding: 10px 12px; display: flex; flex-direction: column; gap: 4px;
+  padding: 14px 16px; display: flex; flex-direction: column; gap: 6px;
 }
-.absc-title { font-size: 10px; letter-spacing: 2px; font-weight: bold; opacity: 0.9; }
-.absc-desc  { font-size: 10px; letter-spacing: 0.3px; color: #ffffffcc; line-height: 1.5; opacity: 0.8; }
+.absc-title { font-size: 13px; letter-spacing: 2px; font-weight: bold; }
+.absc-desc  { font-size: 13px; letter-spacing: 0.2px; color: #ffffffdd; line-height: 1.6; }
 
 .lore-divider { height: 1px; flex-shrink: 0; opacity: 0.3; }
-/* Single column layout — all lore stacked vertically */
-.lore-cols { display: flex; flex-direction: column; gap: 12px; flex: 1; overflow: hidden; }
-.lore-col { display: flex; flex-direction: column; gap: 5px; }
-.lore-label { font-size: 12px; letter-spacing: 3px; opacity: 0.8; text-transform: uppercase; margin-bottom: 3px; }
-.lore-text { font-size: 16px; letter-spacing: 0.2px; color: #ffffff; line-height: 1.85; }
-.lore-weakness { font-size: 15px; letter-spacing: 0.2px; color: #ffffffbb; line-height: 1.8; font-style: italic; }
+.lore-label { font-size: 11px; letter-spacing: 3px; opacity: 0.7; text-transform: uppercase; margin-bottom: 6px; }
+.lore-text { font-size: 14px; letter-spacing: 0.2px; color: #ffffff; line-height: 1.85; }
+.lore-weakness { font-size: 13px; letter-spacing: 0.2px; color: #ffffffcc; line-height: 1.8; font-style: italic; }
 
-.ds-deploy-wrap { padding-top: 20px; display: none; text-align: center; }
+/* Glowing launch button — pulsing with race color */
+.ds-deploy-wrap { display: none; }
+@keyframes launchGlow {
+  0%,100% { box-shadow: 0 0 14px currentColor, 0 0 28px currentColor; opacity:0.9; }
+  50%      { box-shadow: 0 0 28px currentColor, 0 0 56px currentColor, 0 0 84px currentColor; opacity:1; }
+}
 .ds-deploy-wrap.visible { display: block; }
 .btn-deploy {
   background: transparent; font-family: 'Orbitron', monospace;
@@ -484,53 +486,77 @@ body {
     </div>
     <div class="ds-lore-content" id="loreContent">
 
-      <!-- TOP ROW: Avatar+Deploy (left) | Name+Quote+Abilities (center) | Tier cards (right) -->
-      <div style="display:flex;gap:18px;align-items:flex-start;margin-bottom:12px;">
+      <!-- ROW 1: [Avatar+GlowBtn] [Name/Quote/Pills] [TierCards] -->
+      <div style="display:flex;gap:18px;align-items:flex-start;margin-bottom:10px;">
 
-        <!-- LEFT: Avatar + Deploy button below -->
-        <div style="display:flex;flex-direction:column;gap:8px;flex-shrink:0;">
+        <!-- LEFT: Avatar + glowing LAUNCH DECK button -->
+        <div style="flex-shrink:0;display:flex;flex-direction:column;gap:8px;">
           <div id="loreAvatar" style="
-            width:180px;height:180px;
-            border-radius:8px;overflow:hidden;
-            border:2px solid #ffffff22;background:#06050e;
+            width:180px;height:180px;border-radius:8px;
+            overflow:hidden;border:2px solid #ffffff22;background:#06050e;
           "></div>
-          <!-- Deploy button as its own clear button below the avatar -->
-          <div class="ds-deploy-wrap" id="deployWrap" style="display:none;">
-            <button class="btn-deploy" id="deployBtn" onclick="startGame()" style="
-              width:180px;padding:12px 0;font-size:13px;letter-spacing:4px;
-            ">DEPLOY FLEET &#x2197;</button>
+          <div class="ds-deploy-wrap" id="deployWrap">
+            <button class="btn-deploy" id="deployBtn" onclick="showOpponentPicker()" style="
+              width:180px;padding:12px 0;font-size:12px;letter-spacing:4px;
+              animation:launchGlow 2s ease-in-out infinite;
+            ">LAUNCH DECK &#x2197;</button>
           </div>
         </div>
 
-        <!-- CENTER: Name + quote + abilities -->
+        <!-- CENTER: Name / quote / ability pills only -->
         <div style="flex:1;display:flex;flex-direction:column;gap:8px;min-width:0;">
           <div class="ds-race-name" id="loreName">—</div>
           <div class="ds-race-sub" id="loreSub">—</div>
           <div class="ds-race-quote" id="loreQuote">—</div>
           <div class="ds-abilities-row" id="loreAbilities"></div>
-          <div class="ability-cards-row" id="abilityCards"></div>
         </div>
 
         <!-- RIGHT: Tier card previews -->
         <div id="tierCardPreview" style="display:none;flex-direction:row;gap:8px;flex-shrink:0;"></div>
       </div>
 
-      <!-- LORE TEXT: 3 columns side by side -->
+      <!-- ROW 2: Ability showcase — full width, bigger text -->
+      <div class="ability-cards-row" id="abilityCards"></div>
+
+      <!-- ROW 3: 3-column lore with dark backgrounds -->
       <div class="lore-divider" id="loreDivider"></div>
-      <div style="display:flex;gap:20px;margin-top:8px;">
-        <div style="flex:1;min-width:0;">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:10px;">
+        <div style="background:#000000bb;border:1px solid #1a1a2e;border-radius:6px;padding:14px 16px;">
           <div class="lore-label" id="loreLabel1">CIVILIZATION</div>
-          <div class="lore-text" id="loreText1" style="font-size:12px;line-height:1.7;">—</div>
+          <div class="lore-text" id="loreText1">—</div>
         </div>
-        <div style="flex:1;min-width:0;">
-          <div class="lore-label" id="loreLabel2">HISTORY AT GZ-0</div>
-          <div class="lore-text" id="loreText2" style="font-size:12px;line-height:1.7;">—</div>
+        <div style="background:#000000bb;border:1px solid #1a1a2e;border-radius:6px;padding:14px 16px;">
+          <div class="lore-label" id="loreLabel2">HISTORY AT SECTOR GZ-0</div>
+          <div class="lore-text" id="loreText2">—</div>
         </div>
-        <div style="flex:0 0 200px;">
+        <div style="background:#000000bb;border:1px solid #1a1a2e;border-radius:6px;padding:14px 16px;">
           <div class="lore-label" id="loreLabel3">WEAKNESS</div>
-          <div class="lore-weakness" id="loreText3" style="font-size:11px;line-height:1.7;">—</div>
+          <div class="lore-weakness" id="loreText3">—</div>
         </div>
       </div>
+    </div>
+
+    <!-- OPPONENT PICKER MODAL -->
+    <div id="opponentModal" style="
+      display:none;position:fixed;inset:0;z-index:2000;
+      background:#000000dd;backdrop-filter:blur(6px);
+      align-items:center;justify-content:center;flex-direction:column;gap:20px;
+      font-family:'Share Tech Mono','Courier New',monospace;
+    ">
+      <div style="font-family:'Orbitron',monospace;font-size:20px;letter-spacing:5px;color:#fff;text-shadow:0 0 20px #8855ffaa;">SELECT YOUR OPPONENT</div>
+      <div style="font-size:10px;letter-spacing:3px;color:#554477;">CHOOSE WHO YOU WILL FACE AT SECTOR GZ-0</div>
+      <div id="opponentGrid" style="display:grid;grid-template-columns:repeat(4,140px);gap:10px;max-width:620px;"></div>
+      <button onclick="launchGame('random')" style="
+        background:transparent;border:1px solid #8855ff66;color:#aa88ff;
+        font-family:inherit;font-size:11px;letter-spacing:4px;padding:10px 32px;
+        cursor:pointer;border-radius:4px;margin-top:4px;transition:all 0.2s;
+      " onmouseenter="this.style.borderColor='#aa77ff';this.style.color='#fff'"
+         onmouseleave="this.style.borderColor='#8855ff66';this.style.color='#aa88ff'">
+        ⚡ RANDOM OPPONENT
+      </button>
+      <div onclick="document.getElementById('opponentModal').style.display='none'" style="
+        font-size:9px;letter-spacing:3px;color:#334;cursor:pointer;margin-top:-8px;
+      ">CANCEL</div>
     </div>
   </div>
 
@@ -883,7 +909,7 @@ function selectRace(race, tileEl) {
   const clipTop = cvSection ? Math.round(cvSection.getBoundingClientRect().bottom) : 380;
   bg.style.backgroundImage = `url('${race.loreBg || race.cover}')`;
   // Soft gradient fade: race-bg bleeds up into the conveyor for a natural blend
-  const fadeStart = Math.max(0, clipTop - 130); // start fading 130px above conveyor bottom
+  const fadeStart = clipTop + 40; // image only starts showing BELOW the conveyor
   const maskGrad = `linear-gradient(to bottom, transparent 0px, transparent ${fadeStart}px, black ${clipTop}px, black 100%)`;
   bg.style.webkitMaskImage = maskGrad;
   bg.style.maskImage = maskGrad;
@@ -939,49 +965,56 @@ function selectRace(race, tileEl) {
     `).join('');
 
     // Tier card previews — show one card per tier for this race
+    // Tier card art — Terran + Brood have real art; others use deck cover as placeholder
+    const TIER_CARD_ART = {
+      terran: [
+        { tier:'I',   art:'assets/cards/terran/colony-world-a.png', name:'COLONY WORLD'    },
+        { tier:'II',  art:'assets/cards/terran/battle-group.png',   name:'BATTLE GROUP'    },
+        { tier:'III', art:'assets/cards/terran/interceptor.png',     name:'INTERCEPTOR'     },
+        { tier:'IV',  art:'assets/cards/terran/the-accord.png',      name:'THE ACCORD'      },
+      ],
+      brood: [
+        { tier:'I',   art:'assets/cards/brood/hive-node.png',       name:'HIVE NODE'       },
+        { tier:'II',  art:'assets/cards/brood/warrior-cluster.png', name:'WARRIOR CLUSTER' },
+        { tier:'III', art:'assets/cards/brood/skimmer.png',         name:'SKIMMER'         },
+        { tier:'IV',  art:'assets/cards/brood/the-sovereign.png',   name:'THE SOVEREIGN'   },
+      ],
+    };
+    // For races without art, generate placeholder tiles from deck cover
+    const samples = TIER_CARD_ART[race.id] ||
+      ['I','II','III','IV'].map(t => ({ tier:t, art:race.cover, name:`TIER ${t}`, placeholder:true }));
+
     const tcp = document.getElementById('tierCardPreview');
     if (tcp) {
-      // Define sample cards per tier per race (only Terran has art currently)
-      const TIER_SAMPLES = {
-        terran: [
-          { tier:'I',   art:'assets/cards/terran/colony-world-a.png', name:'COLONY WORLD',  power:1 },
-          { tier:'II',  art:'assets/cards/terran/battle-group.png',   name:'BATTLE GROUP',  power:3 },
-          { tier:'III', art:'assets/cards/terran/interceptor.png',     name:'INTERCEPTOR',   power:3 },
-          { tier:'IV',  art:'assets/cards/terran/the-accord.png',      name:'THE ACCORD',    power:4 },
-        ],
-      };
-      const samples = TIER_SAMPLES[race.id] || [];
-      if (samples.length > 0) {
-        const TIER_COLORS_LORE = {'I':'#d0d0d0','II':'#44cc66','III':'#4488ff','IV':'#aa44ff'};
-        // Horizontal row, larger cards — 4 cards side by side
-        tcp.innerHTML = samples.map(s => `
-          <div style="
-            width:130px;height:174px;border-radius:6px;
-            background:url('${s.art}') center/cover;
-            border:2px solid ${TIER_COLORS_LORE[s.tier]};
-            position:relative;overflow:hidden;flex-shrink:0;
-            box-shadow:0 0 10px ${TIER_COLORS_LORE[s.tier]}44;
-          ">
-            <div style="position:absolute;bottom:0;left:0;right:0;background:#000000dd;padding:5px 6px;">
-              <div style="font-size:8px;letter-spacing:1px;color:${TIER_COLORS_LORE[s.tier]};">${s.name}</div>
-            </div>
-            <div style="position:absolute;top:6px;left:6px;background:${TIER_COLORS_LORE[s.tier]}22;border:1px solid ${TIER_COLORS_LORE[s.tier]}66;border-radius:3px;padding:2px 6px;font-size:9px;letter-spacing:1px;color:${TIER_COLORS_LORE[s.tier]};font-weight:bold;">${s.tier}</div>
+      const TC = {'I':'#d0d0d0','II':'#44cc66','III':'#4488ff','IV':'#aa44ff'};
+      tcp.innerHTML = samples.map(s => `
+        <div style="
+          width:120px;height:160px;border-radius:6px;
+          background:url('${s.art}') center/cover;
+          border:2px solid ${TC[s.tier]};
+          position:relative;overflow:hidden;flex-shrink:0;
+          box-shadow:0 0 10px ${TC[s.tier]}44;
+          ${s.placeholder ? 'filter:brightness(0.4) saturate(0.5);' : ''}
+        ">
+          <div style="position:absolute;bottom:0;left:0;right:0;background:#000000dd;padding:5px 6px;">
+            <div style="font-size:8px;letter-spacing:1px;color:${TC[s.tier]};">${s.name}</div>
+            ${s.placeholder ? `<div style="font-size:7px;color:#555;letter-spacing:1px;">ART PENDING</div>` : ''}
           </div>
-        `).join('');
-        tcp.style.display = 'flex';
-      } else {
-        tcp.style.display = 'none';
-      }
+          <div style="position:absolute;top:5px;left:5px;background:${TC[s.tier]}22;border:1px solid ${TC[s.tier]}66;border-radius:3px;padding:2px 5px;font-size:9px;color:${TC[s.tier]};font-weight:bold;">${s.tier}</div>
+        </div>
+      `).join('');
+      tcp.style.display = 'flex';
     }
 
     const btn = document.getElementById('deployBtn');
     btn.style.cssText = `
-      font-family:'Orbitron',monospace;font-size:15px;letter-spacing:6px;
-      padding:20px 80px;cursor:pointer;text-transform:uppercase;border-radius:4px;
-      width:100%;max-width:500px;
+      font-family:'Orbitron',monospace;font-size:12px;letter-spacing:4px;
+      padding:12px 0;cursor:pointer;text-transform:uppercase;border-radius:4px;
+      width:180px;
       border:2px solid ${race.color};color:${race.color};background:${race.color}11;
+      animation:launchGlow 2s ease-in-out infinite;
     `;
-    document.getElementById('deployWrap').classList.add('visible');
+    document.getElementById('deployWrap').style.display = 'block';
     lc.classList.add('visible');
 
     // Play civilization voice intro
@@ -989,7 +1022,7 @@ function selectRace(race, tileEl) {
   }, 60);
 }
 
-let voiceMuted = false;
+let voiceMuted = localStorage.getItem("gz_voice_muted") === "true";
 
 function playCivVoice(raceId) {
   const v = document.getElementById('civVoice');
@@ -1005,6 +1038,7 @@ function stopCivVoice() {
 }
 function toggleVoiceMute() {
   voiceMuted = !voiceMuted;
+  localStorage.setItem("gz_voice_muted", voiceMuted);
   const btn = document.getElementById('voiceMuteBtn');
   const lbl = document.getElementById('voiceMuteLbl');
   if (voiceMuted) {
@@ -1034,7 +1068,7 @@ gv.addEventListener('error', () => { /* fallback to static image */ });
 
 // ── MUSIC ──────────────────────────────────────────
 let musicStarted = false;
-let muted = false;
+let muted = localStorage.getItem("gz_music_muted") === "true";
 
 function startMusic() {
   if (musicStarted) return;
@@ -1047,6 +1081,7 @@ function toggleMute() {
   const audio = document.getElementById('bgMusic');
   muted = !muted;
   audio.muted = muted;
+  localStorage.setItem("gz_music_muted", muted);
   document.getElementById('muteBtn').innerHTML =
     (muted ? '🔇' : '🔊') + ' <span id="muteLbl">' + (muted ? 'MUTED' : 'MUSIC') + '</span>';
   document.getElementById('muteBtn').style.opacity = muted ? '0.5' : '1';
@@ -1116,20 +1151,51 @@ function showSplash() {
   }, 150);
 }
 
-function startGame() {
+// ── OPPONENT PICKER ────────────────────────────────────────────────
+function showOpponentPicker() {
   if (!selectedRace) return;
-  stopCivVoice(); // Stop civilization narration when entering game
-  // Play deploy sound
+  const modal = document.getElementById('opponentModal');
+  const grid  = document.getElementById('opponentGrid');
+  if (!modal || !grid) { launchGame('random'); return; }
+
+  // Build opponent tiles — all races except the selected one
+  grid.innerHTML = RACES.filter(r => r.id !== selectedRace.id).map(r => `
+    <div onclick="launchGame('${r.id}')" style="
+      height:80px;border-radius:6px;cursor:pointer;overflow:hidden;
+      background:url('${r.cover}') center/cover;
+      border:2px solid ${r.color}44;position:relative;
+      transition:transform 0.2s,border-color 0.2s;
+    " onmouseenter="this.style.transform='scale(1.05)';this.style.borderColor='${r.color}'"
+       onmouseleave="this.style.transform='';this.style.borderColor='${r.color}44'">
+      <div style="position:absolute;bottom:0;left:0;right:0;background:#000000cc;padding:5px 6px;">
+        <div style="font-size:8px;letter-spacing:1px;color:${r.color};line-height:1.2;">${r.name.replace('THE ','')}</div>
+      </div>
+    </div>
+  `).join('');
+
+  modal.style.display = 'flex';
+}
+
+function launchGame(opponentId) {
+  document.getElementById('opponentModal').style.display = 'none';
+  stopCivVoice();
+  // Pick opponent
+  const allRaceIds = RACES.map(r => r.id).filter(id => id !== selectedRace.id);
+  const aiId = opponentId === 'random'
+    ? allRaceIds[Math.floor(Math.random() * allRaceIds.length)]
+    : opponentId;
+  sessionStorage.setItem('gz_ai_race', aiId);
   const dep = document.getElementById('deploySfx');
   if (dep) { dep.currentTime = 0; dep.volume = 0.8; dep.play().catch(()=>{}); }
-  // Navigate to game board with selected race parameters
-  const params = new URLSearchParams({
-    race:  selectedRace.id,
-    color: selectedRace.color,
-    name:  selectedRace.name,
-  });
-  window.location.href = `game.html?${params.toString()}`;
+  const params = new URLSearchParams({ race: selectedRace.id, color: selectedRace.color, name: selectedRace.name });
+  setTimeout(() => { window.location.href = `game.html?${params.toString()}`; }, 400);
 }
+
+function startGame() {
+  showOpponentPicker();
+}
+
+// (startGame now routes through showOpponentPicker -> launchGame)
 
 // Disable right-click on both splash and deck select screens
 document.addEventListener('contextmenu', e => e.preventDefault());
