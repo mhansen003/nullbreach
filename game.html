@@ -48,11 +48,12 @@ body {
   background: linear-gradient(to top, #000000cc 0%, #00000077 38%, transparent 70%);
   pointer-events: none;
 }
+/* z-index only — do NOT override position (these are all position:absolute) */
 .cell.player .edge, .cell.ai .edge,
 .cell.player .tier-badge, .cell.ai .tier-badge,
 .cell.player .cell-center, .cell.ai .cell-center,
 .cell.player .ability-tag, .cell.ai .ability-tag {
-  position: relative; z-index: 1;
+  z-index: 2;
 }
 
 /* Ensure layout areas sit above fixed lore backgrounds */
@@ -149,6 +150,8 @@ body {
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0; overflow: hidden; position: relative;
   transition: border-color 0.3s;
+  /* All col badges same fixed size — no flex-grow */
+  box-sizing: border-box;
 }
 .col-score-badge.none   { background:#07070f; border:1px solid #111120; }
 .col-score-badge.p-win  { background:#00ffcc08; border:1px solid #00ffcc44; }
@@ -165,8 +168,9 @@ body {
   width: 90px; height: 144px;
   border-radius: 4px;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: 6px; overflow: hidden; position: relative;
+  gap: 4px; overflow: hidden; position: relative;
   transition: border-color 0.3s;
+  box-sizing: border-box; flex-shrink: 0;
 }
 .row-score-badge.none  { background:#07070f; border:1px solid #111120; }
 .row-score-badge.p-win { background:#00ffcc08; border:1px solid #00ffcc44; }
@@ -206,23 +210,46 @@ body {
 .cell.ai     { background: linear-gradient(145deg, #1c0a0a, #150818); border: 2px solid #ff0080; box-shadow: 0 0 8px #ff008022; }
 .cell.just-placed { animation: placePulse 0.35s ease; }
 @keyframes placePulse { 0%{transform:scale(0.8);opacity:0.4} 100%{transform:scale(1);opacity:1} }
+/* Battle result chip — positioned in gap between battling cells */
+.bti {
+  position:absolute; z-index:8; pointer-events:all; cursor:help;
+  border-radius:50%; display:flex; align-items:center; justify-content:center;
+  transition:transform 0.15s, box-shadow 0.15s;
+}
+.bti:hover { transform:scale(1.5) !important; z-index:12; }
+.bti img  { width:100%;height:100%;border-radius:50%;object-fit:cover;object-position:top;pointer-events:none; }
+/* Tie chip */
+.bti.tie-chip { background:#1a1a2a; border:1px solid #333344;
+  font-size:9px; font-weight:bold; letter-spacing:1px; color:#444455; }
+/* Win chip glow pulse */
+@keyframes chipPulse {
+  0%,100% { box-shadow: 0 0 0 2px var(--wc,#fff4), 0 0 8px var(--wc,#fff2); }
+  50%     { box-shadow: 0 0 0 3px var(--wc,#fff6), 0 0 16px var(--wc,#fff4); }
+}
+.bti.win-chip { animation: chipPulse 2.5s ease-in-out infinite; }
 
-/* Card face -- all elements absolutely positioned, zero overlap */
-.edge { position: absolute; font-size: 16px; font-weight: bold; line-height: 1; z-index: 2;
-        text-shadow: 0 0 6px #000, 0 1px 3px #000; }
-.edge.n { top: 6px;    left: 50%; transform: translateX(-50%); }
-.edge.s { bottom: 6px; left: 50%; transform: translateX(-50%); }
-.edge.w { left: 6px;   top: 50%;  transform: translateY(-50%); }
-.edge.e { right: 6px;  top: 50%;  transform: translateY(-50%); }
+/* Card face -- all absolutely positioned inside position:relative .cell */
+.edge {
+  position: absolute; font-size: 15px; font-weight: bold; line-height: 1; z-index: 2;
+  background: #000000bb; padding: 2px 5px; border-radius: 4px; min-width: 16px;
+  text-align: center;
+}
+.edge.n { top: 5px;    left: 50%; transform: translateX(-50%); }
+.edge.s { bottom: 5px; left: 50%; transform: translateX(-50%); }
+.edge.w { left: 4px;   top: 50%;  transform: translateY(-50%); }
+.edge.e { right: 4px;  top: 50%;  transform: translateY(-50%); }
 
-/* Power in absolute center, name removed from board cards */
+/* Power in absolute center */
 .cell-center {
   position: absolute; top: 50%; left: 50%;
   transform: translate(-50%, -50%);
   display: flex; flex-direction: column; align-items: center; z-index: 2;
+  pointer-events: none;
 }
-.cell-power  { font-size: 24px; font-weight: bold; line-height: 1;
-               text-shadow: 0 0 8px #000, 0 2px 4px #000; }
+.cell-power {
+  font-size: 28px; font-weight: bold; line-height: 1;
+  background: #000000cc; padding: 3px 7px; border-radius: 5px;
+}
 .cell-name   { display: none; } /* name shown in tooltip only — too small on board */
 .tier-badge  { position: absolute; top: 5px; right: 6px; font-size: 9px; font-weight: bold; opacity: 0.45; z-index: 2; }
 .ability-tag { position: absolute; bottom: 5px; left: 6px; font-size: 7px; letter-spacing: 1px; opacity: 0.6; white-space: nowrap; z-index: 2; }
@@ -1167,21 +1194,23 @@ function renderGrid() {
         const col = cell.owner === 'player' ? '#00ffcc' : '#ff0080';
         const bat = cell.battle || { h: 'none', v: 'none' };
 
-        // Edge opacity: dim if losing/tied in that direction (color only — no ✗ marks)
+        // Edge: glow on winning direction, dim on losing
         const hLost = bat.h === 'lose' || bat.h === 'tie';
         const vLost = bat.v === 'lose' || bat.v === 'tie';
-        const hAlpha = hLost ? '30' : 'ee';
-        const vAlpha = vLost ? '30' : 'ee';
+        const hAlpha = hLost ? '30' : 'ff';
+        const vAlpha = vLost ? '30' : 'ff';
+        const hGlow  = hLost ? '' : `text-shadow:0 0 8px ${col},0 0 3px #000;`;
+        const vGlow  = vLost ? '' : `text-shadow:0 0 8px ${col},0 0 3px #000;`;
 
         // Power dims if BOTH directions are lost
         const bothLost = hLost && vLost;
         const pwrColor = bothLost ? col + '44' : col;
 
         div.innerHTML = `
-          <span class="edge n" style="color:${col}${vAlpha}">${cell.card.edges.n}</span>
-          <span class="edge s" style="color:${col}${vAlpha}">${cell.card.edges.s}</span>
-          <span class="edge w" style="color:${col}${hAlpha}">${cell.card.edges.w}</span>
-          <span class="edge e" style="color:${col}${hAlpha}">${cell.card.edges.e}</span>
+          <span class="edge n" style="color:${col}${vAlpha};${vGlow}">${cell.card.edges.n}</span>
+          <span class="edge s" style="color:${col}${vAlpha};${vGlow}">${cell.card.edges.s}</span>
+          <span class="edge w" style="color:${col}${hAlpha};${hGlow}">${cell.card.edges.w}</span>
+          <span class="edge e" style="color:${col}${hAlpha};${hGlow}">${cell.card.edges.e}</span>
           <!-- Tier dots: top-left, color = tier, count = tier number -->
           <div class="tier-dots">
             ${Array.from({length: tierNum}, () =>
@@ -1268,38 +1297,163 @@ function ab(a) {
 }
 
 function renderBattleIndicators(el) {
+  const CHIP = 22; // chip diameter px
+  const pAvg = window.playerAvatarImg || '';
+  const aAvg = window.aiAvatarImg    || '';
+  const pCol = window.playerFactionColor || '#00ffcc';
+  const aCol = window.aiFactionColor     || '#ff0080';
+  const pName= window.playerFactionName  || 'YOU';
+  const aName= window.aiFactionName      || 'AI';
+
   const pairs = [
-    {dr:1,dc:0,myE:'s',theirE:'n',axis:'v'},
-    {dr:0,dc:1,myE:'e',theirE:'w',axis:'h'},
+    { dr:0, dc:1, myE:'e', theirE:'w', axis:'h',
+      label: (c) => `E → W`,
+      // center in horizontal gap: x = c*CS_W + 108 + 3, y = r*CS_H + 72
+      chipX: (r,c) => c*CS_W + 108 + 3 - CHIP/2,
+      chipY: (r,c) => r*CS_H + 72 - CHIP/2 },
+    { dr:1, dc:0, myE:'s', theirE:'n', axis:'v',
+      label: (c) => `S → N`,
+      // center in vertical gap: x = c*CS_W + 54, y = r*CS_H + 144 + 3
+      chipX: (r,c) => c*CS_W + 54 - CHIP/2,
+      chipY: (r,c) => r*CS_H + 144 + 3 - CHIP/2 },
   ];
+
   for (let r = 0; r < 5; r++) for (let c = 0; c < 7; c++) {
     const cell = G.grid[r][c];
     if (!cell.card) continue;
+
     for (const d of pairs) {
       const nr = r+d.dr, nc = c+d.dc;
       if (nr<0||nr>=5||nc<0||nc>=7) continue;
       const nb = G.grid[nr][nc];
       if (!nb.card || nb.owner === cell.owner) continue;
 
-      const mv = cell.card.edges[d.myE], tv = nb.card.edges[d.theirE];
-      const winner = mv>tv ? cell.owner : tv>mv ? nb.owner : null;
-      const col = winner==='player'?'#00ffcc': winner==='ai'?'#ff0080':'#444';
-      let sym;
-      if (d.axis === 'v') sym = mv>tv?'&#x25BC;': tv>mv?'&#x25B2;': '&#x2550;';
-      else                sym = mv>tv?'&#x25BA;': tv>mv?'&#x25C4;': '&#x2016;';
+      // Recompute edge values with mods + surge bonus
+      const surgeBonus = (cell.card.ability==='surge' && G.surgeTrigger?.[cell.owner]) ? 3 : 0;
+      const nbSurgeBonus = (nb.card.ability==='surge' && G.surgeTrigger?.[nb.owner]) ? 3 : 0;
+      let mv = cell.card.edges[d.myE] + (cell.card.edgeMod?.[d.myE]||0) + surgeBonus;
+      let tv = nb.card.edges[d.theirE] + (nb.card.edgeMod?.[d.theirE]||0) + nbSurgeBonus;
 
-      const ind = document.createElement('div');
-      ind.className = 'bti';
-      if (d.axis === 'v') {
-        // Between rows — use CS_H for vertical positioning, CS_W for horizontal
-        ind.style.cssText = `top:${r*CS_H+144-1}px;left:${c*CS_W+42}px;width:24px;height:8px;color:${col};background:${col}18;font-size:9px;`;
+      // PIERCE tiebreak
+      const pierce = cell.card.ability==='pierce', pierceThem = nb.card.ability==='pierce';
+      const isTie = mv === tv && !pierce && !pierceThem;
+      const iWin  = mv > tv || (mv===tv && pierce && !pierceThem);
+
+      const winnerOwner = isTie ? null : iWin ? cell.owner : nb.owner;
+      const winAvg  = winnerOwner==='player' ? pAvg : aAvg;
+      const winCol  = winnerOwner==='player' ? pCol : aCol;
+      const winName = winnerOwner==='player' ? pName : aName;
+      const losName = winnerOwner==='player' ? aName : pName;
+      const losAvg  = winnerOwner==='player' ? aAvg : pAvg;
+      const cellName = cell.owner==='player' ? pName : aName;
+      const nbName   = nb.owner==='player' ? pName : aName;
+
+      const chip = document.createElement('div');
+      chip.className = `bti ${isTie?'tie-chip':'win-chip'}`;
+      const x = d.chipX(r,c), y = d.chipY(r,c);
+
+      // Build ability note for tooltip
+      const abilities = [];
+      if (cell.card.ability==='shield'&&cell.card.shieldExpended) abilities.push(`${cellName} SHIELD absorbed a loss`);
+      if (nb.card.ability==='shield'&&nb.card.shieldExpended)     abilities.push(`${nbName} SHIELD absorbed a loss`);
+      if (surgeBonus)   abilities.push(`${cellName} SURGE +3`);
+      if (nbSurgeBonus) abilities.push(`${nbName} SURGE +3`);
+      if (pierce&&mv===tv)    abilities.push(`${cellName} PIERCE: tie → win`);
+      if (pierceThem&&mv===tv)abilities.push(`${nbName} PIERCE: tie → win`);
+      if (cell.card.ability==='double_strike') abilities.push(`${cellName} DOUBLE STRIKE extends reach`);
+      if (nb.card.ability==='double_strike')   abilities.push(`${nbName} DOUBLE STRIKE extends reach`);
+
+      // Encode tooltip data as JSON in dataset
+      const tipData = JSON.stringify({
+        axis: d.axis, myE: d.myE, theirE: d.theirE,
+        mv, tv, isTie, winName, losName, winCol, winAvg, losAvg,
+        abilities, winnerOwner,
+        pAvg, aAvg, pCol, aCol,
+        cellName, nbName,
+        cellOwner: cell.owner, nbOwner: nb.owner
+      });
+      chip.dataset.tip = tipData;
+
+      if (isTie) {
+        chip.style.cssText = `position:absolute;left:${x}px;top:${y}px;width:${CHIP}px;height:${CHIP}px;`;
+        chip.innerHTML = `<span style="pointer-events:none;">TIE</span>`;
       } else {
-        ind.style.cssText = `top:${r*CS_H+52}px;left:${c*CS_W+108-1}px;width:8px;height:24px;color:${col};background:${col}18;font-size:9px;writing-mode:vertical-lr;`;
+        chip.style.cssText = `position:absolute;left:${x}px;top:${y}px;width:${CHIP}px;height:${CHIP}px;border:2px solid ${winCol};--wc:${winCol};`;
+        chip.innerHTML = `<img src="${winAvg}" style="width:${CHIP-4}px;height:${CHIP-4}px;border-radius:50%;object-fit:cover;object-position:top;pointer-events:none;">`;
       }
-      ind.innerHTML = sym;
-      el.appendChild(ind);
+
+      chip.onmouseenter = (ev) => showBattleTip(ev, JSON.parse(chip.dataset.tip));
+      chip.onmouseleave = hideTip;
+      el.appendChild(chip);
     }
   }
+}
+
+function showBattleTip(e, d) {
+  hideTip();
+  const tt = document.getElementById('tooltip');
+  tt.style.setProperty('--tc',     d.winCol || '#8855ff');
+  tt.style.setProperty('--tc-dim', (d.winCol||'#8855ff') + '55');
+  tt.style.setProperty('--tc-glow',(d.winCol||'#8855ff') + '22');
+
+  const dirLabel = d.axis==='h' ? 'HORIZONTAL BATTLE' : 'VERTICAL BATTLE';
+  const edgeLabels = d.axis==='h' ? ['E','W'] : ['S','N'];
+  const cIsP = d.cellOwner==='player';
+  const cCol = cIsP ? d.pCol : d.aCol;
+  const nCol = cIsP ? d.aCol : d.pCol;
+  const diff = Math.abs(d.mv - d.tv);
+
+  tt.innerHTML = `
+  <div class="tip-shine-layer"></div>
+  <div class="tip-body">
+    <!-- Header -->
+    <div style="display:flex;align-items:center;gap:8px;padding:10px 14px 8px;border-bottom:1px solid var(--tc-dim);">
+      <span style="font-family:'Orbitron',monospace;font-size:10px;letter-spacing:2px;color:var(--tc);font-weight:700;">${dirLabel}</span>
+    </div>
+    <!-- Comparison rows -->
+    <div style="padding:10px 14px;display:flex;flex-direction:column;gap:6px;">
+      <!-- Cell side -->
+      <div style="display:flex;align-items:center;gap:8px;">
+        <img src="${cIsP?d.pAvg:d.aAvg}" style="width:22px;height:22px;border-radius:50%;object-fit:cover;border:2px solid ${cCol};flex-shrink:0;">
+        <span style="font-size:10px;color:${cCol};letter-spacing:1px;flex:1;">${d.cellName}</span>
+        <span style="font-size:9px;color:#555;letter-spacing:1px;">${edgeLabels[0]}:</span>
+        <span style="font-size:18px;font-weight:bold;color:${d.cellOwner===d.winnerOwner?cCol:'#444455'};
+          ${d.cellOwner===d.winnerOwner?`text-shadow:0 0 8px ${cCol};`:''}">${d.mv}</span>
+      </div>
+      <!-- Neighbor side -->
+      <div style="display:flex;align-items:center;gap:8px;">
+        <img src="${cIsP?d.aAvg:d.pAvg}" style="width:22px;height:22px;border-radius:50%;object-fit:cover;border:2px solid ${nCol};flex-shrink:0;">
+        <span style="font-size:10px;color:${nCol};letter-spacing:1px;flex:1;">${d.nbName}</span>
+        <span style="font-size:9px;color:#555;letter-spacing:1px;">${edgeLabels[1]}:</span>
+        <span style="font-size:18px;font-weight:bold;color:${d.nbOwner===d.winnerOwner?nCol:'#444455'};
+          ${d.nbOwner===d.winnerOwner?`text-shadow:0 0 8px ${nCol};`:''}">${d.tv}</span>
+      </div>
+    </div>
+    <!-- Result -->
+    <div style="height:1px;background:linear-gradient(90deg,transparent,var(--tc-dim),transparent);margin:0 12px;"></div>
+    <div style="padding:8px 14px 10px;">
+      ${d.isTie
+        ? `<div style="font-size:11px;color:#555;letter-spacing:2px;text-align:center;">TIE — no edge advantage</div>`
+        : `<div style="display:flex;align-items:center;gap:8px;">
+            <img src="${d.winAvg}" style="width:18px;height:18px;border-radius:50%;object-fit:cover;border:1px solid ${d.winCol};">
+            <span style="font-size:12px;font-weight:bold;color:${d.winCol};letter-spacing:1px;">${d.winName} WINS</span>
+            <span style="font-size:10px;color:#555;margin-left:auto;">+${diff}</span>
+          </div>`}
+      ${d.abilities.length ? `
+        <div style="margin-top:6px;border-top:1px solid #1a1a2a;padding-top:6px;display:flex;flex-direction:column;gap:3px;">
+          ${d.abilities.map(a => `<div style="font-size:10px;color:#aa88ff;letter-spacing:0.5px;">⚡ ${a}</div>`).join('')}
+        </div>` : ''}
+    </div>
+  </div>`;
+
+  tt.style.display = 'block';
+  const ttH = tt.offsetHeight || 220;
+  const ttW = tt.offsetWidth  || 315;
+  const spaceBelow = window.innerHeight - e.clientY;
+  const top  = spaceBelow > ttH + 20 ? e.clientY + 14 : e.clientY - ttH - 14;
+  const left = e.clientX + ttW + 20 > window.innerWidth ? e.clientX - ttW - 14 : e.clientX + 14;
+  tt.style.top  = Math.max(8, top)  + 'px';
+  tt.style.left = Math.max(8, left) + 'px';
 }
 
 function renderScoreBadges() {
@@ -1320,20 +1474,28 @@ function renderScoreBadges() {
 
   function rowBadgeHtml(p, a, res) {
     if (p === 0 && a === 0) return `<span style="font-size:16px;color:#1e1e2a;letter-spacing:3px;">--</span>`;
+    if (res === 'tie') return `
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px;pointer-events:none;">
+        <span style="font-size:8px;letter-spacing:3px;color:#554477;">TIE</span>
+        <span style="font-size:15px;font-weight:bold;color:#666688;">${p}</span>
+        <div style="width:24px;height:1px;background:#2a2a3a;"></div>
+        <span style="font-size:15px;font-weight:bold;color:#666688;">${a}</span>
+      </div>`;
+
     const pWin = res === 'p', aWin = res === 'a';
     const winCol = pWin ? pCol : aWin ? aCol : '#555';
     // Winner on top: bigger avatar + colored score; loser below: small + grey
     const mkSide = (src, score, isWin, myCol) => `
       <div style="display:flex;flex-direction:column;align-items:center;gap:3px;pointer-events:none;">
         <img src="${src}" style="
-          width:${isWin?'34px':'20px'};height:${isWin?'34px':'20px'};
+          width:30px;height:30px;
           border-radius:50%;object-fit:cover;object-position:top;
           border:2px solid ${isWin?myCol:'#2a2a3a'};
           filter:${isWin?'none':'grayscale(1)'};
           opacity:${isWin?'1':'0.45'};
           box-shadow:${isWin?`0 0 12px ${myCol}66`:'none'};
           pointer-events:none;">
-        <span style="font-size:${isWin?'20px':'12px'};font-weight:bold;color:${isWin?myCol:'#444455'};line-height:1;pointer-events:none;">${score}</span>
+        <span style="font-size:16px;font-weight:bold;color:${isWin?myCol:'#888899'};line-height:1;pointer-events:none;">${score}</span>
       </div>`;
     return `
       ${mkSide(pAvatar, p, pWin, pCol)}
@@ -1343,17 +1505,20 @@ function renderScoreBadges() {
 
   function colBadgeHtml(p, a, res) {
     if (p === 0 && a === 0) return `<span style="font-size:15px;color:#1e1e2a;letter-spacing:3px;">--</span>`;
+    if (res === 'tie') return `<div style="pointer-events:none;text-align:center;">
+      <span style="font-size:8px;letter-spacing:2px;color:#554477;display:block;">TIE</span>
+      <span style="font-size:12px;font-weight:bold;color:#666688;">${p}&nbsp;=&nbsp;${a}</span></div>`;
     const pWin = res === 'p', aWin = res === 'a';
     const mkSide = (src, score, isWin, myCol) => `
       <div style="display:flex;align-items:center;gap:3px;pointer-events:none;">
         <img src="${src}" style="
-          width:${isWin?'22px':'15px'};height:${isWin?'22px':'15px'};
+          width:18px;height:18px;
           border-radius:50%;object-fit:cover;object-position:top;
           border:1px solid ${isWin?myCol:'#2a2a3a'};
           filter:${isWin?'none':'grayscale(1)'};opacity:${isWin?'1':'0.28'};
           box-shadow:${isWin?`0 0 8px ${myCol}55`:'none'};
           pointer-events:none;">
-        <span style="font-size:${isWin?'16px':'11px'};font-weight:bold;color:${isWin?myCol:'#444455'};pointer-events:none;">${score}</span>
+        <span style="font-size:14px;font-weight:bold;color:${isWin?myCol:'#888899'};pointer-events:none;">${score}</span>
       </div>`;
     return `
       ${mkSide(pAvatar, p, pWin, pCol)}
@@ -2298,6 +2463,31 @@ function goToMenu() {
 }
 function goToMenuNow() { closeMenu(); goToMenu(); }
 
+function confirmDeckNav() {
+  closeMenu();
+  const m = document.createElement('div');
+  m.id = 'restartConfirm';
+  m.style.cssText = `position:fixed;inset:0;z-index:150000;background:#000000bb;
+    display:flex;align-items:center;justify-content:center;font-family:'Courier New',monospace;`;
+  m.innerHTML = `
+    <div style="background:#0a0a18;border:1px solid #8855ffaa;border-radius:10px;
+      padding:28px 36px;text-align:center;box-shadow:0 0 48px #8855ff22;">
+      <div style="font-family:'Orbitron',monospace;font-size:14px;letter-spacing:3px;color:#fff;margin-bottom:6px;">ABANDON BATTLE?</div>
+      <div style="font-size:10px;color:#444;letter-spacing:2px;margin-bottom:22px;">Progress will be lost</div>
+      <div style="display:flex;gap:12px;justify-content:center;">
+        <button onclick="document.getElementById('restartConfirm').remove();goToMenu();"
+          style="background:#1a0a2e;border:1px solid #6644aa;color:#aa88ff;
+          font-family:inherit;font-size:11px;letter-spacing:2px;padding:9px 22px;
+          cursor:pointer;border-radius:4px;">LEAVE</button>
+        <button onclick="document.getElementById('restartConfirm').remove();"
+          style="background:#0a1a14;border:1px solid #226644;color:#00ffcc;
+          font-family:inherit;font-size:11px;letter-spacing:2px;padding:9px 22px;
+          cursor:pointer;border-radius:4px;">STAY</button>
+      </div>
+    </div>`;
+  document.body.appendChild(m);
+}
+
 function confirmRestart() {
   closeMenu();
   const m = document.createElement('div');
@@ -2409,11 +2599,36 @@ window.addEventListener('beforeunload', e => {
 initRaceTheme();
 initGame();
 
-// F5 / Ctrl+R → deck selection instead of hard refresh
+// F5 / Ctrl+R → show options modal instead of hard refresh
 document.addEventListener('keydown', e => {
   if (e.key === 'F5' || (e.ctrlKey && e.key === 'r')) {
     e.preventDefault();
-    goToMenu();
+    if (document.getElementById('restartConfirm')) return; // already open
+    const m = document.createElement('div');
+    m.id = 'restartConfirm';
+    m.style.cssText = `position:fixed;inset:0;z-index:150000;background:#000000bb;
+      display:flex;align-items:center;justify-content:center;font-family:'Courier New',monospace;`;
+    m.innerHTML = `
+      <div style="background:#0a0a18;border:1px solid #8855ffaa;border-radius:10px;
+        padding:28px 36px;text-align:center;box-shadow:0 0 48px #8855ff22;min-width:280px;">
+        <div style="font-family:'Orbitron',monospace;font-size:14px;letter-spacing:3px;color:#fff;margin-bottom:6px;">PAUSE</div>
+        <div style="font-size:10px;color:#444;letter-spacing:2px;margin-bottom:22px;">WHAT WOULD YOU LIKE TO DO?</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <button onclick="document.getElementById('restartConfirm').remove();initGame();"
+            style="background:#0a1a14;border:1px solid #226644;color:#00ffcc;
+            font-family:inherit;font-size:11px;letter-spacing:2px;padding:10px;
+            cursor:pointer;border-radius:4px;width:100%;">↺ RESTART BATTLE</button>
+          <button onclick="document.getElementById('restartConfirm').remove();goToMenu();"
+            style="background:#1a0a2e;border:1px solid #6644aa;color:#aa88ff;
+            font-family:inherit;font-size:11px;letter-spacing:2px;padding:10px;
+            cursor:pointer;border-radius:4px;width:100%;">← BACK TO DECK SELECT</button>
+          <button onclick="document.getElementById('restartConfirm').remove();"
+            style="background:transparent;border:1px solid #222233;color:#444;
+            font-family:inherit;font-size:11px;letter-spacing:2px;padding:10px;
+            cursor:pointer;border-radius:4px;width:100%;">CANCEL</button>
+        </div>
+      </div>`;
+    document.body.appendChild(m);
   }
 });
 </script>
@@ -2451,7 +2666,7 @@ document.addEventListener('keydown', e => {
        onmouseleave="this.style.background='#0a1a14';this.style.borderColor='#226644'">
       ↺ RESTART GAME
     </button>
-    <button onclick="goToMenuNow()" style="
+    <button onclick="confirmDeckNav()" style="
       background:#1a0a2e;border:1px solid #6644aa;color:#ffffff;
       font-family:inherit;font-size:11px;letter-spacing:2px;padding:9px 14px;
       cursor:pointer;border-radius:4px;text-align:left;width:100%;transition:all 0.2s;
