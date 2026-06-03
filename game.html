@@ -393,7 +393,7 @@ body {
   background:#07070f; border:1px solid #8855ff44;
   border-radius:6px; padding:14px 18px;
   font-size:13px; color:#e0e0e0; letter-spacing:0.5px; line-height:1.8;
-  z-index:50; pointer-events:none; max-width:260px;
+  z-index:9500; pointer-events:none; max-width:260px;
   box-shadow: 0 8px 24px #00000088, 0 0 20px #8855ff22;
 }
 .tooltip strong { font-size:15px; letter-spacing:2px; }
@@ -1169,16 +1169,20 @@ function renderHand() {
       ? `0 0 22px ${factionC}88, 0 0 44px ${factionC}44`
       : `0 0 8px ${factionC}33`;
 
-    const col = '#00ffcc';
+    const col = factionC;
+    const tdCol = tierDotC;
+    const tdNum = {'I':1,'II':2,'III':3,'IV':4}[card.tier] || 1;
     div.innerHTML = `
       <span class="hc-e-n" style="color:${col}">${card.edges.n}</span>
       <span class="hc-e-s" style="color:${col}">${card.edges.s}</span>
       <span class="hc-e-w" style="color:${col}">${card.edges.w}</span>
       <span class="hc-e-e" style="color:${col}">${card.edges.e}</span>
-      <span class="hc-tier-badge" style="color:${col}">${card.tierLabel || card.tier}</span>
+      <!-- Tier dots top-left (no name — just numbers) -->
+      <div style="position:absolute;top:4px;left:4px;display:flex;gap:2px;z-index:2;">
+        ${Array.from({length:tdNum},()=>`<span style="width:5px;height:5px;border-radius:50%;background:${tdCol};box-shadow:0 0 3px ${tdCol};display:inline-block;"></span>`).join('')}
+      </div>
       <div class="hc-center">
         <span class="hc-power-center" style="color:${col}">${card.power}</span>
-        <span class="hc-name-small" style="color:${col}">${card.name}</span>
       </div>
       ${card.ability ? `<span class="hc-ability-tag" style="color:${col}">${ab(card.ability)}</span>` : ''}
     `;
