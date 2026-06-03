@@ -453,7 +453,7 @@ body {
     <span id="totalA" style="display:none"></span>
   </div>
   <!-- Hamburger menu button (id used to identify in click-outside handler) -->
-  <div id="menuToggleBtn" onclick="toggleMenu()" style="
+  <div id="menuToggleBtn" onclick="toggleMenu(event)" style="
     background:#000000aa;border:1px solid #8855ff44;color:#aa88ff;
     font-size:18px;width:36px;height:30px;cursor:pointer;border-radius:3px;
     display:flex;align-items:center;justify-content:center;transition:all 0.2s;
@@ -1808,7 +1808,8 @@ function setVolume(val) {
   if (s2) s2.value = val;
 }
 
-function toggleMenu() {
+function toggleMenu(e) {
+  if (e) e.stopPropagation(); // prevent bubbling to document close-handler
   const m = document.getElementById('gameMenu');
   if (m) m.style.display = m.style.display === 'none' ? 'block' : 'none';
 }
