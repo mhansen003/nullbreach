@@ -387,6 +387,157 @@ body {
   0%, 100% { box-shadow: 0 0 8px currentColor; }
   50%      { box-shadow: 0 0 28px currentColor, 0 0 50px currentColor; }
 }
+
+/* ══════════════════════════════════════
+   MOBILE / TABLET RESPONSIVE
+══════════════════════════════════════ */
+
+/* Touch & iOS baseline */
+html { -webkit-text-size-adjust: 100%; }
+button, [onclick] { touch-action: manipulation; }
+
+/* ── TABLET (768px – 1024px) ── */
+@media (max-width: 1024px) {
+  /* Race tiles */
+  .race-tile { width: 190px; height: 253px; }
+  /* Conveyor arrows */
+  .conveyor-arrow { width: 40px; height: 64px; font-size: 18px; }
+  /* Lore grid: 3 → 2 columns */
+  #loreContent > div:last-of-type { grid-template-columns: 1fr 1fr !important; }
+  /* Opponent grid: 4 → 3 columns */
+  #opponentGrid { grid-template-columns: repeat(3, 140px) !important; }
+  /* Avatar */
+  #loreAvatar { width: 150px !important; height: 150px !important; }
+  #deployBtn  { width: 150px !important; }
+}
+
+/* ── MOBILE (≤ 767px) ── */
+@media (max-width: 767px) {
+
+  /* Body: allow scrolling on mobile so lore panel is reachable */
+  body { overflow-y: auto; height: auto; }
+
+  /* ── SPLASH ── */
+  .splash-title { font-size: clamp(32px, 8vw, 64px); letter-spacing: 6px; }
+  .splash-tagline { font-size: 10px; letter-spacing: 3px; }
+  .splash-tagline2 { font-size: 9px; letter-spacing: 2px; margin-bottom: 36px; }
+  .btn-enter {
+    font-size: 10px; letter-spacing: 4px;
+    padding: 14px 32px;
+    width: calc(100% - 40px); max-width: 320px;
+  }
+  .btn-enter:hover { letter-spacing: 4px; } /* no letter-spacing growth on touch */
+
+  /* ── DECK SELECT SCREEN ── */
+  #deckselect { overflow-y: auto; height: auto; min-height: 100vh; }
+
+  /* ── HEADER ── */
+  .ds-header { padding: 10px 14px 8px; }
+  .ds-header > div:first-child > div:first-child {
+    font-size: 14px !important; letter-spacing: 3px !important;
+  }
+  .ds-title { font-size: 11px !important; letter-spacing: 3px; }
+  .ds-logo  { font-size: 8px; letter-spacing: 2px; }
+  .btn-back { font-size: 8px; letter-spacing: 2px; padding: 5px 10px; }
+
+  /* ── CONVEYOR ── */
+  .conveyor-wrap { padding: 30px 0 14px; }
+  .conveyor-arrow { width: 32px; height: 50px; font-size: 16px; }
+  .race-tile { width: 150px; height: 200px; border-radius: 12px; }
+  .race-tile:hover { transform: translateY(-16px) scale(1.08); }
+  .race-tile.selected { transform: translateY(-10px) scale(1.05); }
+  .rt-name { font-size: 13px; }
+  .rt-sub  { font-size: 10px; }
+
+  /* ── LORE PANEL ── */
+  .ds-lore-panel { padding: 12px 14px 14px; flex-direction: column; }
+
+  /* ROW 1: stack avatar → name → (no tier cards) */
+  .ds-lore-content > div:first-child {
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 12px !important;
+    margin-bottom: 8px !important;
+  }
+
+  /* Avatar: shrink */
+  #loreAvatar {
+    width: 130px !important; height: 130px !important;
+  }
+  #deployBtn {
+    width: 130px !important;
+    font-size: 11px !important; letter-spacing: 3px !important;
+    padding: 10px 0 !important;
+  }
+
+  /* Center block: name+quote */
+  .ds-race-name { font-size: 20px !important; letter-spacing: 2px; }
+  .ds-race-sub  { font-size: 11px; letter-spacing: 2px; }
+  .ds-race-quote { font-size: 13px; padding-left: 10px; }
+  .ability-pill { font-size: 10px; padding: 4px 10px; letter-spacing: 1px; }
+
+  /* Tier card previews: hide on mobile */
+  #tierCardPreview { display: none !important; }
+
+  /* Ability showcase cards: 1 column */
+  .ability-cards-row {
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
+  .ability-showcase { padding: 10px 12px; }
+  .absc-title { font-size: 12px; }
+  .absc-desc  { font-size: 12px; }
+
+  /* Lore text */
+  .lore-text    { font-size: 13px; line-height: 1.7; }
+  .lore-weakness { font-size: 12px; }
+
+  /* 3-col lore grid → 1 col on mobile */
+  /* Target the inline-grid div inside lore content */
+  .ds-lore-content > div:last-of-type {
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+  }
+
+  /* Deploy button: full-width */
+  .ds-deploy-wrap { width: 100%; }
+  .btn-deploy {
+    width: 100% !important; max-width: 100% !important;
+    font-size: 13px !important; letter-spacing: 4px !important;
+    padding: 16px 0 !important;
+  }
+
+  /* Footer: compress */
+  .ds-footer { padding: 6px 14px; }
+  .ds-footer-lore { font-size: 8px; letter-spacing: 2px; }
+
+  /* ── OPPONENT MODAL ── */
+  #opponentModal > div:nth-child(1) { font-size: 16px !important; letter-spacing: 3px !important; }
+  #opponentGrid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    max-width: min(340px, 90vw) !important;
+    gap: 8px !important;
+    width: 90vw !important;
+  }
+  #opponentModal {
+    padding: 16px !important;
+  }
+
+  /* Audio controls: shrink on mobile */
+  #muteBtn, #voiceMuteBtn {
+    font-size: 9px !important; padding: 4px 8px !important;
+    letter-spacing: 1px !important;
+  }
+}
+
+/* ── VERY SMALL (≤ 400px) ── */
+@media (max-width: 400px) {
+  .splash-title { font-size: clamp(28px, 9vw, 48px); letter-spacing: 4px; }
+  .race-tile { width: 130px; height: 173px; }
+  .conveyor-track { gap: 14px; }
+  .ds-race-name { font-size: 17px !important; }
+  .btn-enter { padding: 12px 20px; font-size: 9px; letter-spacing: 3px; }
+}
 </style>
 </head>
 <body>

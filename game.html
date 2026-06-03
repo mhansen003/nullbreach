@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>GALACTIC ZERO</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
@@ -415,6 +416,216 @@ body {
 }
 .trl-tier { font-size: 11px; font-weight: bold; letter-spacing: 1px; }
 .trl-min  { font-size: 7px; letter-spacing: 1px; color: #555; }
+
+/* ══════════════════════════════════════
+   MOBILE / TABLET RESPONSIVE
+══════════════════════════════════════ */
+
+/* Touch & iOS baseline */
+html { -webkit-text-size-adjust: 100%; }
+button, [onclick] { touch-action: manipulation; }
+
+/* ── TABLET (600px – 900px) ── */
+@media (max-width: 900px) {
+
+  /* Grid cells */
+  .grid {
+    grid-template-columns: repeat(7, 72px);
+    grid-template-rows:    repeat(5, 96px);
+    gap: 4px;
+  }
+  .cell { width: 72px; height: 96px; }
+
+  /* Cell edge values */
+  .edge { font-size: 13px; }
+  .edge.n { top: 4px; }
+  .edge.s { bottom: 4px; }
+  .edge.w { left: 4px; }
+  .edge.e { right: 4px; }
+
+  /* Cell power */
+  .cell-power { font-size: 18px; }
+
+  /* Tier dots: slightly smaller */
+  .tier-dot { width: 6px; height: 6px; }
+
+  /* Row score badge: match reduced cell height */
+  .row-score-badge { width: 72px; height: 96px; }
+
+  /* Column score badge: match reduced cell width */
+  .col-score-badge { width: 72px; height: 40px; }
+
+  /* Hand cards */
+  .hand-card { width: 80px; height: 106px; }
+  .hc-e-n, .hc-e-s, .hc-e-w, .hc-e-e { font-size: 12px; }
+  .hc-power-center { font-size: 16px; }
+  .hc-tier-badge   { font-size: 8px; }
+
+  /* AI facedown */
+  .facedown { width: 42px; height: 56px; font-size: 14px; }
+
+  /* AI avatar */
+  .ai-avatar { width: 72px; height: 72px; font-size: 28px; }
+
+  /* Header font */
+  .title { font-size: 12px; letter-spacing: 3px; }
+
+  /* AI area gap tighten */
+  .ai-area { gap: 10px; padding: 6px 14px 4px; }
+  .ai-portrait { padding: 5px 8px; min-width: 140px; }
+
+  /* Player area */
+  .player-area { padding: 6px 14px; gap: 8px; }
+  .player-portrait { padding: 5px 8px; min-width: 130px; }
+  .player-avatar { width: 60px; height: 60px; font-size: 24px; }
+
+  /* Board direction row */
+  .board-dir-row { max-width: none; padding: 0 64px 0 0; }
+  .dir-lbl { font-size: 8px; }
+}
+
+/* ── MOBILE (< 600px) ── */
+@media (max-width: 599px) {
+
+  body { overflow-y: auto; height: auto; }
+
+  /* Grid cells — tight fit for 7-column layout */
+  .grid {
+    grid-template-columns: repeat(7, 52px);
+    grid-template-rows:    repeat(5, 70px);
+    gap: 3px;
+  }
+  .cell { width: 52px; height: 70px; border-radius: 3px; }
+
+  /* Cell edges */
+  .edge { font-size: 10px; }
+  .edge.n { top: 2px; }
+  .edge.s { bottom: 2px; }
+  .edge.w { left: 2px; }
+  .edge.e { right: 2px; }
+
+  /* Cell power center */
+  .cell-power { font-size: 14px; }
+
+  /* Tier badge + ability tag on cells */
+  .tier-badge  { font-size: 7px; top: 3px; right: 3px; }
+  .ability-tag { font-size: 6px; bottom: 3px; left: 3px; }
+  .tier-dot    { width: 5px; height: 5px; }
+  .tier-dots   { gap: 2px; top: 4px; left: 4px; }
+
+  /* Hide tier row labels */
+  .tier-row-labels { display: none; }
+
+  /* Hide board direction row */
+  .board-dir-row { display: none; }
+
+  /* Row scores: match small cell height */
+  .row-score-badge { width: 52px; height: 70px; gap: 3px; }
+  .rsb-pts  { font-size: 11px; }
+  .rsb-who  { font-size: 7px; }
+  .rsb-divider { width: 44px; }
+  .rsb-line    { width: 44px; }
+  .rsb-winner-tag { font-size: 6px; padding: 1px 4px; }
+
+  /* Col scores: match small cell width */
+  .col-score-badge { width: 52px; height: 34px; font-size: 7px; }
+  .csb-row { gap: 3px; font-size: 7px; }
+  .csb-winner { font-size: 7px; }
+
+  /* Hand cards */
+  .hand-card { width: 60px; height: 80px; border-radius: 4px; }
+  .hc-e-n, .hc-e-s, .hc-e-w, .hc-e-e { font-size: 10px; }
+  .hc-e-n { top: 2px; }
+  .hc-e-s { bottom: 2px; }
+  .hc-e-w { left: 3px; }
+  .hc-e-e { right: 3px; }
+  .hc-power-center { font-size: 13px; }
+  .hc-name-small   { font-size: 6px; }
+  .hc-tier-badge   { font-size: 7px; top: 2px; right: 3px; }
+  .hc-ability-tag  { font-size: 6px; bottom: 2px; }
+
+  /* Hand card hover: smaller lift on mobile */
+  .hand-card:hover    { transform: translateY(-5px); }
+  .hand-card.selected { transform: translateY(-9px); }
+
+  /* AI facedown cards */
+  .facedown { width: 32px; height: 42px; font-size: 13px; border-radius: 2px; }
+
+  /* AI area */
+  .ai-area { gap: 8px; padding: 5px 10px 3px; flex-wrap: wrap; }
+  .ai-portrait {
+    padding: 4px 8px; min-width: unset;
+    flex-shrink: 0;
+  }
+  .ai-avatar {
+    width: 48px; height: 48px; font-size: 20px;
+    border-radius: 3px;
+  }
+  .ai-name  { font-size: 9px; letter-spacing: 1px; }
+  .ai-sub   { font-size: 7px; }
+  .ai-quote { font-size: 7px; }
+  .hand-lbl-v { font-size: 7px; }
+  .ai-hand-row { gap: 3px; flex-wrap: wrap; }
+
+  /* Player area */
+  .player-area { padding: 5px 10px; gap: 6px; flex-wrap: wrap; }
+  .player-portrait { padding: 4px 8px; min-width: unset; flex-shrink: 0; }
+  .player-avatar { width: 48px; height: 48px; font-size: 20px; }
+  .player-name { font-size: 9px; letter-spacing: 1px; }
+  .player-sub  { font-size: 7px; }
+  .hand-cards  { gap: 5px; flex-wrap: wrap; }
+
+  /* Header */
+  .title { font-size: 11px; letter-spacing: 2px; }
+  .turn-tag { font-size: 8px; letter-spacing: 1px; padding: 2px 7px; }
+  .header { padding: 4px 10px; }
+
+  /* Score HUD — compact on mobile */
+  #scoreHud {
+    bottom: 8px !important; right: 8px !important;
+    padding: 6px 10px !important;
+    min-width: 130px !important;
+  }
+  #hudPlayerScore, #hudAiScore { font-size: 14px !important; }
+  #hudPlayerName,  #hudAiName  { font-size: 8px !important; }
+  #hudWinner { font-size: 7px !important; }
+
+  /* Volume + mute controls — tuck closer to hud */
+  #scoreHud + div {
+    right: 148px !important;
+    bottom: 10px !important;
+  }
+
+  /* Board wrap: reduce padding so board fits */
+  .board-wrap { padding: 4px 4px; }
+
+  /* Drag card — smaller on mobile */
+  #dragCard { width: 70px; height: 90px; }
+  .dc-e-n, .dc-e-s, .dc-e-w, .dc-e-e { font-size: 11px; }
+  .dc-power { font-size: 15px; }
+  .dc-name  { font-size: 6px; }
+  .dc-tier  { font-size: 7px; }
+
+  /* Win overlay */
+  .overlay-title { font-size: 24px; letter-spacing: 3px; }
+  .overlay-sub   { font-size: 11px; }
+  .ob-val        { font-size: 18px; }
+
+  /* Tooltip: don't let it overflow on narrow screens */
+  .tooltip { max-width: min(260px, 90vw); font-size: 11px; }
+
+  /* Game menu */
+  #gameMenu { min-width: 180px !important; }
+}
+
+/* ── LANDSCAPE MOBILE (short viewport, wide) ── */
+@media (max-height: 500px) and (max-width: 900px) {
+  .ai-area    { padding: 3px 10px 2px; }
+  .player-area { padding: 3px 10px; }
+  .ai-avatar  { width: 40px; height: 40px; }
+  .player-avatar { width: 40px; height: 40px; }
+  .header { padding: 3px 10px; }
+}
 </style>
 </head>
 <body>
