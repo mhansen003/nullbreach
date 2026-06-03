@@ -1969,8 +1969,8 @@ function renderGrid() {
         // Edge: glow on winning direction, dim on losing
         const hLost = bat.h === 'lose' || bat.h === 'tie';
         const vLost = bat.v === 'lose' || bat.v === 'tie';
-        const hAlpha = hLost ? '66' : 'ff';  // losing edges still readable
-        const vAlpha = vLost ? '66' : 'ff';
+        const hAlpha = hLost ? '33' : 'ff';  // losing edges very dim
+        const vAlpha = vLost ? '33' : 'ff';
         const hGlow  = hLost ? '' : `text-shadow:0 0 8px ${col},0 0 3px #000;`;
         const vGlow  = vLost ? '' : `text-shadow:0 0 8px ${col},0 0 3px #000;`;
 
@@ -1993,7 +1993,7 @@ function renderGrid() {
             <span class="cell-power" style="color:${pwrColor}">${cell.card.power}</span>
           </div>
           ${cell.card.ability ? `<span class="ability-tag" style="color:${factionCol}88">${ab(cell.card.ability)}</span>` : ''}
-          ${cell.card.ability && !cell.card.shieldExpended ? `<span style="position:absolute;top:3px;right:3px;z-index:5;font-size:11px;filter:drop-shadow(0 0 4px #ffdd00cc);pointer-events:none;">\u2605</span>` : ''}
+          ${cell.card.ability && !cell.card.shieldExpended ? `<span style="position:absolute;top:3px;right:3px;z-index:5;font-size:14px;filter:drop-shadow(0 0 5px #bb44ffcc);pointer-events:none;">\u2605</span>` : ''}
           ${cell.card.shieldExpended ? `<span style="position:absolute;top:3px;right:3px;z-index:5;font-size:11px;filter:drop-shadow(0 0 4px #aaaaff);pointer-events:none;">\uD83D\uDEE1</span>` : ''}
         `;
 
@@ -2137,7 +2137,7 @@ function ab(a) {
 }
 
 function renderBattleIndicators(el) {
-  const CHIP = 22; // chip diameter px
+  const CHIP = 40; // chip diameter px
   const pAvg = window.playerAvatarImg || '';
   const aAvg = window.aiAvatarImg    || '';
   const pCol = window.playerFactionColor || '#00ffcc';
@@ -2215,11 +2215,11 @@ function renderBattleIndicators(el) {
       chip.dataset.tip = tipData;
 
       if (isTie) {
-        chip.style.cssText = `position:absolute;left:${x}px;top:${y}px;width:${CHIP}px;height:${CHIP}px;`;
-        chip.innerHTML = `<span style="pointer-events:none;">TIE</span>`;
+        chip.style.cssText = `position:absolute;left:${x}px;top:${y}px;width:${CHIP}px;height:${CHIP}px;z-index:6;`;
+        chip.innerHTML = `<span style="pointer-events:none;font-size:9px;">TIE</span>`;
       } else {
-        chip.style.cssText = `position:absolute;left:${x}px;top:${y}px;width:${CHIP}px;height:${CHIP}px;border:2px solid ${winCol};--wc:${winCol};`;
-        chip.innerHTML = `<img src="${winAvg}" style="width:${CHIP-4}px;height:${CHIP-4}px;border-radius:50%;object-fit:cover;object-position:top;pointer-events:none;">`;
+        chip.style.cssText = `position:absolute;left:${x}px;top:${y}px;width:${CHIP}px;height:${CHIP}px;border:3px solid ${winCol};--wc:${winCol};background:${winCol}18;z-index:6;`;
+        chip.innerHTML = `<img src="${winAvg}" style="width:${CHIP-6}px;height:${CHIP-6}px;border-radius:50%;object-fit:cover;object-position:top;pointer-events:none;">`;
       }
 
       chip.onmouseenter = (ev) => showBattleTip(ev, JSON.parse(chip.dataset.tip));
@@ -2575,7 +2575,7 @@ function renderHand() {
       '<div style="position:absolute;top:4px;left:4px;display:flex;gap:2px;z-index:2;">' +
         Array.from({length:tdNum},function(){return '<span style="width:5px;height:5px;border-radius:50%;background:'+tCol+';box-shadow:0 0 3px '+tCol+';display:inline-block;"></span>';}).join('') +
       '</div>' +
-      (card.ability ? '<span style="position:absolute;top:3px;right:4px;font-size:12px;z-index:3;filter:drop-shadow(0 0 4px #ffdd00cc);" title="'+ab(card.ability)+'">★</span>' : '') +
+      (card.ability ? '<span style="position:absolute;top:3px;right:4px;font-size:14px;z-index:3;filter:drop-shadow(0 0 5px #bb44ffcc);" title="'+ab(card.ability)+'">★</span>' : '') +
       '<div class="hc-center"><span class="hc-power-center" style="color:'+factionC+'">'+card.power+'</span></div>' +
       (card.ability ? '<span class="hc-ability-tag" style="color:'+factionC+'">'+(card.abilityLabel || ab(card.ability))+'</span>' : '');
     div.onclick      = function() { onCardSelect(card); };
@@ -2597,21 +2597,21 @@ function renderHand() {
     const canOpen = cards.length > 0;
     // Shadow cards: 1 shadow for 2 cards, 2 shadows for 3+ cards
     const shadows = Math.min(Math.max(cards.length - 1, 0), 2);
-    const stackW  = 106 + shadows * 9; // extra width for shadow peekout
+    const stackW  = 112 + shadows * 9; // extra width for shadow peekout
 
     var wrap = document.createElement('div');
-    wrap.style.cssText = 'position:relative;width:'+stackW+'px;height:140px;flex-shrink:0;cursor:'+(canOpen?'pointer':'default')+';transition:transform 0.15s;';
+    wrap.style.cssText = 'position:relative;width:'+stackW+'px;height:148px;flex-shrink:0;cursor:'+(canOpen?'pointer':'default')+';transition:transform 0.15s;';
 
     // Shadow cards peek out to the RIGHT — creates physical stack look
     for (var i = shadows; i >= 1; i--) {
       var sh = document.createElement('div');
-      sh.style.cssText = 'position:absolute;top:'+(i*3)+'px;left:'+(i*9)+'px;width:106px;height:140px;border-radius:6px;background:#0c0c1e;border:1px solid '+tCol+'44;box-shadow:inset 0 0 6px #00000088;';
+      sh.style.cssText = 'position:absolute;top:'+(i*3)+'px;left:'+(i*9)+'px;width:112px;height:148px;border-radius:6px;background:#0c0c1e;border:1px solid '+tCol+'44;box-shadow:inset 0 0 6px #00000088;';
       wrap.appendChild(sh);
     }
 
     // Front card — same format as real hand cards: art bg + tier dots top-left
     var front = document.createElement('div');
-    front.style.cssText = 'position:absolute;top:0;left:0;width:106px;height:140px;border-radius:6px;background-color:#10101e;background-size:cover;background-position:center top;border:1px solid '+(canOpen?tCol+'55':'#1a1a28')+';box-shadow:'+(canOpen?'0 0 10px '+tCol+'22':'none')+';overflow:hidden;transition:border-color 0.2s,box-shadow 0.2s,transform 0.15s;';
+    front.style.cssText = 'position:absolute;top:0;left:0;width:112px;height:148px;border-radius:6px;background-color:#10101e;background-size:cover;background-position:center top;border:1px solid '+(canOpen?tCol+'55':'#1a1a28')+';box-shadow:'+(canOpen?'0 0 10px '+tCol+'22':'none')+';overflow:hidden;transition:border-color 0.2s,box-shadow 0.2s,transform 0.15s;';
 
     if (cards[0] && cards[0].art) {
       front.style.backgroundImage = "url('"+cards[0].art+"')";
@@ -2960,8 +2960,8 @@ function hasAnyMoves(owner) {
 // ── PLACE CARD ────────────────────────────────
 function playCardSfx() {
   const sfx = document.getElementById('cardSfx');
-  if (!sfx) return;
-  sfx.currentTime = 0; sfx.volume = 0.7;
+  if (!sfx || _sfxMuted) return;
+  sfx.currentTime = 0; sfx.volume = 0.7 * _sfxVol;
   sfx.play().catch(() => {});
 }
 
@@ -3168,7 +3168,7 @@ function placeCard(card, r, c, owner) {
   } else {
     setTimeout(() => {
       const sfx = document.getElementById('cardSfx');
-      if (sfx) { sfx.currentTime = 0; sfx.volume = 0.35; sfx.play().catch(()=>{}); }
+      if (sfx && !_sfxMuted) { sfx.currentTime = 0; sfx.volume = 0.35 * _sfxVol; sfx.play().catch(()=>{}); }
     }, 400);
   }
   addLog(owner==='player'?'player':'ai',
@@ -3411,20 +3411,20 @@ function checkWin() {
 // ── EVENTS ────────────────────────────────────
 function playSelectSfx() {
   const sfx = document.getElementById('selectSfx');
-  if (!sfx) return;
-  sfx.currentTime = 0; sfx.volume = 0.65;
+  if (!sfx || _sfxMuted) return;
+  sfx.currentTime = 0; sfx.volume = 0.65 * _sfxVol;
   sfx.play().catch(() => {});
 }
 function playDeckExpandSfx() {
   const sfx = document.getElementById('deckExpandSfx');
-  if (!sfx) return;
-  sfx.currentTime = 0; sfx.volume = 0.5;
+  if (!sfx || _sfxMuted) return;
+  sfx.currentTime = 0; sfx.volume = 0.5 * _sfxVol;
   sfx.play().catch(() => {});
 }
 function playCardPopSfx() {
   const sfx = document.getElementById('cardPopSfx');
-  if (!sfx) return;
-  sfx.currentTime = 0; sfx.volume = 0.55;
+  if (!sfx || _sfxMuted) return;
+  sfx.currentTime = 0; sfx.volume = 0.55 * _sfxVol;
   sfx.play().catch(() => {});
 }
 
@@ -3889,6 +3889,8 @@ let playlistOrder = [];
 let trackIdx = 0;
 let musicStarted = false;
 let musicMuted = false;
+let _sfxMuted  = false;
+let _sfxVol    = 1.0;
 
 function shufflePlaylist() {
   playlistOrder = [...PLAYLIST];
@@ -3917,6 +3919,16 @@ function startGameMusic() {
   playNextTrack();
 }
 
+function setSfxVolume(val) {
+  _sfxVol = val / 100;
+  const s = document.getElementById('sfxSlider');
+  if (s) s.value = val;
+}
+function toggleSfxMute() {
+  _sfxMuted = !_sfxMuted;
+  const btn = document.getElementById('sfxMuteBtn');
+  if (btn) btn.textContent = _sfxMuted ? '🔇 UNMUTE SFX' : '🔊 MUTE SFX';
+}
 function setVolume(val) {
   const audio = document.getElementById('bgTrack');
   if (audio) audio.volume = val / 100;
@@ -4079,7 +4091,7 @@ document.addEventListener('click', ev => {
   const btn = ev.target.closest('button');
   if (btn) {
     const sfx = document.getElementById('selectSfx');
-    if (sfx) { sfx.currentTime = 0; sfx.volume = 0.4; sfx.play().catch(()=>{}); }
+    if (sfx && !_sfxMuted) { sfx.currentTime = 0; sfx.volume = 0.4 * _sfxVol; sfx.play().catch(()=>{}); }
   }
 }, true);
 
@@ -4257,30 +4269,42 @@ const GUIDE_PAGES = [
   {
     title: 'PLACEMENT & ABILITIES',
     html: `
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px;">
-        <div style="background:#0a0a18;border-left:3px solid #d0d0d0;border-radius:6px;padding:14px;">
-          <div style="font-size:14px;color:#d0d0d0;font-family:'Orbitron',monospace;letter-spacing:2px;margin-bottom:8px;">TIER I</div>
-          <div style="font-size:15px;color:#ddd;">Home row only. Place first to unlock the battle zone.</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+        <div style="background:#0a0a18;border-left:3px solid #d0d0d0;border-radius:6px;padding:12px;">
+          <div style="font-size:13px;color:#d0d0d0;font-family:'Orbitron',monospace;letter-spacing:2px;margin-bottom:4px;">TIER I</div>
+          <div style="font-size:13px;color:#ddd;">Home row only. Place first to open the battle zone.</div>
         </div>
-        <div style="background:#0a0a18;border-left:3px solid #8855ff;border-radius:6px;padding:14px;">
-          <div style="font-size:14px;color:#8855ff;font-family:'Orbitron',monospace;letter-spacing:2px;margin-bottom:8px;">TIER II–IV</div>
-          <div style="font-size:15px;color:#ddd;">Battle zone (rows 1–3). Must be adjacent to a card you played.</div>
+        <div style="background:#0a0a18;border-left:3px solid #8855ff;border-radius:6px;padding:12px;">
+          <div style="font-size:13px;color:#8855ff;font-family:'Orbitron',monospace;letter-spacing:2px;margin-bottom:4px;">TIER II–IV</div>
+          <div style="font-size:13px;color:#ddd;">Battle zone rows 1–3. Must be adjacent to a card you played.</div>
         </div>
       </div>
-      <div style="font-size:15px;color:#ddd;margin-bottom:14px;">Special abilities appear on select cards — named uniquely per faction:</div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+      <div style="font-size:10px;color:#666;letter-spacing:2px;margin-bottom:8px;">★ SPECIAL ABILITIES — each faction has 4 unique cards</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:5px;">
         ${[
-          {col:'#aaaaff',icon:'🛡',name:'SHIELD',desc:'Blocks first loss'},
-          {col:'#ffdd00',icon:'⚡⚡',name:'DOUBLE STRIKE',desc:'2nd hit at half'},
-          {col:'#ff9900',icon:'↺',name:'FLANK',desc:'Extra turn'},
-          {col:'#ff6644',icon:'▶!',name:'RUSH',desc:'Place anywhere'},
-          {col:'#ff8800',icon:'◎',name:'SNIPER',desc:'Silence a column'},
-          {col:'#cc44ff',icon:'✕✕',name:'AMBUSH',desc:'Weaken 2 enemies'},
+          {col:'#aaaaff',icon:'🛡',name:'SHIELD',desc:'Absorbs first loss'},
+          {col:'#ffdd00',icon:'⚡⚡',name:'DOUBLE STRIKE',desc:'2nd hit at half power'},
+          {col:'#ff9900',icon:'↺↺',name:'FLANK',desc:'Play again immediately'},
+          {col:'#ff6644',icon:'▶!',name:'RUSH',desc:'Place anywhere valid'},
+          {col:'#ff8800',icon:'◎',name:'SNIPER',desc:'Silences enemy column'},
+          {col:'#cc44ff',icon:'✕✕',name:'AMBUSH',desc:'Weakens 2 adj. enemies'},
+          {col:'#6688aa',icon:'▣',name:'STONEWALL',desc:'Adjacent enemies score 0'},
+          {col:'#cc44ff',icon:'⇔',name:'MIRROR',desc:'Reverses flanking enemies'},
+          {col:'#ffdd88',icon:'⚖',name:'DECIDING FACTOR',desc:'Breaks ties for you'},
+          {col:'#00ddff',icon:'↑↓↑',name:'HAT TRICK',desc:'Bonus for 3 consecutive'},
+          {col:'#ff6644',icon:'↩↪',name:'EDGE PLAY',desc:'Wraps around board edge'},
+          {col:'#ffaaff',icon:'✦+',name:'BIRTHRIGHT',desc:'Spawns a bonus card'},
+          {col:'#88ffff',icon:'◈',name:'PHANTOM',desc:'Ignores zone rules'},
+          {col:'#8888ff',icon:'?',name:'CLOAK',desc:'Hidden until battle'},
+          {col:'#44ffcc',icon:'⬆',name:'BOOST',desc:'Allies adj. +1 edges'},
+          {col:'#ffcc00',icon:'★★',name:'COMMANDER',desc:'Same-tier allies +2'},
+          {col:'#ff6644',icon:'↓↓',name:'INTIMIDATE',desc:'Weakens adj. enemies'},
+          {col:'#ff6600',icon:'⚡+',name:'SURGE',desc:'+3 all edges if trailing'},
         ].map(a=>`
-          <div style="background:#0a0a18;border-top:2px solid ${a.col};border-radius:5px;padding:10px;text-align:center;">
-            <div style="font-size:16px;margin-bottom:4px;">${a.icon}</div>
-            <div style="font-size:10px;color:${a.col};letter-spacing:1px;margin-bottom:3px;">${a.name}</div>
-            <div style="font-size:12px;color:#bbb;">${a.desc}</div>
+          <div style="background:#0a0a18;border-top:2px solid ${a.col};border-radius:4px;padding:7px;text-align:center;">
+            <div style="font-size:14px;margin-bottom:1px;">${a.icon}</div>
+            <div style="font-size:8px;color:${a.col};letter-spacing:1px;margin-bottom:1px;">${a.name}</div>
+            <div style="font-size:10px;color:#aaa;">${a.desc}</div>
           </div>`).join('')}
       </div>
     `
@@ -4415,8 +4439,8 @@ document.addEventListener('keydown', e => {
 ">
   <div style="font-size:10px;letter-spacing:3px;color:#aa88ff;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid #2a1a44;">⚙ MENU</div>
 
-  <!-- VOLUME section -->
-  <div style="font-size:9px;letter-spacing:2px;color:#555;margin-bottom:8px;">VOLUME</div>
+  <!-- MUSIC section -->
+  <div style="font-size:9px;letter-spacing:2px;color:#555;margin-bottom:6px;">MUSIC</div>
   <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
     <span style="font-size:11px;color:#888;">🎵</span>
     <input id="volSlider2" type="range" min="0" max="100" value="40"
@@ -4425,11 +4449,28 @@ document.addEventListener('keydown', e => {
   </div>
   <button onclick="toggleGameMusic();updateMuteLabel()" id="muteMenuBtn" style="
     background:transparent;border:1px solid #2a1a44;color:#888;
-    font-family:inherit;font-size:11px;letter-spacing:2px;padding:7px 14px;
-    cursor:pointer;border-radius:4px;text-align:left;width:100%;transition:all 0.2s;margin-bottom:14px;
+    font-family:inherit;font-size:11px;letter-spacing:2px;padding:6px 14px;
+    cursor:pointer;border-radius:4px;text-align:left;width:100%;transition:all 0.2s;margin-bottom:10px;
   " onmouseenter="this.style.borderColor='#6644aa';this.style.color='#cc99ff'"
      onmouseleave="this.style.borderColor='#2a1a44';this.style.color='#888'">
-    🔊 MUTE / UNMUTE
+    🔊 MUTE MUSIC
+  </button>
+
+  <!-- SFX section -->
+  <div style="font-size:9px;letter-spacing:2px;color:#555;margin-bottom:6px;">SOUND EFFECTS</div>
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+    <span style="font-size:11px;color:#888;">🔔</span>
+    <input id="sfxSlider" type="range" min="0" max="100" value="100"
+      oninput="setSfxVolume(this.value)"
+      style="flex:1;accent-color:#00ffcc;cursor:pointer;">
+  </div>
+  <button onclick="toggleSfxMute()" id="sfxMuteBtn" style="
+    background:transparent;border:1px solid #1a2a2a;color:#888;
+    font-family:inherit;font-size:11px;letter-spacing:2px;padding:6px 14px;
+    cursor:pointer;border-radius:4px;text-align:left;width:100%;transition:all 0.2s;margin-bottom:14px;
+  " onmouseenter="this.style.borderColor='#00ffcc55';this.style.color='#00ffcc'"
+     onmouseleave="this.style.borderColor='#1a2a2a';this.style.color='#888'">
+    🔊 MUTE SFX
   </button>
 
   <!-- GAME section -->
