@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>GALACTIC ZERO — Test Harness</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #06060f; color: #e0e0e0; font-family: 'Courier New', monospace; padding: 20px; }
+h1 { font-size: 18px; letter-spacing: 4px; color: #8855ff; margin-bottom: 6px; }
+h2 { font-size: 12px; letter-spacing: 3px; color: #554477; margin: 20px 0 8px; border-bottom: 1px solid #1a1a2a; padding-bottom: 4px; }
+.suite-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+.badge { font-size: 10px; letter-spacing: 2px; padding: 3px 10px; border-radius: 3px; }
+.badge.pass { background: #0a1a10; color: #44cc66; border: 1px solid #44cc6644; }
+.badge.fail { background: #1a0a0a; color: #ff4444; border: 1px solid #ff444444; }
+
+/* Test result rows */
+.test { display: flex; align-items: flex-start; gap: 10px; padding: 5px 8px; border-radius: 4px; margin: 3px 0; font-size: 11px; }
+.test.pass { background: #07100a; }
+.test.fail { background: #100707; }
+.test .icon { font-size: 13px; flex-shrink: 0; line-height: 1.4; }
+.test .name { color: #ccc; flex: 1; line-height: 1.5; }
+.test .detail { color: #888; font-size: 10px; }
+.test.fail .detail { color: #ff6666; }
+
+/* Visual board */
+.board-section { margin: 20px 0; }
+.board-label { font-size: 10px; letter-spacing: 2px; color: #554477; margin-bottom: 6px; }
+.board { display: grid; grid-template-columns: repeat(7, 60px); grid-template-rows: repeat(5, 80px); gap: 4px; }
+.cell {
+  width: 60px; height: 80px; border-radius: 4px;
+  border: 1px dashed #1a1a2a;
+  background: #080814;
+  display: flex; align-items: center; justify-content: center;
+  position: relative; font-size: 9px; color: #333;
+}
+.cell.player { background: #0a1a14; border: 1.5px solid #00ffcc55; }
+.cell.ai     { background: #1a0a0a; border: 1.5px solid #ff008055; }
+.cell.player.win-h { border-right-color: #00ffcc; border-right-width: 2px; }
+.cell.player.lose-h { border-right-color: #ff444466; }
+.cell.player.win-v { border-bottom-color: #00ffcc; border-bottom-width: 2px; }
+.cell.player.lose-v { border-bottom-color: #ff444466; }
+
+.edge { position: absolute; font-size: 10px; font-weight: bold; }
+.edge.n { top: 2px; left: 50%; transform: translateX(-50%); }
+.edge.s { bottom: 2px; left: 50%; transform: translateX(-50%); }
+.edge.w { left: 2px; top: 50%; transform: translateY(-50%); }
+.edge.e { right: 2px; top: 50%; transform: translateY(-50%); }
+.edge.win  { color: #00ffcc; }
+.edge.lose { color: #ff444477; }
+.edge.none { color: #666; }
+
+.cell-power { font-size: 16px; font-weight: bold; }
+.cell-ability { position: absolute; bottom: 2px; left: 2px; font-size: 7px; letter-spacing: 1px; }
+
+.row-score, .col-score { font-size: 9px; }
+.score-row { display: flex; gap: 4px; margin-top: 4px; }
+.score-badge {
+  width: 60px; height: 20px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 3px; font-size: 9px; letter-spacing: 1px;
+}
+.score-badge.p-win { background: #00ffcc18; color: #00ffcc; border: 1px solid #00ffcc33; }
+.score-badge.a-win { background: #ff008018; color: #ff0080; border: 1px solid #ff008033; }
+.score-badge.tie   { background: #1a1a28; color: #444; border: 1px solid #2a2a3a; }
+.score-badge.none  { background: #08080f; color: #2a2a3a; border: 1px solid #111120; }
+
+.row-badges { display: flex; flex-direction: column; gap: 4px; margin-left: 6px; }
+.row-badge {
+  width: 60px; height: 80px; border-radius: 4px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  font-size: 9px; gap: 3px;
+}
+.row-badge.p-win { background: #00ffcc18; border: 1px solid #00ffcc33; color: #00ffcc; }
+.row-badge.a-win { background: #ff008018; border: 1px solid #ff008033; color: #ff0080; }
+.row-badge.tie   { background: #1a1a28; border: 1px solid #2a2a3a; color: #444; }
+.row-badge.none  { background: #08080f; border: 1px solid #111120; color: #2a2a3a; }
+
+.final-score { font-size: 13px; font-weight: bold; letter-spacing: 2px; margin: 12px 0; padding: 10px 14px; border-radius: 6px; background: #0a0a18; border: 1px solid #1a1a2a; display: inline-block; }
+.final-score.p-win { color: #00ffcc; border-color: #00ffcc44; }
+.final-score.a-win { color: #ff0080; border-color: #ff008044; }
+.final-score.tie   { color: #888; }
+
+.summary { font-size: 11px; color: #666; margin-top: 24px; border-top: 1px solid #1a1a2a; padding-top: 12px; }
+</style>
+</head>
+<body>
+<h1>GALACTIC ZERO — TEST HARNESS</h1>
+<div class="suite-header">
+  <span id="summary-pass" class="badge pass">— PASS</span>
+  <span id="summary-fail" class="badge fail">— FAIL</span>
+  <span style="font-size:9px;color:#444;letter-spacing:2px;">Terran abilities only (others TBD)</span>
+</div>
+<div id="results"></div>
+<div id="visual"></div>
+
+<script>
+// ════════════════════════════════════════════════════════════════
+// GAME LOGIC (exact copy from game.html — keep in sync)
+// ════════════════════════════════════════════════════════════════
+let G = {};
+
+function initTestGame(boardCells) {
+  G = {
+    grid: Array(5).fill(null).map(()=>Array(7).fill(null).map(()=>({card:null,owner:null}))),
+    playerHand: [], aiHand: [],
+    turn:'player', selectedCard:null, gameOver:false,
+    surgeTrigger:{player:false,ai:false}, _flankTriggered:null,
+  };
+  (boardCells||[]).forEach(({r,c,card,owner})=>{
+    G.grid[r][c] = { card:{...card, edgeMod:card.edgeMod||null, shieldExpended:card.shieldExpended||false}, owner };
+  });
+}
+
+function makeCard(opts) {
+  return {
+    id: opts.id || 'test',
+    name: opts.name || 'TEST',
+    tier: opts.tier || 'II',
+    zone: opts.zone || 'wide_cross',
+    edges: {
+      n: opts.n ?? opts.edges?.n ?? 5,
+      s: opts.s ?? opts.edges?.s ?? 3,
+      e: opts.e ?? opts.edges?.e ?? 5,
+      w: opts.w ?? opts.edges?.w ?? 5,
+    },
+    power: opts.power ?? ({'I':1,'II':2,'III':3,'IV':4}[opts.tier||'II']),
+    ability: opts.ability || null,
+    abilityText: opts.abilityText || '',
+    shieldExpended: opts.shieldExpended || false,
+    edgeMod: opts.edgeMod || null,
+    isSpecial: !!opts.ability,
+    art: '',
+  };
+}
+
+function computeBattleResults() {
+  const b = Array(5).fill(null).map(()=>Array(7).fill(null).map(()=>({hW:0,hL:0,vW:0,vL:0})));
+  for (let r=0;r<5;r++) for (let c=0;c<7;c++) {
+    const cell = G.grid[r][c]; if (!cell.card) continue;
+    // H battle vs East
+    if (c<6) {
+      const east=G.grid[r][c+1];
+      if (east.card && east.owner!==cell.owner) {
+        const sB=(cell.card.ability==='surge'&&G.surgeTrigger?.[cell.owner])?3:0;
+        const me=cell.card.edges.e+(cell.card.edgeMod?.e||0)+sB;
+        const them=east.card.edges.w+(east.card.edgeMod?.w||0);
+        const pc=cell.card.ability==='pierce', pt=east.card.ability==='pierce';
+        if (me>them||(me===them&&pc&&!pt)) {
+          b[r][c].hW++;
+          if (east.card.ability==='shield'&&!east.card.shieldExpended) east.card.shieldExpended=true;
+          else b[r][c+1].hL++;
+          if (cell.card.ability==='double_strike'&&c<5) {
+            const far=G.grid[r][c+2];
+            if (far.card&&far.owner!==cell.owner){const m2=Math.max(1,Math.floor(me/2));if(m2>(far.card.edges.w+(far.card.edgeMod?.w||0)))b[r][c+2].hL++;}
+          }
+        } else if (them>me||(me===them&&pt&&!pc)) {
+          b[r][c+1].hW++;
+          if (cell.card.ability==='shield'&&!cell.card.shieldExpended) cell.card.shieldExpended=true;
+          else b[r][c].hL++;
+          if (east.card.ability==='double_strike'&&c>1){
+            const far=G.grid[r][c-1];
+            if (far.card&&far.owner!==east.owner){const m2=Math.max(1,Math.floor(them/2));if(m2>(far.card.edges.e+(far.card.edgeMod?.e||0)))b[r][c-1].hL++;}
+          }
+        } else { b[r][c].hL++; b[r][c+1].hL++; }
+      }
+    }
+    // V battle vs South
+    if (r<4) {
+      const south=G.grid[r+1][c];
+      if (south.card&&south.owner!==cell.owner) {
+        const me=cell.card.edges.s+(cell.card.edgeMod?.s||0);
+        const them=south.card.edges.n+(south.card.edgeMod?.n||0);
+        if (me>them) {
+          b[r][c].vW++;
+          if (south.card.ability==='shield'&&!south.card.shieldExpended) south.card.shieldExpended=true;
+          else b[r+1][c].vL++;
+          if (cell.card.ability==='double_strike'&&r<3){
+            const far=G.grid[r+2][c];
+            if (far.card&&far.owner!==cell.owner){const m2=Math.max(1,Math.floor(me/2));if(m2>(far.card.edges.n+(far.card.edgeMod?.n||0)))b[r+2][c].vL++;}
+          }
+        } else if (me<them) {
+          b[r+1][c].vW++;
+          if (cell.card.ability==='shield'&&!cell.card.shieldExpended) cell.card.shieldExpended=true;
+          else b[r][c].vL++;
+          if (south.card.ability==='double_strike'&&r>0){
+            const far=G.grid[r-1][c];
+            if (far.card&&far.owner!==south.owner){const m2=Math.max(1,Math.floor(them/2));if(m2>(far.card.edges.s+(far.card.edgeMod?.s||0)))b[r-1][c].vL++;}
+          }
+        } else { b[r][c].vL++; b[r+1][c].vL++; }
+      }
+    }
+  }
+  // Derive h/v strings from net counts
+  for (let r=0;r<5;r++) for (let c=0;c<7;c++) {
+    const bb=b[r][c];
+    bb.h=bb.hW>bb.hL?'win':bb.hL>bb.hW?'lose':(bb.hW>0)?'tie':'none';
+    bb.v=bb.vW>bb.vL?'win':bb.vL>bb.vW?'lose':(bb.vW>0)?'tie':'none';
+  }
+  return b;
+}
+
+function computeScores() {
+  const battles=computeBattleResults();
+  for (let r=0;r<5;r++) for (let c=0;c<7;c++) if (G.grid[r][c].card) G.grid[r][c].battle=battles[r][c];
+  const rows=Array(5).fill(null).map(()=>({p:0,a:0}));
+  const cols=Array(7).fill(null).map(()=>({p:0,a:0}));
+  for (let r=0;r<5;r++) for (let c=0;c<7;c++) {
+    const cell=G.grid[r][c]; if (!cell.card) continue;
+    const bat=battles[r][c];
+    const cH=bat.h==='win'||bat.h==='none';
+    const cV=bat.v==='win'||bat.v==='none';
+    if (cH){if(cell.owner==='player')rows[r].p+=cell.card.power;else rows[r].a+=cell.card.power;}
+    if (cV){if(cell.owner==='player')cols[c].p+=cell.card.power;else cols[c].a+=cell.card.power;}
+  }
+  let pW=0,aW=0;
+  const rRes=rows.map(r=>r.p>r.a?'p':r.a>r.p?'a':'tie');
+  const cRes=cols.map(c=>c.p>c.a?'p':c.a>c.p?'a':'tie');
+  rRes.forEach(r=>{if(r==='p')pW++;if(r==='a')aW++;});
+  cRes.forEach(c=>{if(c==='p')pW++;if(c==='a')aW++;});
+  return {rows,cols,rowResults:rRes,colResults:cRes,pWins:pW,aWins:aW};
+}
+
+function applyPlacementAbility(card, r, c, owner) {
+  const dirs=[{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}];
+  if (card.ability==='boost'||card.ability==='commander') {
+    const bonus=card.ability==='commander'?2:1;
+    dirs.forEach(({dr,dc})=>{
+      const nr=r+dr,nc=c+dc;
+      if(nr<0||nr>=5||nc<0||nc>=7)return;
+      const nb=G.grid[nr][nc];
+      if(nb.card&&nb.owner===owner){
+        if(card.ability==='commander'&&nb.card.tier!==card.tier)return;
+        nb.card.edgeMod=nb.card.edgeMod||{n:0,s:0,e:0,w:0};
+        nb.card.edgeMod.n+=bonus;nb.card.edgeMod.s+=bonus;nb.card.edgeMod.e+=bonus;nb.card.edgeMod.w+=bonus;
+      }
+    });
+  }
+  if (card.ability==='sweep') {
+    card.edgeMod=card.edgeMod||{n:0,s:0,e:0,w:0};
+    card.edgeMod.n+=2;card.edgeMod.s+=2;card.edgeMod.e+=2;card.edgeMod.w+=2;
+  }
+}
+
+// ════════════════════════════════════════════════════════════════
+// TEST ENGINE
+// ════════════════════════════════════════════════════════════════
+const tests = [];
+let pass=0, fail=0;
+
+function test(name, category, fn) {
+  let ok=true, detail='';
+  try { fn(); }
+  catch(e) { ok=false; detail=e.message; }
+  tests.push({name,category,ok,detail});
+  if(ok)pass++;else fail++;
+}
+
+function eq(a,b,msg){ if(a!==b) throw new Error(`${msg}: got "${a}", expected "${b}"`); }
+function ok(cond,msg){ if(!cond) throw new Error(msg||'Expected truthy'); }
+
+// ── CATEGORY 1: Basic H battles ─────────────────────────────
+test('H win: E=7 beats W=4', 'H Battle', ()=>{
+  initTestGame([{r:2,c:3,card:makeCard({e:7}),owner:'player'},{r:2,c:4,card:makeCard({w:4}),owner:'ai'}]);
+  const b=computeBattleResults();
+  eq(b[2][3].h,'win','player H');eq(b[2][4].h,'lose','ai H');
+});
+test('H win: W=8 beats E=3 (east card wins from west perspective)', 'H Battle', ()=>{
+  initTestGame([{r:2,c:3,card:makeCard({e:3}),owner:'ai'},{r:2,c:4,card:makeCard({w:8}),owner:'player'}]);
+  const b=computeBattleResults();
+  eq(b[2][4].h,'win','player H');eq(b[2][3].h,'lose','ai H');
+});
+test('H tie: E=5 vs W=5', 'H Battle', ()=>{
+  initTestGame([{r:2,c:3,card:makeCard({e:5}),owner:'player'},{r:2,c:4,card:makeCard({w:5}),owner:'ai'}]);
+  const b=computeBattleResults();
+  eq(b[2][3].h,'tie','player H');eq(b[2][4].h,'tie','ai H');
+});
+test('H score: winner gets power in row', 'H Battle', ()=>{
+  initTestGame([{r:2,c:3,card:makeCard({e:7,power:2}),owner:'player'},{r:2,c:4,card:makeCard({w:4,power:3}),owner:'ai'}]);
+  const s=computeScores();
+  eq(s.rows[2].p,2,'player row 2'); eq(s.rows[2].a,0,'ai row 2'); eq(s.rowResults[2],'p','row winner');
+});
+
+// ── CATEGORY 2: Basic V battles ─────────────────────────────
+test('V win: S=6 beats N=3', 'V Battle', ()=>{
+  initTestGame([{r:1,c:3,card:makeCard({s:6}),owner:'ai'},{r:2,c:3,card:makeCard({n:3}),owner:'player'}]);
+  const b=computeBattleResults();
+  eq(b[1][3].v,'win','ai V');eq(b[2][3].v,'lose','player V');
+});
+test('V win: N=8 beats S=2 (player attacks up)', 'V Battle', ()=>{
+  initTestGame([{r:1,c:3,card:makeCard({s:2}),owner:'ai'},{r:2,c:3,card:makeCard({n:8}),owner:'player'}]);
+  const b=computeBattleResults();
+  eq(b[2][3].v,'win','player V');eq(b[1][3].v,'lose','ai V');
+});
+test('V score: winner gets power in column', 'V Battle', ()=>{
+  initTestGame([{r:1,c:3,card:makeCard({s:2,power:3}),owner:'ai'},{r:2,c:3,card:makeCard({n:8,power:2}),owner:'player'}]);
+  const s=computeScores();
+  eq(s.cols[3].p,2,'player col 3'); eq(s.colResults[3],'p','col winner');
+});
+
+// ── CATEGORY 3: Net win rule ─────────────────────────────────
+test('Net win: wins H but loses V → H=win, V=lose (independent)', 'Net Win', ()=>{
+  initTestGame([
+    {r:2,c:3,card:makeCard({e:8,s:2,n:8}),owner:'player'},
+    {r:2,c:4,card:makeCard({w:4}),owner:'ai'},    // player wins H
+    {r:3,c:3,card:makeCard({n:7}),owner:'ai'},     // player loses V
+  ]);
+  const b=computeBattleResults();
+  eq(b[2][3].h,'win','player H win');
+  eq(b[2][3].v,'lose','player V lose');
+});
+test('Net win: sandwiched — wins N, loses S → tie (0 contribution)', 'Net Win', ()=>{
+  initTestGame([
+    {r:1,c:3,card:makeCard({s:2}),owner:'ai'},     // player beats this northward
+    {r:2,c:3,card:makeCard({n:8,s:2,power:2}),owner:'player'}, // player sandwiched
+    {r:3,c:3,card:makeCard({n:7}),owner:'ai'},     // player loses to this southward
+  ]);
+  const b=computeBattleResults();
+  eq(b[2][3].v,'tie','sandwiched → tie');
+  const s=computeScores();
+  eq(s.cols[3].p,0,'sandwiched player gets 0 col power');
+});
+test('Net win: wins both H and V → full power in both', 'Net Win', ()=>{
+  initTestGame([
+    {r:2,c:3,card:makeCard({e:8,n:8,s:2,w:2,power:2,tier:'II'}),owner:'player'},
+    {r:2,c:4,card:makeCard({w:3}),owner:'ai'},
+    {r:1,c:3,card:makeCard({s:1}),owner:'ai'},
+  ]);
+  const b=computeBattleResults();
+  eq(b[2][3].h,'win','player H win');
+  eq(b[2][3].v,'win','player V win');
+  const s=computeScores();
+  eq(s.rows[2].p,2,'player row power=2');
+  eq(s.cols[3].p,2,'player col power=2');
+});
+
+// ── CATEGORY 4: SHIELD ──────────────────────────────────────
+test('SHIELD H: blocks first H loss', 'Abilities', ()=>{
+  initTestGame([
+    {r:2,c:3,card:makeCard({e:8}),owner:'ai'},           // AI attacks east
+    {r:2,c:4,card:makeCard({w:3,ability:'shield'}),owner:'player'}, // player has shield
+  ]);
+  const b=computeBattleResults();
+  eq(b[2][4].h,'none','shield blocked H loss → none not lose');
+  ok(G.grid[2][4].card.shieldExpended,'shield expended');
+});
+test('SHIELD H: second hit still loses after expend', 'Abilities', ()=>{
+  const shCard=makeCard({w:3,ability:'shield',shieldExpended:true}); // already used
+  initTestGame([
+    {r:2,c:3,card:makeCard({e:8}),owner:'ai'},
+    {r:2,c:4,card:shCard,owner:'player'},
+  ]);
+  const b=computeBattleResults();
+  eq(b[2][4].h,'lose','shield expended, takes loss normally');
+});
+test('SHIELD V: blocks first V loss', 'Abilities', ()=>{
+  initTestGame([
+    {r:1,c:3,card:makeCard({s:9}),owner:'ai'},            // AI attacks south hard
+    {r:2,c:3,card:makeCard({n:3,ability:'shield'}),owner:'player'},
+  ]);
+  const b=computeBattleResults();
+  eq(b[2][3].v,'none','shield blocked V loss → none');
+  ok(G.grid[2][3].card.shieldExpended,'shield expended on V hit');
+});
+
+// ── CATEGORY 5: DOUBLE STRIKE ───────────────────────────────
+test('DOUBLE STRIKE H: first hit wins, 2nd at half strength wins', 'Abilities', ()=>{
+  // player E=8, first AI W=4 (wins), second AI W=3 (8/2=4 > 3, wins)
+  initTestGame([
+    {r:2,c:2,card:makeCard({e:8,ability:'double_strike'}),owner:'player'},
+    {r:2,c:3,card:makeCard({w:4,e:9}),owner:'ai'},   // player beats this
+    {r:2,c:4,card:makeCard({w:3}),owner:'ai'},        // 2nd hit: 4 vs 3 → wins
+  ]);
+  const b=computeBattleResults();
+  eq(b[2][2].h,'win','DS player H win');
+  eq(b[2][3].h,'lose','1st target loses');
+  eq(b[2][4].h,'lose','2nd target loses to half-strength (4 vs 3)');
+});
+test('DOUBLE STRIKE H: first hit wins, 2nd at half strength LOSES', 'Abilities', ()=>{
+  // player E=8, first AI W=4 (wins), second AI W=5 (8/2=4 < 5, loses)
+  initTestGame([
+    {r:2,c:2,card:makeCard({e:8,ability:'double_strike'}),owner:'player'},
+    {r:2,c:3,card:makeCard({w:4,e:9}),owner:'ai'},
+    {r:2,c:4,card:makeCard({w:5}),owner:'ai'},        // 2nd hit: 4 vs 5 → loses
+  ]);
+  const b=computeBattleResults();
+  eq(b[2][4].h,'none','2nd target survives DS half-strength (4 < 5)');
+});
+test('DOUBLE STRIKE V: 2nd row at half strength wins', 'Abilities', ()=>{
+  // player N=8 → beats ai S=2, then 8/2=4 > next ai S=3
+  initTestGame([
+    {r:3,c:3,card:makeCard({n:8,s:1,ability:'double_strike',power:3}),owner:'player'},
+    {r:2,c:3,card:makeCard({s:2,n:6}),owner:'ai'},   // player beats this going up
+    {r:1,c:3,card:makeCard({s:3}),owner:'ai'},        // 2nd: 4 vs 3 → wins
+  ]);
+  const b=computeBattleResults();
+  eq(b[3][3].v,'win','DS player V win');
+  eq(b[1][3].v,'lose','2nd V target hit by DS half (4 vs 3)');
+});
+test('DOUBLE STRIKE V: 2nd row at half strength MISSES', 'Abilities', ()=>{
+  initTestGame([
+    {r:3,c:3,card:makeCard({n:8,s:1,ability:'double_strike'}),owner:'player'},
+    {r:2,c:3,card:makeCard({s:2}),owner:'ai'},
+    {r:1,c:3,card:makeCard({s:6}),owner:'ai'},        // 2nd: 4 vs 6 → misses
+  ]);
+  const b=computeBattleResults();
+  eq(b[1][3].v,'none','2nd V target survives DS half (4 < 6)');
+});
+
+// ── CATEGORY 6: COMMANDER & BOOST ───────────────────────────
+test('COMMANDER: adjacent same-tier ally gets +2 all edges', 'Abilities', ()=>{
+  const ally=makeCard({e:4,tier:'II',power:2});
+  const cmdr=makeCard({e:6,ability:'commander',tier:'II',power:2});
+  initTestGame([
+    {r:2,c:2,card:ally,owner:'player'},
+    {r:2,c:3,card:cmdr,owner:'player'},
+  ]);
+  applyPlacementAbility(cmdr,2,3,'player');
+  eq((ally.edgeMod?.e||0),2,'ally E boosted by +2');
+  eq((ally.edgeMod?.n||0),2,'ally N boosted by +2');
+});
+test('COMMANDER: does NOT boost different-tier allies', 'Abilities', ()=>{
+  const ally=makeCard({e:4,tier:'I',power:1});
+  const cmdr=makeCard({e:6,ability:'commander',tier:'II',power:2});
+  initTestGame([
+    {r:2,c:2,card:ally,owner:'player'},
+    {r:2,c:3,card:cmdr,owner:'player'},
+  ]);
+  applyPlacementAbility(cmdr,2,3,'player');
+  eq((ally.edgeMod?.e||0),0,'T1 ally NOT boosted by T2 commander');
+});
+test('BOOST: adjacent ally gets +1 regardless of tier', 'Abilities', ()=>{
+  const t1=makeCard({e:4,tier:'I',power:1});
+  const booster=makeCard({ability:'boost',tier:'II',power:2});
+  initTestGame([
+    {r:2,c:2,card:t1,owner:'player'},
+    {r:2,c:3,card:booster,owner:'player'},
+  ]);
+  applyPlacementAbility(booster,2,3,'player');
+  eq((t1.edgeMod?.e||0),1,'T1 ally gets +1 from boost');
+});
+test('BOOST: does NOT affect enemies', 'Abilities', ()=>{
+  const enemy=makeCard({e:4,tier:'II',power:2});
+  const booster=makeCard({ability:'boost',tier:'II',power:2});
+  initTestGame([
+    {r:2,c:2,card:enemy,owner:'ai'},
+    {r:2,c:3,card:booster,owner:'player'},
+  ]);
+  applyPlacementAbility(booster,2,3,'player');
+  eq((enemy.edgeMod?.e||0),0,'enemy NOT boosted');
+});
+
+// ── CATEGORY 7: SWEEP ────────────────────────────────────────
+test('SWEEP: card gains +2 all edges on placement', 'Abilities', ()=>{
+  const sweeper=makeCard({e:5,n:5,s:3,w:5,ability:'sweep',tier:'II'});
+  initTestGame([{r:2,c:3,card:sweeper,owner:'player'}]);
+  applyPlacementAbility(sweeper,2,3,'player');
+  eq(sweeper.edgeMod?.e,2,'SWEEP E +2');
+  eq(sweeper.edgeMod?.n,2,'SWEEP N +2');
+  eq(sweeper.edgeMod?.s,2,'SWEEP S +2');
+  eq(sweeper.edgeMod?.w,2,'SWEEP W +2');
+});
+test('SWEEP: boosted edges affect H battle outcome', 'Abilities', ()=>{
+  const sweeper=makeCard({e:4,ability:'sweep',tier:'II'}); // E=4 base, but +2=6
+  const target=makeCard({w:5,tier:'II'});
+  initTestGame([{r:2,c:3,card:sweeper,owner:'player'},{r:2,c:4,card:target,owner:'ai'}]);
+  applyPlacementAbility(sweeper,2,3,'player');
+  // Without sweep: 4 < 5 = lose. With sweep: 6 > 5 = win
+  const b=computeBattleResults();
+  eq(b[2][3].h,'win','SWEEP edge bonus causes win (4+2=6 > 5)');
+});
+
+// ── CATEGORY 8: Scoring ──────────────────────────────────────
+test('Scoring: uncontested cards always count (NONE = win)', 'Scoring', ()=>{
+  initTestGame([{r:4,c:3,card:makeCard({power:1,tier:'I'}),owner:'player'}]);
+  const s=computeScores();
+  eq(s.rows[4].p,1,'uncontested row power');
+  eq(s.cols[3].p,1,'uncontested col power');
+  eq(s.rowResults[4],'p','player wins row 4');
+  eq(s.colResults[3],'p','player wins col 3');
+});
+test('Scoring: tied row = tie not a win for either', 'Scoring', ()=>{
+  initTestGame([
+    {r:2,c:2,card:makeCard({e:5,power:3,tier:'II'}),owner:'player'},
+    {r:2,c:3,card:makeCard({w:5,power:3,tier:'II'}),owner:'ai'},
+  ]);
+  const s=computeScores();
+  // Both got H=tie so neither contributes to row
+  eq(s.rows[2].p,0,'player power=0 (H tie)');
+  eq(s.rows[2].a,0,'ai power=0 (H tie)');
+  eq(s.rowResults[2],'tie','tie row result');
+});
+test('Scoring: T4 power=4 wins decisively vs T1 power=1', 'Scoring', ()=>{
+  initTestGame([
+    {r:1,c:3,card:makeCard({s:5,n:5,e:5,w:5,power:4,tier:'IV'}),owner:'ai'},
+    {r:2,c:3,card:makeCard({n:3,s:2,e:4,w:4,power:1,tier:'I'}),owner:'player'},
+  ]);
+  const s=computeScores();
+  eq(s.colResults[3],'a','AI T4 wins col with power 4 vs 0 (player loses V)');
+});
+test('Scoring: pWins + aWins ≤ 12', 'Scoring', ()=>{
+  initTestGame([
+    {r:4,c:0,card:makeCard({power:1,tier:'I'}),owner:'player'},
+    {r:4,c:6,card:makeCard({power:1,tier:'I'}),owner:'player'},
+    {r:0,c:0,card:makeCard({power:1,tier:'I'}),owner:'ai'},
+    {r:0,c:6,card:makeCard({power:1,tier:'I'}),owner:'ai'},
+  ]);
+  const s=computeScores();
+  ok(s.pWins+s.aWins<=12,'total lines never exceeds 12');
+});
+
+// ════════════════════════════════════════════════════════════════
+// RENDER
+// ════════════════════════════════════════════════════════════════
+document.getElementById('summary-pass').textContent = `${pass} PASS`;
+document.getElementById('summary-fail').textContent = `${fail} FAIL`;
+
+const byCategory = {};
+tests.forEach(t=>{
+  if(!byCategory[t.category]) byCategory[t.category]=[];
+  byCategory[t.category].push(t);
+});
+
+const res = document.getElementById('results');
+Object.entries(byCategory).forEach(([cat,ts])=>{
+  const h=document.createElement('h2');
+  const allPass=ts.every(t=>t.ok);
+  h.textContent=`${allPass?'✓':'✗'} ${cat}  (${ts.filter(t=>t.ok).length}/${ts.length})`;
+  h.style.color=allPass?'#44cc66':'#ff6644';
+  res.appendChild(h);
+  ts.forEach(t=>{
+    const d=document.createElement('div');
+    d.className=`test ${t.ok?'pass':'fail'}`;
+    d.innerHTML=`<span class="icon">${t.ok?'✓':'✗'}</span><span class="name">${t.name}${t.detail?`<br><span class="detail">${t.detail}</span>`:''}</span>`;
+    res.appendChild(d);
+  });
+});
+
+// ── Visual board demo: Sandwiched card scenario ──────────────────
+function renderVisualTest() {
+  const vis = document.getElementById('visual');
+  vis.innerHTML = '<h2>Visual: Sandwiched Card Scenario (Net Win Rule)</h2>';
+
+  const p = makeCard({n:8,s:2,e:5,w:4,power:2,tier:'II',name:'CARRIER WING (DS)',ability:'double_strike'});
+  const aiTop = makeCard({s:2,n:5,e:4,w:4,power:1,tier:'I',name:'AI T1 ABOVE'});
+  const aiBot = makeCard({n:6,s:3,e:4,w:4,power:1,tier:'I',name:'AI T1 BELOW'});
+  initTestGame([
+    {r:1,c:3,card:aiTop,owner:'ai'},
+    {r:2,c:3,card:p,owner:'player'},
+    {r:3,c:3,card:aiBot,owner:'ai'},
+  ]);
+  const s=computeScores();
+
+  const info=document.createElement('div');
+  info.style.cssText='font-size:11px;color:#aaa;margin:8px 0 12px;line-height:1.8;max-width:600px;';
+  info.innerHTML=`
+    Player card: N:${p.edges.n} S:${p.edges.s} | DOUBLE STRIKE<br>
+    AI above: S:${aiTop.edges.s} — Player N(${p.edges.n}) > AI S(${aiTop.edges.s}) → <span style="color:#00ffcc">PLAYER WINS NORTH</span><br>
+    AI below: N:${aiBot.edges.n} — Player S(${p.edges.s}) < AI N(${aiBot.edges.n}) → <span style="color:#ff4444">PLAYER LOSES SOUTH</span><br>
+    Net V result: <span style="color:#ffdd00">TIE (win 1, lose 1 = 0 contribution)</span><br>
+    Col 3: Player contributes 0 power (tied) | AI contributes 0 (tied) →
+    <span style="color:#888">NO WIN FOR EITHER</span><br>
+    DOUBLE STRIKE (N at half: ⌊${p.edges.n}/2⌋ = ${Math.floor(p.edges.n/2)}) doesn't apply here since N comparison is part of sandwiched tie
+  `;
+  vis.appendChild(info);
+
+  const grid=document.createElement('div');
+  grid.style.cssText='display:grid;grid-template-columns:repeat(7,60px);grid-template-rows:repeat(5,80px);gap:4px;margin-bottom:8px;';
+  for(let r=0;r<5;r++) for(let c=0;c<7;c++){
+    const div=document.createElement('div');
+    div.style.cssText='width:60px;height:80px;border-radius:4px;border:1px dashed #111120;background:#06060e;position:relative;display:flex;align-items:center;justify-content:center;';
+    const cell=G.grid[r][c];
+    if(cell.card){
+      const col=cell.owner==='player'?'#00ffcc':'#ff0080';
+      div.style.background=cell.owner==='player'?'#0a1a14':'#1a0a0a';
+      div.style.border=`1.5px solid ${col}55`;
+      const bat=cell.battle||{h:'none',v:'none'};
+      const hC=bat.h==='win'?col:bat.h==='lose'?'#ff444466':'#555';
+      const vC=bat.v==='win'?col:bat.v==='lose'?'#ff444466':'#555';
+      div.innerHTML=`
+        <span style="position:absolute;top:2px;left:50%;transform:translateX(-50%);font-size:10px;font-weight:bold;color:${vC}">${cell.card.edges.n+(cell.card.edgeMod?.n||0)}</span>
+        <span style="position:absolute;bottom:2px;left:50%;transform:translateX(-50%);font-size:10px;font-weight:bold;color:${vC}">${cell.card.edges.s+(cell.card.edgeMod?.s||0)}</span>
+        <span style="position:absolute;left:2px;top:50%;transform:translateY(-50%);font-size:10px;font-weight:bold;color:${hC}">${cell.card.edges.w+(cell.card.edgeMod?.w||0)}</span>
+        <span style="position:absolute;right:2px;top:50%;transform:translateY(-50%);font-size:10px;font-weight:bold;color:${hC}">${cell.card.edges.e+(cell.card.edgeMod?.e||0)}</span>
+        <span style="font-size:16px;font-weight:bold;color:${col}">${cell.card.power}</span>
+        ${cell.card.ability?`<span style="position:absolute;bottom:2px;left:2px;font-size:6px;color:${col}88">${cell.card.ability.slice(0,3).toUpperCase()}</span>`:''}
+        <span style="position:absolute;top:2px;right:2px;font-size:6px;color:${col}66">r${r}c${c}</span>
+      `;
+      // V result indicator
+      if(bat.v!=='none'){
+        const vc=bat.v==='win'?'#00ffcc':bat.v==='lose'?'#ff4444':'#ffdd00';
+        div.style.boxShadow=`0 0 8px ${vc}44, inset 0 0 6px ${vc}22`;
+      }
+    } else {
+      div.style.color='#1a1a28';div.style.fontSize='8px';
+      if(r===4)div.style.borderTop='2px solid #00ffcc33';
+      if(r===0)div.style.borderBottom='2px solid #ff008033';
+    }
+    grid.appendChild(div);
+  }
+  vis.appendChild(grid);
+
+  const result=document.createElement('div');
+  result.style.cssText='font-size:11px;color:#888;margin-top:8px;';
+  result.innerHTML=`
+    Final: Player ${s.pWins} lines | AI ${s.aWins} lines<br>
+    Col 3: player=${s.cols[3].p}, ai=${s.cols[3].a} → ${s.colResults[3]==='p'?'PLAYER WINS':'AI WINS'} (${s.colResults[3]==='tie'?'TIE':''})
+  `;
+  vis.appendChild(result);
+}
+renderVisualTest();
+
+// Summary
+const sum=document.createElement('div');
+sum.className='summary';
+sum.innerHTML=`Tests: ${pass+fail} total &nbsp;|&nbsp; <span style="color:#44cc66">${pass} passed</span> &nbsp;|&nbsp; <span style="color:${fail>0?'#ff4444':'#555'}">${fail} failed</span>`;
+document.getElementById('results').appendChild(sum);
+</script>
+</body>
+</html>
