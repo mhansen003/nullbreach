@@ -832,7 +832,7 @@ const RACES = [
     name: 'THE MYCOS DRIFT', sub: 'DISTRIBUTED FUNGAL INTELLIGENCE',
     color: '#9dcf6e', avatar: '🍄',
     quote: '"We have already begun."',
-    abilities: ['MYCELIUM LINK', 'SPORE BURST', 'MYCELIAL NETWORK', 'MYCO TOXIN'],
+    abilities: ['MYCELIUM LINK', 'SPORE BURST', 'MYCELIAL NETWORK', 'MYCO SURGE'],
     playstyle: 'Attrition spreader',
     lore: "A distributed mycorrhizal intelligence spanning solar systems — no central mind, only network. The Drift does not make decisions. It grows. Every spore carries the full consciousness of the whole. Ships are enormous fruiting bodies deployed from an organism larger than most star systems.",
     history: "The Mycos Drift arrived at Galactic Zero not as an expedition but as an infection. The sector's unusual gravitational profile carried their spores from a system they had already consumed. By the time other races identified them as a civilization, the Drift had established roots in seventeen transit corridors.",
@@ -909,7 +909,7 @@ const RACES = [
     name: 'THE QUANTUM THREAD', sub: 'SUPERPOSITION ENTITIES',
     color: '#ff69b4', avatar: '◈',
     quote: '"We are all possibilities at once."',
-    abilities: ['QUANTUM ENTANGLEMENT', 'WAVE COLLAPSE', 'SUPERPOSITION', 'OBSERVER EFFECT'],
+    abilities: ['PROBABILITY CASCADE', 'WAVE COLLAPSE', 'SUPERPOSITION', 'OBSERVER EFFECT'],
     playstyle: 'Reactive uncertainty',
     lore: "Beings that exist in superposition — multiple states simultaneously until observed. Their ships are probability clouds: when you look directly at a Quantum Thread vessel, you have already changed what it was. They operate on the principle that the unobserved state contains more power than the resolved one.",
     history: "The Quantum Thread's presence at Galactic Zero is, according to their own cosmology, both certain and impossible. Multiple branches of their probability-consciousness are fighting here simultaneously, in parallel timelines with different outcomes. They do not know which branch they are in.",
@@ -920,7 +920,7 @@ const RACES = [
     name: 'THE CHOIR', sub: 'RESONANT FREQUENCY ENTITIES',
     color: '#c8c8ff', avatar: '〜',
     quote: '"The note that breaks everything."',
-    abilities: ['RESONANT CHORD', 'SONIC BOOM', 'HARMONIC PULSE', 'DISSONANCE'],
+    abilities: ['RESONANT CHORD', 'SONIC BOOM', 'HARMONIC PULSE', 'SONIC RUSH'],
     playstyle: 'Area resonance',
     lore: "No visible form. No detectable mass. The Choir is pure resonant frequency — sound traveling through space at impossible scales. They perceive through vibration, communicate through harmonic modulation, and attack by finding the resonant frequency of whatever they want destroyed.",
     history: "The Choir was detected at Galactic Zero as an anomalous resonance signature in the sector's background radiation. By the time other civilizations understood what they were hearing, The Choir had been present for three centuries — listening, mapping resonant vulnerabilities, calculating the frequency that will shatter each civilization's Dreadnaught.",
@@ -949,7 +949,7 @@ const ABILITY_DESC = {
   'MYCELIUM LINK':         'Middle of a vertical 3-card line: N/S edges distribute to flankers',
   'SPORE BURST':           'A weak bonus T2 card spawns into your hand at game start',
   'MYCELIAL NETWORK':      'If row AND column are both won, this card scores double VP',
-  'MYCO TOXIN':            'Adjacent enemy cards each lose -1 from their highest edge permanently',
+  'MYCO SURGE':            'Win by 3+ on one axis and both row and column are claimed simultaneously',
   // VEIL
   'PHASE SHIFT':           'Can be placed anywhere in own home 2 rows without zone restrictions',
   'AFTERIMAGE':            'After placing, take an immediate extra turn — light outruns darkness',
@@ -976,7 +976,7 @@ const ABILITY_DESC = {
   'TECTONIC ARRAY':        'Adjacent same-tier friendly cards gain +2 to all edges on placement',
   'MONOLITH MASS':         'This card counts as 1.5x power in VP — ancient mass wins lines',
   // QUANTUM
-  'QUANTUM ENTANGLEMENT':  'If row AND column are both won, this card scores double VP',
+  'PROBABILITY CASCADE':   'After placing this card, take an immediate extra turn — probability collapses in your favor',
   'WAVE COLLAPSE':         'Tied rows or columns tip +1 in your favor — state collapses for you',
   'SUPERPOSITION':         'Can be placed anywhere in own home 2 rows without zone restrictions',
   'OBSERVER EFFECT':       'Silences the nearest enemy in this column — observation = 0 VP',
@@ -984,7 +984,7 @@ const ABILITY_DESC = {
   'RESONANT CHORD':        'Middle of a vertical 3-card line: N/S edges distribute to flankers',
   'SONIC BOOM':            'Win by 3+ and both row AND column are claimed simultaneously',
   'HARMONIC PULSE':        'Adjacent friendly cards of any tier gain +1 to all edges on placement',
-  'DISSONANCE':            'Adjacent enemy cards each lose -1 from their highest edge permanently',
+  'SONIC RUSH':            'Can be placed adjacent to any enemy card anywhere, bypassing zone rules',
 };
 
 let selectedRace = null;
