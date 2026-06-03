@@ -1743,15 +1743,15 @@ function renderGrid() {
                   background:#000000ee;border:1px solid ${col}88;border-radius:4px;
                   padding:3px 6px;display:flex;flex-direction:column;align-items:center;gap:1px;
                   font-family:'Courier New',monospace;`;
-                // Position the badge toward the center of the cell based on direction
-                const offR=dr, offC=dc; // which side the placing card is coming from
-                if (offR===1)  badge.style.cssText+=`top:4px;left:50%;transform:translateX(-50%);`;
-                else if (offR===-1) badge.style.cssText+=`bottom:4px;left:50%;transform:translateX(-50%);`;
-                else if (offC===1)  badge.style.cssText+=`right:4px;top:50%;transform:translateY(-50%);`;
-                else               badge.style.cssText+=`left:4px;top:50%;transform:translateY(-50%);`;
+                // Badge on the FACING edge — side of enemy nearest the placement cell
+                if (dr===1)       badge.style.cssText+=`top:4px;left:50%;transform:translateX(-50%);`;
+                else if (dr===-1) badge.style.cssText+=`bottom:4px;left:50%;transform:translateX(-50%);`;
+                else if (dc===1)  badge.style.cssText+=`left:4px;top:50%;transform:translateY(-50%);`;
+                else              badge.style.cssText+=`right:4px;top:50%;transform:translateY(-50%);`;
+                const labelCol = result==='tie'?'#ffee44':col; // bright yellow for TIE
                 badge.innerHTML = `
-                  <span style="font-size:9px;font-weight:bold;color:${col};letter-spacing:1px;">${result.toUpperCase()}</span>
-                  <span style="font-size:8px;color:#888888;">${myVal}v${theirVal}</span>`;
+                  <span style="font-size:10px;font-weight:bold;color:${labelCol};letter-spacing:1px;">${result.toUpperCase()}</span>
+                  <span style="font-size:8px;color:${col}bb;">${myVal}v${theirVal}</span>`;
                 adjEl.appendChild(badge);
               });
             };
