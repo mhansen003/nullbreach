@@ -146,7 +146,7 @@ body {
   margin-top: 4px;
 }
 .col-score-badge {
-  width: 114px; height: 54px;
+  width: 124px; height: 54px;
   border-radius: 4px;
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0; overflow: hidden; position: relative;
@@ -166,7 +166,7 @@ body {
   gap: 6px;
 }
 .row-score-badge {
-  width: 62px; height: 152px;
+  width: 68px; height: 152px;
   border-radius: 4px;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   gap: 4px; overflow: hidden; position: relative;
@@ -186,7 +186,7 @@ body {
 /* GRID */
 .grid {
   display: grid;
-  grid-template-columns: repeat(7, 114px);
+  grid-template-columns: repeat(7, 124px);
   grid-template-rows: repeat(5, 152px);
   gap: 6px;
   position: relative;
@@ -195,7 +195,7 @@ body {
 
 /* CELLS — 3:4 portrait ratio (114×152) matching hand card proportions */
 .cell {
-  width: 114px; height: 152px;
+  width: 124px; height: 152px;
   border-radius: 5px;
   position: relative;
   display: flex; flex-direction: column;
@@ -276,7 +276,7 @@ body {
 
 /* HAND CARD -- card art as background, overlay shows stats */
 .hand-card {
-  width: 112px; height: 148px; border-radius: 6px; position: relative;
+  width: 122px; height: 148px; border-radius: 6px; position: relative;
   cursor: pointer; flex-shrink: 0; overflow: hidden;
   /* Slightly brighter dark background so card art is more visible */
   background-color: #10101e;
@@ -320,15 +320,7 @@ body {
 .hc-tier-badge   { position: absolute; top: 3px; right: 5px; font-size: 9px; font-weight: bold; opacity: 0.4; color: #00ffcc; }
 .hc-ability-tag  { position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%); font-size: 7px; letter-spacing: 1px; opacity: 0.55; color: #00ffcc; white-space: nowrap; }
 
-/* BATTLE INDICATOR in gap between adjacent enemy cards */
-.bti {
-  position: absolute;
-  z-index: 10;
-  pointer-events: none;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 11px; font-weight: bold; border-radius: 2px;
-  text-shadow: 0 0 6px currentColor;
-}
+/* .bti: see definition above */
 
 /* FLASH popup on comparison */
 .flash {
@@ -1012,12 +1004,12 @@ button, [onclick] { touch-action: manipulation; }
     </div>
 
     <!-- Page content -->
-    <div id="guideContent" style="flex:1;overflow-y:auto;padding:24px 28px;line-height:1.8;font-size:15px;color:#ddd;"></div>
+    <div id="guideContent" style="flex:1;overflow-y:auto;padding:24px 28px;line-height:1.8;font-size:16px;color:#ddd;"></div>
 
     <!-- Footer nav -->
     <div style="display:flex;align-items:center;justify-content:space-between;
       padding:14px 24px;border-top:1px solid #1a1a28;flex-shrink:0;">
-      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;color:#444;">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;color:#888;">
         <input type="checkbox" id="guideDontShow" style="accent-color:#8855ff;">
         Don't show again
       </label>
@@ -1893,7 +1885,9 @@ function computeScores() {
 }
 
 // ── RENDERING ─────────────────────────────────
-const CS_W = 120;  // cell width + gap = 114 + 6
+const GRID_ROWS = 5;  // playable rows
+const GRID_COLS = 7;  // playable columns
+const CS_W = 130;  // cell width + gap = 124 + 6
 const CS_H = 158;  // cell height + gap = 152 + 6
 const CS = CS_W;   // legacy alias for horizontal calc
 
@@ -1973,7 +1967,7 @@ function renderGrid() {
         div.style.boxShadow = `0 0 10px ${factionCol}44`;
         const tierDotCol = TIER_COLORS[cell.card.tier] || '#888';
         const tierNum    = {'I':1,'II':2,'III':3,'IV':4}[cell.card.tier] || 1;
-        const col = cell.owner === 'player' ? '#00ffcc' : '#ff0080';
+        const col = cell.owner === 'player' ? '#ffffff' : '#ffdd00';
         const bat = cell.battle || { h: 'none', v: 'none' };
 
         // CLOAK: show '?' if not yet revealed in battle
@@ -1981,8 +1975,8 @@ function renderGrid() {
         // Edge: glow on winning direction, dim on losing
         const hLost = bat.h === 'lose' || bat.h === 'tie';
         const vLost = bat.v === 'lose' || bat.v === 'tie';
-        const hAlpha = hLost ? '33' : 'ff';  // losing edges very dim
-        const vAlpha = vLost ? '33' : 'ff';
+        const hAlpha = hLost ? 'aa' : 'ff';  // losing edges still readable
+        const vAlpha = vLost ? 'aa' : 'ff';
         const hGlow  = hLost ? '' : `text-shadow:0 0 8px ${col},0 0 3px #000;`;
         const vGlow  = vLost ? '' : `text-shadow:0 0 8px ${col},0 0 3px #000;`;
 
@@ -2048,6 +2042,15 @@ function renderGrid() {
         };
       } else {
         div.classList.add('empty');
+        // Orange hazard blast bleeds into adjacent empty cells too
+        [{dr:-1,dc:0,de:'n'},{dr:1,dc:0,de:'s'},{dr:0,dc:-1,de:'w'},{dr:0,dc:1,de:'e'}].forEach(({dr,dc,de}) => {
+          const hr=r+dr, hc=c+dc;
+          if (hr<0||hr>=5||hc<0||hc>=7||G.grid[hr][hc].owner!=='hazard') return;
+          const gradDir = {n:'to bottom',s:'to top',w:'to right',e:'to left'}[de];
+          const blast = document.createElement('div');
+          blast.style.cssText = `position:absolute;inset:0;pointer-events:none;z-index:1;border-radius:4px;background:linear-gradient(${gradDir},#ff660044 0%,#ff440018 40%,transparent 60%);`;
+          div.appendChild(blast);
+        });
         // Tier indicator: row 4 = T1 home, rows 1-3 = T2+ battle zone, row 0 = AI home
         const _triHtml = r === 4
           ? `<div class="tri-dots"><span class="tri-d white"></span></div>`
@@ -2203,12 +2206,12 @@ function renderBattleIndicators(el) {
     { dr:0, dc:1, myE:'e', theirE:'w', axis:'h',
       label: (c) => `E → W`,
       // center in horizontal gap: x = c*CS_W + 114 + 3, y = r*CS_H + 76
-      chipX: (r,c) => c*CS_W + 114 + 3 - CHIP/2,
+      chipX: (r,c) => c*CS_W + 124 + 3 - CHIP/2,
       chipY: (r,c) => r*CS_H + 76 - CHIP/2 },
     { dr:1, dc:0, myE:'s', theirE:'n', axis:'v',
       label: (c) => `S → N`,
       // center in vertical gap: x = c*CS_W + 57, y = r*CS_H + 152 + 3
-      chipX: (r,c) => c*CS_W + 57 - CHIP/2,
+      chipX: (r,c) => c*CS_W + 62 - CHIP/2,
       chipY: (r,c) => r*CS_H + 152 + 3 - CHIP/2 },
   ];
 
@@ -2623,10 +2626,10 @@ function renderHand() {
       ? '0 0 22px ' + factionC + '88, 0 0 44px ' + factionC + '44'
       : '0 0 10px ' + factionC + '33';
     div.innerHTML =
-      '<span class="hc-e-n" style="color:'+factionC+'">'+card.edges.n+'</span>' +
-      '<span class="hc-e-s" style="color:'+factionC+'">'+card.edges.s+'</span>' +
-      '<span class="hc-e-w" style="color:'+factionC+'">'+card.edges.w+'</span>' +
-      '<span class="hc-e-e" style="color:'+factionC+'">'+card.edges.e+'</span>' +
+      '<span class="hc-e-n" style="color:#ffffff">'+card.edges.n+'</span>' +
+      '<span class="hc-e-s" style="color:#ffffff">'+card.edges.s+'</span>' +
+      '<span class="hc-e-w" style="color:#ffffff">'+card.edges.w+'</span>' +
+      '<span class="hc-e-e" style="color:#ffffff">'+card.edges.e+'</span>' +
       '<div style="position:absolute;top:4px;left:4px;display:flex;gap:2px;z-index:2;">' +
         Array.from({length:tdNum},function(){return '<span style="width:5px;height:5px;border-radius:50%;background:'+tCol+';box-shadow:0 0 3px '+tCol+';display:inline-block;"></span>';}).join('') +
       '</div>' +
@@ -2662,7 +2665,7 @@ function renderHand() {
     const canOpen = cards.length > 0;
     // Shadow cards: 1 shadow for 2 cards, 2 shadows for 3+ cards
     const shadows = Math.min(Math.max(cards.length - 1, 0), 2);
-    const stackW  = 112 + shadows * 9; // extra width for shadow peekout
+    const stackW  = 122 + shadows * 9; // extra width for shadow peekout
 
     var wrap = document.createElement('div');
     wrap.style.cssText = 'position:relative;width:'+stackW+'px;height:148px;flex-shrink:0;cursor:'+(canOpen?'pointer':'default')+';transition:transform 0.15s;';
@@ -2670,14 +2673,14 @@ function renderHand() {
     // Shadow cards peek out to the RIGHT — creates physical stack look
     for (var i = shadows; i >= 1; i--) {
       var sh = document.createElement('div');
-      sh.style.cssText = 'position:absolute;top:'+(i*3)+'px;left:'+(i*9)+'px;width:112px;height:148px;border-radius:6px;background:#0c0c1e;border:1px solid '+tCol+'44;box-shadow:inset 0 0 6px #00000088;';
+      sh.style.cssText = 'position:absolute;top:'+(i*3)+'px;left:'+(i*9)+'px;width:122px;height:148px;border-radius:6px;background:#0c0c1e;border:1px solid '+tCol+'44;box-shadow:inset 0 0 6px #00000088;';
       wrap.appendChild(sh);
     }
 
     // Front card — same format as real hand cards: art bg + tier dots top-left
     var front = document.createElement('div');
     var _fc = factionC || '#00ffcc';
-    front.style.cssText = 'position:absolute;top:0;left:0;width:112px;height:148px;border-radius:6px;background-color:#10101e;background-size:cover;background-position:center top;border:1px solid '+(canOpen?_fc+'55':'#1a1a28')+';box-shadow:'+(canOpen?'0 0 10px '+_fc+'22':'none')+';overflow:hidden;transition:border-color 0.2s,box-shadow 0.2s,transform 0.15s;';
+    front.style.cssText = 'position:absolute;top:0;left:0;width:122px;height:148px;border-radius:6px;background-color:#10101e;background-size:cover;background-position:center top;border:1px solid '+(canOpen?_fc+'55':'#1a1a28')+';box-shadow:'+(canOpen?'0 0 10px '+_fc+'22':'none')+';overflow:hidden;transition:border-color 0.2s,box-shadow 0.2s,transform 0.15s;';
 
     if (cards[0] && cards[0].art) {
       front.style.backgroundImage = "url('"+cards[0].art+"')";
@@ -3554,7 +3557,7 @@ function addLog(type, msg) {
 
 function buildZoneGrid(card) {
   // Build a 5-row × 6-col mini-grid showing which cells this card unlocks
-  const ROWS = 5, COLS = 6;
+  const ROWS = 5, COLS = 7;
   const cardR = ROWS - 1; // player home row (bottom)
   const cardC = Math.floor(COLS / 2); // place in middle column for illustration
   const fwd = 1; // dr=-1 means "one row up/forward" for player, multiply by 1 to preserve direction
