@@ -213,8 +213,8 @@ body {
 /* ── CONVEYOR BELT ── */
 .conveyor-section {
   position: relative; flex-shrink: 0; z-index: 20;
-  border-bottom: 1px solid #8855ff33;
-  background: linear-gradient(to bottom, transparent 0%, transparent 80%, #020208aa);
+  /* No hard bottom border — let the lore bg bleed through */
+  background: linear-gradient(to bottom, #020208cc 0%, transparent 35%, transparent 100%);
 }
 .conveyor-wrap {
   width: 100%;
@@ -882,8 +882,15 @@ function selectRace(race, tileEl) {
   const cvSection = document.querySelector('.conveyor-section');
   const clipTop = cvSection ? Math.round(cvSection.getBoundingClientRect().bottom) : 380;
   bg.style.backgroundImage = `url('${race.loreBg || race.cover}')`;
-  bg.style.clipPath  = `inset(${clipTop}px 0 0 0)`;
-  ov.style.clipPath  = `inset(${clipTop}px 0 0 0)`;
+  // Soft gradient fade: race-bg bleeds up into the conveyor for a natural blend
+  const fadeStart = Math.max(0, clipTop - 130); // start fading 130px above conveyor bottom
+  const maskGrad = `linear-gradient(to bottom, transparent 0px, transparent ${fadeStart}px, black ${clipTop}px, black 100%)`;
+  bg.style.webkitMaskImage = maskGrad;
+  bg.style.maskImage = maskGrad;
+  bg.style.clipPath = ''; // no hard clip
+  ov.style.clipPath = '';
+  ov.style.webkitMaskImage = maskGrad;
+  ov.style.maskImage = maskGrad;
   bg.style.opacity = '0.88';
   ov.style.opacity = '1';
 
@@ -1098,8 +1105,8 @@ function showSplash() {
   const ov = document.getElementById('race-bg-overlay');
   bg.style.opacity  = '0';
   ov.style.opacity  = '0';
-  bg.style.clipPath = '';
-  ov.style.clipPath = '';
+  bg.style.clipPath = ''; bg.style.maskImage = ''; bg.style.webkitMaskImage = '';
+  ov.style.clipPath = ''; ov.style.maskImage = ''; ov.style.webkitMaskImage = '';
   const splashBg = document.getElementById('splashBg');
   const splashDim = document.getElementById('splashDim');
   splashBg.style.opacity = '0.55';
