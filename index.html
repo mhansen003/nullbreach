@@ -253,7 +253,7 @@ body {
 }
 .race-tile::after {
   content: ''; position: absolute; inset: 0;
-  background: linear-gradient(to top, #000000f2 0%, #000000bb 38%, #00000066 65%, transparent 100%);
+  background: linear-gradient(to top, #000000cc 0%, #00000066 40%, transparent 70%);
   z-index: 0;
 }
 /* Hover goes DOWN a little so it doesn't clip on top */
@@ -374,6 +374,17 @@ body {
 
 /* ── ANIMATIONS ── */
 @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+
+/* Avatar deploy pulse — always visible, pulses to signal clickability */
+@keyframes deployPulse {
+  0%, 55%  { opacity: 0; }
+  70%, 90% { opacity: 0.95; }
+  100%     { opacity: 0; }
+}
+@keyframes avatarBorderPulse {
+  0%, 100% { box-shadow: 0 0 8px currentColor; }
+  50%      { box-shadow: 0 0 28px currentColor, 0 0 50px currentColor; }
+}
 </style>
 </head>
 <body>
@@ -472,44 +483,34 @@ body {
       <div class="ds-empty-text">HOVER TO BROWSE — CLICK TO SELECT</div>
     </div>
     <div class="ds-lore-content" id="loreContent">
-      <!-- Race header: clickable avatar + name/abilities side by side -->
-      <div style="display:flex;gap:20px;align-items:flex-start;">
+      <!-- Top row: avatar LEFT, tier cards RIGHT (right-justified, adjacent to avatar) -->
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:14px;">
 
-        <!-- AVATAR — clicking it deploys the fleet -->
+        <!-- AVATAR — pulsing deploy button -->
         <div id="loreAvatar" onclick="startGame()" style="
-          width:220px;height:220px;flex-shrink:0;
+          width:200px;height:200px;flex-shrink:0;
           border-radius:8px;overflow:hidden;
           border:2px solid #ffffff22;background:#06050e;
-          cursor:pointer;position:relative;transition:box-shadow 0.2s;
-        " title="Click to Deploy Fleet">
-          <!-- Hover overlay: DEPLOY label appears on hover via CSS -->
-          <div id="loreAvatarDeploy" style="
-            position:absolute;bottom:0;left:0;right:0;
-            background:linear-gradient(transparent,#000000dd);
-            padding:12px 8px 8px;text-align:center;
-            opacity:0;transition:opacity 0.2s;pointer-events:none;
-          ">
-            <div style="font-family:'Orbitron',monospace;font-size:10px;letter-spacing:3px;color:#fff;">DEPLOY &#x2197;</div>
-          </div>
-        </div>
+          cursor:pointer;position:relative;
+        " title="Click to Deploy Fleet"></div>
 
-        <!-- Name + abilities -->
-        <div style="flex:1;display:flex;flex-direction:column;gap:10px;">
-          <div class="ds-race-name" id="loreName">—</div>
-          <div class="ds-race-sub" id="loreSub">—</div>
-          <div class="ds-race-quote" id="loreQuote">—</div>
-          <div class="ds-abilities-row" id="loreAbilities"></div>
-          <div class="ability-cards-row" id="abilityCards"></div>
-        </div>
-
-        <!-- Hidden deploy wrap — kept for JS compatibility -->
-        <div class="ds-deploy-wrap" id="deployWrap" style="display:none;">
-          <button class="btn-deploy" id="deployBtn" onclick="startGame()">DEPLOY</button>
-        </div>
+        <!-- Tier card previews — RIGHT side, horizontal, right-justified -->
+        <div id="tierCardPreview" style="display:none;flex-direction:row;gap:10px;align-items:flex-start;justify-content:flex-end;"></div>
       </div>
 
-      <!-- Tier card previews — HORIZONTAL row below header, not a side column -->
-      <div id="tierCardPreview" style="display:none;flex-direction:row;gap:10px;margin-top:12px;flex-wrap:nowrap;overflow-x:auto;"></div>
+      <!-- Name + abilities row (below the avatar+tier row) -->
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div class="ds-race-name" id="loreName">—</div>
+        <div class="ds-race-sub" id="loreSub">—</div>
+        <div class="ds-race-quote" id="loreQuote">—</div>
+        <div class="ds-abilities-row" id="loreAbilities"></div>
+        <div class="ability-cards-row" id="abilityCards"></div>
+      </div>
+
+      <!-- Hidden deploy wrap — kept for JS compatibility -->
+      <div class="ds-deploy-wrap" id="deployWrap" style="display:none;">
+        <button class="btn-deploy" id="deployBtn" onclick="startGame()">DEPLOY</button>
+      </div>
       <div class="lore-divider" id="loreDivider"></div>
       <div class="lore-cols">
         <div class="lore-col">
@@ -892,21 +893,22 @@ function selectRace(race, tileEl) {
       avEl.style.borderColor = race.color;
       avEl.style.boxShadow  = `0 0 20px ${race.color}44`;
       // Avatar image + deploy overlay (visible on hover)
+      avEl.style.animation = `avatarBorderPulse 2.5s ease-in-out infinite`;
+      avEl.style.setProperty('color', race.color);
       avEl.innerHTML = `
         <img src="assets/avatars/${race.id}.png"
           style="width:100%;height:100%;object-fit:cover;display:block;" onerror="this.style.display='none'">
-        <div id="loreAvatarDeploy" style="
+        <!-- Pulsing DEPLOY — always visible, not just hover -->
+        <div style="
           position:absolute;bottom:0;left:0;right:0;
-          background:linear-gradient(transparent,${race.color}bb);
-          padding:14px 8px 10px;text-align:center;
-          opacity:0;transition:opacity 0.25s;pointer-events:none;
+          background:linear-gradient(transparent,${race.color}cc);
+          padding:12px 8px 8px;text-align:center;
+          animation:deployPulse 2.5s ease-in-out infinite;
+          pointer-events:none;
         ">
-          <div style="font-family:'Orbitron',monospace;font-size:11px;letter-spacing:3px;color:#fff;font-weight:bold;">DEPLOY &#x2197;</div>
+          <div style="font-family:'Orbitron',monospace;font-size:11px;letter-spacing:3px;color:#fff;font-weight:bold;text-shadow:0 0 10px ${race.color};">DEPLOY &#x2197;</div>
         </div>
       `;
-      // Hover: show deploy overlay
-      avEl.onmouseenter = () => { const d=document.getElementById('loreAvatarDeploy'); if(d) d.style.opacity='1'; };
-      avEl.onmouseleave = () => { const d=document.getElementById('loreAvatarDeploy'); if(d) d.style.opacity='0'; };
     }
     document.getElementById('loreName').textContent   = race.name;
     document.getElementById('loreName').style.color   = race.color;
