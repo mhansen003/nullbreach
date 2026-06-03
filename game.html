@@ -1426,7 +1426,10 @@ function computeBattleResults() {
           const me = cell.card.edges.s, them = south.card.edges.n;
           if (me > them) {
             b[r][c].vW++;
-            b[r+1][c].vL++;
+            // SHIELD V: south card blocks first V loss
+            if (south.card.ability === 'shield' && !south.card.shieldExpended) {
+              south.card.shieldExpended = true;
+            } else { b[r+1][c].vL++; }
             // DOUBLE STRIKE downward at half strength
             if (cell.card.ability === 'double_strike' && r < 3) {
               const far = G.grid[r+2][c];
@@ -1437,7 +1440,10 @@ function computeBattleResults() {
             }
           } else if (me < them) {
             b[r+1][c].vW++;
-            b[r][c].vL++;
+            // SHIELD V: cell (north card) blocks first V loss
+            if (cell.card.ability === 'shield' && !cell.card.shieldExpended) {
+              cell.card.shieldExpended = true;
+            } else { b[r][c].vL++; }
             // DOUBLE STRIKE upward at half strength
             if (south.card.ability === 'double_strike' && r > 0) {
               const far = G.grid[r-1][c];
@@ -2216,6 +2222,20 @@ function getValidPlacements(owner, card) {
   for (let c = 0; c < 7; c++)
     if (!G.grid[homeRow][c].card) set.add(`${homeRow},${c}`);
 
+  // RUSH: also add cells adjacent to enemy cards (aggressive placement bypass)
+  if (card.ability === 'rush') {
+    const enemy = owner === 'player' ? 'ai' : 'player';
+    for (let r = 0; r < 5; r++) {
+      for (let c = 0; c < 7; c++) {
+        if (G.grid[r][c].owner !== enemy || !G.grid[r][c].card) continue;
+        [{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}].forEach(({dr,dc}) => {
+          const nr=r+dr, nc=c+dc;
+          if (nr>=0&&nr<5&&nc>=0&&nc<7&&!G.grid[nr][nc].card) set.add(`${nr},${nc}`);
+        });
+      }
+    }
+  }
+
   // Zone expansion from each placed friendly card
   for (let r = 0; r < 5; r++) {
     for (let c = 0; c < 7; c++) {
@@ -2330,6 +2350,7 @@ function playCardSfx() {
 // Apply ability effects when a card is placed on the board
 function applyPlacementAbility(card, r, c, owner) {
   const dirs = [{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}];
+
   if (card.ability === 'boost' || card.ability === 'commander') {
     const bonus = card.ability === 'commander' ? 2 : 1;
     dirs.forEach(({dr,dc}) => {
@@ -2343,6 +2364,15 @@ function applyPlacementAbility(card, r, c, owner) {
         nb.card.edgeMod.e += bonus; nb.card.edgeMod.w += bonus;
       }
     });
+  }
+
+  // SWEEP: this card gets +2 ALL edges on the turn it's placed (one-time burst)
+  // Simulates sweeping all adjacent cells simultaneously with boosted power
+  if (card.ability === 'sweep') {
+    card.edgeMod = card.edgeMod || {n:0,s:0,e:0,w:0};
+    card.edgeMod.n += 2; card.edgeMod.s += 2;
+    card.edgeMod.e += 2; card.edgeMod.w += 2;
+    addLog('compare', `SWEEP: ${card.name} surges all edges +2 on placement`);
   }
   // Update surge trigger state (used in computeBattleResults)
   if (!G.surgeTrigger) G.surgeTrigger = {player:false, ai:false};
