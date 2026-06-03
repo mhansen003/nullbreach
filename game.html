@@ -1958,8 +1958,7 @@ function renderGrid() {
           ? (window.playerFactionColor || '#00ffcc')
           : (window.aiFactionColor     || '#ff0080');
         div.style.borderColor = factionCol;
-        const _bInner = cell.card.ability ? `, inset 0 0 28px #ff0000ee, inset 0 0 10px #ff0000cc` : '';
-        div.style.boxShadow = `0 0 10px ${factionCol}44${_bInner}`;
+        div.style.boxShadow = `0 0 10px ${factionCol}44`;
         const tierDotCol = TIER_COLORS[cell.card.tier] || '#888';
         const tierNum    = {'I':1,'II':2,'III':3,'IV':4}[cell.card.tier] || 1;
         const col = cell.owner === 'player' ? '#00ffcc' : '#ff0080';
@@ -1994,6 +1993,7 @@ function renderGrid() {
             <span class="cell-power" style="color:${pwrColor}">${cell.card.power}</span>
           </div>
           ${cell.card.ability ? `<span class="ability-tag" style="color:${factionCol}88">${ab(cell.card.ability)}</span>` : ''}
+          ${cell.card.ability && !cell.card.shieldExpended ? `<span style="position:absolute;top:3px;right:3px;z-index:5;font-size:11px;filter:drop-shadow(0 0 4px #ffdd00cc);pointer-events:none;">\u2605</span>` : ''}
           ${cell.card.shieldExpended ? `<span style="position:absolute;top:3px;right:3px;z-index:5;font-size:11px;filter:drop-shadow(0 0 4px #aaaaff);pointer-events:none;">\uD83D\uDEE1</span>` : ''}
         `;
 
@@ -2563,11 +2563,10 @@ function renderHand() {
     div.className = 'hand-card' + (isSel ? ' selected' : '');
     if (isNew) { div.classList.add('card-pop-in'); div.style.animationDelay = (idx*55)+'ms'; }
     if (card.art) div.style.backgroundImage = "url('" + card.art + "')";
-    const ag = card.ability ? ', inset 0 0 24px #ff0000ee, inset 0 0 8px #ff0000cc' : '';
-    div.style.borderColor = card.ability ? '#ff3333' : factionC;
+    div.style.borderColor = factionC;
     div.style.boxShadow   = isSel
-      ? '0 0 22px ' + (card.ability?'#ff3333':factionC) + '88, 0 0 44px ' + (card.ability?'#ff3333':factionC) + '44' + ag
-      : '0 0 10px ' + (card.ability?'#ff333344':factionC+'33') + ag;
+      ? '0 0 22px ' + factionC + '88, 0 0 44px ' + factionC + '44'
+      : '0 0 10px ' + factionC + '33';
     div.innerHTML =
       '<span class="hc-e-n" style="color:'+factionC+'">'+card.edges.n+'</span>' +
       '<span class="hc-e-s" style="color:'+factionC+'">'+card.edges.s+'</span>' +
@@ -2576,6 +2575,7 @@ function renderHand() {
       '<div style="position:absolute;top:4px;left:4px;display:flex;gap:2px;z-index:2;">' +
         Array.from({length:tdNum},function(){return '<span style="width:5px;height:5px;border-radius:50%;background:'+tCol+';box-shadow:0 0 3px '+tCol+';display:inline-block;"></span>';}).join('') +
       '</div>' +
+      (card.ability ? '<span style="position:absolute;top:3px;right:4px;font-size:12px;z-index:3;filter:drop-shadow(0 0 4px #ffdd00cc);" title="'+ab(card.ability)+'">★</span>' : '') +
       '<div class="hc-center"><span class="hc-power-center" style="color:'+factionC+'">'+card.power+'</span></div>' +
       (card.ability ? '<span class="hc-ability-tag" style="color:'+factionC+'">'+(card.abilityLabel || ab(card.ability))+'</span>' : '');
     div.onclick      = function() { onCardSelect(card); };
@@ -2597,14 +2597,15 @@ function renderHand() {
     const canOpen = cards.length > 0;
     // Shadow cards: 1 shadow for 2 cards, 2 shadows for 3+ cards
     const shadows = Math.min(Math.max(cards.length - 1, 0), 2);
+    const stackW  = 106 + shadows * 9; // extra width for shadow peekout
 
     var wrap = document.createElement('div');
-    wrap.style.cssText = 'position:relative;width:106px;height:140px;flex-shrink:0;cursor:'+(canOpen?'pointer':'default')+';transition:transform 0.15s;';
+    wrap.style.cssText = 'position:relative;width:'+stackW+'px;height:140px;flex-shrink:0;cursor:'+(canOpen?'pointer':'default')+';transition:transform 0.15s;';
 
-    // Shadow offset cards
+    // Shadow cards peek out to the RIGHT — creates physical stack look
     for (var i = shadows; i >= 1; i--) {
       var sh = document.createElement('div');
-      sh.style.cssText = 'position:absolute;top:'+(-i*5)+'px;left:'+(i*5)+'px;width:106px;height:140px;border-radius:6px;background:#0a0a1a;border:1px solid '+tCol+'22;opacity:'+(0.6-i*0.15)+';';
+      sh.style.cssText = 'position:absolute;top:'+(i*3)+'px;left:'+(i*9)+'px;width:106px;height:140px;border-radius:6px;background:#0c0c1e;border:1px solid '+tCol+'44;box-shadow:inset 0 0 6px #00000088;';
       wrap.appendChild(sh);
     }
 
@@ -2692,14 +2693,12 @@ function renderHand() {
     var locked = inelByTier[tier] || 0;
     if (cards.length === 0) return; // hide tiers until at least 1 card is eligible
 
-    var isActive = window._activeTier === tier || autoExpand;
+    var isActive = window._activeTier === tier || autoExpand || cards.length === 1;
     var tCol     = TIER_COLORS[tier] || '#888';
 
     if (isActive && cards.length > 0) {
-      if (cards.length === 1 && !autoExpand) {
-        // Single card — show as normal card (no group wrapper needed)
-        var div = buildCard(cards[0], 0);
-        el.appendChild(div);
+      if (false) {
+        // (removed: single-card flat display — now always uses group wrapper)
       } else {
         // EXPANDED: wrap cards in a tier group with border/bg showing they're related
         var group = document.createElement('div');
@@ -2729,14 +2728,8 @@ function renderHand() {
         el.appendChild(group);
       }
     } else {
-      // COLLAPSED: single card shows as normal card; multi = stacked thumbnail
-      if (cards.length === 1 && locked === 0) {
-        // Just one card — show flat, no stack effect
-        var div = buildCard(cards[0], 0);
-        el.appendChild(div);
-      } else {
-        el.appendChild(buildStack(tier, cards, locked));
-      }
+      // COLLAPSED: show as stacked thumbnail (single-card tiers always expanded above)
+      el.appendChild(buildStack(tier, cards, locked));
     }
   });
 }
