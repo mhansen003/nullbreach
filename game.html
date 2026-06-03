@@ -1717,13 +1717,14 @@ function computeBattleResults() {
       if (!cell.card || cell.card.ability !== 'edge_play') continue;
       const thisOwner = cell.owner;
       // West border: wrap fight with col 6
+      // Far card gets no hL — the battle is invisible to it (non-local VP rule)
       if (c === 0) {
         const opp = G.grid[r][6];
         if (opp.card && opp.owner !== thisOwner) {
           const me = cell.card.edges.w + (cell.card.edgeMod?.w||0);
           const them = opp.card.edges.e + (opp.card.edgeMod?.e||0);
-          if (me > them) { b[r][c].hW++; b[r][6].hL++; }
-          else if (me < them) { b[r][6].hW++; b[r][c].hL++; }
+          if (me > them) { b[r][c].hW++; }           // edge_play wins, far card unaffected
+          else if (me < them) { b[r][c].hL++; }      // edge_play loses, far card unaffected
         }
       }
       // East border: wrap fight with col 0
@@ -1732,8 +1733,8 @@ function computeBattleResults() {
         if (opp.card && opp.owner !== thisOwner) {
           const me = cell.card.edges.e + (cell.card.edgeMod?.e||0);
           const them = opp.card.edges.w + (opp.card.edgeMod?.w||0);
-          if (me > them) { b[r][c].hW++; b[r][0].hL++; }
-          else if (me < them) { b[r][0].hW++; b[r][c].hL++; }
+          if (me > them) { b[r][c].hW++; }
+          else if (me < them) { b[r][c].hL++; }
         }
       }
       // North border: wrap fight with row 4
@@ -1742,8 +1743,8 @@ function computeBattleResults() {
         if (opp.card && opp.owner !== thisOwner) {
           const me = cell.card.edges.n + (cell.card.edgeMod?.n||0);
           const them = opp.card.edges.s + (opp.card.edgeMod?.s||0);
-          if (me > them) { b[r][c].vW++; b[4][c].vL++; }
-          else if (me < them) { b[4][c].vW++; b[r][c].vL++; }
+          if (me > them) { b[r][c].vW++; }
+          else if (me < them) { b[r][c].vL++; }
         }
       }
       // South border: wrap fight with row 0
@@ -1752,8 +1753,8 @@ function computeBattleResults() {
         if (opp.card && opp.owner !== thisOwner) {
           const me = cell.card.edges.s + (cell.card.edgeMod?.s||0);
           const them = opp.card.edges.n + (opp.card.edgeMod?.n||0);
-          if (me > them) { b[r][c].vW++; b[0][c].vL++; }
-          else if (me < them) { b[0][c].vW++; b[r][c].vL++; }
+          if (me > them) { b[r][c].vW++; }
+          else if (me < them) { b[r][c].vL++; }
         }
       }
     }
@@ -2005,6 +2006,7 @@ function renderGrid() {
           ${cell.card.ability ? `<span class="ability-tag" style="color:${factionCol}88">${ab(cell.card.ability)}</span>` : ''}
           ${cell.card.ability && !cell.card.shieldExpended ? `<span style="position:absolute;top:3px;right:3px;z-index:5;font-size:14px;filter:drop-shadow(0 0 5px #bb44ffcc);pointer-events:none;">\u2605</span>` : ''}
           ${cell.card.shieldExpended ? `<span style="position:absolute;top:3px;right:3px;z-index:5;font-size:11px;filter:drop-shadow(0 0 4px #aaaaff);pointer-events:none;">\uD83D\uDEE1</span>` : ''}
+          <img src="${cell.owner==='player'?(window.playerAvatarImg||''):(window.aiAvatarImg||'')}" style="position:absolute;bottom:3px;right:3px;width:18px;height:18px;border-radius:50%;object-fit:cover;object-position:top;border:1px solid ${factionCol}55;opacity:0.6;z-index:2;pointer-events:none;" onerror="this.style.display='none'">
           ${cell.card.stonewalled ? `<div style="position:absolute;inset:0;z-index:4;pointer-events:none;border-radius:4px;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;"><span style="font-size:9px;letter-spacing:1px;color:#888;font-family:'Orbitron',monospace;background:#0a0a14;padding:2px 5px;border-radius:3px;border:1px solid #333;opacity:0.9;">0 VP</span></div>` : ''}
           ${cell.card.stonewall_victim ? `<div style="position:absolute;inset:0;z-index:4;pointer-events:none;border-radius:4px;background:rgba(0,0,0,0.35);display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px;"><span style="font-size:8px;letter-spacing:1px;color:#777;font-family:'Courier New',monospace;background:#0a0a14;padding:2px 4px;border-radius:3px;border:1px solid #2a2a2a;opacity:0.9;">BLOCKED</span></div>` : ''}
         `;
@@ -3192,27 +3194,32 @@ function applyPlacementAbility(card, r, c, owner) {
   }
 
   // HAT TRICK: middle of 3-card vertical line — spread N/S edges to flankers
-  if (card.ability === 'hat_trick') {
-    if (r >= 1 && r <= 3) {
-      const northCell = G.grid[r-1][c];
-      const southCell = G.grid[r+1][c];
-      if (northCell.card && northCell.owner === owner && southCell.card && southCell.owner === owner) {
-        // Card at r-1: add floor(thisCard.edges.n / 3) to its S, E, W
-        const bonusN = Math.floor(card.edges.n / 3);
-        northCell.card.edgeMod = northCell.card.edgeMod || {n:0,s:0,e:0,w:0};
-        northCell.card.edgeMod.s += bonusN;
-        northCell.card.edgeMod.e += bonusN;
-        northCell.card.edgeMod.w += bonusN;
-        // Card at r+1: add floor(thisCard.edges.s / 3) to its N, E, W
-        const bonusS = Math.floor(card.edges.s / 3);
-        southCell.card.edgeMod = southCell.card.edgeMod || {n:0,s:0,e:0,w:0};
-        southCell.card.edgeMod.n += bonusS;
-        southCell.card.edgeMod.e += bonusS;
-        southCell.card.edgeMod.w += bonusS;
-        addLog('compare', `HAT TRICK — vertical formation bonus applied (+${bonusN}/${bonusS})`);
-      }
-    }
+  function _applyHatTrick(htCard, htR, htC, htOwner) {
+    if (htCard._hatTrickApplied) return;
+    if (htR < 1 || htR > 3) return;
+    const northCell = G.grid[htR-1][htC];
+    const southCell = G.grid[htR+1][htC];
+    if (!northCell.card || northCell.owner !== htOwner) return;
+    if (!southCell.card || southCell.owner !== htOwner) return;
+    htCard._hatTrickApplied = true;
+    const bonusN = Math.floor(htCard.edges.n / 3);
+    northCell.card.edgeMod = northCell.card.edgeMod || {n:0,s:0,e:0,w:0};
+    northCell.card.edgeMod.s += bonusN; northCell.card.edgeMod.e += bonusN; northCell.card.edgeMod.w += bonusN;
+    const bonusS = Math.floor(htCard.edges.s / 3);
+    southCell.card.edgeMod = southCell.card.edgeMod || {n:0,s:0,e:0,w:0};
+    southCell.card.edgeMod.n += bonusS; southCell.card.edgeMod.e += bonusS; southCell.card.edgeMod.w += bonusS;
+    addLog('compare', `HAT TRICK — formation bonus applied (+${bonusN}/${bonusS})`);
   }
+  if (card.ability === 'hat_trick') _applyHatTrick(card, r, c, owner);
+  // Retroactive: if this card completes a HAT_TRICK formation for an adjacent middle card
+  [-1, 1].forEach(dr => {
+    const nr = r + dr;
+    if (nr < 0 || nr >= 5) return;
+    const adj = G.grid[nr][c];
+    if (adj.card && adj.card.ability === 'hat_trick' && adj.owner === owner) {
+      _applyHatTrick(adj.card, nr, c, owner);
+    }
+  });
 
   // Update surge trigger state (used in computeBattleResults)
   if (!G.surgeTrigger) G.surgeTrigger = {player:false, ai:false};
@@ -3326,6 +3333,10 @@ function aiTurn() {
       const s = computeScores();
       if (s.rowResults[r] !== 'a') score += 2;
       if (s.colResults[c] !== 'a') score += 2;
+      // Penalise hazard-adjacent placements (-2 effective VP each)
+      const _adjHz = [{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}]
+        .filter(({dr,dc})=>{const hr=r+dr,hc=c+dc;return hr>=0&&hr<5&&hc>=0&&hc<7&&G.grid[hr][hc].owner==='hazard';}).length;
+      score -= _adjHz * 2.5;
       for (const d of DIRS4) {
         const nr=r+d.dr, nc=c+d.dc;
         if (nr<0||nr>=5||nc<0||nc>=7) continue;
