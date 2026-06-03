@@ -4520,11 +4520,6 @@ function renderGuide() {
   document.getElementById('guideTitle').textContent = p.title;
   document.getElementById('guidePageNum').textContent = `PAGE ${_guidePage+1} OF ${GUIDE_PAGES.length}`;
   document.getElementById('guideContent').innerHTML = p.html;
-  // Start page-specific animations after content renders
-  setTimeout(() => {
-    if (_guidePage === 0) _startBoardAnim();
-    else if (_guidePage === 1) _startBattleAnim();
-  }, 50);
   document.getElementById('guidePrev').style.opacity = _guidePage === 0 ? '0.3' : '1';
   const nextBtn = document.getElementById('guideNext');
   if (_guidePage === GUIDE_PAGES.length - 1) {
@@ -4551,12 +4546,7 @@ function closeGuide() {
   }
 }
 
-// Auto-show on first visit
-window.addEventListener('load', () => {
-  if (!localStorage.getItem('gz_guide_seen')) {
-    setTimeout(showGuide, 800);
-  }
-});
+// Guide accessible via ? USER GUIDE button in faction HUD
 
 // ── START ─────────────────────────────────────
 // Set active deck from URL param BEFORE initGame reads it
