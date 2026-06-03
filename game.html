@@ -38,7 +38,8 @@ body {
   background: linear-gradient(to bottom, #020208cc 0%, #020208aa 100%);
 }
 .player-area::before {
-  background: linear-gradient(to top, #020208cc 0%, #020208aa 100%);
+  /* transparent at bottom so lore background shows through; subtle shadow only at top edge for readability */
+  background: linear-gradient(to bottom, #020208cc 0%, #02020855 40%, transparent 100%);
 }
 /* Ensure all children sit above the overlay */
 .ai-area > *, .player-area > * { position: relative; z-index: 1; }
