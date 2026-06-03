@@ -80,28 +80,29 @@ body {
 .turn-tag.player { color: #00ffcc; border: 1px solid #00ffcc44; }
 .turn-tag.ai     { color: #ff0080; border: 1px solid #ff008044; }
 
-/* AI TOP BAR */
+/* AI TOP BAR — compact floating strip */
 .ai-area {
-  display: flex; align-items: center; gap: 14px;
-  padding: 7px 20px 4px;
+  display: flex; align-items: center; gap: 10px;
+  padding: 4px 14px;
   flex-shrink: 0;
-  border-bottom: 1px solid #111120;
+  background: transparent;
 }
 .ai-portrait {
-  display: flex; align-items: center; gap: 10px;
-  background: #0e0e1e; border: 1px solid #ff008033;
-  border-radius: 5px; padding: 6px 12px; min-width: 185px;
+  display: flex; align-items: center; gap: 8px;
+  background: #08080faa; border: 1px solid #ff008033;
+  border-radius: 6px; padding: 4px 10px;
+  backdrop-filter: blur(4px);
 }
 .ai-avatar {
-  width: 96px; height: 96px; flex-shrink: 0;
+  width: 48px; height: 48px; flex-shrink: 0;
   background: linear-gradient(135deg, #2a0d0d, #180a18);
-  border: 1px solid #ff008066; border-radius: 5px;
-  display: flex; align-items: center; justify-content: center; font-size: 36px;
+  border: 1px solid #ff008066; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; font-size: 20px;
   overflow: hidden;
 }
-.ai-name  { color: #ff0080; font-size: 11px; letter-spacing: 2px; }
-.ai-sub   { color: #444; font-size: 8px; letter-spacing: 1px; margin-top: 2px; }
-.ai-quote { color: #333; font-size: 8px; font-style: italic; margin-top: 3px; }
+.ai-name  { color: #ff0080; font-size: 10px; letter-spacing: 1px; }
+.ai-sub   { display: none; }
+.ai-quote { display: none; }
 .ai-hand-row { display: none; } /* hidden — opponent deck not shown */
 .hand-lbl-v { font-size: 8px; color: #333; letter-spacing: 2px; writing-mode: vertical-lr; transform: rotate(180deg); }
 .facedown {
@@ -781,9 +782,11 @@ button, [onclick] { touch-action: manipulation; }
     padding:8px 16px;font-family:'Courier New',monospace;flex-shrink:0;
   ">
     <!-- AI side -->
-    <div id="sbAiBlock" style="display:flex;flex-direction:column;align-items:center;gap:3px;min-width:64px;">
-      <img id="sbAiAvatar" src="" style="width:32px;height:32px;border-radius:50%;object-fit:cover;object-position:top;border:2px solid #333;transition:all 0.3s;">
-      <span id="sbAiNum"  style="font-size:26px;font-weight:bold;color:#333;line-height:1;transition:all 0.3s;">0</span>
+    <div id="sbAiBlock" style="display:flex;flex-direction:column;align-items:center;gap:2px;">
+      <div style="display:flex;align-items:center;gap:6px;">
+        <img id="sbAiAvatar" src="" style="width:30px;height:30px;border-radius:50%;object-fit:cover;object-position:top;border:2px solid #333;transition:all 0.3s;">
+        <span id="sbAiNum" style="font-size:26px;font-weight:bold;color:#333;line-height:1;transition:all 0.3s;">0</span>
+      </div>
       <span id="sbAiName" style="font-size:7px;letter-spacing:1px;color:#222;white-space:nowrap;transition:color 0.3s;"></span>
       <span id="sbAiLead" style="font-size:7px;letter-spacing:2px;min-height:10px;font-weight:bold;"></span>
     </div>
@@ -793,9 +796,11 @@ button, [onclick] { touch-action: manipulation; }
       <span style="font-size:7px;color:#111120;letter-spacing:1px;">/ 12</span>
     </div>
     <!-- Player side -->
-    <div id="sbPlayerBlock" style="display:flex;flex-direction:column;align-items:center;gap:3px;min-width:64px;">
-      <img id="sbPlayerAvatar" src="" style="width:32px;height:32px;border-radius:50%;object-fit:cover;object-position:top;border:2px solid #333;transition:all 0.3s;">
-      <span id="sbPlayerNum"  style="font-size:26px;font-weight:bold;color:#333;line-height:1;transition:all 0.3s;">0</span>
+    <div id="sbPlayerBlock" style="display:flex;flex-direction:column;align-items:center;gap:2px;">
+      <div style="display:flex;align-items:center;gap:6px;">
+        <img id="sbPlayerAvatar" src="" style="width:30px;height:30px;border-radius:50%;object-fit:cover;object-position:top;border:2px solid #333;transition:all 0.3s;">
+        <span id="sbPlayerNum" style="font-size:26px;font-weight:bold;color:#333;line-height:1;transition:all 0.3s;">0</span>
+      </div>
       <span id="sbPlayerName" style="font-size:7px;letter-spacing:1px;color:#222;white-space:nowrap;transition:color 0.3s;"></span>
       <span id="sbPlayerLead" style="font-size:7px;letter-spacing:2px;min-height:10px;font-weight:bold;"></span>
     </div>
@@ -1000,6 +1005,7 @@ function initRaceTheme() {
   window.playerFactionColor = player.color;
   window.aiFactionColor     = ai.color;
 
+  window.aiDifficulty = new URLSearchParams(window.location.search).get('difficulty') || 'balanced';
   return { player, ai, raceId, aiRaceId };
 }
 
@@ -1037,14 +1043,14 @@ const PLAYER_CARDS = [
   { id:'ta_t1e', name:'SUPPLY HUB',    tier:'I',  tierLabel:'COLONY WORLD', zone:'full_ring',   edges:{n:4,s:3,e:4,w:4}, power:2, ability:'commander',     abilityText:'COMMANDER: Adjacent same-tier cards +2 all edges', art:'assets/cards/terran/supply-hub.png' },
   // T2 — BATTLE GROUPS
   { id:'ta_t2a', name:'BATTLE GROUP',  tier:'II', tierLabel:'BATTLE GROUP', zone:'command',     edges:{n:6,s:3,e:7,w:5}, power:3, ability:'commander',     abilityText:'COMMANDER: Adjacent same-tier cards +2 all edges', art:'assets/cards/terran/battle-group.png' },
-  { id:'ta_t2b', name:'CARRIER WING',  tier:'II', tierLabel:'BATTLE GROUP', zone:'launch',      edges:{n:7,s:3,e:5,w:6}, power:3, ability:'double_strike', abilityText:'DOUBLE STRIKE: Comparison reaches 2 deep', art:'assets/cards/terran/carrier-wing.png' },
-  { id:'ta_t2c', name:'STRIKE FORCE',  tier:'II', tierLabel:'BATTLE GROUP', zone:'lance',       edges:{n:7,s:2,e:7,w:3}, power:2, ability:'double_strike', abilityText:'DOUBLE STRIKE: Comparison reaches 2 deep', art:'assets/cards/terran/strike-force.png' },
+  { id:'ta_t2b', name:'CARRIER WING',  tier:'II', tierLabel:'BATTLE GROUP', zone:'launch',      edges:{n:7,s:3,e:5,w:6}, power:3, ability:'double_strike', abilityText:'DOUBLE STRIKE: 2nd-depth win at half strength', art:'assets/cards/terran/carrier-wing.png' },
+  { id:'ta_t2c', name:'STRIKE FORCE',  tier:'II', tierLabel:'BATTLE GROUP', zone:'lance',       edges:{n:7,s:2,e:7,w:3}, power:2, ability:'double_strike', abilityText:'DOUBLE STRIKE: 2nd-depth win at half strength', art:'assets/cards/terran/strike-force.png' },
   // T3 — FIGHTERS
-  { id:'ta_t3a', name:'INTERCEPTOR',   tier:'III',tierLabel:'STRIKE CRAFT', zone:'lance',       edges:{n:9,s:2,e:7,w:3}, power:3, ability:'double_strike', abilityText:'DOUBLE STRIKE: Comparison reaches 2 deep', art:'assets/cards/terran/interceptor.png' },
-  { id:'ta_t3b', name:'FAST RUNNER',   tier:'III',tierLabel:'STRIKE CRAFT', zone:'flanker',     edges:{n:7,s:2,e:9,w:3}, power:2, ability:'chain',         abilityText:'CHAIN: Wins cascade to adjacent enemies', art:'assets/cards/terran/fast-runner.png' },
+  { id:'ta_t3a', name:'INTERCEPTOR',   tier:'III',tierLabel:'STRIKE CRAFT', zone:'lance',       edges:{n:9,s:2,e:7,w:3}, power:3, ability:'double_strike', abilityText:'DOUBLE STRIKE: 2nd-depth win at half strength', art:'assets/cards/terran/interceptor.png' },
+  { id:'ta_t3b', name:'FAST RUNNER',   tier:'III',tierLabel:'STRIKE CRAFT', zone:'flanker',     edges:{n:7,s:2,e:9,w:3}, power:2, ability:'flank',         abilityText:'FLANK: After placing, take one extra turn immediately', art:'assets/cards/terran/fast-runner.png' },
   { id:'ta_t3c', name:'FLANKER',       tier:'III',tierLabel:'STRIKE CRAFT', zone:'flanker',     edges:{n:8,s:2,e:6,w:4}, power:2, ability:'shield',        abilityText:'SHIELD: First comparison loss blocked', art:'assets/cards/terran/flanker.png' },
   // T4 — FLAGSHIP
-  { id:'ta_t4',  name:'THE ACCORD',    tier:'IV', tierLabel:'DREADNAUGHT',  zone:'dreadnaught', edges:{n:8,s:5,e:8,w:7}, power:4, ability:'chain',         abilityText:'CHAIN: Wins cascade to adjacent enemies', art:'assets/cards/terran/the-accord.png' },
+  { id:'ta_t4',  name:'THE ACCORD',    tier:'IV', tierLabel:'DREADNAUGHT',  zone:'dreadnaught', edges:{n:8,s:5,e:8,w:7}, power:4, ability:'flank',         abilityText:'FLANK: After placing, take one extra turn immediately', art:'assets/cards/terran/the-accord.png' },
   // EXTRA
   { id:'ta_x1', name:'MINING COLONY', tier:'I',   tierLabel:'COLONY WORLD', zone:'wide_cross',  edges:{n:4,s:2,e:3,w:5}, power:1, ability:null,            abilityText:'Basic Colony World — pure foundation', art:'assets/cards/terran/colony-world-a.png' },
   { id:'ta_x2', name:'GUNSHIP WING',  tier:'II',  tierLabel:'BATTLE GROUP', zone:'command',     edges:{n:5,s:3,e:6,w:6}, power:3, ability:'commander',     abilityText:'COMMANDER: Adjacent same-tier cards +2 all edges', art:'assets/cards/terran/battle-group.png' },
@@ -1056,7 +1062,7 @@ const AI_CARDS = [
   { id:'a3',  name:'FANG',    tier:'I',   edges:{n:5,s:4,e:5,w:4}, power:2, ability:null,            abilityText:'Basic card' },
   { id:'a4',  name:'TOWER',   tier:'I',   edges:{n:2,s:2,e:6,w:6}, power:1, ability:'shield',        abilityText:'SHIELD: Ignores first comparison loss' },
   { id:'a5',  name:'SHADE',   tier:'I',   edges:{n:4,s:3,e:4,w:5}, power:1, ability:'phantom',       abilityText:'PHANTOM: Place anywhere in rows 0-1' },
-  { id:'a6',  name:'CRUSH',   tier:'I',   edges:{n:3,s:4,e:5,w:6}, power:2, ability:'double_strike', abilityText:'DOUBLE STRIKE: Comparison reaches 2 deep' },
+  { id:'a6',  name:'CRUSH',   tier:'I',   edges:{n:3,s:4,e:5,w:6}, power:2, ability:'double_strike', abilityText:'DOUBLE STRIKE: 2nd-depth win at half strength' },
   { id:'a7',  name:'THORN',   tier:'I',   edges:{n:4,s:5,e:6,w:4}, power:2, ability:null,            abilityText:'Basic card' },
   { id:'a8',  name:'CLAW',    tier:'I',   edges:{n:5,s:3,e:4,w:6}, power:2, ability:null,            abilityText:'Basic card' },
   { id:'a9',  name:'BASTION', tier:'I',   edges:{n:5,s:6,e:3,w:3}, power:1, ability:null,            abilityText:'Basic card' },
@@ -1077,16 +1083,29 @@ function initGame() {
     grid: Array(5).fill(null).map(() =>
       Array(7).fill(null).map(() => ({ card: null, owner: null }))
     ),
-    playerHand: (window.__activeDeck || PLAYER_CARDS).map(c => ({...c, shieldExpended: false, used: false})),
-    aiHand:     ((() => {
+    playerHand: (window.__activeDeck || PLAYER_CARDS).map(c => {
+      // Power = tier number globally
+      const tierPow = {'I':1,'II':2,'III':3,'IV':4}[c.tier] || c.power;
+      return {...c, power: tierPow, shieldExpended: false, used: false};
+    }),
+    aiHand: ((() => {
       const factionDecks = { terran: PLAYER_CARDS, brood: BROOD_CARDS };
       return factionDecks[window.aiRaceId] || AI_CARDS;
-    })()).map(c => ({...c, shieldExpended: false, used: false})),
+    })()).map(c => {
+      const tierPow = {'I':1,'II':2,'III':3,'IV':4}[c.tier] || c.power;
+      // Flip N↔S on faction decks used as AI — they attack downward (S faces player)
+      const useFlip = ['terran','brood'].includes(window.aiRaceId);
+      const edges = useFlip
+        ? { n: c.edges.s, s: c.edges.n, e: c.edges.e, w: c.edges.w }
+        : c.edges;
+      return {...c, edges, power: tierPow, shieldExpended: false, used: false};
+    }),
     turn:         'player',
     selectedCard: null,
     gameOver:     false,
     _prevEligibleIds: undefined, // reset for card pop tracking
     log:          [],
+    _flankTriggered: null,
   };
   document.getElementById('overlay').classList.remove('show');
   hideDragCard();
@@ -1131,11 +1150,12 @@ function computeBattleResults() {
               east.card.shieldExpended = true; // consume shield
               // loss blocked — east card stays at 'none'
             } else if (b[r][c+1].h !== 'win') b[r][c+1].h = 'lose';
-            // DOUBLE STRIKE: also contest the cell beyond the beaten card
-            if (cell.card.ability === 'double_strike' && c < 4) {
+            // DOUBLE STRIKE: 2nd-depth hit at HALF strength
+            if (cell.card.ability === 'double_strike' && c < 5) {
               const far = G.grid[r][c+2];
               if (far.card && far.owner !== cell.owner) {
-                const me2 = me, them2 = (far.card.edges.w + (far.card.edgeMod?.w || 0));
+                const me2 = Math.max(1, Math.floor(me / 2));
+                const them2 = (far.card.edges.w + (far.card.edgeMod?.w || 0));
                 if (me2 > them2) { if (b[r][c+2].h !== 'win') b[r][c+2].h = 'lose'; }
               }
             }
@@ -1146,10 +1166,11 @@ function computeBattleResults() {
               cell.card.shieldExpended = true;
               // loss blocked
             } else if (b[r][c].h !== 'win') b[r][c].h = 'lose';
-            if (east.card.ability === 'double_strike' && c > 0) {
+            if (east.card.ability === 'double_strike' && c > 1) {
               const far = G.grid[r][c-1];
               if (far.card && far.owner !== east.owner) {
-                const me2 = them, them2 = (far.card.edges.e + (far.card.edgeMod?.e || 0));
+                const me2 = Math.max(1, Math.floor(them / 2));
+                const them2 = (far.card.edges.e + (far.card.edgeMod?.e || 0));
                 if (me2 > them2) { if (b[r][c-1].h !== 'win') b[r][c-1].h = 'lose'; }
               }
             }
@@ -1275,6 +1296,7 @@ function renderGrid() {
             <span class="cell-power" style="color:${pwrColor}">${cell.card.power}</span>
           </div>
           ${cell.card.ability ? `<span class="ability-tag" style="color:${factionCol}88">${ab(cell.card.ability)}</span>` : ''}
+          ${cell.card.shieldExpended ? `<span style="position:absolute;top:3px;right:3px;z-index:5;font-size:11px;filter:drop-shadow(0 0 4px #aaaaff);pointer-events:none;">\uD83D\uDEE1</span>` : ''}
         `;
 
         // Show tooltip on placed board cards (shows card info + buff status)
@@ -1297,6 +1319,8 @@ function renderGrid() {
         if (valid.some(v => v.r===r && v.c===c)) {
           div.classList.add('valid');
           div.onclick = () => onCellClick(r, c);
+          div.addEventListener('dragover', e => { e.preventDefault(); e.dataTransfer.dropEffect='move'; });
+          div.addEventListener('drop', e => { e.preventDefault(); if (G.selectedCard) onCellClick(r, c); });
           // Zone preview: show future valid cells on hover
           if (G.selectedCard) {
             const preview = getZonePreview(r, c, G.selectedCard, 'player');
@@ -1783,6 +1807,12 @@ function renderHand() {
     div.onclick       = () => onCardSelect(card);
     div.onmouseenter  = e  => showTip(e, card);
     div.onmouseleave  = hideTip;
+    div.draggable = true;
+    div.addEventListener('dragstart', e => {
+      onCardSelect(card);
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', card.id);
+    });
     el.appendChild(div);
   });
 
@@ -1982,21 +2012,15 @@ function doComparisons(r, c, owner, card, depth=0) {
 
     addLog('compare', `${card.name} ${mv}${iWin?'>':'<'}${tv} vs ${target.card.name} (${d.lbl})`);
 
-    // CHAIN: cascade comparison from adjacent cell
-    if (card.ability==='chain' && iWin && depth===0) {
-      addLog('compare', `CHAIN from ${card.name}...`);
-      doComparisons(nr, nc, owner, target.card, depth+1);
-    }
-
-    // DOUBLE STRIKE: also compare one step further in same direction
+    // DOUBLE STRIKE: contest 2nd cell at HALF strength
     if (card.ability==='double_strike' && iWin) {
       const nr2=nr+d.dr, nc2=nc+d.dc;
-      if (nr2>=0&&nr2<5&&nc2>=0&&nc2<6) {
+      if (nr2>=0&&nr2<5&&nc2>=0&&nc2<7) {
         const t2 = G.grid[nr2][nc2];
         if (t2.card && t2.owner===enemy) {
-          const mv2=mv, tv2=t2.card.edges[d.theirE];
+          const mv2=Math.max(1,Math.floor(mv/2)), tv2=t2.card.edges[d.theirE];
           showFlash(nr,nc,nr2,nc2,mv2,tv2,mv2>tv2);
-          addLog('compare', `DOUBLE STRIKE: ${mv2}${mv2>tv2?'>':'<='}${tv2} vs ${t2.card.name}`);
+          addLog('compare', `DOUBLE STRIKE (\u00bd): ${mv2} vs ${tv2} → ${t2.card.name}`);
         }
       }
     }
@@ -2056,6 +2080,7 @@ function placeCard(card, r, c, owner) {
   }
   addLog(owner==='player'?'player':'ai',
     `${owner==='player'?'YOU':'AI'} place ${card.name}[${card.tier}] at [${r},${c}]`);
+  if (G) G._flankTriggered = (card.ability === 'flank') ? owner : null;
 
   doComparisons(r, c, owner, card);
   renderAll();
@@ -2114,6 +2139,11 @@ function animateAiCard(card, r, c) {
   setTimeout(() => {
     floater.remove();
     placeCard(card, r, c, 'ai');
+    if (G._flankTriggered === 'ai' && !G.gameOver) {
+      G._flankTriggered = null;
+      addLog('ai', '\u21BA FLANK \u2014 AI takes extra turn');
+      setTimeout(aiTurn, 1000);
+    }
   }, 580);
 }
 
@@ -2136,6 +2166,15 @@ function aiTurn() {
         const t = G.grid[nr][nc];
         if (t.card && t.owner==='player' && card.edges[d.myE] > t.card.edges[d.theirE])
           score += 1;
+      }
+      const _diff = window.aiDifficulty || 'balanced';
+      if (_diff === 'passive') {
+        score -= r * 1.5;
+        if (card.tier === 'III' || card.tier === 'IV') score -= 4;
+      } else if (_diff === 'aggressive') {
+        score += r * 2.0;
+        if (card.tier === 'III') score += 2;
+        if (card.tier === 'IV') score += 5;
       }
       score += r * 0.2 + (2.5-Math.abs(2.5-c)) * 0.1 + Math.random()*0.5;
       if (score > best) { best=score; bestCard=card; bestR=r; bestC=c; }
@@ -2257,6 +2296,13 @@ function onCellClick(r, c) {
   G.selectedCard = null;
   hideDragCard();
   document.body.style.cursor = 'default';
+  if (G._flankTriggered === 'player') {
+    G._flankTriggered = null;
+    G.turn = 'player';
+    showToast('\u21BA FLANK \u2014 EXTRA TURN!', '#ff9900');
+    renderAll();
+    return;
+  }
   G.turn = 'ai';
   renderScoreHeader();
 
@@ -2322,11 +2368,43 @@ function buildZoneGrid(card) {
   return html;
 }
 
+// Ability descriptions (for tooltip + future randomization)
+const ABILITY_TEXT = {
+  shield:        'SHIELD: First comparison loss blocked',
+  double_strike: 'DOUBLE STRIKE: 2nd-depth win at half strength',
+  commander:     'COMMANDER: Adjacent same-tier friendly cards +2 all edges',
+  boost:         'BOOST: Adjacent friendly cards +1 all edges on placement',
+  sweep:         'SWEEP: Contests all 4 adjacent cells on placement',
+  flank:         'FLANK: After placing, take one extra turn immediately',
+  rush:          'RUSH: Can be placed adjacent to any enemy card',
+  pierce:        'PIERCE: Ties count as wins for this card',
+};
+
+// Brief toast notification (used by FLANK)
+function showToast(msg, color='#ffcc00', duration=1800) {
+  const el = document.createElement('div');
+  el.style.cssText = `position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0.8);
+    z-index:200000;font-family:'Orbitron',monospace;font-size:16px;letter-spacing:4px;
+    color:${color};text-shadow:0 0 20px ${color};background:#000000dd;
+    padding:14px 28px;border:1px solid ${color}66;border-radius:8px;
+    transition:transform 0.18s cubic-bezier(0.34,1.56,0.64,1),opacity 0.3s;
+    pointer-events:none;`;
+  el.textContent = msg;
+  document.body.appendChild(el);
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    el.style.transform = 'translate(-50%,-50%) scale(1)';
+  }));
+  setTimeout(() => {
+    el.style.transition = 'opacity 0.3s'; el.style.opacity = '0';
+    setTimeout(() => el.remove(), 300);
+  }, duration);
+}
+
 // Ability visual icons and colors for the tooltip
 const ABILITY_ICONS = {
   double_strike:  { icon:'⚡⚡', color:'#ffdd00', label:'DOUBLE STRIKE'  },
   pierce:         { icon:'▶▶',  color:'#ff8844', label:'PIERCE'         },
-  chain:          { icon:'🔗',  color:'#ff44ff', label:'CHAIN'          },
+  flank:          { icon:'↺↺',  color:'#ff9900', label:'FLANK'          },
   boost:          { icon:'⬆',   color:'#44ffcc', label:'BOOST'          },
   commander:      { icon:'★★',  color:'#ffcc00', label:'COMMANDER'      },
   surge:          { icon:'⚡+',  color:'#ff6600', label:'SURGE'          },
