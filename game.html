@@ -1005,9 +1005,9 @@ button, [onclick] { touch-action: manipulation; }
         <div style="font-family:'Orbitron',monospace;font-size:16px;letter-spacing:4px;color:#8855ff;" id="guideTitle">HOW TO PLAY</div>
         <div id="guidePageNum" style="font-size:11px;color:#444;letter-spacing:2px;margin-top:2px;">PAGE 1 OF 8</div>
       </div>
-      <button onclick="closeGuide()" style="background:transparent;border:1px solid #332244;color:#554466;
-        font-family:inherit;font-size:12px;letter-spacing:1px;padding:6px 14px;cursor:pointer;border-radius:4px;
-        transition:all 0.2s;" onmouseenter="this.style.color='#cc99ff'" onmouseleave="this.style.color='#554466'">✕ CLOSE</button>
+      <button onclick="closeGuide()" style="background:transparent;border:1px solid #8855ff66;color:#cc99ff;
+        font-family:'Orbitron',monospace;font-size:12px;letter-spacing:2px;padding:8px 16px;cursor:pointer;border-radius:4px;
+        transition:all 0.2s;" onmouseenter="this.style.background='#1a0a2e';this.style.borderColor='#aa77ff'" onmouseleave="this.style.background='transparent';this.style.borderColor='#8855ff66'">✕ CLOSE</button>
     </div>
 
     <!-- Page content -->
@@ -1016,8 +1016,8 @@ button, [onclick] { touch-action: manipulation; }
     <!-- Footer nav -->
     <div style="display:flex;align-items:center;justify-content:space-between;
       padding:14px 24px;border-top:1px solid #1a1a28;flex-shrink:0;">
-      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;color:#444;">
-        <input type="checkbox" id="guideDontShow" style="accent-color:#8855ff;">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:#888;">
+        <input type="checkbox" id="guideDontShow" style="accent-color:#8855ff;width:14px;height:14px;">
         Don't show again
       </label>
       <div style="display:flex;gap:10px;">
@@ -4197,94 +4197,319 @@ const GUIDE_PAGES = [
   {
     title: 'THE BATTLEFIELD',
     html: `
-      <div style="text-align:center;margin-bottom:20px;">
-        <div style="display:inline-block;">
-          <div style="font-size:14px;color:#ff0080;letter-spacing:3px;margin-bottom:10px;font-family:'Orbitron',monospace;">OPPONENT</div>
-          <div style="display:flex;flex-direction:column;gap:4px;">
-            <div style="display:flex;gap:4px;">${[...Array(7)].map(()=>'<div style="width:54px;height:40px;border-radius:5px;background:#ff008033;border:1px solid #ff008066;"></div>').join('')}</div>
-            ${[...Array(3)].map(()=>`<div style="display:flex;gap:4px;">${[...Array(7)].map(()=>'<div style="width:54px;height:40px;border-radius:5px;background:#0d0d1e;border:1px solid #1a1a30;"></div>').join('')}</div>`).join('')}
-            <div style="display:flex;gap:4px;">${[...Array(7)].map(()=>'<div style="width:54px;height:40px;border-radius:5px;background:#00ffcc33;border:1px solid #00ffcc66;"></div>').join('')}</div>
+      <div style="display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap;justify-content:center;">
+
+        <!-- Animated mini-board -->
+        <div style="flex-shrink:0;">
+          <div style="font-size:12px;color:#ff0080;letter-spacing:3px;margin-bottom:8px;text-align:center;font-family:'Orbitron',monospace;">OPPONENT</div>
+          <div id="guideMiniBoard" style="display:flex;flex-direction:column;gap:3px;width:fit-content;">
+            ${[0,1,2,3,4].map(r => `<div style="display:flex;gap:3px;" id="gbRow${r}">${[0,1,2,3,4].map(c =>
+              `<div id="gbc_${r}_${c}" style="width:50px;height:38px;border-radius:5px;transition:all 0.35s;
+                background:${r===0?'#ff008018':r===4?'#00ffcc18':'#0d0d1e'};
+                border:1px solid ${r===0?'#ff008044':r===4?'#00ffcc44':'#1a1a30'};
+                display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:bold;"></div>`
+            ).join('')}</div>`).join('')}
           </div>
-          <div style="font-size:14px;color:#00ffcc;letter-spacing:3px;margin-top:10px;font-family:'Orbitron',monospace;">YOU</div>
+          <div style="font-size:12px;color:#00ffcc;letter-spacing:3px;margin-top:8px;text-align:center;font-family:'Orbitron',monospace;">YOU</div>
+        </div>
+
+        <!-- Explanation -->
+        <div style="flex:1;min-width:180px;display:flex;flex-direction:column;gap:12px;padding-top:4px;">
+          <div style="background:#0a0a18;border-left:3px solid #00ffcc;border-radius:5px;padding:12px;">
+            <div style="font-size:13px;color:#00ffcc;margin-bottom:5px;">YOUR TURN</div>
+            <div style="font-size:14px;color:#ddd;">Place a card from your home row. Adjacent cells light up yellow — those are your next valid placements.</div>
+          </div>
+          <div style="background:#0a0a18;border-left:3px solid #ff0080;border-radius:5px;padding:12px;">
+            <div style="font-size:13px;color:#ff0080;margin-bottom:5px;">OPPONENT</div>
+            <div style="font-size:14px;color:#ddd;">They push down from the top. Where cards meet, edges battle.</div>
+          </div>
+          <div style="background:#0a0818;border:1px solid #ffdd0033;border-radius:5px;padding:10px;font-size:13px;color:#aaa;">
+            5 rows × 7 columns — fight for every row and column. Each card you place opens adjacent cells for your NEXT placement.
+          </div>
         </div>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:500px;margin:0 auto;">
-        <div style="background:#0a0a18;border-left:3px solid #ff0080;border-radius:6px;padding:14px;">
-          <div style="font-size:16px;color:#ff0080;font-family:'Orbitron',monospace;margin-bottom:6px;">OPPONENT</div>
-          <div style="font-size:15px;color:#ddd;">Cards push downward toward you from the top row.</div>
-        </div>
-        <div style="background:#0a0a18;border-left:3px solid #00ffcc;border-radius:6px;padding:14px;">
-          <div style="font-size:16px;color:#00ffcc;font-family:'Orbitron',monospace;margin-bottom:6px;">YOU</div>
-          <div style="font-size:15px;color:#ddd;">Place from the bottom row and push upward to win lines.</div>
-        </div>
-      </div>
+
+      <script>
+      (function() {
+        // Mini-board animation: player places card → adjacent highlights → opponent places → battle → reset
+        const STEPS = [
+          // [action, cells, style, card_label]
+          {ms:0,    reset:true},
+          {ms:400,  place:'gbc_4_2', bg:'#00ffcc33', border:'#00ffcc', label:'5'},
+          {ms:900,  highlight:['gbc_3_2','gbc_4_1','gbc_4_3'], bg:'#ffdd0033', border:'#ffdd0099'},
+          {ms:1700, place:'gbc_3_2', bg:'#00ffcc33', border:'#00ffcc', label:'3', clearHL:true},
+          {ms:2200, highlight:['gbc_2_2','gbc_3_1','gbc_3_3'], bg:'#ffdd0033', border:'#ffdd0099'},
+          {ms:2900, place:'gbc_0_2', bg:'#ff008033', border:'#ff0080', label:'7', clearHL:true},
+          {ms:3400, highlight:['gbc_1_2','gbc_0_1','gbc_0_3'], bg:'#ff008022', border:'#ff008088'},
+          {ms:3900, battle:'gbc_3_2', vs:'gbc_2_2'},
+        ];
+
+        let _timer = null;
+        function runAnim() {
+          const allCells = [];
+          for(let r=0;r<5;r++) for(let c=0;c<5;c++) allCells.push('gbc_'+r+'_'+c);
+
+          function reset() {
+            allCells.forEach(id => {
+              const el = document.getElementById(id);
+              if (!el) return;
+              const r = parseInt(id.split('_')[1]);
+              el.style.background = r===0?'#ff008018':r===4?'#00ffcc18':'#0d0d1e';
+              el.style.border = '1px solid '+(r===0?'#ff008044':r===4?'#00ffcc44':'#1a1a30');
+              el.style.boxShadow = 'none';
+              el.textContent = '';
+            });
+          }
+
+          function doStep(step) {
+            if (step.reset) { reset(); return; }
+            if (step.clearHL) {
+              allCells.forEach(id => {
+                const el = document.getElementById(id);
+                if (el && el.textContent === '') {
+                  const r = parseInt(id.split('_')[1]);
+                  el.style.background = r===0?'#ff008018':r===4?'#00ffcc18':'#0d0d1e';
+                  el.style.border = '1px solid '+(r===0?'#ff008044':r===4?'#00ffcc44':'#1a1a30');
+                  el.style.boxShadow = 'none';
+                }
+              });
+            }
+            if (step.place) {
+              const el = document.getElementById(step.place);
+              if (!el) return;
+              el.style.background = step.bg;
+              el.style.border = '2px solid '+step.border;
+              el.style.boxShadow = '0 0 10px '+step.border+'66';
+              el.textContent = step.label || '';
+              el.style.color = step.border;
+            }
+            if (step.highlight) {
+              step.highlight.forEach(id => {
+                const el = document.getElementById(id);
+                if (el && el.textContent === '') {
+                  el.style.background = step.bg;
+                  el.style.border = '1px solid '+step.border;
+                  el.style.boxShadow = '0 0 8px '+step.border+'44';
+                }
+              });
+            }
+            if (step.battle) {
+              const el = document.getElementById(step.battle);
+              const el2 = document.getElementById(step.vs);
+              if (el) el.style.boxShadow = '0 0 16px #ffdd0099';
+              if (el2) el2.style.boxShadow = '0 0 16px #ffdd0099';
+            }
+          }
+
+          let idx = 0;
+          function tick() {
+            if (idx >= STEPS.length) { idx = 0; _timer = setTimeout(tick, 600); return; }
+            const step = STEPS[idx];
+            const nextMs = idx+1 < STEPS.length ? STEPS[idx+1].ms - step.ms : 800;
+            doStep(step);
+            idx++;
+            _timer = setTimeout(tick, nextMs);
+          }
+          tick();
+        }
+
+        // Start when guide is visible, clean up when closed
+        const origShow = window.showGuide;
+        window.showGuide = function() { origShow && origShow(); if(_timer) clearTimeout(_timer); setTimeout(runAnim, 200); };
+        const origClose = window.closeGuide;
+        window.closeGuide = function() { if(_timer){clearTimeout(_timer);_timer=null;} origClose && origClose(); };
+
+        // Also start immediately if guide is already shown
+        setTimeout(runAnim, 100);
+      })();
+      </script>
     `
+  }
   },
   {
     title: 'CARDS & SCORING',
     html: `
-      <div style="display:flex;gap:28px;align-items:flex-start;flex-wrap:wrap;justify-content:center;margin-bottom:20px;">
-        <div style="position:relative;width:140px;height:180px;background:#0d0d20;border:2px solid #00ffcc;border-radius:10px;flex-shrink:0;">
-          <div style="position:absolute;top:10px;left:50%;transform:translateX(-50%);font-size:24px;font-weight:bold;color:#00ffcc;background:rgba(0,0,0,0.75);border-radius:50%;min-width:32px;text-align:center;padding:3px 4px;">7</div>
-          <div style="position:absolute;bottom:10px;left:50%;transform:translateX(-50%);font-size:24px;font-weight:bold;color:#00ffcc;background:rgba(0,0,0,0.75);border-radius:50%;min-width:32px;text-align:center;padding:3px 4px;">2</div>
-          <div style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:24px;font-weight:bold;color:#00ffcc;background:rgba(0,0,0,0.75);border-radius:50%;min-width:32px;text-align:center;padding:3px 4px;">5</div>
-          <div style="position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:24px;font-weight:bold;color:#00ffcc;background:rgba(0,0,0,0.75);border-radius:50%;min-width:32px;text-align:center;padding:3px 4px;">5</div>
-          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;">
-            <div style="font-size:32px;font-weight:bold;color:#00ffcc;">3</div>
-            <div style="font-size:11px;color:#555;letter-spacing:1px;">POWER</div>
+      <div style="display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap;justify-content:center;">
+
+        <!-- Animated battle demo -->
+        <div style="flex-shrink:0;text-align:center;">
+          <div style="font-size:12px;color:#555;letter-spacing:2px;margin-bottom:10px;">EDGE BATTLE</div>
+          <div style="display:flex;gap:8px;align-items:center;justify-content:center;">
+            <!-- Player card -->
+            <div id="gc2_player" style="position:relative;width:100px;height:130px;background:#0d1e18;border:2px solid #00ffcc;border-radius:8px;transition:all 0.3s;">
+              <div id="gc2_pt" style="position:absolute;top:6px;left:50%;transform:translateX(-50%);font-size:16px;font-weight:bold;color:#00ffcc;background:rgba(0,0,0,0.75);border-radius:50%;min-width:22px;text-align:center;padding:1px 3px;">5</div>
+              <div id="gc2_pb" style="position:absolute;bottom:6px;left:50%;transform:translateX(-50%);font-size:16px;font-weight:bold;color:#00ffcc;background:rgba(0,0,0,0.75);border-radius:50%;min-width:22px;text-align:center;padding:1px 3px;">2</div>
+              <div id="gc2_pl" style="position:absolute;left:6px;top:50%;transform:translateY(-50%);font-size:16px;font-weight:bold;color:#00ffcc;background:rgba(0,0,0,0.75);border-radius:50%;min-width:22px;text-align:center;padding:1px 3px;">4</div>
+              <div id="gc2_pr" style="position:absolute;right:6px;top:50%;transform:translateY(-50%);font-size:16px;font-weight:bold;color:#00ffcc;background:rgba(0,0,0,0.75);border-radius:50%;min-width:22px;text-align:center;padding:1px 3px;">6</div>
+              <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;">
+                <div id="gc2_pp" style="font-size:22px;font-weight:bold;color:#00ffcc;">3</div>
+                <div style="font-size:9px;color:#444;letter-spacing:1px;">PWR</div>
+              </div>
+              <div style="position:absolute;top:4px;left:4px;display:flex;gap:2px;">
+                <span style="width:6px;height:6px;border-radius:50%;background:#4488ff;display:inline-block;"></span>
+                <span style="width:6px;height:6px;border-radius:50%;background:#4488ff;display:inline-block;"></span>
+                <span style="width:6px;height:6px;border-radius:50%;background:#4488ff;display:inline-block;"></span>
+              </div>
+            </div>
+
+            <!-- VS -->
+            <div id="gc2_vs" style="display:flex;flex-direction:column;align-items:center;gap:4px;opacity:0;transition:opacity 0.3s;">
+              <div id="gc2_edge_a" style="font-size:22px;font-weight:bold;color:#00ffcc;transition:all 0.3s;">6</div>
+              <div style="font-size:11px;color:#555;">vs</div>
+              <div id="gc2_edge_b" style="font-size:22px;font-weight:bold;color:#ff0080;transition:all 0.3s;">3</div>
+            </div>
+
+            <!-- Enemy card -->
+            <div id="gc2_enemy" style="position:relative;width:100px;height:130px;background:#1e0d0d;border:2px solid #ff0080;border-radius:8px;opacity:0;transition:all 0.3s;">
+              <div style="position:absolute;top:6px;left:50%;transform:translateX(-50%);font-size:16px;font-weight:bold;color:#ff0080;background:rgba(0,0,0,0.75);border-radius:50%;min-width:22px;text-align:center;padding:1px 3px;">4</div>
+              <div style="position:absolute;bottom:6px;left:50%;transform:translateX(-50%);font-size:16px;font-weight:bold;color:#ff0080;background:rgba(0,0,0,0.75);border-radius:50%;min-width:22px;text-align:center;padding:1px 3px;">3</div>
+              <div id="gc2_el" style="position:absolute;left:6px;top:50%;transform:translateY(-50%);font-size:16px;font-weight:bold;color:#ff0080;background:rgba(0,0,0,0.75);border-radius:50%;min-width:22px;text-align:center;padding:1px 3px;">3</div>
+              <div style="position:absolute;right:6px;top:50%;transform:translateY(-50%);font-size:16px;font-weight:bold;color:#ff0080;background:rgba(0,0,0,0.75);border-radius:50%;min-width:22px;text-align:center;padding:1px 3px;">7</div>
+              <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;">
+                <div style="font-size:22px;font-weight:bold;color:#ff0080;">2</div>
+                <div style="font-size:9px;color:#444;letter-spacing:1px;">PWR</div>
+              </div>
+            </div>
           </div>
-          <div style="position:absolute;top:6px;left:6px;display:flex;gap:2px;">
-            ${[...Array(3)].map(()=>'<span style="width:7px;height:7px;border-radius:50%;background:#4488ff;box-shadow:0 0 4px #4488ff;display:inline-block;"></span>').join('')}
+
+          <!-- Result -->
+          <div id="gc2_result" style="margin-top:14px;opacity:0;transition:opacity 0.3s;text-align:center;">
+            <div id="gc2_winner" style="font-family:'Orbitron',monospace;font-size:14px;letter-spacing:2px;color:#00ffcc;margin-bottom:6px;">YOU WIN THIS EDGE</div>
+            <div style="display:flex;gap:8px;align-items:center;justify-content:center;background:#0a0a18;border-radius:6px;padding:10px 16px;">
+              <span style="font-size:18px;font-weight:bold;color:#00ffcc;">3</span>
+              <span style="color:#555;font-size:14px;">minus</span>
+              <span style="font-size:18px;font-weight:bold;color:#ff0080;">2</span>
+              <span style="color:#555;font-size:14px;">=</span>
+              <span style="font-size:18px;font-weight:bold;color:#ffdd00;">1 VP</span>
+            </div>
           </div>
         </div>
-        <div style="flex:1;min-width:200px;display:flex;flex-direction:column;gap:10px;padding-top:8px;">
-          <div style="font-size:15px;color:#ddd;line-height:1.7;">N / S / E / W edges battle adjacent enemy cards. <b style="color:#fff;">Higher edge wins</b> that direction.</div>
-          <div style="background:#0a0a18;border-radius:8px;padding:14px;">
-            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
-              <span style="font-size:20px;font-weight:bold;color:#00ffcc;">6</span>
-              <span style="color:#555;font-size:18px;">−</span>
-              <span style="font-size:20px;font-weight:bold;color:#ff0080;">4</span>
-              <span style="color:#555;font-size:18px;">=</span>
-              <span style="font-size:20px;font-weight:bold;color:#ffdd00;">2 VP</span>
-            </div>
-            <div style="font-size:14px;color:#ccc;">You earn the <b style="color:#fff;">difference</b> in power per won line. Max 3 VP per line.</div>
+
+        <!-- Labels -->
+        <div style="flex:1;min-width:180px;display:flex;flex-direction:column;gap:10px;padding-top:8px;">
+          <div style="background:#0a0a18;border-left:3px solid #00ffcc;border-radius:5px;padding:12px;">
+            <div style="font-size:13px;color:#00ffcc;margin-bottom:5px;">TOP / BOTTOM / LEFT / RIGHT</div>
+            <div style="font-size:14px;color:#ddd;">Each edge attacks in that direction. Right edge fights the card to the right. Top edge fights the card above.</div>
+          </div>
+          <div style="background:#0a0a18;border-left:3px solid #ffdd00;border-radius:5px;padding:12px;">
+            <div style="font-size:13px;color:#ffdd00;margin-bottom:5px;">VICTORY POINTS</div>
+            <div style="font-size:14px;color:#ddd;">Win a row or column = earn the difference in power. Your power minus theirs.</div>
+          </div>
+          <div style="background:#0a0a18;border-left:3px solid #aa44ff;border-radius:5px;padding:12px;">
+            <div style="font-size:13px;color:#aa44ff;margin-bottom:5px;">POWER (center number)</div>
+            <div style="font-size:14px;color:#ddd;">How much VP this card contributes when its row or column is won.</div>
           </div>
         </div>
       </div>
+
+      <script>
+      (function() {
+        let _t2 = null;
+        function anim2() {
+          const enemy   = document.getElementById('gc2_enemy');
+          const vs      = document.getElementById('gc2_vs');
+          const result  = document.getElementById('gc2_result');
+          const pr      = document.getElementById('gc2_pr');
+          const el      = document.getElementById('gc2_el');
+          if (!enemy) return;
+
+          // Reset
+          enemy.style.opacity  = '0';
+          vs.style.opacity     = '0';
+          result.style.opacity = '0';
+          if(pr) { pr.style.color='#00ffcc'; pr.style.boxShadow='none'; }
+          if(el) { el.style.color='#ff0080'; el.style.boxShadow='none'; }
+
+          _t2 = setTimeout(() => {
+            // Enemy card appears
+            if(enemy) enemy.style.opacity = '1';
+            _t2 = setTimeout(() => {
+              // VS edges highlight
+              if(vs) vs.style.opacity = '1';
+              if(pr) { pr.style.color='#ffdd00'; pr.style.boxShadow='0 0 12px #ffdd0099'; }
+              if(el) { el.style.color='#ffdd00'; el.style.boxShadow='0 0 12px #ffdd0099'; }
+              _t2 = setTimeout(() => {
+                // Result appears
+                if(result) result.style.opacity = '1';
+                _t2 = setTimeout(anim2, 1600); // restart cycle
+              }, 900);
+            }, 700);
+          }, 500);
+        }
+
+        const origShow2 = window.showGuide;
+        window.showGuide = function() { origShow2 && origShow2(); setTimeout(anim2, 300); };
+        const origClose2 = window.closeGuide;
+        window.closeGuide = function() { if(_t2){clearTimeout(_t2);_t2=null;} origClose2 && origClose2(); };
+        setTimeout(anim2, 200);
+      })();
+      </script>
     `
+  }
   },
   {
     title: 'PLACEMENT & ABILITIES',
     html: `
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px;">
-        <div style="background:#0a0a18;border-left:3px solid #d0d0d0;border-radius:6px;padding:14px;">
-          <div style="font-size:14px;color:#d0d0d0;font-family:'Orbitron',monospace;letter-spacing:2px;margin-bottom:8px;">TIER I</div>
-          <div style="font-size:15px;color:#ddd;">Home row only. Place first to unlock the battle zone.</div>
+      <div style="margin-bottom:18px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+          <div style="background:#0a0a18;border-left:3px solid #d0d0d0;border-radius:6px;padding:13px;">
+            <div style="font-size:14px;color:#d0d0d0;font-family:'Orbitron',monospace;letter-spacing:1px;margin-bottom:7px;">TIER I — HOME ROW</div>
+            <div style="font-size:14px;color:#ddd;">Your first card always goes on your home row. This unlocks the battle zone for higher tier cards.</div>
+          </div>
+          <div style="background:#0a0a18;border-left:3px solid #8855ff;border-radius:6px;padding:13px;">
+            <div style="font-size:14px;color:#8855ff;font-family:'Orbitron',monospace;letter-spacing:1px;margin-bottom:7px;">TIER II–IV — BATTLE ZONE</div>
+            <div style="font-size:14px;color:#ddd;">Rows 1–3. Must be adjacent to a card you already played. Higher tier = more power.</div>
+          </div>
         </div>
-        <div style="background:#0a0a18;border-left:3px solid #8855ff;border-radius:6px;padding:14px;">
-          <div style="font-size:14px;color:#8855ff;font-family:'Orbitron',monospace;letter-spacing:2px;margin-bottom:8px;">TIER II–IV</div>
-          <div style="font-size:15px;color:#ddd;">Battle zone (rows 1–3). Must be adjacent to a card you played.</div>
+
+        <div style="font-family:'Orbitron',monospace;font-size:13px;letter-spacing:3px;color:#ff3333;margin-bottom:12px;">SPECIAL ABILITIES</div>
+        <div style="font-size:14px;color:#ccc;margin-bottom:14px;">Some cards carry a special ability shown by a <span style="color:#ff3333;font-weight:bold;">red glow</span>. Abilities are randomly assigned each game from your faction pool.</div>
+
+        <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;">
+          <div style="text-align:center;">
+            <div style="position:relative;width:110px;height:145px;background:#0d0d20;
+              border:2px solid #ff3333;border-radius:8px;margin:0 auto 10px;
+              box-shadow:0 0 20px #ff3333aa,inset 0 0 20px #ff000033;">
+              <div style="position:absolute;top:7px;left:50%;transform:translateX(-50%);font-size:16px;font-weight:bold;color:#00ffcc;background:rgba(0,0,0,0.75);border-radius:50%;min-width:22px;text-align:center;padding:1px 3px;">5</div>
+              <div style="position:absolute;bottom:22px;left:50%;transform:translateX(-50%);font-size:16px;font-weight:bold;color:#00ffcc;background:rgba(0,0,0,0.75);border-radius:50%;min-width:22px;text-align:center;padding:1px 3px;">2</div>
+              <div style="position:absolute;left:7px;top:42%;transform:translateY(-50%);font-size:16px;font-weight:bold;color:#00ffcc;background:rgba(0,0,0,0.75);border-radius:50%;min-width:22px;text-align:center;padding:1px 3px;">4</div>
+              <div style="position:absolute;right:7px;top:42%;transform:translateY(-50%);font-size:16px;font-weight:bold;color:#00ffcc;background:rgba(0,0,0,0.75);border-radius:50%;min-width:22px;text-align:center;padding:1px 3px;">6</div>
+              <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;">
+                <div style="font-size:22px;font-weight:bold;color:#00ffcc;">2</div>
+              </div>
+              <div style="position:absolute;bottom:4px;left:0;right:0;text-align:center;font-size:9px;color:#ff3333;letter-spacing:1px;">STONE SKIN</div>
+              <div style="position:absolute;top:4px;left:4px;"><span style="width:5px;height:5px;border-radius:50%;background:#d0d0d0;display:inline-block;"></span></div>
+            </div>
+            <div style="background:#0a0a18;border:1px solid #ff333444;border-radius:6px;padding:10px;max-width:150px;">
+              <div style="font-size:11px;color:#ff3333;letter-spacing:1px;margin-bottom:4px;">STONE SKIN</div>
+              <div style="font-size:12px;color:#ccc;">First edge loss permanently blocked in that direction</div>
+            </div>
+          </div>
+
+          <div style="text-align:center;">
+            <div style="position:relative;width:110px;height:145px;background:#0d0d20;
+              border:2px solid #ff3333;border-radius:8px;margin:0 auto 10px;
+              box-shadow:0 0 20px #ff3333aa,inset 0 0 20px #ff000033;">
+              <div style="position:absolute;top:7px;left:50%;transform:translateX(-50%);font-size:16px;font-weight:bold;color:#8855ff;background:rgba(0,0,0,0.75);border-radius:50%;min-width:22px;text-align:center;padding:1px 3px;">7</div>
+              <div style="position:absolute;bottom:22px;left:50%;transform:translateX(-50%);font-size:16px;font-weight:bold;color:#8855ff;background:rgba(0,0,0,0.75);border-radius:50%;min-width:22px;text-align:center;padding:1px 3px;">3</div>
+              <div style="position:absolute;left:7px;top:42%;transform:translateY(-50%);font-size:16px;font-weight:bold;color:#8855ff;background:rgba(0,0,0,0.75);border-radius:50%;min-width:22px;text-align:center;padding:1px 3px;">5</div>
+              <div style="position:absolute;right:7px;top:42%;transform:translateY(-50%);font-size:16px;font-weight:bold;color:#8855ff;background:rgba(0,0,0,0.75);border-radius:50%;min-width:22px;text-align:center;padding:1px 3px;">5</div>
+              <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;">
+                <div style="font-size:22px;font-weight:bold;color:#8855ff;">3</div>
+              </div>
+              <div style="position:absolute;bottom:4px;left:0;right:0;text-align:center;font-size:9px;color:#ff3333;letter-spacing:1px;">VOID LANCE</div>
+              <div style="position:absolute;top:4px;left:4px;display:flex;gap:2px;"><span style="width:5px;height:5px;border-radius:50%;background:#4488ff;display:inline-block;"></span><span style="width:5px;height:5px;border-radius:50%;background:#4488ff;display:inline-block;"></span></div>
+            </div>
+            <div style="background:#0a0a18;border:1px solid #ff333444;border-radius:6px;padding:10px;max-width:150px;">
+              <div style="font-size:11px;color:#ff3333;letter-spacing:1px;margin-bottom:4px;">VOID LANCE</div>
+              <div style="font-size:12px;color:#ccc;">Silences the nearest enemy in this column — they score 0 VP</div>
+            </div>
+          </div>
         </div>
-      </div>
-      <div style="font-size:15px;color:#ddd;margin-bottom:14px;">Special abilities appear on select cards — named uniquely per faction:</div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
-        ${[
-          {col:'#aaaaff',icon:'🛡',name:'SHIELD',desc:'Blocks first loss'},
-          {col:'#ffdd00',icon:'⚡⚡',name:'DOUBLE STRIKE',desc:'2nd hit at half'},
-          {col:'#ff9900',icon:'↺',name:'FLANK',desc:'Extra turn'},
-          {col:'#ff6644',icon:'▶!',name:'RUSH',desc:'Place anywhere'},
-          {col:'#ff8800',icon:'◎',name:'SNIPER',desc:'Silence a column'},
-          {col:'#cc44ff',icon:'✕✕',name:'AMBUSH',desc:'Weaken 2 enemies'},
-        ].map(a=>`
-          <div style="background:#0a0a18;border-top:2px solid ${a.col};border-radius:5px;padding:10px;text-align:center;">
-            <div style="font-size:16px;margin-bottom:4px;">${a.icon}</div>
-            <div style="font-size:10px;color:${a.col};letter-spacing:1px;margin-bottom:3px;">${a.name}</div>
-            <div style="font-size:12px;color:#bbb;">${a.desc}</div>
-          </div>`).join('')}
+        <div style="text-align:center;margin-top:14px;font-size:13px;color:#666;">Hover any card in-game to see its full ability description.</div>
       </div>
     `
-  },
-  {
+  }  {
     title: 'COSMIC HAZARDS',
     html: `
       <div style="text-align:center;margin-bottom:20px;">
