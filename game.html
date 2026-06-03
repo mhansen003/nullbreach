@@ -4212,30 +4212,31 @@ const GUIDE_PAGES = [
   {
     title: 'THE BATTLEFIELD',
     html: `
-      <div style="text-align:center;margin-bottom:20px;">
-        <div style="display:inline-block;">
-          <div style="font-size:14px;color:#ff0080;letter-spacing:3px;margin-bottom:10px;font-family:'Orbitron',monospace;">OPPONENT</div>
-          <div style="display:flex;flex-direction:column;gap:4px;">
-            <div style="display:flex;gap:4px;">${[...Array(7)].map(()=>'<div style="width:54px;height:40px;border-radius:5px;background:#ff008033;border:1px solid #ff008066;"></div>').join('')}</div>
-            ${[...Array(3)].map(()=>`<div style="display:flex;gap:4px;">${[...Array(7)].map(()=>'<div style="width:54px;height:40px;border-radius:5px;background:#0d0d1e;border:1px solid #1a1a30;"></div>').join('')}</div>`).join('')}
-            <div style="display:flex;gap:4px;">${[...Array(7)].map(()=>'<div style="width:54px;height:40px;border-radius:5px;background:#00ffcc33;border:1px solid #00ffcc66;"></div>').join('')}</div>
-          </div>
-          <div style="font-size:14px;color:#00ffcc;letter-spacing:3px;margin-top:10px;font-family:'Orbitron',monospace;">YOU</div>
-        </div>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:500px;margin:0 auto;">
-        <div style="background:#0a0a18;border-left:3px solid #ff0080;border-radius:6px;padding:14px;">
-          <div style="font-size:16px;color:#ff0080;font-family:'Orbitron',monospace;margin-bottom:6px;">OPPONENT</div>
-          <div style="font-size:15px;color:#ddd;">Cards push downward toward you from the top row.</div>
-        </div>
-        <div style="background:#0a0a18;border-left:3px solid #00ffcc;border-radius:6px;padding:14px;">
-          <div style="font-size:16px;color:#00ffcc;font-family:'Orbitron',monospace;margin-bottom:6px;">YOU</div>
-          <div style="font-size:15px;color:#ddd;">Place from the bottom row and push upward to win lines.</div>
-        </div>
-      </div>
+      <style>@keyframes g1fly{0%{opacity:0;transform:translateY(22px) scale(0.82)}100%{opacity:1;transform:none}}@keyframes g1adj{0%{opacity:0}100%{opacity:1}}@keyframes g1pulse{0%,100%{border-color:#ffdd0055}50%{border-color:#ffdd00bb}}</style><div style="text-align:center;margin-bottom:12px;"><div style="font-size:10px;color:#ff0080;letter-spacing:3px;margin-bottom:6px;font-family:'Orbitron',monospace;">OPPONENT</div><div style="display:inline-grid;grid-template-columns:repeat(7,40px);grid-template-rows:repeat(3,52px);gap:3px;"><div style="width:40px;height:52px;border-radius:4px;position:relative;background:#0a0a17;border:1px solid #1a1a2e;border-bottom:3px solid #ff008033;"></div>
+<div style="width:40px;height:52px;border-radius:4px;position:relative;background:#0a0a17;border:1px solid #1a1a2e;border-bottom:3px solid #ff008033;"></div>
+<div style="width:40px;height:52px;border-radius:4px;position:relative;background:#0a0a17;border:1px solid #1a1a2e;border-bottom:3px solid #ff008033;"></div>
+<div style="width:40px;height:52px;border-radius:4px;position:relative;background:#ff008008;border:1px dashed #ff008044;border-bottom:3px solid #ff008033;"></div>
+<div style="width:40px;height:52px;border-radius:4px;position:relative;background:linear-gradient(145deg,#1c0a0a,#150818);border:2px solid #ff0080;border-bottom:3px solid #ff0080;display:flex;align-items:center;justify-content:center;"><img src="assets/avatars/crystallis.png" style="width:26px;height:26px;border-radius:50%;object-fit:cover;object-position:top;opacity:0.9;"></div>
+<div style="width:40px;height:52px;border-radius:4px;position:relative;background:#ff008008;border:1px dashed #ff008044;border-bottom:3px solid #ff008033;"></div>
+<div style="width:40px;height:52px;border-radius:4px;position:relative;background:#0a0a17;border:1px solid #1a1a2e;border-bottom:3px solid #ff008033;"></div>
+<div style="width:40px;height:52px;border-radius:4px;position:relative;background:#080810;border:1px dashed #151525;"></div>
+<div style="width:40px;height:52px;border-radius:4px;position:relative;background:#080810;border:1px dashed #151525;"></div>
+<div style="width:40px;height:52px;border-radius:4px;position:relative;background:#ffdd0008;border:2px dashed #ffdd0088;animation:g1adj 0.35s ease 1.6s both,g1pulse 1.4s ease 1.9500000000000002s infinite;"></div>
+<div style="width:40px;height:52px;border-radius:4px;position:relative;background:#ffdd0008;border:2px dashed #ffdd0088;animation:g1pulse 1.4s ease 0.3s infinite;"></div>
+<div style="width:40px;height:52px;border-radius:4px;position:relative;background:#ff008008;border:1px dashed #ff008044;"></div>
+<div style="width:40px;height:52px;border-radius:4px;position:relative;background:#080810;border:1px dashed #151525;"></div>
+<div style="width:40px;height:52px;border-radius:4px;position:relative;background:#080810;border:1px dashed #151525;"></div>
+<div style="width:40px;height:52px;border-radius:4px;position:relative;background:#0a0a17;border:1px solid #1a1a2e;border-top:3px solid #00ffcc33;"></div>
+<div style="width:40px;height:52px;border-radius:4px;position:relative;background:#ffdd0008;border:2px dashed #ffdd0088;border-top:3px solid #00ffcc33;animation:g1adj 0.35s ease 1.6s both,g1pulse 1.4s ease 1.9500000000000002s infinite;"></div>
+<div style="width:40px;height:52px;border-radius:4px;position:relative;background:linear-gradient(145deg,#0a1c16,#08151e);border:2px solid #00ffcc;border-top:3px solid #00ffcc;display:flex;align-items:center;justify-content:center;animation:g1fly 0.45s cubic-bezier(0.2,0,0.3,1) 1.0s both;"><img src="assets/avatars/terran.png" style="width:26px;height:26px;border-radius:50%;object-fit:cover;object-position:top;opacity:0.9;"></div>
+<div style="width:40px;height:52px;border-radius:4px;position:relative;background:linear-gradient(145deg,#0a1c16,#08151e);border:2px solid #00ffcc;border-top:3px solid #00ffcc;display:flex;align-items:center;justify-content:center;"><img src="assets/avatars/terran.png" style="width:26px;height:26px;border-radius:50%;object-fit:cover;object-position:top;opacity:0.9;"></div>
+<div style="width:40px;height:52px;border-radius:4px;position:relative;background:#ffdd0008;border:2px dashed #ffdd0088;border-top:3px solid #00ffcc33;animation:g1pulse 1.4s ease 0.3s infinite;"></div>
+<div style="width:40px;height:52px;border-radius:4px;position:relative;background:#0a0a17;border:1px solid #1a1a2e;border-top:3px solid #00ffcc33;"></div>
+<div style="width:40px;height:52px;border-radius:4px;position:relative;background:#0a0a17;border:1px solid #1a1a2e;border-top:3px solid #00ffcc33;"></div>
+</div><div style="font-size:10px;color:#00ffcc;letter-spacing:3px;margin-top:6px;font-family:'Orbitron',monospace;">YOU</div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:460px;margin:0 auto;"><div style="background:#0a0a18;border-left:3px solid #00ffcc;border-radius:6px;padding:12px;"><div style="font-size:10px;color:#00ffcc;font-family:'Orbitron',monospace;letter-spacing:2px;margin-bottom:5px;">STEP 1</div><div style="font-size:13px;color:#ddd;">Place a Tier I card on your home row (bottom). The opponent does the same from the top.</div></div><div style="background:#0a0a18;border-left:3px solid #ffdd00;border-radius:6px;padding:12px;"><div style="font-size:10px;color:#ffdd00;font-family:'Orbitron',monospace;letter-spacing:2px;margin-bottom:5px;">STEP 2</div><div style="font-size:13px;color:#ddd;"><span style="color:#ffdd00;">Yellow cells</span> unlock around each card. Your next card must go in one of those cells.</div></div></div>
     `
   },
-  {
+    {
     title: 'CARDS & SCORING',
     html: `
       <div style="display:flex;gap:28px;align-items:flex-start;flex-wrap:wrap;justify-content:center;margin-bottom:20px;">
