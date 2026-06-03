@@ -1005,9 +1005,9 @@ button, [onclick] { touch-action: manipulation; }
         <div style="font-family:'Orbitron',monospace;font-size:16px;letter-spacing:4px;color:#8855ff;" id="guideTitle">HOW TO PLAY</div>
         <div id="guidePageNum" style="font-size:11px;color:#444;letter-spacing:2px;margin-top:2px;">PAGE 1 OF 8</div>
       </div>
-      <button onclick="closeGuide()" style="background:transparent;border:1px solid #8855ff66;color:#cc99ff;
-        font-family:'Orbitron',monospace;font-size:12px;letter-spacing:2px;padding:8px 16px;cursor:pointer;border-radius:4px;
-        transition:all 0.2s;" onmouseenter="this.style.background='#1a0a2e';this.style.borderColor='#aa77ff'" onmouseleave="this.style.background='transparent';this.style.borderColor='#8855ff66'">✕ CLOSE</button>
+      <button onclick="closeGuide()" style="background:transparent;border:1px solid #332244;color:#554466;
+        font-family:inherit;font-size:12px;letter-spacing:1px;padding:6px 14px;cursor:pointer;border-radius:4px;
+        transition:all 0.2s;" onmouseenter="this.style.color='#cc99ff'" onmouseleave="this.style.color='#554466'">✕ CLOSE</button>
     </div>
 
     <!-- Page content -->
@@ -1016,8 +1016,8 @@ button, [onclick] { touch-action: manipulation; }
     <!-- Footer nav -->
     <div style="display:flex;align-items:center;justify-content:space-between;
       padding:14px 24px;border-top:1px solid #1a1a28;flex-shrink:0;">
-      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:#888;">
-        <input type="checkbox" id="guideDontShow" style="accent-color:#8855ff;width:14px;height:14px;">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;color:#444;">
+        <input type="checkbox" id="guideDontShow" style="accent-color:#8855ff;">
         Don't show again
       </label>
       <div style="display:flex;gap:10px;">
@@ -1173,22 +1173,22 @@ function initRaceTheme() {
 // Same design rule: strong attack direction = weak rear (S low on aggressive cards)
 // Brood: hive anchors (T1) → warrior clusters (T2) → skimmers (T3) → The Sovereign (T4)
 const BROOD_CARDS = [
-  { id:'br_t1a', name:'HIVE NODE',       tier:'I',  tierLabel:'HIVE NODE',       zone:'wide_cross', edges:{n:6,s:2,e:4,w:3}, power:1, ability:null,          abilityText:'Basic Hive Node', art:'assets/cards/brood/t1_a.png' },
-  { id:'br_t1b', name:'HIVE NODE',       tier:'I',  tierLabel:'HIVE NODE',       zone:'wide_cross', edges:{n:6,s:2,e:4,w:3}, power:1, ability:null,          abilityText:'Basic Hive Node', art:'assets/cards/brood/t1_a.png' },
-  { id:'br_t1c', name:'HIVE NODE',       tier:'I',  tierLabel:'HIVE NODE',       zone:'wide_cross', edges:{n:5,s:2,e:4,w:4}, power:1, ability:null,          abilityText:'Basic Hive Node', art:'assets/cards/brood/t1_a.png' },
-  { id:'br_t1d', name:'QUEEN CRADLE',    tier:'I',  tierLabel:'HIVE NODE',       zone:'wall',       edges:{n:3,s:6,e:4,w:3}, power:1, ability:null,   abilityText:'No special ability', art:'assets/cards/brood/t1_d.png' },
-  { id:'br_t1e', name:'BROOD ANCHOR',    tier:'I',  tierLabel:'HIVE NODE',       zone:'full_ring',  edges:{n:4,s:5,e:4,w:3}, power:2, ability:null,       abilityText:'No special ability', art:'assets/cards/brood/t1_e.png' },
-  { id:'br_t2a', name:'WARRIOR CLUSTER', tier:'II', tierLabel:'WARRIOR CLUSTER', zone:'command',    edges:{n:6,s:3,e:5,w:6}, power:3, ability:null,   abilityText:'No special ability', art:'assets/cards/brood/t2_a.png' },
-  { id:'br_t2b', name:'SOLDIER MASS',    tier:'II', tierLabel:'WARRIOR CLUSTER', zone:'launch',     edges:{n:6,s:3,e:6,w:5}, power:3, ability:null,       abilityText:'No special ability', art:'assets/cards/brood/t2_b.png' },
-  { id:'br_t2c', name:'BIOMECH FLEET',   tier:'II', tierLabel:'WARRIOR CLUSTER', zone:'command',    edges:{n:4,s:3,e:8,w:5}, power:2, ability:null,       abilityText:'No special ability', art:'assets/cards/brood/t2_c.png' },
-  { id:'br_t3a', name:'SKIMMER',         tier:'III',tierLabel:'SKIMMER',         zone:'flanker',    edges:{n:8,s:3,e:5,w:5}, power:3, ability:null,        abilityText:'No special ability', art:'assets/cards/brood/t3_a.png' },
-  { id:'br_t3b', name:'VOID SKIMMER',    tier:'III',tierLabel:'SKIMMER',         zone:'flanker',    edges:{n:5,s:3,e:8,w:5}, power:2, ability:null,        abilityText:'No special ability',          art:'assets/cards/brood/t3_b.png' },
-  { id:'br_t3c', name:'LARVAE STRIKE',   tier:'III',tierLabel:'SKIMMER',         zone:'lance',      edges:{n:5,s:5,e:6,w:5}, power:2, ability:null,         abilityText:'No special ability',    art:'assets/cards/brood/t3_a.png' },
-  { id:'br_t4',  name:'THE SOVEREIGN',   tier:'IV', tierLabel:'SOVEREIGN',       zone:'dreadnaught',edges:{n:8,s:6,e:7,w:7}, power:4, ability:null,   abilityText:'No special ability', art:'assets/cards/brood/t4.png' },
+  { id:'br_t1a', name:'HIVE NODE',       tier:'I',  tierLabel:'HIVE NODE',       zone:'wide_cross', edges:{n:6,s:2,e:4,w:3}, power:1, ability:null,          abilityText:'Basic Hive Node', art:'assets/cards/brood/hive-node.png' },
+  { id:'br_t1b', name:'HIVE NODE',       tier:'I',  tierLabel:'HIVE NODE',       zone:'wide_cross', edges:{n:6,s:2,e:4,w:3}, power:1, ability:null,          abilityText:'Basic Hive Node', art:'assets/cards/brood/hive-node.png' },
+  { id:'br_t1c', name:'HIVE NODE',       tier:'I',  tierLabel:'HIVE NODE',       zone:'wide_cross', edges:{n:5,s:2,e:4,w:4}, power:1, ability:null,          abilityText:'Basic Hive Node', art:'assets/cards/brood/hive-node.png' },
+  { id:'br_t1d', name:'QUEEN CRADLE',    tier:'I',  tierLabel:'HIVE NODE',       zone:'wall',       edges:{n:3,s:6,e:4,w:3}, power:1, ability:null,   abilityText:'No special ability', art:'assets/cards/brood/queen-cradle.png' },
+  { id:'br_t1e', name:'BROOD ANCHOR',    tier:'I',  tierLabel:'HIVE NODE',       zone:'full_ring',  edges:{n:4,s:5,e:4,w:3}, power:2, ability:null,       abilityText:'No special ability', art:'assets/cards/brood/brood-anchor.png' },
+  { id:'br_t2a', name:'WARRIOR CLUSTER', tier:'II', tierLabel:'WARRIOR CLUSTER', zone:'command',    edges:{n:6,s:3,e:5,w:6}, power:3, ability:null,   abilityText:'No special ability', art:'assets/cards/brood/warrior-cluster.png' },
+  { id:'br_t2b', name:'SOLDIER MASS',    tier:'II', tierLabel:'WARRIOR CLUSTER', zone:'launch',     edges:{n:6,s:3,e:6,w:5}, power:3, ability:null,       abilityText:'No special ability', art:'assets/cards/brood/soldier-mass.png' },
+  { id:'br_t2c', name:'BIOMECH FLEET',   tier:'II', tierLabel:'WARRIOR CLUSTER', zone:'command',    edges:{n:4,s:3,e:8,w:5}, power:2, ability:null,       abilityText:'No special ability', art:'assets/cards/brood/biomech-fleet.png' },
+  { id:'br_t3a', name:'SKIMMER',         tier:'III',tierLabel:'SKIMMER',         zone:'flanker',    edges:{n:8,s:3,e:5,w:5}, power:3, ability:null,        abilityText:'No special ability', art:'assets/cards/brood/skimmer.png' },
+  { id:'br_t3b', name:'VOID SKIMMER',    tier:'III',tierLabel:'SKIMMER',         zone:'flanker',    edges:{n:5,s:3,e:8,w:5}, power:2, ability:null,        abilityText:'No special ability',          art:'assets/cards/brood/void-skimmer.png' },
+  { id:'br_t3c', name:'LARVAE STRIKE',   tier:'III',tierLabel:'SKIMMER',         zone:'lance',      edges:{n:5,s:5,e:6,w:5}, power:2, ability:null,         abilityText:'No special ability',    art:'assets/cards/brood/skimmer.png' },
+  { id:'br_t4',  name:'THE SOVEREIGN',   tier:'IV', tierLabel:'SOVEREIGN',       zone:'dreadnaught',edges:{n:8,s:6,e:7,w:7}, power:4, ability:null,   abilityText:'No special ability', art:'assets/cards/brood/the-sovereign.png' },
   // Extra cards
-  { id:'br_x1', name:'HIVE NODE',        tier:'I',  tierLabel:'HIVE NODE',       zone:'wide_cross', edges:{n:5,s:5,e:6,w:5}, power:1, ability:null,          abilityText:'Basic Hive Node', art:'assets/cards/brood/t1_a.png' },
-  { id:'br_x2', name:'SWARM WING',       tier:'II', tierLabel:'WARRIOR CLUSTER', zone:'flanker',    edges:{n:5,s:3,e:8,w:5}, power:3, ability:null,       abilityText:'No special ability', art:'assets/cards/brood/t2_c.png' },
-  { id:'br_x3', name:'HIVE LANCE',       tier:'III',tierLabel:'SKIMMER',         zone:'lance',      edges:{n:3,s:8,e:5,w:5}, power:2, ability:null,        abilityText:'No special ability', art:'assets/cards/brood/t3_b.png' },
+  { id:'br_x1', name:'HIVE NODE',        tier:'I',  tierLabel:'HIVE NODE',       zone:'wide_cross', edges:{n:5,s:5,e:6,w:5}, power:1, ability:null,          abilityText:'Basic Hive Node', art:'assets/cards/brood/hive-node.png' },
+  { id:'br_x2', name:'SWARM WING',       tier:'II', tierLabel:'WARRIOR CLUSTER', zone:'flanker',    edges:{n:5,s:3,e:8,w:5}, power:3, ability:null,       abilityText:'No special ability', art:'assets/cards/brood/biomech-fleet.png' },
+  { id:'br_x3', name:'HIVE LANCE',       tier:'III',tierLabel:'SKIMMER',         zone:'lance',      edges:{n:3,s:8,e:5,w:5}, power:2, ability:null,        abilityText:'No special ability', art:'assets/cards/brood/void-skimmer.png' },
 ];
 
 // ── CRYSTALLIS DECK — Silicon Lattice Collective ──────────────────
@@ -1430,25 +1430,25 @@ const CHOIR_CARDS = [
 // N=forward toward enemy | S=rear weakness | E/W=flanks
 const PLAYER_CARDS = [
   // T1 — COLONY WORLDS (anchors; balanced but slight directional bias, rear always weak)
-  { id:'ta_t1a', name:'COLONY WORLD A', tier:'I',  tierLabel:'COLONY WORLD', zone:'wide_cross',  edges:{n:6,s:2,e:4,w:3}, power:1, ability:null,            abilityText:'Basic Colony World', art:'assets/cards/terran/t1_a.png' },
-  { id:'ta_t1b', name:'COLONY WORLD B', tier:'I',  tierLabel:'COLONY WORLD', zone:'wide_cross',  edges:{n:5,s:2,e:4,w:4}, power:1, ability:null,            abilityText:'Basic Colony World', art:'assets/cards/terran/t1_b.png' },
-  { id:'ta_t1c', name:'COLONY WORLD C', tier:'I',  tierLabel:'COLONY WORLD', zone:'wide_cross',  edges:{n:6,s:2,e:4,w:3}, power:1, ability:null,            abilityText:'Basic Colony World', art:'assets/cards/terran/t1_c.png' },
-  { id:'ta_t1d', name:'FRONTIER POST', tier:'I',  tierLabel:'COLONY WORLD', zone:'wall',        edges:{n:3,s:6,e:4,w:3}, power:1, ability:null,        abilityText:'No special ability', art:'assets/cards/terran/t1_d.png' },
-  { id:'ta_t1e', name:'SUPPLY HUB',    tier:'I',  tierLabel:'COLONY WORLD', zone:'full_ring',   edges:{n:4,s:4,e:4,w:4}, power:2, ability:null,     abilityText:'No special ability', art:'assets/cards/terran/t1_e.png' },
+  { id:'ta_t1a', name:'COLONY WORLD A', tier:'I',  tierLabel:'COLONY WORLD', zone:'wide_cross',  edges:{n:6,s:2,e:4,w:3}, power:1, ability:null,            abilityText:'Basic Colony World', art:'assets/cards/terran/colony-world-a.png' },
+  { id:'ta_t1b', name:'COLONY WORLD B', tier:'I',  tierLabel:'COLONY WORLD', zone:'wide_cross',  edges:{n:5,s:2,e:4,w:4}, power:1, ability:null,            abilityText:'Basic Colony World', art:'assets/cards/terran/colony-world-b.png' },
+  { id:'ta_t1c', name:'COLONY WORLD C', tier:'I',  tierLabel:'COLONY WORLD', zone:'wide_cross',  edges:{n:6,s:2,e:4,w:3}, power:1, ability:null,            abilityText:'Basic Colony World', art:'assets/cards/terran/colony-world-c.png' },
+  { id:'ta_t1d', name:'FRONTIER POST', tier:'I',  tierLabel:'COLONY WORLD', zone:'wall',        edges:{n:3,s:6,e:4,w:3}, power:1, ability:null,        abilityText:'No special ability', art:'assets/cards/terran/frontier-post.png' },
+  { id:'ta_t1e', name:'SUPPLY HUB',    tier:'I',  tierLabel:'COLONY WORLD', zone:'full_ring',   edges:{n:4,s:4,e:4,w:4}, power:2, ability:null,     abilityText:'No special ability', art:'assets/cards/terran/supply-hub.png' },
   // T2 — BATTLE GROUPS
-  { id:'ta_t2a', name:'BATTLE GROUP',  tier:'II', tierLabel:'BATTLE GROUP', zone:'command',     edges:{n:6,s:3,e:6,w:5}, power:3, ability:null,     abilityText:'No special ability', art:'assets/cards/terran/t2_a.png' },
-  { id:'ta_t2b', name:'CARRIER WING',  tier:'II', tierLabel:'BATTLE GROUP', zone:'launch',      edges:{n:6,s:3,e:5,w:6}, power:3, ability:null, abilityText:'No special ability', art:'assets/cards/terran/t2_b.png' },
-  { id:'ta_t2c', name:'STRIKE FORCE',  tier:'II', tierLabel:'BATTLE GROUP', zone:'lance',       edges:{n:4,s:3,e:8,w:5}, power:2, ability:null, abilityText:'No special ability', art:'assets/cards/terran/t2_c.png' },
+  { id:'ta_t2a', name:'BATTLE GROUP',  tier:'II', tierLabel:'BATTLE GROUP', zone:'command',     edges:{n:6,s:3,e:6,w:5}, power:3, ability:null,     abilityText:'No special ability', art:'assets/cards/terran/battle-group.png' },
+  { id:'ta_t2b', name:'CARRIER WING',  tier:'II', tierLabel:'BATTLE GROUP', zone:'launch',      edges:{n:6,s:3,e:5,w:6}, power:3, ability:null, abilityText:'No special ability', art:'assets/cards/terran/carrier-wing.png' },
+  { id:'ta_t2c', name:'STRIKE FORCE',  tier:'II', tierLabel:'BATTLE GROUP', zone:'lance',       edges:{n:4,s:3,e:8,w:5}, power:2, ability:null, abilityText:'No special ability', art:'assets/cards/terran/strike-force.png' },
   // T3 — FIGHTERS
-  { id:'ta_t3a', name:'INTERCEPTOR',   tier:'III',tierLabel:'STRIKE CRAFT', zone:'lance',       edges:{n:7,s:3,e:6,w:5}, power:3, ability:null, abilityText:'No special ability', art:'assets/cards/terran/t3_a.png' },
-  { id:'ta_t3b', name:'FAST RUNNER',   tier:'III',tierLabel:'STRIKE CRAFT', zone:'flanker',     edges:{n:5,s:3,e:8,w:5}, power:2, ability:null,         abilityText:'No special ability', art:'assets/cards/terran/t3_b.png' },
-  { id:'ta_t3c', name:'FLANKER',       tier:'III',tierLabel:'STRIKE CRAFT', zone:'flanker',     edges:{n:5,s:5,e:6,w:5}, power:2, ability:null,        abilityText:'No special ability', art:'assets/cards/terran/t3_c.png' },
+  { id:'ta_t3a', name:'INTERCEPTOR',   tier:'III',tierLabel:'STRIKE CRAFT', zone:'lance',       edges:{n:7,s:3,e:6,w:5}, power:3, ability:null, abilityText:'No special ability', art:'assets/cards/terran/interceptor.png' },
+  { id:'ta_t3b', name:'FAST RUNNER',   tier:'III',tierLabel:'STRIKE CRAFT', zone:'flanker',     edges:{n:5,s:3,e:8,w:5}, power:2, ability:null,         abilityText:'No special ability', art:'assets/cards/terran/fast-runner.png' },
+  { id:'ta_t3c', name:'FLANKER',       tier:'III',tierLabel:'STRIKE CRAFT', zone:'flanker',     edges:{n:5,s:5,e:6,w:5}, power:2, ability:null,        abilityText:'No special ability', art:'assets/cards/terran/flanker.png' },
   // T4 — FLAGSHIP
-  { id:'ta_t4',  name:'THE ACCORD',    tier:'IV', tierLabel:'DREADNAUGHT',  zone:'dreadnaught', edges:{n:7,s:6,e:8,w:7}, power:4, ability:null,         abilityText:'No special ability', art:'assets/cards/terran/t4.png' },
+  { id:'ta_t4',  name:'THE ACCORD',    tier:'IV', tierLabel:'DREADNAUGHT',  zone:'dreadnaught', edges:{n:7,s:6,e:8,w:7}, power:4, ability:null,         abilityText:'No special ability', art:'assets/cards/terran/the-accord.png' },
   // EXTRA
-  { id:'ta_x1', name:'MINING COLONY', tier:'I',   tierLabel:'COLONY WORLD', zone:'wide_cross',  edges:{n:5,s:5,e:6,w:5}, power:1, ability:null,            abilityText:'Basic Colony World — pure foundation', art:'assets/cards/terran/t1_a.png' },
-  { id:'ta_x2', name:'GUNSHIP WING',  tier:'II',  tierLabel:'BATTLE GROUP', zone:'command',     edges:{n:5,s:3,e:8,w:5}, power:3, ability:null,     abilityText:'No special ability', art:'assets/cards/terran/t2_a.png' },
-  { id:'ta_x3', name:'GHOST RUNNER',  tier:'III', tierLabel:'STRIKE CRAFT', zone:'lance',       edges:{n:3,s:8,e:5,w:5}, power:2, ability:null,        abilityText:'No special ability', art:'assets/cards/terran/t3_b.png' },
+  { id:'ta_x1', name:'MINING COLONY', tier:'I',   tierLabel:'COLONY WORLD', zone:'wide_cross',  edges:{n:5,s:5,e:6,w:5}, power:1, ability:null,            abilityText:'Basic Colony World — pure foundation', art:'assets/cards/terran/colony-world-a.png' },
+  { id:'ta_x2', name:'GUNSHIP WING',  tier:'II',  tierLabel:'BATTLE GROUP', zone:'command',     edges:{n:5,s:3,e:8,w:5}, power:3, ability:null,     abilityText:'No special ability', art:'assets/cards/terran/battle-group.png' },
+  { id:'ta_x3', name:'GHOST RUNNER',  tier:'III', tierLabel:'STRIKE CRAFT', zone:'lance',       edges:{n:3,s:8,e:5,w:5}, power:2, ability:null,        abilityText:'No special ability', art:'assets/cards/terran/fast-runner.png' },
 ];
 const AI_CARDS = [
   { id:'a1',  name:'FANG',    tier:'I',   edges:{n:3,s:5,e:4,w:5}, power:2, ability:null,            abilityText:'Basic card' },
@@ -1523,7 +1523,6 @@ function initGame() {
   document.body.style.cursor = 'default';
   window._activeTier = undefined; // reset tier accordion to T1
   renderAll();
-  // Reset badge flip tracking for fresh game
   _prevBadgeRes.rows = Array(5).fill(null);
   _prevBadgeRes.cols = Array(7).fill(null);
   // Assign 5 random abilities per deck (weighted toward higher tiers)
@@ -1556,29 +1555,6 @@ function initGame() {
     };
     G.playerHand.push(bonusCard);
     addLog('system', 'BIRTHRIGHT — bonus T2 unit added to your hand');
-  }
-
-  renderHand(); // re-evaluate eligibility now that abilities (e.g. RUSH) are assigned
-
-  if (G.aiHand.some(c => c.ability === 'birthright')) {
-    const bonusCard = {
-      id: 'birthright_bonus',
-      name: 'BONUS UNIT',
-      tier: 'II',
-      tierLabel: 'BONUS',
-      zone: 'wide_cross',
-      edges: { n:4, s:3, e:4, w:4 },
-      power: 2,
-      ability: null,
-      abilityText: 'Spawned by AI BIRTHRIGHT',
-      art: G.playerHand.find(c => c.tier === 'II')?.art || '',
-      shieldExpended: false,
-      used: false,
-      edgeMod: { n:0, s:0, e:0, w:0 },
-      _isAiBirthrightBonus: true
-    };
-    G.aiHand.push(bonusCard);
-    addLog('system', 'AI BIRTHRIGHT — bonus T2 unit added to your hand');
   }
 
   // Place cosmic hazard cards for balanced and aggressive games (1-2 random hazards)
@@ -1850,7 +1826,7 @@ function computeScores() {
         if (cell.card && cell.owner === 'player' && cell.card.ability === 'deciding_factor') { hasDf = true; break; }
       }
       if (hasDf) colResults[c] = 'p';
-    // AI DECIDING_FACTOR: flip tied col to 'a'
+    // AI DECIDING_FACTOR
     let hasAiDf3 = false;
     for (let _r3=0; _r3<5; _r3++) {
       const _c2 = G.grid[_r3][c];
@@ -3407,7 +3383,15 @@ function checkWin() {
     title.className = 'overlay-title win';
     title.textContent = 'BREACH COMPLETE';
     sub.textContent   = `${s.pVP} VP vs ${s.aVP} VP`;
-
+  } else if (false && s.aVP > s.pVP) {
+    title.className = 'overlay-title lose';
+    title.textContent = 'BREACH FAILED';
+    sub.textContent   = `AI wins ${s.aVP} VP vs your ${s.pVP} VP`;
+  } else {
+    title.className = 'overlay-title draw';
+    title.textContent = 'STALEMATE';
+    sub.textContent   = `${s.pWins} lines each`;
+  }
 
   const rowW_p = s.rowResults.filter(r=>r==='p').length;
   const rowW_a = s.rowResults.filter(r=>r==='a').length;
@@ -4216,244 +4200,94 @@ if (_mpRoom && _mpPlayer) {
 }
 
 // ── HOW TO PLAY GUIDE ────────────────────────────────────────────────────────
-
-// ── GUIDE MODAL ANIMATIONS ────────────────────────────────────────────────────
-function _startBoardAnim() {
-  const allIds = [];
-  for(let r=0;r<5;r++) for(let c=0;c<5;c++) allIds.push('gbc_'+r+'_'+c);
-  function reset() {
-    allIds.forEach(id => {
-      const el = document.getElementById(id);
-      if(!el) return;
-      const r = parseInt(id.split('_')[1]);
-      el.style.background = r===0?'#ff008018':r===4?'#00ffcc18':'#0d0d1e';
-      el.style.border = '1px solid '+(r===0?'#ff008044':r===4?'#00ffcc44':'#1a1a30');
-      el.style.boxShadow='none'; el.textContent='';
-    });
-  }
-  const STEPS = [
-    {ms:0,reset:true},
-    {ms:400,place:'gbc_4_2',bg:'#00ffcc33',border:'#00ffcc',label:'5'},
-    {ms:900,hl:['gbc_3_2','gbc_4_1','gbc_4_3'],bg:'#ffdd0033',border:'#ffdd0099'},
-    {ms:1700,place:'gbc_3_2',bg:'#00ffcc33',border:'#00ffcc',label:'3',clrHL:true},
-    {ms:2200,hl:['gbc_2_2','gbc_3_1','gbc_3_3'],bg:'#ffdd0033',border:'#ffdd0099'},
-    {ms:2900,place:'gbc_0_2',bg:'#ff008033',border:'#ff0080',label:'7',clrHL:true},
-    {ms:3400,hl:['gbc_1_2','gbc_0_1','gbc_0_3'],bg:'#ff008022',border:'#ff008088'},
-  ];
-  let idx=0;
-  function tick() {
-    if(idx>=STEPS.length){idx=0;window._guideAnim=setTimeout(tick,800);return;}
-    const s=STEPS[idx];
-    if(s.reset)reset();
-    if(s.clrHL)allIds.forEach(id=>{const el=document.getElementById(id);if(el&&el.textContent===''){const r=parseInt(id.split('_')[1]);el.style.background=r===0?'#ff008018':r===4?'#00ffcc18':'#0d0d1e';el.style.border='1px solid '+(r===0?'#ff008044':r===4?'#00ffcc44':'#1a1a30');el.style.boxShadow='none';}});
-    if(s.place){const el=document.getElementById(s.place);if(el){el.style.background=s.bg;el.style.border='2px solid '+s.border;el.style.boxShadow='0 0 10px '+s.border+'66';el.textContent=s.label||'';el.style.color=s.border;}}
-    if(s.hl)s.hl.forEach(id=>{const el=document.getElementById(id);if(el&&el.textContent===''){el.style.background=s.bg;el.style.border='1px solid '+s.border;el.style.boxShadow='0 0 8px '+s.border+'44';}});
-    idx++;
-    const next=idx<STEPS.length?STEPS[idx].ms-s.ms:800;
-    window._guideAnim=setTimeout(tick,next);
-  }
-  tick();
-}
-
-function _startBattleAnim() {
-  const enemy=document.getElementById('gc2_enemy');
-  const vs=document.getElementById('gc2_vs');
-  const result=document.getElementById('gc2_result');
-  const pr=document.getElementById('gc2_pr');
-  const el=document.getElementById('gc2_el');
-  if(!enemy)return;
-  function resetB(){enemy.style.opacity='0';vs.style.opacity='0';result.style.opacity='0';if(pr){pr.style.color='#00ffcc';pr.style.boxShadow='none';}if(el){el.style.color='#ff0080';el.style.boxShadow='none';}}
-  resetB();
-  window._guideAnim=setTimeout(()=>{
-    if(enemy)enemy.style.opacity='1';
-    window._guideAnim=setTimeout(()=>{
-      if(vs)vs.style.opacity='1';
-      if(pr){pr.style.color='#ffdd00';pr.style.boxShadow='0 0 12px #ffdd0099';}
-      if(el){el.style.color='#ffdd00';el.style.boxShadow='0 0 12px #ffdd0099';}
-      window._guideAnim=setTimeout(()=>{
-        if(result)result.style.opacity='1';
-        window._guideAnim=setTimeout(()=>{_startBattleAnim();},1600);
-      },900);
-    },700);
-  },500);
-}
-
 const GUIDE_PAGES = [
   {
     title: 'THE BATTLEFIELD',
     html: `
-      <div style="display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap;justify-content:center;">
-
-        <!-- Animated mini-board -->
-        <div style="flex-shrink:0;">
-          <div style="font-size:12px;color:#ff0080;letter-spacing:3px;margin-bottom:8px;text-align:center;font-family:'Orbitron',monospace;">OPPONENT</div>
-          <div id="guideMiniBoard" style="display:flex;flex-direction:column;gap:3px;width:fit-content;">
-            ${[0,1,2,3,4].map(r => `<div style="display:flex;gap:3px;" id="gbRow${r}">${[0,1,2,3,4].map(c =>
-              `<div id="gbc_${r}_${c}" style="width:50px;height:38px;border-radius:5px;transition:all 0.35s;
-                background:${r===0?'#ff008018':r===4?'#00ffcc18':'#0d0d1e'};
-                border:1px solid ${r===0?'#ff008044':r===4?'#00ffcc44':'#1a1a30'};
-                display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:bold;"></div>`
-            ).join('')}</div>`).join('')}
+      <div style="text-align:center;margin-bottom:20px;">
+        <div style="display:inline-block;">
+          <div style="font-size:14px;color:#ff0080;letter-spacing:3px;margin-bottom:10px;font-family:'Orbitron',monospace;">OPPONENT</div>
+          <div style="display:flex;flex-direction:column;gap:4px;">
+            <div style="display:flex;gap:4px;">${[...Array(7)].map(()=>'<div style="width:54px;height:40px;border-radius:5px;background:#ff008033;border:1px solid #ff008066;"></div>').join('')}</div>
+            ${[...Array(3)].map(()=>`<div style="display:flex;gap:4px;">${[...Array(7)].map(()=>'<div style="width:54px;height:40px;border-radius:5px;background:#0d0d1e;border:1px solid #1a1a30;"></div>').join('')}</div>`).join('')}
+            <div style="display:flex;gap:4px;">${[...Array(7)].map(()=>'<div style="width:54px;height:40px;border-radius:5px;background:#00ffcc33;border:1px solid #00ffcc66;"></div>').join('')}</div>
           </div>
-          <div style="font-size:12px;color:#00ffcc;letter-spacing:3px;margin-top:8px;text-align:center;font-family:'Orbitron',monospace;">YOU</div>
+          <div style="font-size:14px;color:#00ffcc;letter-spacing:3px;margin-top:10px;font-family:'Orbitron',monospace;">YOU</div>
         </div>
-
-        <!-- Explanation -->
-        <div style="flex:1;min-width:180px;display:flex;flex-direction:column;gap:12px;padding-top:4px;">
-          <div style="background:#0a0a18;border-left:3px solid #00ffcc;border-radius:5px;padding:12px;">
-            <div style="font-size:13px;color:#00ffcc;margin-bottom:5px;">YOUR TURN</div>
-            <div style="font-size:14px;color:#ddd;">Place a card from your home row. Adjacent cells light up yellow — those are your next valid placements.</div>
-          </div>
-          <div style="background:#0a0a18;border-left:3px solid #ff0080;border-radius:5px;padding:12px;">
-            <div style="font-size:13px;color:#ff0080;margin-bottom:5px;">OPPONENT</div>
-            <div style="font-size:14px;color:#ddd;">They push down from the top. Where cards meet, edges battle.</div>
-          </div>
-          <div style="background:#0a0818;border:1px solid #ffdd0033;border-radius:5px;padding:10px;font-size:13px;color:#aaa;">
-            5 rows × 7 columns — fight for every row and column. Each card you place opens adjacent cells for your NEXT placement.
-          </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:500px;margin:0 auto;">
+        <div style="background:#0a0a18;border-left:3px solid #ff0080;border-radius:6px;padding:14px;">
+          <div style="font-size:16px;color:#ff0080;font-family:'Orbitron',monospace;margin-bottom:6px;">OPPONENT</div>
+          <div style="font-size:15px;color:#ddd;">Cards push downward toward you from the top row.</div>
+        </div>
+        <div style="background:#0a0a18;border-left:3px solid #00ffcc;border-radius:6px;padding:14px;">
+          <div style="font-size:16px;color:#00ffcc;font-family:'Orbitron',monospace;margin-bottom:6px;">YOU</div>
+          <div style="font-size:15px;color:#ddd;">Place from the bottom row and push upward to win lines.</div>
         </div>
       </div>
     `
-  }
   },
   {
     title: 'CARDS & SCORING',
     html: `
-      <div style="display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap;justify-content:center;">
-
-        <!-- Animated battle demo -->
-        <div style="flex-shrink:0;text-align:center;">
-          <div style="font-size:12px;color:#555;letter-spacing:2px;margin-bottom:10px;">EDGE BATTLE</div>
-          <div style="display:flex;gap:8px;align-items:center;justify-content:center;">
-            <!-- Player card -->
-            <div id="gc2_player" style="position:relative;width:100px;height:130px;background:#0d1e18;border:2px solid #00ffcc;border-radius:8px;transition:all 0.3s;">
-              <div id="gc2_pt" style="position:absolute;top:6px;left:50%;transform:translateX(-50%);font-size:16px;font-weight:bold;color:#00ffcc;background:rgba(0,0,0,0.75);border-radius:50%;min-width:22px;text-align:center;padding:1px 3px;">5</div>
-              <div id="gc2_pb" style="position:absolute;bottom:6px;left:50%;transform:translateX(-50%);font-size:16px;font-weight:bold;color:#00ffcc;background:rgba(0,0,0,0.75);border-radius:50%;min-width:22px;text-align:center;padding:1px 3px;">2</div>
-              <div id="gc2_pl" style="position:absolute;left:6px;top:50%;transform:translateY(-50%);font-size:16px;font-weight:bold;color:#00ffcc;background:rgba(0,0,0,0.75);border-radius:50%;min-width:22px;text-align:center;padding:1px 3px;">4</div>
-              <div id="gc2_pr" style="position:absolute;right:6px;top:50%;transform:translateY(-50%);font-size:16px;font-weight:bold;color:#00ffcc;background:rgba(0,0,0,0.75);border-radius:50%;min-width:22px;text-align:center;padding:1px 3px;">6</div>
-              <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;">
-                <div id="gc2_pp" style="font-size:22px;font-weight:bold;color:#00ffcc;">3</div>
-                <div style="font-size:9px;color:#444;letter-spacing:1px;">PWR</div>
-              </div>
-              <div style="position:absolute;top:4px;left:4px;display:flex;gap:2px;">
-                <span style="width:6px;height:6px;border-radius:50%;background:#4488ff;display:inline-block;"></span>
-                <span style="width:6px;height:6px;border-radius:50%;background:#4488ff;display:inline-block;"></span>
-                <span style="width:6px;height:6px;border-radius:50%;background:#4488ff;display:inline-block;"></span>
-              </div>
-            </div>
-
-            <!-- VS -->
-            <div id="gc2_vs" style="display:flex;flex-direction:column;align-items:center;gap:4px;opacity:0;transition:opacity 0.3s;">
-              <div id="gc2_edge_a" style="font-size:22px;font-weight:bold;color:#00ffcc;transition:all 0.3s;">6</div>
-              <div style="font-size:11px;color:#555;">vs</div>
-              <div id="gc2_edge_b" style="font-size:22px;font-weight:bold;color:#ff0080;transition:all 0.3s;">3</div>
-            </div>
-
-            <!-- Enemy card -->
-            <div id="gc2_enemy" style="position:relative;width:100px;height:130px;background:#1e0d0d;border:2px solid #ff0080;border-radius:8px;opacity:0;transition:all 0.3s;">
-              <div style="position:absolute;top:6px;left:50%;transform:translateX(-50%);font-size:16px;font-weight:bold;color:#ff0080;background:rgba(0,0,0,0.75);border-radius:50%;min-width:22px;text-align:center;padding:1px 3px;">4</div>
-              <div style="position:absolute;bottom:6px;left:50%;transform:translateX(-50%);font-size:16px;font-weight:bold;color:#ff0080;background:rgba(0,0,0,0.75);border-radius:50%;min-width:22px;text-align:center;padding:1px 3px;">3</div>
-              <div id="gc2_el" style="position:absolute;left:6px;top:50%;transform:translateY(-50%);font-size:16px;font-weight:bold;color:#ff0080;background:rgba(0,0,0,0.75);border-radius:50%;min-width:22px;text-align:center;padding:1px 3px;">3</div>
-              <div style="position:absolute;right:6px;top:50%;transform:translateY(-50%);font-size:16px;font-weight:bold;color:#ff0080;background:rgba(0,0,0,0.75);border-radius:50%;min-width:22px;text-align:center;padding:1px 3px;">7</div>
-              <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;">
-                <div style="font-size:22px;font-weight:bold;color:#ff0080;">2</div>
-                <div style="font-size:9px;color:#444;letter-spacing:1px;">PWR</div>
-              </div>
-            </div>
+      <div style="display:flex;gap:28px;align-items:flex-start;flex-wrap:wrap;justify-content:center;margin-bottom:20px;">
+        <div style="position:relative;width:140px;height:180px;background:#0d0d20;border:2px solid #00ffcc;border-radius:10px;flex-shrink:0;">
+          <div style="position:absolute;top:10px;left:50%;transform:translateX(-50%);font-size:24px;font-weight:bold;color:#00ffcc;background:rgba(0,0,0,0.75);border-radius:50%;min-width:32px;text-align:center;padding:3px 4px;">7</div>
+          <div style="position:absolute;bottom:10px;left:50%;transform:translateX(-50%);font-size:24px;font-weight:bold;color:#00ffcc;background:rgba(0,0,0,0.75);border-radius:50%;min-width:32px;text-align:center;padding:3px 4px;">2</div>
+          <div style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:24px;font-weight:bold;color:#00ffcc;background:rgba(0,0,0,0.75);border-radius:50%;min-width:32px;text-align:center;padding:3px 4px;">5</div>
+          <div style="position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:24px;font-weight:bold;color:#00ffcc;background:rgba(0,0,0,0.75);border-radius:50%;min-width:32px;text-align:center;padding:3px 4px;">5</div>
+          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;">
+            <div style="font-size:32px;font-weight:bold;color:#00ffcc;">3</div>
+            <div style="font-size:11px;color:#555;letter-spacing:1px;">POWER</div>
           </div>
-
-          <!-- Result -->
-          <div id="gc2_result" style="margin-top:14px;opacity:0;transition:opacity 0.3s;text-align:center;">
-            <div id="gc2_winner" style="font-family:'Orbitron',monospace;font-size:14px;letter-spacing:2px;color:#00ffcc;margin-bottom:6px;">YOU WIN THIS EDGE</div>
-            <div style="display:flex;gap:8px;align-items:center;justify-content:center;background:#0a0a18;border-radius:6px;padding:10px 16px;">
-              <span style="font-size:18px;font-weight:bold;color:#00ffcc;">3</span>
-              <span style="color:#555;font-size:14px;">minus</span>
-              <span style="font-size:18px;font-weight:bold;color:#ff0080;">2</span>
-              <span style="color:#555;font-size:14px;">=</span>
-              <span style="font-size:18px;font-weight:bold;color:#ffdd00;">1 VP</span>
-            </div>
+          <div style="position:absolute;top:6px;left:6px;display:flex;gap:2px;">
+            ${[...Array(3)].map(()=>'<span style="width:7px;height:7px;border-radius:50%;background:#4488ff;box-shadow:0 0 4px #4488ff;display:inline-block;"></span>').join('')}
           </div>
         </div>
-
-        <!-- Labels -->
-        <div style="flex:1;min-width:180px;display:flex;flex-direction:column;gap:10px;padding-top:8px;">
-          <div style="background:#0a0a18;border-left:3px solid #00ffcc;border-radius:5px;padding:12px;">
-            <div style="font-size:13px;color:#00ffcc;margin-bottom:5px;">TOP / BOTTOM / LEFT / RIGHT</div>
-            <div style="font-size:14px;color:#ddd;">Each edge attacks in that direction. Right edge fights the card to the right. Top edge fights the card above.</div>
-          </div>
-          <div style="background:#0a0a18;border-left:3px solid #ffdd00;border-radius:5px;padding:12px;">
-            <div style="font-size:13px;color:#ffdd00;margin-bottom:5px;">VICTORY POINTS</div>
-            <div style="font-size:14px;color:#ddd;">Win a row or column = earn the difference in power. Your power minus theirs.</div>
-          </div>
-          <div style="background:#0a0a18;border-left:3px solid #aa44ff;border-radius:5px;padding:12px;">
-            <div style="font-size:13px;color:#aa44ff;margin-bottom:5px;">POWER (center number)</div>
-            <div style="font-size:14px;color:#ddd;">How much VP this card contributes when its row or column is won.</div>
+        <div style="flex:1;min-width:200px;display:flex;flex-direction:column;gap:10px;padding-top:8px;">
+          <div style="font-size:15px;color:#ddd;line-height:1.7;">N / S / E / W edges battle adjacent enemy cards. <b style="color:#fff;">Higher edge wins</b> that direction.</div>
+          <div style="background:#0a0a18;border-radius:8px;padding:14px;">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+              <span style="font-size:20px;font-weight:bold;color:#00ffcc;">6</span>
+              <span style="color:#555;font-size:18px;">−</span>
+              <span style="font-size:20px;font-weight:bold;color:#ff0080;">4</span>
+              <span style="color:#555;font-size:18px;">=</span>
+              <span style="font-size:20px;font-weight:bold;color:#ffdd00;">2 VP</span>
+            </div>
+            <div style="font-size:14px;color:#ccc;">You earn the <b style="color:#fff;">difference</b> in power per won line. Max 3 VP per line.</div>
           </div>
         </div>
       </div>
     `
-  }
   },
   {
     title: 'PLACEMENT & ABILITIES',
     html: `
-      <div style="margin-bottom:18px;">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
-          <div style="background:#0a0a18;border-left:3px solid #d0d0d0;border-radius:6px;padding:13px;">
-            <div style="font-size:14px;color:#d0d0d0;font-family:'Orbitron',monospace;letter-spacing:1px;margin-bottom:7px;">TIER I — HOME ROW</div>
-            <div style="font-size:14px;color:#ddd;">Your first card always goes on your home row. This unlocks the battle zone for higher tier cards.</div>
-          </div>
-          <div style="background:#0a0a18;border-left:3px solid #8855ff;border-radius:6px;padding:13px;">
-            <div style="font-size:14px;color:#8855ff;font-family:'Orbitron',monospace;letter-spacing:1px;margin-bottom:7px;">TIER II–IV — BATTLE ZONE</div>
-            <div style="font-size:14px;color:#ddd;">Rows 1–3. Must be adjacent to a card you already played. Higher tier = more power.</div>
-          </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px;">
+        <div style="background:#0a0a18;border-left:3px solid #d0d0d0;border-radius:6px;padding:14px;">
+          <div style="font-size:14px;color:#d0d0d0;font-family:'Orbitron',monospace;letter-spacing:2px;margin-bottom:8px;">TIER I</div>
+          <div style="font-size:15px;color:#ddd;">Home row only. Place first to unlock the battle zone.</div>
         </div>
-
-        <div style="font-family:'Orbitron',monospace;font-size:13px;letter-spacing:3px;color:#ff3333;margin-bottom:12px;">SPECIAL ABILITIES</div>
-        <div style="font-size:14px;color:#ccc;margin-bottom:14px;">Some cards carry a special ability shown by a <span style="color:#ff3333;font-weight:bold;">red glow</span>. Abilities are randomly assigned each game from your faction pool.</div>
-
-        <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;">
-          <div style="text-align:center;">
-            <div style="position:relative;width:110px;height:145px;background:#0d0d20;
-              border:2px solid #ff3333;border-radius:8px;margin:0 auto 10px;
-              box-shadow:0 0 20px #ff3333aa,inset 0 0 20px #ff000033;">
-              <div style="position:absolute;top:7px;left:50%;transform:translateX(-50%);font-size:16px;font-weight:bold;color:#00ffcc;background:rgba(0,0,0,0.75);border-radius:50%;min-width:22px;text-align:center;padding:1px 3px;">5</div>
-              <div style="position:absolute;bottom:22px;left:50%;transform:translateX(-50%);font-size:16px;font-weight:bold;color:#00ffcc;background:rgba(0,0,0,0.75);border-radius:50%;min-width:22px;text-align:center;padding:1px 3px;">2</div>
-              <div style="position:absolute;left:7px;top:42%;transform:translateY(-50%);font-size:16px;font-weight:bold;color:#00ffcc;background:rgba(0,0,0,0.75);border-radius:50%;min-width:22px;text-align:center;padding:1px 3px;">4</div>
-              <div style="position:absolute;right:7px;top:42%;transform:translateY(-50%);font-size:16px;font-weight:bold;color:#00ffcc;background:rgba(0,0,0,0.75);border-radius:50%;min-width:22px;text-align:center;padding:1px 3px;">6</div>
-              <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;">
-                <div style="font-size:22px;font-weight:bold;color:#00ffcc;">2</div>
-              </div>
-              <div style="position:absolute;bottom:4px;left:0;right:0;text-align:center;font-size:9px;color:#ff3333;letter-spacing:1px;">STONE SKIN</div>
-              <div style="position:absolute;top:4px;left:4px;"><span style="width:5px;height:5px;border-radius:50%;background:#d0d0d0;display:inline-block;"></span></div>
-            </div>
-            <div style="background:#0a0a18;border:1px solid #ff333444;border-radius:6px;padding:10px;max-width:150px;">
-              <div style="font-size:11px;color:#ff3333;letter-spacing:1px;margin-bottom:4px;">STONE SKIN</div>
-              <div style="font-size:12px;color:#ccc;">First edge loss permanently blocked in that direction</div>
-            </div>
-          </div>
-
-          <div style="text-align:center;">
-            <div style="position:relative;width:110px;height:145px;background:#0d0d20;
-              border:2px solid #ff3333;border-radius:8px;margin:0 auto 10px;
-              box-shadow:0 0 20px #ff3333aa,inset 0 0 20px #ff000033;">
-              <div style="position:absolute;top:7px;left:50%;transform:translateX(-50%);font-size:16px;font-weight:bold;color:#8855ff;background:rgba(0,0,0,0.75);border-radius:50%;min-width:22px;text-align:center;padding:1px 3px;">7</div>
-              <div style="position:absolute;bottom:22px;left:50%;transform:translateX(-50%);font-size:16px;font-weight:bold;color:#8855ff;background:rgba(0,0,0,0.75);border-radius:50%;min-width:22px;text-align:center;padding:1px 3px;">3</div>
-              <div style="position:absolute;left:7px;top:42%;transform:translateY(-50%);font-size:16px;font-weight:bold;color:#8855ff;background:rgba(0,0,0,0.75);border-radius:50%;min-width:22px;text-align:center;padding:1px 3px;">5</div>
-              <div style="position:absolute;right:7px;top:42%;transform:translateY(-50%);font-size:16px;font-weight:bold;color:#8855ff;background:rgba(0,0,0,0.75);border-radius:50%;min-width:22px;text-align:center;padding:1px 3px;">5</div>
-              <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;">
-                <div style="font-size:22px;font-weight:bold;color:#8855ff;">3</div>
-              </div>
-              <div style="position:absolute;bottom:4px;left:0;right:0;text-align:center;font-size:9px;color:#ff3333;letter-spacing:1px;">VOID LANCE</div>
-              <div style="position:absolute;top:4px;left:4px;display:flex;gap:2px;"><span style="width:5px;height:5px;border-radius:50%;background:#4488ff;display:inline-block;"></span><span style="width:5px;height:5px;border-radius:50%;background:#4488ff;display:inline-block;"></span></div>
-            </div>
-            <div style="background:#0a0a18;border:1px solid #ff333444;border-radius:6px;padding:10px;max-width:150px;">
-              <div style="font-size:11px;color:#ff3333;letter-spacing:1px;margin-bottom:4px;">VOID LANCE</div>
-              <div style="font-size:12px;color:#ccc;">Silences the nearest enemy in this column — they score 0 VP</div>
-            </div>
-          </div>
+        <div style="background:#0a0a18;border-left:3px solid #8855ff;border-radius:6px;padding:14px;">
+          <div style="font-size:14px;color:#8855ff;font-family:'Orbitron',monospace;letter-spacing:2px;margin-bottom:8px;">TIER II–IV</div>
+          <div style="font-size:15px;color:#ddd;">Battle zone (rows 1–3). Must be adjacent to a card you played.</div>
         </div>
-        <div style="text-align:center;margin-top:14px;font-size:13px;color:#666;">Hover any card in-game to see its full ability description.</div>
+      </div>
+      <div style="font-size:15px;color:#ddd;margin-bottom:14px;">Special abilities appear on select cards — named uniquely per faction:</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+        ${[
+          {col:'#aaaaff',icon:'🛡',name:'SHIELD',desc:'Blocks first loss'},
+          {col:'#ffdd00',icon:'⚡⚡',name:'DOUBLE STRIKE',desc:'2nd hit at half'},
+          {col:'#ff9900',icon:'↺',name:'FLANK',desc:'Extra turn'},
+          {col:'#ff6644',icon:'▶!',name:'RUSH',desc:'Place anywhere'},
+          {col:'#ff8800',icon:'◎',name:'SNIPER',desc:'Silence a column'},
+          {col:'#cc44ff',icon:'✕✕',name:'AMBUSH',desc:'Weaken 2 enemies'},
+        ].map(a=>`
+          <div style="background:#0a0a18;border-top:2px solid ${a.col};border-radius:5px;padding:10px;text-align:center;">
+            <div style="font-size:16px;margin-bottom:4px;">${a.icon}</div>
+            <div style="font-size:10px;color:${a.col};letter-spacing:1px;margin-bottom:3px;">${a.name}</div>
+            <div style="font-size:12px;color:#bbb;">${a.desc}</div>
+          </div>`).join('')}
       </div>
     `
   },
@@ -4493,8 +4327,6 @@ function guidePage(delta) {
 }
 
 function renderGuide() {
-  // Clean up any running animations from previous pages
-  if (window._guideAnim) { clearTimeout(window._guideAnim); window._guideAnim = null; }
   const p = GUIDE_PAGES[_guidePage];
   document.getElementById('guideTitle').textContent = p.title;
   document.getElementById('guidePageNum').textContent = `PAGE ${_guidePage+1} OF ${GUIDE_PAGES.length}`;
@@ -4525,7 +4357,12 @@ function closeGuide() {
   }
 }
 
-// Guide accessible via ? USER GUIDE button in faction HUD
+// Auto-show on first visit
+window.addEventListener('load', () => {
+  if (!localStorage.getItem('gz_guide_seen')) {
+    setTimeout(showGuide, 800);
+  }
+});
 
 // ── START ─────────────────────────────────────
 // Set active deck from URL param BEFORE initGame reads it
