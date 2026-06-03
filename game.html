@@ -418,30 +418,35 @@ body {
   animation: tipShineSwipe 4s ease-in-out infinite 1s;
 }
 .tip-body { position:relative; z-index:3; }
+@keyframes errGlow {
+  0%,100% { box-shadow: 0 0 0 1px #ff333322, 0 16px 40px #000000cc, 0 0 18px #ff333318; }
+  50%     { box-shadow: 0 0 0 2px #ff333344, 0 16px 40px #000000cc, 0 0 36px #ff333328; }
+}
 .tip-error {
   display:none; position:fixed;
-  background:#1a0505; border:1px solid #ff334488;
-  border-radius:8px; padding:10px 14px;
-  font-size:11px; color:#ff8888; letter-spacing:1px; line-height:1.6;
-  z-index:9500; pointer-events:none; max-width:220px;
-  box-shadow: 0 8px 24px #000000aa, 0 0 20px #ff333318;
+  background: linear-gradient(148deg, #1c0808 0%, #0d0505 60%);
+  border:1px solid #ff333366;
+  border-radius:10px; padding:0;
+  z-index:9500; pointer-events:none; min-width:180px; max-width:240px;
+  animation: errGlow 2.5s ease-in-out infinite;
+  overflow:hidden; font-family:'Courier New',monospace;
 }
 
-/* Tier indicator dots — embedded in empty cells */
+/* Tier indicator dots — upper-left of each empty cell, always visible */
 .tri-dots {
-  position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
+  position: absolute; top: 7px; left: 7px;
   display: flex; align-items: center; gap: 3px; pointer-events: none;
 }
 .tri-d {
-  width: 5px; height: 5px; border-radius: 50%; transition: background 0.2s;
+  width: 6px; height: 6px; border-radius: 50%; transition: background 0.2s;
 }
-.tri-d.white { background: #ffffff14; }
-.tri-d.green { background: #44cc6614; }
-.tri-plus    { font-size: 9px; color: #44cc6614; line-height: 1; transition: color 0.2s; }
+.tri-d.white { background: #ffffff55; }
+.tri-d.green { background: #44cc6655; }
+.tri-plus    { font-size: 9px; color: #44cc6655; line-height: 1; transition: color 0.2s; font-weight:bold; }
 /* brighten when this cell is a valid drop target */
-.cell.valid .tri-d.white { background: #ffffff50; }
-.cell.valid .tri-d.green { background: #44cc6650; }
-.cell.valid .tri-plus    { color: #44cc6650; }
+.cell.valid .tri-d.white { background: #ffffffcc; }
+.cell.valid .tri-d.green { background: #44cc66cc; }
+.cell.valid .tri-plus    { color: #44cc66cc; }
 
 /* ══════════════════════════════════════
    MOBILE / TABLET RESPONSIVE
@@ -659,28 +664,32 @@ button, [onclick] { touch-action: manipulation; }
 <audio id="bgTrack"    preload="none"></audio>
 
 <!-- Music controls: mute + volume -->
-<!-- Total score HUD — bottom right, always visible -->
+<!-- Total score HUD — bottom right, faction-colored, avatar-driven -->
 <div id="scoreHud" style="
   position:fixed;bottom:16px;right:16px;z-index:100;
   background:#000000cc;border:1px solid #1a1a2e;
-  border-radius:6px;padding:10px 14px;
+  border-radius:8px;padding:10px 12px;
   font-family:'Courier New',monospace;
-  min-width:170px;
+  min-width:180px;
 ">
-  <div style="font-size:8px;letter-spacing:3px;color:#444;margin-bottom:6px;text-align:center;">SCORE</div>
-  <div style="display:flex;flex-direction:column;gap:5px;">
-    <div id="hudPlayerRow" style="display:flex;justify-content:space-between;align-items:center;">
-      <span id="hudPlayerName" style="font-size:10px;letter-spacing:1px;color:#00ffcc;max-width:110px;overflow:hidden;white-space:nowrap;">YOU</span>
-      <span id="hudPlayerScore" style="font-size:18px;font-weight:bold;color:#00ffcc;text-shadow:0 0 8px #00ffcc;">0</span>
-    </div>
-    <div style="height:1px;background:#1a1a2e;"></div>
-    <div id="hudAiRow" style="display:flex;justify-content:space-between;align-items:center;">
-      <span id="hudAiName" style="font-size:10px;letter-spacing:1px;color:#ff0080;max-width:110px;overflow:hidden;white-space:nowrap;">AI</span>
-      <span id="hudAiScore" style="font-size:18px;font-weight:bold;color:#ff0080;text-shadow:0 0 8px #ff0080;">0</span>
-    </div>
+  <!-- Player row -->
+  <div id="hudPlayerRow" style="display:flex;align-items:center;gap:8px;padding:4px 0;">
+    <img id="hudPlayerAvatar" src="" style="width:28px;height:28px;border-radius:50%;object-fit:cover;object-position:top;border:2px solid #444;flex-shrink:0;">
+    <span id="hudPlayerName" style="font-size:9px;letter-spacing:1px;color:#666;flex:1;overflow:hidden;white-space:nowrap;">YOU</span>
+    <span id="hudPlayerScore" style="font-size:20px;font-weight:bold;color:#666;">0</span>
   </div>
-  <div style="height:1px;background:#1a1a2e;margin:6px 0 4px;"></div>
-  <div id="hudWinner" style="font-size:8px;letter-spacing:2px;color:#444;text-align:center;">0 / 12 LINES</div>
+  <div style="height:1px;background:#1a1a2e;margin:2px 0;"></div>
+  <!-- AI row -->
+  <div id="hudAiRow" style="display:flex;align-items:center;gap:8px;padding:4px 0;">
+    <img id="hudAiAvatar" src="" style="width:28px;height:28px;border-radius:50%;object-fit:cover;object-position:top;border:2px solid #444;flex-shrink:0;">
+    <span id="hudAiName" style="font-size:9px;letter-spacing:1px;color:#666;flex:1;overflow:hidden;white-space:nowrap;">AI</span>
+    <span id="hudAiScore" style="font-size:20px;font-weight:bold;color:#666;">0</span>
+  </div>
+  <div style="height:1px;background:#1a1a2e;margin:4px 0 3px;"></div>
+  <!-- Leader strip -->
+  <div id="hudWinner" style="display:flex;align-items:center;justify-content:center;gap:6px;min-height:16px;">
+    <span style="font-size:8px;letter-spacing:2px;color:#333;">0 / 12 LINES</span>
+  </div>
 </div>
 
 <div style="position:fixed;bottom:16px;right:200px;z-index:100;display:flex;align-items:center;gap:8px;">
@@ -1312,74 +1321,65 @@ function renderScoreBadges() {
   const aCol    = window.aiFactionColor     || '#ff0080';
 
   function rowBadgeHtml(p, a, res) {
-    const noContest = p === 0 && a === 0;
-    if (noContest) return `<span style="font-size:18px;color:#1a1a28;letter-spacing:3px;">--</span>`;
-
-    const pWin = res === 'p', aWin = res === 'a', tie = res === 'tie' || (!pWin && !aWin);
-
-    // Winner on top (bigger, colored), loser below (smaller, grey)
-    const pClass = pWin ? 'win' : aWin ? 'lose' : 'none';
-    const aClass = aWin ? 'win' : pWin ? 'lose' : 'none';
-    const pBorder = pWin ? pCol : '#333';
-    const aBorder = aWin ? aCol : '#333';
-    const pSize   = pWin ? '24px' : '16px';
-    const aSize   = aWin ? '24px' : '16px';
-    const pFSize  = pWin ? '18px' : '12px';
-    const aFSize  = aWin ? '18px' : '12px';
-    const pOpac  = pWin ? '1' : '0.22';
-    const aOpac  = aWin ? '1' : '0.22';
-    const pFilter = pWin ? 'none' : 'grayscale(1)';
-    const aFilter = aWin ? 'none' : 'grayscale(1)';
-
-    return `
-      <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
-        <img src="${pAvatar}" style="width:${pSize};height:${pSize};border-radius:50%;object-fit:cover;object-position:top;border:2px solid ${pBorder};filter:${pFilter};opacity:${pOpac};transition:all 0.3s;">
-        <span style="font-size:${pFSize};font-weight:bold;color:${pWin?pCol:'#2a2a3a'};line-height:1;transition:all 0.3s;">${p}</span>
-      </div>
-      <div style="width:28px;height:1px;background:#1a1a28;"></div>
-      <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
-        <span style="font-size:${aFSize};font-weight:bold;color:${aWin?aCol:'#2a2a3a'};line-height:1;transition:all 0.3s;">${a}</span>
-        <img src="${aAvatar}" style="width:${aSize};height:${aSize};border-radius:50%;object-fit:cover;object-position:top;border:2px solid ${aBorder};filter:${aFilter};opacity:${aOpac};transition:all 0.3s;">
+    if (p === 0 && a === 0) return `<span style="font-size:16px;color:#1e1e2a;letter-spacing:3px;">--</span>`;
+    const pWin = res === 'p', aWin = res === 'a';
+    const winCol = pWin ? pCol : aWin ? aCol : '#555';
+    // Winner on top: bigger avatar + colored score; loser below: small + grey
+    const mkSide = (src, score, isWin, myCol) => `
+      <div style="display:flex;flex-direction:column;align-items:center;gap:3px;">
+        <img src="${src}" style="
+          width:${isWin?'34px':'20px'};height:${isWin?'34px':'20px'};
+          border-radius:50%;object-fit:cover;object-position:top;
+          border:2px solid ${isWin?myCol:'#2a2a3a'};
+          filter:${isWin?'none':'grayscale(1)'};
+          opacity:${isWin?'1':'0.28'};
+          box-shadow:${isWin?`0 0 12px ${myCol}66`:'none'};
+          transition:all 0.3s;">
+        <span style="font-size:${isWin?'20px':'12px'};font-weight:bold;color:${isWin?myCol:'#2a2a3a'};line-height:1;">${score}</span>
       </div>`;
+    return `
+      ${mkSide(pAvatar, p, pWin, pCol)}
+      <div style="width:30px;height:1px;background:#1a1a28;"></div>
+      ${mkSide(aAvatar, a, aWin, aCol)}`;
   }
 
   function colBadgeHtml(p, a, res) {
-    const noContest = p === 0 && a === 0;
-    if (noContest) return `<span style="font-size:16px;color:#1a1a28;letter-spacing:3px;">--</span>`;
-
+    if (p === 0 && a === 0) return `<span style="font-size:15px;color:#1e1e2a;letter-spacing:3px;">--</span>`;
     const pWin = res === 'p', aWin = res === 'a';
-    const pFilter = pWin ? 'none' : 'grayscale(1)';
-    const aFilter = aWin ? 'none' : 'grayscale(1)';
-    const pOpac   = pWin ? '1' : '0.22';
-    const aOpac   = aWin ? '1' : '0.22';
-    const pBorder = pWin ? pCol : '#2a2a3a';
-    const aBorder = aWin ? aCol : '#2a2a3a';
-    const pFSize  = pWin ? '15px' : '11px';
-    const aFSize  = aWin ? '15px' : '11px';
-    const pImgSz  = pWin ? '20px' : '15px';
-    const aImgSz  = aWin ? '20px' : '15px';
-
-    return `
-      <div style="display:flex;align-items:center;gap:4px;transition:all 0.3s;">
-        <img src="${pAvatar}" style="width:${pImgSz};height:${pImgSz};border-radius:50%;object-fit:cover;object-position:top;border:1px solid ${pBorder};filter:${pFilter};opacity:${pOpac};">
-        <span style="font-size:${pFSize};font-weight:bold;color:${pWin?pCol:'#2a2a3a'};">${p}</span>
-      </div>
-      <div style="width:1px;height:24px;background:#1a1a28;margin:0 3px;"></div>
-      <div style="display:flex;align-items:center;gap:4px;transition:all 0.3s;">
-        <span style="font-size:${aFSize};font-weight:bold;color:${aWin?aCol:'#2a2a3a'};">${a}</span>
-        <img src="${aAvatar}" style="width:${aImgSz};height:${aImgSz};border-radius:50%;object-fit:cover;object-position:top;border:1px solid ${aBorder};filter:${aFilter};opacity:${aOpac};">
+    const mkSide = (src, score, isWin, myCol) => `
+      <div style="display:flex;align-items:center;gap:3px;">
+        <img src="${src}" style="
+          width:${isWin?'22px':'15px'};height:${isWin?'22px':'15px'};
+          border-radius:50%;object-fit:cover;object-position:top;
+          border:1px solid ${isWin?myCol:'#2a2a3a'};
+          filter:${isWin?'none':'grayscale(1)'};opacity:${isWin?'1':'0.28'};
+          box-shadow:${isWin?`0 0 8px ${myCol}55`:'none'};
+          transition:all 0.3s;">
+        <span style="font-size:${isWin?'16px':'11px'};font-weight:bold;color:${isWin?myCol:'#2a2a3a'};">${score}</span>
       </div>`;
+    return `
+      ${mkSide(pAvatar, p, pWin, pCol)}
+      <div style="width:1px;height:26px;background:#1a1a28;margin:0 3px;"></div>
+      ${mkSide(aAvatar, a, aWin, aCol)}`;
   }
 
-  // ROW score badges
+  // ROW score badges — apply faction border color dynamically
   const rowEl = document.getElementById('rowScores');
   rowEl.innerHTML = '';
   for (let r = 0; r < 5; r++) {
     const {p,a} = s.rows[r];
     const res = s.rowResults[r];
-    const state = (p===0&&a===0) ? 'none' : res==='p' ? 'p-win' : res==='a' ? 'a-win' : 'tie';
     const badge = document.createElement('div');
-    badge.className = `row-score-badge ${state}`;
+    badge.className = 'row-score-badge';
+    if (p===0&&a===0) {
+      badge.style.cssText = `background:#07070f;border:1px solid #111120;`;
+    } else if (res==='p') {
+      badge.style.cssText = `background:${pCol}08;border:1px solid ${pCol}55;`;
+    } else if (res==='a') {
+      badge.style.cssText = `background:${aCol}08;border:1px solid ${aCol}55;`;
+    } else {
+      badge.style.cssText = `background:#0d0c18;border:1px solid #221a33;`;
+    }
     badge.innerHTML = rowBadgeHtml(p, a, res);
     badge.addEventListener('mouseenter', () => {
       document.querySelectorAll(`.cell[data-r="${r}"]`).forEach(el => el.style.outline='2px solid #ffff0055');
@@ -1390,15 +1390,23 @@ function renderScoreBadges() {
     rowEl.appendChild(badge);
   }
 
-  // COL score badges
+  // COL score badges — apply faction border color dynamically
   const colEl = document.getElementById('colScores');
   colEl.innerHTML = '';
   for (let c = 0; c < 7; c++) {
     const {p,a} = s.cols[c];
     const res = s.colResults[c];
-    const state = (p===0&&a===0) ? 'none' : res==='p' ? 'p-win' : res==='a' ? 'a-win' : 'tie';
     const badge = document.createElement('div');
-    badge.className = `col-score-badge ${state}`;
+    badge.className = 'col-score-badge';
+    if (p===0&&a===0) {
+      badge.style.cssText = `background:#07070f;border:1px solid #111120;`;
+    } else if (res==='p') {
+      badge.style.cssText = `background:${pCol}08;border:1px solid ${pCol}55;`;
+    } else if (res==='a') {
+      badge.style.cssText = `background:${aCol}08;border:1px solid ${aCol}55;`;
+    } else {
+      badge.style.cssText = `background:#0d0c18;border:1px solid #221a33;`;
+    }
     badge.innerHTML = colBadgeHtml(p, a, res);
     badge.addEventListener('mouseenter', () => {
       document.querySelectorAll(`.cell[data-c="${c}"]`).forEach(el => el.style.outline='2px solid #ffff0055');
@@ -1426,39 +1434,49 @@ function renderScoreHeader() {
     else q.textContent = '"Your breach ends here."';
   }
 
-  // ── Score HUD (bottom-right) ──────────────────
-  const pEl = document.getElementById('hudPlayerScore');
-  const aEl = document.getElementById('hudAiScore');
-  const wEl = document.getElementById('hudWinner');
+  // ── Score HUD (bottom-right) — faction-colored ──────────────────
+  const pCol = window.playerFactionColor || '#00ffcc';
+  const aCol = window.aiFactionColor     || '#ff0080';
+  const pAvg = window.playerAvatarImg    || '';
+  const aAvg = window.aiAvatarImg        || '';
+  const pNam = window.playerFactionName  || 'YOU';
+  const aNam = window.aiFactionName      || 'AI';
+
+  const pLeading = s.pWins > s.aWins;
+  const aLeading = s.aWins > s.pWins;
+
+  // Player row
+  const hudPAv = document.getElementById('hudPlayerAvatar');
+  const hudPNm = document.getElementById('hudPlayerName');
+  const hudPSc = document.getElementById('hudPlayerScore');
+  const hudARow= document.getElementById('hudAiRow');
+  const hudPRow= document.getElementById('hudPlayerRow');
+  if (hudPAv) { hudPAv.src = pAvg; hudPAv.style.borderColor = pLeading ? pCol : '#333'; hudPAv.style.filter = pLeading ? 'none' : 'grayscale(0.6)'; hudPAv.style.width = pLeading ? '34px' : '24px'; hudPAv.style.height = pLeading ? '34px' : '24px'; }
+  if (hudPNm) { hudPNm.textContent = pNam; hudPNm.style.color = pLeading ? pCol : '#555'; }
+  if (hudPSc) { hudPSc.textContent = s.pWins; hudPSc.style.color = pLeading ? pCol : '#444'; hudPSc.style.textShadow = pLeading ? `0 0 10px ${pCol}` : 'none'; hudPSc.style.fontSize = pLeading ? '22px' : '16px'; }
+
+  // AI row
+  const hudAAv = document.getElementById('hudAiAvatar');
+  const hudANm = document.getElementById('hudAiName');
+  const hudASc = document.getElementById('hudAiScore');
+  if (hudAAv) { hudAAv.src = aAvg; hudAAv.style.borderColor = aLeading ? aCol : '#333'; hudAAv.style.filter = aLeading ? 'none' : 'grayscale(0.6)'; hudAAv.style.width = aLeading ? '34px' : '24px'; hudAAv.style.height = aLeading ? '34px' : '24px'; }
+  if (hudANm) { hudANm.textContent = aNam; hudANm.style.color = aLeading ? aCol : '#555'; }
+  if (hudASc) { hudASc.textContent = s.aWins; hudASc.style.color = aLeading ? aCol : '#444'; hudASc.style.textShadow = aLeading ? `0 0 10px ${aCol}` : 'none'; hudASc.style.fontSize = aLeading ? '22px' : '16px'; }
+
+  // HUD border glow
   const hud = document.getElementById('scoreHud');
-  const pNm = document.getElementById('hudPlayerName');
-  const aNm = document.getElementById('hudAiName');
+  if (hud) hud.style.borderColor = pLeading ? pCol+'44' : aLeading ? aCol+'44' : '#1a1a2e';
 
-  if (pNm) pNm.textContent = window.playerFactionName || 'YOU';
-  if (aNm) aNm.textContent = window.aiFactionName || 'AI';
-  if (pEl) pEl.textContent = s.pWins;
-  if (aEl) aEl.textContent = s.aWins;
-
+  // Leader strip
+  const wEl = document.getElementById('hudWinner');
   if (wEl) {
-    if (s.pWins > s.aWins) {
-      wEl.textContent = '▲ YOU LEADING';
-      wEl.style.color = '#00ffcc';
-    } else if (s.aWins > s.pWins) {
-      wEl.textContent = '▼ AI LEADING';
-      wEl.style.color = '#ff0080';
+    if (pLeading) {
+      wEl.innerHTML = `<img src="${pAvg}" style="width:14px;height:14px;border-radius:50%;object-fit:cover;border:1px solid ${pCol};"><span style="font-size:8px;letter-spacing:2px;color:${pCol};">${pNam} LEADS</span>`;
+    } else if (aLeading) {
+      wEl.innerHTML = `<img src="${aAvg}" style="width:14px;height:14px;border-radius:50%;object-fit:cover;border:1px solid ${aCol};"><span style="font-size:8px;letter-spacing:2px;color:${aCol};">${aNam} LEADS</span>`;
     } else {
-      wEl.textContent = `${s.pWins} / 12 LINES`;
-      wEl.style.color = '#444';
+      wEl.innerHTML = `<span style="font-size:8px;letter-spacing:2px;color:#333;">${s.pWins} / 12 LINES</span>`;
     }
-  }
-
-  // Glow the winning side's score
-  if (hud) {
-    const pRow = document.getElementById('hudPlayerRow');
-    const aRow = document.getElementById('hudAiRow');
-    if (pRow) pRow.style.opacity = s.pWins >= s.aWins ? '1' : '0.5';
-    if (aRow) aRow.style.opacity = s.aWins >= s.pWins ? '1' : '0.5';
-    hud.style.borderColor = s.pWins > s.aWins ? '#00ffcc44' : s.aWins > s.pWins ? '#ff008044' : '#1a1a2e';
   }
 }
 
@@ -2102,7 +2120,12 @@ function showTip(e, card) {
 function showErrorTip(e, reason) {
   hideTip();
   const et = document.getElementById('errorTip');
-  et.innerHTML = `<span style="color:#ff5555;font-size:13px;margin-right:6px;">✗</span>${reason}`;
+  et.innerHTML = `
+    <div style="display:flex;align-items:center;gap:8px;padding:8px 12px 6px;border-bottom:1px solid #ff333322;">
+      <span style="font-size:15px;filter:drop-shadow(0 0 5px #ff3333);">✗</span>
+      <span style="font-family:'Orbitron',monospace;font-size:9px;letter-spacing:2px;color:#ff6666;font-weight:700;">INVALID PLACEMENT</span>
+    </div>
+    <div style="padding:8px 12px 10px;font-size:10px;color:#ffaaaa;letter-spacing:0.5px;line-height:1.6;">${reason}</div>`;
   et.style.display = 'block';
   const etH = et.offsetHeight || 60;
   const etW = et.offsetWidth  || 220;
