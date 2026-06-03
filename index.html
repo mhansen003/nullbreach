@@ -1448,8 +1448,8 @@ function selectOpponent(raceId, tileEl) {
     const rid = t.dataset.rid;
     const r   = RACES.find(r => r.id === rid);
     if (rid === raceId) {
-      t.style.borderColor   = r.color;
-      t.style.boxShadow     = `0 0 20px ${r.color}66, 0 0 0 1px ${r.color}88`;
+      t.style.borderColor   = '#00ffcc';
+      t.style.boxShadow     = '0 0 20px #00ffcc66, 0 0 0 1px #00ffcc88';
       t.style.transform     = 'scale(1.06)';
       t.querySelector('.opp-check').style.display = 'flex';
     } else {
