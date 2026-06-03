@@ -1324,16 +1324,16 @@ function renderScoreBadges() {
     const winCol = pWin ? pCol : aWin ? aCol : '#555';
     // Winner on top: bigger avatar + colored score; loser below: small + grey
     const mkSide = (src, score, isWin, myCol) => `
-      <div style="display:flex;flex-direction:column;align-items:center;gap:3px;">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:3px;pointer-events:none;">
         <img src="${src}" style="
           width:${isWin?'34px':'20px'};height:${isWin?'34px':'20px'};
           border-radius:50%;object-fit:cover;object-position:top;
           border:2px solid ${isWin?myCol:'#2a2a3a'};
           filter:${isWin?'none':'grayscale(1)'};
-          opacity:${isWin?'1':'0.28'};
+          opacity:${isWin?'1':'0.45'};
           box-shadow:${isWin?`0 0 12px ${myCol}66`:'none'};
-          transition:all 0.3s;">
-        <span style="font-size:${isWin?'20px':'12px'};font-weight:bold;color:${isWin?myCol:'#2a2a3a'};line-height:1;">${score}</span>
+          pointer-events:none;">
+        <span style="font-size:${isWin?'20px':'12px'};font-weight:bold;color:${isWin?myCol:'#444455'};line-height:1;pointer-events:none;">${score}</span>
       </div>`;
     return `
       ${mkSide(pAvatar, p, pWin, pCol)}
@@ -1345,15 +1345,15 @@ function renderScoreBadges() {
     if (p === 0 && a === 0) return `<span style="font-size:15px;color:#1e1e2a;letter-spacing:3px;">--</span>`;
     const pWin = res === 'p', aWin = res === 'a';
     const mkSide = (src, score, isWin, myCol) => `
-      <div style="display:flex;align-items:center;gap:3px;">
+      <div style="display:flex;align-items:center;gap:3px;pointer-events:none;">
         <img src="${src}" style="
           width:${isWin?'22px':'15px'};height:${isWin?'22px':'15px'};
           border-radius:50%;object-fit:cover;object-position:top;
           border:1px solid ${isWin?myCol:'#2a2a3a'};
           filter:${isWin?'none':'grayscale(1)'};opacity:${isWin?'1':'0.28'};
           box-shadow:${isWin?`0 0 8px ${myCol}55`:'none'};
-          transition:all 0.3s;">
-        <span style="font-size:${isWin?'16px':'11px'};font-weight:bold;color:${isWin?myCol:'#2a2a3a'};">${score}</span>
+          pointer-events:none;">
+        <span style="font-size:${isWin?'16px':'11px'};font-weight:bold;color:${isWin?myCol:'#444455'};pointer-events:none;">${score}</span>
       </div>`;
     return `
       ${mkSide(pAvatar, p, pWin, pCol)}
