@@ -970,11 +970,13 @@ button, [onclick] { touch-action: manipulation; }
   <div class="hand-cards" id="handCards"></div>
 </div>
 
-<!-- Multiplayer waiting overlay -->
-<div id="mpWaitOverlay" style="display:none;position:fixed;inset:0;z-index:50000;background:#000000aa;backdrop-filter:blur(3px);align-items:center;justify-content:center;flex-direction:column;gap:16px;font-family:'Share Tech Mono',monospace;">
-  <div style="font-family:'Orbitron',monospace;font-size:18px;letter-spacing:4px;color:#8855ff;text-shadow:0 0 20px #8855ff66;">OPPONENT'S TURN</div>
-  <div style="font-size:12px;color:#555;letter-spacing:2px;">Waiting for their move...</div>
-  <div id="mpWaitDots" style="font-size:20px;color:#8855ff;letter-spacing:8px;">● ○ ○</div>
+<!-- Multiplayer waiting banner — slim top bar, doesn't cover board -->
+<div id="mpWaitOverlay" style="display:none;position:fixed;top:42px;left:50%;transform:translateX(-50%);z-index:50000;
+  background:#0a0614dd;border:1px solid #8855ff88;border-radius:8px;backdrop-filter:blur(6px);
+  padding:8px 28px;font-family:'Share Tech Mono',monospace;
+  display:none;align-items:center;gap:14px;box-shadow:0 4px 24px #8855ff22;">
+  <div style="font-family:'Orbitron',monospace;font-size:12px;letter-spacing:3px;color:#8855ff;">OPPONENT'S TURN</div>
+  <div id="mpWaitDots" style="font-size:14px;color:#8855ff66;letter-spacing:4px;">● ○ ○</div>
 </div>
 
 <div class="overlay" id="overlay">
@@ -4028,6 +4030,10 @@ const _mpParams = new URLSearchParams(window.location.search);
 const _mpRoom   = _mpParams.get('room');
 const _mpPlayer = parseInt(_mpParams.get('player') || '0'); // 1 or 2, 0 = single player
 const _mpP2Fac  = _mpParams.get('p2faction') || ''; // P1 knows P2's faction from room
+// P2: set P1's faction as the AI race so the correct deck loads
+if (_mpPlayer === 2 && _mpParams.get('aifaction')) {
+  sessionStorage.setItem('gz_ai_race', _mpParams.get('aifaction'));
+}
 
 let _mpTurnNum  = 0;   // moves processed so far
 let _mpPollInt  = null; // polling interval handle

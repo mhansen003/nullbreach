@@ -1584,15 +1584,15 @@ async function createRoom() {
   const m = document.createElement('div');
   m.style.cssText = 'position:fixed;inset:0;z-index:200000;background:#000000ee;display:flex;align-items:center;justify-content:center;font-family:\'Share Tech Mono\',monospace;';
   m.innerHTML = `
-    <div style="background:#07070f;border:1px solid #8855ff88;border-radius:12px;padding:32px 40px;max-width:480px;width:90%;text-align:center;box-shadow:0 0 60px #8855ff22;">
-      <div style="font-family:'Orbitron',monospace;font-size:18px;letter-spacing:4px;color:#8855ff;margin-bottom:6px;">INVITE SENT</div>
-      <div style="font-size:12px;color:#555;letter-spacing:2px;margin-bottom:24px;">Share this link with your opponent</div>
-      <div style="background:#0a0a18;border:1px solid #1a1a28;border-radius:6px;padding:12px;font-size:12px;color:#00ffcc;word-break:break-all;margin-bottom:16px;">${inviteUrl}</div>
-      <div style="display:flex;gap:12px;justify-content:center;margin-bottom:20px;">
-        <button onclick="navigator.clipboard.writeText('${inviteUrl}');this.textContent='COPIED ✓';" style="background:#0a1a2e;border:1px solid #00ffcc66;color:#00ffcc;font-family:inherit;font-size:12px;letter-spacing:2px;padding:10px 20px;cursor:pointer;border-radius:5px;">COPY LINK</button>
-        <a href="mailto:?subject=GALACTIC ZERO — Challenge&body=Join my game: ${inviteUrl}" style="background:#0d0a18;border:1px solid #8855ff66;color:#aa88ff;font-family:inherit;font-size:12px;letter-spacing:2px;padding:10px 20px;cursor:pointer;border-radius:5px;text-decoration:none;display:flex;align-items:center;">EMAIL LINK</a>
+    <div style="background:#07070f;border:1px solid #8855ff88;border-radius:12px;padding:32px 40px;max-width:500px;width:92%;text-align:center;box-shadow:0 0 60px #8855ff22;">
+      <div style="font-family:'Orbitron',monospace;font-size:18px;letter-spacing:4px;color:#8855ff;margin-bottom:6px;">INVITE A FRIEND</div>
+      <div style="font-size:13px;color:#555;letter-spacing:1px;margin-bottom:22px;">Send this link — the game begins when they select their deck</div>
+      <div style="background:#0a0a18;border:1px solid #1a1a28;border-radius:6px;padding:14px;font-size:12px;color:#00ffcc;word-break:break-all;margin-bottom:20px;line-height:1.5;">${inviteUrl}</div>
+      <div style="display:flex;gap:12px;justify-content:center;margin-bottom:24px;">
+        <button onclick="navigator.clipboard.writeText('${inviteUrl}');this.textContent='COPIED ✓';this.style.borderColor='#00ffcc88';" style="background:#0a1a2e;border:1px solid #00ffcc66;color:#00ffcc;font-family:'Orbitron',inherit;font-size:13px;letter-spacing:2px;padding:12px 28px;cursor:pointer;border-radius:5px;transition:all 0.2s;">COPY LINK</button>
+        <button onclick="this.closest('[style*=z-index]').remove()" style="background:transparent;border:1px solid #332244;color:#554466;font-family:inherit;font-size:13px;letter-spacing:2px;padding:12px 20px;cursor:pointer;border-radius:5px;transition:all 0.2s;" onmouseenter="this.style.color='#8855ff';this.style.borderColor='#554477'" onmouseleave="this.style.color='#554466';this.style.borderColor='#332244'">← CANCEL</button>
       </div>
-      <div style="font-size:11px;color:#444;letter-spacing:1px;margin-bottom:20px;">Waiting for opponent to join...</div>
+      <div style="font-size:11px;color:#444;letter-spacing:1px;margin-bottom:18px;">Waiting for opponent to join...</div>
       <div id="waitDots" style="font-size:18px;color:#8855ff;letter-spacing:8px;">● ○ ○</div>
     </div>`;
   document.body.appendChild(m);
@@ -1679,35 +1679,61 @@ function startGame() {
   // Show a JOIN overlay on top of the splash — P2 picks faction and joins
   window.addEventListener('DOMContentLoaded', () => {
     const ov = document.createElement('div');
-    ov.style.cssText = 'position:fixed;inset:0;z-index:99998;background:#000000ee;backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;font-family:\'Share Tech Mono\',monospace;flex-direction:column;gap:20px;';
+    ov.style.cssText = `position:fixed;inset:0;z-index:99998;background:#000000dd;backdrop-filter:blur(6px);
+      display:flex;align-items:center;justify-content:center;
+      font-family:'Share Tech Mono','Courier New',monospace;flex-direction:column;gap:20px;overflow-y:auto;padding:24px 0;`;
     ov.innerHTML = `
-      <div style="font-family:'Orbitron',monospace;font-size:22px;letter-spacing:6px;color:#8855ff;text-shadow:0 0 24px #8855ff66;">YOU'VE BEEN CHALLENGED</div>
-      <div style="font-size:13px;color:#555;letter-spacing:2px;">Select your faction and join the battle</div>
-      <div id="joinRaceGrid" style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;max-width:700px;"></div>
-      <button id="joinBtn" disabled onclick="joinRoom('${_roomId}')" style="
-        background:#0a0a14;border:2px solid #2a2a3a;color:#444;
-        font-family:'Orbitron',monospace;font-size:14px;letter-spacing:4px;
-        padding:14px 40px;border-radius:6px;cursor:not-allowed;opacity:0.4;transition:all 0.3s;margin-top:8px;">
-        JOIN MATCH ▶
-      </button>`;
+      <div style="font-family:'Orbitron',monospace;font-size:20px;letter-spacing:5px;color:#fff;text-shadow:0 0 20px #8855ffaa;">YOU'VE BEEN CHALLENGED</div>
+      <div style="font-size:13px;color:#555;letter-spacing:2px;margin-bottom:4px;">SELECT YOUR CIVILIZATION</div>
+      <div id="joinRaceGrid" style="display:grid;grid-template-columns:repeat(4,200px);gap:12px;max-width:860px;overflow:visible;padding:4px 4px 12px;"></div>
+      <div style="display:flex;justify-content:flex-end;max-width:860px;width:100%;margin-top:4px;">
+        <button id="joinBtn" disabled onclick="joinRoom('${_roomId}')" style="
+          background:#0a0a14;border:2px solid #2a2a3a;color:#444;
+          font-family:'Orbitron',monospace;font-size:13px;letter-spacing:4px;
+          padding:14px 36px;border-radius:6px;cursor:not-allowed;
+          opacity:0.35;transition:all 0.3s;font-weight:700;">
+          JOIN MATCH ▶
+        </button>
+      </div>`;
     document.body.appendChild(ov);
 
     let _joinRace = null;
-    // Build compact faction tiles
+    // Build tiles matching the opponent picker style exactly
     RACES.forEach(r => {
       const tile = document.createElement('div');
-      tile.style.cssText = `position:relative;width:110px;height:70px;border-radius:8px;overflow:hidden;cursor:pointer;border:2px solid ${r.color}44;transition:all 0.2s;`;
-      tile.innerHTML = `<img src="${r.cover}" style="width:100%;height:100%;object-fit:cover;display:block;filter:brightness(0.5);">
-        <div style="position:absolute;bottom:0;left:0;right:0;padding:4px 6px;background:#000000cc;">
-          <div style="font-family:'Orbitron',monospace;font-size:8px;letter-spacing:1px;color:${r.color};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${r.name.replace('THE ','')}</div>
+      tile.className = 'opp-tile';
+      tile.dataset.rid = r.id;
+      tile.style.cssText = `height:130px;border-radius:8px;cursor:pointer;overflow:hidden;
+        background:url('${r.cover}') center/cover;
+        border:2px solid ${r.color}33;position:relative;
+        transition:transform 0.2s,border-color 0.2s,box-shadow 0.2s;`;
+      tile.innerHTML = `
+        <div style="position:absolute;bottom:0;left:0;right:0;background:#000000cc;padding:7px 10px;">
+          <div style="font-family:'Orbitron',monospace;font-size:13px;letter-spacing:1px;color:${r.color};line-height:1.3;">${r.name.replace('THE ','')}</div>
         </div>`;
       tile.onclick = () => {
         _joinRace = r;
-        document.querySelectorAll('#joinRaceGrid > div').forEach(t => { t.style.borderColor = RACES.find(rr=>rr.cover===t.querySelector('img').src.split('/').slice(-2).join('/') || t.style.borderColor)?.color+'44' || '#1a1a28'; t.querySelector('img').style.filter = 'brightness(0.5)'; });
+        // Deselect all
+        document.querySelectorAll('#joinRaceGrid .opp-tile').forEach(t => {
+          const rid = t.dataset.rid;
+          const rr = RACES.find(x=>x.id===rid);
+          t.style.borderColor = rr ? rr.color+'33' : '#1a1a28';
+          t.style.boxShadow = 'none';
+          t.style.transform = '';
+        });
+        // Select this tile
         tile.style.borderColor = r.color;
-        tile.querySelector('img').style.filter = 'brightness(1)';
+        tile.style.boxShadow = `0 0 20px ${r.color}66, 0 0 0 1px ${r.color}88`;
+        tile.style.transform = 'scale(1.06)';
+        // Enable JOIN button
         const btn = document.getElementById('joinBtn');
-        btn.disabled = false; btn.style.background='#1a0830'; btn.style.borderColor='#8855ff'; btn.style.color='#cc99ff'; btn.style.opacity='1'; btn.style.cursor='pointer';
+        btn.disabled = false;
+        btn.style.background = '#0a1a14';
+        btn.style.borderColor = '#00ffcc';
+        btn.style.color = '#00ffcc';
+        btn.style.boxShadow = '0 0 20px #00ffcc44';
+        btn.style.opacity = '1';
+        btn.style.cursor = 'pointer';
       };
       document.getElementById('joinRaceGrid').appendChild(tile);
     });
@@ -1722,13 +1748,21 @@ async function joinRoom(roomId) {
   const btn = document.getElementById('joinBtn');
   btn.textContent = 'JOINING...'; btn.disabled = true;
 
+  // Fetch room to get P1's faction so we can load the correct AI deck
+  const roomResp = await sbGet(`/rest/v1/gz_rooms?id=eq.${roomId}&select=p1_faction,p1_color`);
+  const roomData = await roomResp.json();
+  const p1Faction = roomData[0]?.p1_faction || 'terran';
+
+  // Set P1's faction as AI in sessionStorage before game loads
+  sessionStorage.setItem('gz_ai_race', p1Faction);
+
   await sbPatch(`/rest/v1/gz_rooms?id=eq.${roomId}`, {
     p2_faction: race.id, p2_color: race.color, p2_name: race.name, status: 'playing'
   });
 
   stopCivVoice();
   const params = new URLSearchParams({ race: race.id, color: race.color, name: race.name });
-  window.location.href = `game.html?${params}&room=${roomId}&player=2`;
+  window.location.href = `game.html?${params}&room=${roomId}&player=2&aifaction=${p1Faction}`;
 }
 
 // Disable right-click on both splash and deck select screens
