@@ -1504,13 +1504,29 @@ function computeScores() {
     }
   }
 
-  let pWins = 0, aWins = 0;
+  // Who wins each row/col (for badge coloring + chip display)
   const rowResults = rows.map(r => r.p > r.a ? 'p' : r.a > r.p ? 'a' : 'tie');
   const colResults = cols.map(c => c.p > c.a ? 'p' : c.a > c.p ? 'a' : 'tie');
+
+  // Net VP scoring: winner earns (their power − loser power) for each line
+  // A row with 6 vs 3 → winner gets 3 VP. A tie gets 0 for both.
+  let pWins = 0, aWins = 0; // line-win count (kept for breakdown display)
   rowResults.forEach(r => { if(r==='p')pWins++; if(r==='a')aWins++; });
   colResults.forEach(c => { if(c==='p')pWins++; if(c==='a')aWins++; });
 
-  return { rows, cols, rowResults, colResults, pWins, aWins };
+  let pVP = 0, aVP = 0;
+  rows.forEach(row => {
+    const net = row.p - row.a;
+    if (net > 0) pVP += net;
+    else if (net < 0) aVP += (-net);
+  });
+  cols.forEach(col => {
+    const net = col.p - col.a;
+    if (net > 0) pVP += net;
+    else if (net < 0) aVP += (-net);
+  });
+
+  return { rows, cols, rowResults, colResults, pWins, aWins, pVP, aVP };
 }
 
 // ── RENDERING ─────────────────────────────────
@@ -1889,8 +1905,8 @@ function renderScoreBadges() {
   const tA = document.getElementById('totalA');
   const pLabel = window.playerFactionName || 'YOU';
   const aLabel = window.aiFactionName    || 'AI';
-  if (tP) tP.textContent = `${pLabel}: ${s.pWins}/12 lines`;
-  if (tA) tA.textContent = `${aLabel}: ${s.aWins}/12 lines`;
+  if (tP) tP.textContent = `${pLabel}: ${s.pVP} VP`;
+  if (tA) tA.textContent = `${aLabel}: ${s.aVP} VP`;
 
   const pAvatar = window.playerAvatarImg || `assets/avatars/${window.playerRaceId||'terran'}.png`;
   const aAvatar = window.aiAvatarImg    || `assets/avatars/${window.aiRaceId||'entropy'}.png`;
@@ -1917,6 +1933,7 @@ function renderScoreBadges() {
           object-position:top;border:2px solid ${wCol};box-shadow:0 0 10px ${wCol}66;pointer-events:none;">
         <span style="font-size:20px;font-weight:bold;color:${wCol};line-height:1;
           text-shadow:0 0 10px ${wCol};pointer-events:none;">${wScore}</span>
+        <span style="font-size:9px;letter-spacing:1px;color:${wCol}99;pointer-events:none;">+${wScore-lScore} VP</span>
         <div style="width:26px;height:1px;background:#1a1a28;"></div>
         <span style="font-size:13px;font-weight:bold;color:#555566;pointer-events:none;">${lScore}</span>
         <img src="${lAvg}" style="width:18px;height:18px;border-radius:50%;object-fit:cover;
@@ -2036,8 +2053,8 @@ function renderScoreHeader() {
 
   const q = document.getElementById('aiQuote');
   if (q) {
-    if (s.aWins > s.pWins+1) q.textContent = '"Predictable. You are nothing."';
-    else if (s.pWins > s.aWins+1) q.textContent = '"Impossible... recalculating."';
+    if (s.aVP > s.pVP+2) q.textContent = '"Predictable. You are nothing."';
+    else if (s.pVP > s.aVP+2) q.textContent = '"Impossible... recalculating."';
     else q.textContent = '"Your breach ends here."';
   }
 
@@ -2049,8 +2066,8 @@ function renderScoreHeader() {
   const pNam = window.playerFactionName  || 'YOU';
   const aNam = window.aiFactionName      || 'AI';
 
-  const pLeading = s.pWins > s.aWins;
-  const aLeading = s.aWins > s.pWins;
+  const pLeading = s.pVP > s.aVP;
+  const aLeading = s.aVP > s.pVP;
 
   // ── FACTION HUD (fixed upper-right) ──────────────────
   const hud = document.getElementById('factionHUD');
@@ -2067,14 +2084,14 @@ function renderScoreHeader() {
 
   // AI faction row
   if (sbAiAv) { sbAiAv.src = aAvg; sbAiAv.style.borderColor = aLeading ? aCol : '#2a2a3a'; sbAiAv.style.boxShadow = aLeading ? `0 0 12px ${aCol}88` : 'none'; }
-  if (sbAiNum) { sbAiNum.textContent = s.aWins; sbAiNum.style.color = aLeading ? aCol : '#555566'; sbAiNum.style.textShadow = aLeading ? `0 0 12px ${aCol}` : 'none'; }
+  if (sbAiNum) { sbAiNum.textContent = s.aVP; sbAiNum.style.color = aLeading ? aCol : '#555566'; sbAiNum.style.textShadow = aLeading ? `0 0 12px ${aCol}` : 'none'; }
   if (sbAiName) { sbAiName.textContent = aNam; sbAiName.style.color = aLeading ? aCol : '#555566'; }
   if (sbAiLead) { sbAiLead.textContent = aLeading ? 'LEADS' : ''; sbAiLead.style.color = aCol; }
   if (fhAiEl) { fhAiEl.style.background = aLeading ? aCol + '18' : 'transparent'; fhAiEl.style.boxShadow = aLeading ? `0 0 0 1px ${aCol}44` : 'none'; }
 
   // Player faction row
   if (sbPAv) { sbPAv.src = pAvg; sbPAv.style.borderColor = pLeading ? pCol : '#2a2a3a'; sbPAv.style.boxShadow = pLeading ? `0 0 12px ${pCol}88` : 'none'; }
-  if (sbPNum) { sbPNum.textContent = s.pWins; sbPNum.style.color = pLeading ? pCol : '#555566'; sbPNum.style.textShadow = pLeading ? `0 0 12px ${pCol}` : 'none'; }
+  if (sbPNum) { sbPNum.textContent = s.pVP; sbPNum.style.color = pLeading ? pCol : '#555566'; sbPNum.style.textShadow = pLeading ? `0 0 12px ${pCol}` : 'none'; }
   if (sbPName) { sbPName.textContent = pNam; sbPName.style.color = pLeading ? pCol : '#555566'; }
   if (sbPLead) { sbPLead.textContent = pLeading ? 'LEADS' : ''; sbPLead.style.color = pCol; }
   if (fhPEl) { fhPEl.style.background = pLeading ? pCol + '18' : 'transparent'; fhPEl.style.boxShadow = pLeading ? `0 0 0 1px ${pCol}44` : 'none'; }
@@ -2589,14 +2606,14 @@ function checkWin() {
 
   overlay.classList.add('show');
 
-  if (s.pWins > s.aWins) {
+  if (s.pVP > s.aVP) {
     title.className = 'overlay-title win';
     title.textContent = 'BREACH COMPLETE';
-    sub.textContent   = `You dominated ${s.pWins} of 11 lines`;
-  } else if (s.aWins > s.pWins) {
+    sub.textContent   = `${s.pVP} VP vs ${s.aVP} VP`;
+  } else if (s.aVP > s.pVP) {
     title.className = 'overlay-title lose';
     title.textContent = 'BREACH FAILED';
-    sub.textContent   = `AI dominated ${s.aWins} of 11 lines`;
+    sub.textContent   = `AI wins ${s.aVP} VP vs your ${s.pVP} VP`;
   } else {
     title.className = 'overlay-title draw';
     title.textContent = 'STALEMATE';
