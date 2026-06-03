@@ -1,0 +1,582 @@
+{
+  "terran": {
+    "cards": [
+      {
+        "id": "ta_t1a",
+        "name": "COLONY WORLD A",
+        "tier": "I",
+        "edges": {
+          "n": 5,
+          "s": 2,
+          "e": 5,
+          "w": 4
+        },
+        "power": 1,
+        "ability": null,
+        "abilityText": "Basic Colony World",
+        "edge_sum": 16,
+        "card_value": 18
+      },
+      {
+        "id": "ta_t1b",
+        "name": "COLONY WORLD B",
+        "tier": "I",
+        "edges": {
+          "n": 4,
+          "s": 2,
+          "e": 4,
+          "w": 6
+        },
+        "power": 1,
+        "ability": null,
+        "abilityText": "Basic Colony World",
+        "edge_sum": 16,
+        "card_value": 18
+      },
+      {
+        "id": "ta_t1c",
+        "name": "COLONY WORLD C",
+        "tier": "I",
+        "edges": {
+          "n": 5,
+          "s": 2,
+          "e": 5,
+          "w": 3
+        },
+        "power": 1,
+        "ability": null,
+        "abilityText": "Basic Colony World",
+        "edge_sum": 15,
+        "card_value": 17
+      },
+      {
+        "id": "ta_t1d",
+        "name": "FRONTIER POST",
+        "tier": "I",
+        "edges": {
+          "n": 7,
+          "s": 2,
+          "e": 3,
+          "w": 3
+        },
+        "power": 1,
+        "ability": "shield",
+        "abilityText": "SHIELD: First comparison loss blocked",
+        "edge_sum": 15,
+        "card_value": 17
+      },
+      {
+        "id": "ta_t1e",
+        "name": "SUPPLY HUB",
+        "tier": "I",
+        "edges": {
+          "n": 4,
+          "s": 3,
+          "e": 4,
+          "w": 4
+        },
+        "power": 2,
+        "ability": "boost",
+        "abilityText": "BOOST: Adjacent friendly cards +1 all edges",
+        "edge_sum": 15,
+        "card_value": 19
+      },
+      {
+        "id": "ta_t2a",
+        "name": "BATTLE GROUP",
+        "tier": "II",
+        "edges": {
+          "n": 6,
+          "s": 3,
+          "e": 7,
+          "w": 5
+        },
+        "power": 3,
+        "ability": "commander",
+        "abilityText": "COMMANDER: Same-tier adjacents +2 all edges",
+        "edge_sum": 21,
+        "card_value": 27
+      },
+      {
+        "id": "ta_t2b",
+        "name": "CARRIER WING",
+        "tier": "II",
+        "edges": {
+          "n": 7,
+          "s": 3,
+          "e": 5,
+          "w": 6
+        },
+        "power": 3,
+        "ability": "boost",
+        "abilityText": "BOOST: Adjacent friendly cards +1 all edges",
+        "edge_sum": 21,
+        "card_value": 27
+      },
+      {
+        "id": "ta_t2c",
+        "name": "STRIKE FORCE",
+        "tier": "II",
+        "edges": {
+          "n": 7,
+          "s": 2,
+          "e": 7,
+          "w": 3
+        },
+        "power": 2,
+        "ability": "double_strike",
+        "abilityText": "DOUBLE STRIKE: Comparison reaches 2 deep",
+        "edge_sum": 19,
+        "card_value": 23
+      },
+      {
+        "id": "ta_t3a",
+        "name": "INTERCEPTOR",
+        "tier": "III",
+        "edges": {
+          "n": 9,
+          "s": 2,
+          "e": 7,
+          "w": 3
+        },
+        "power": 3,
+        "ability": "double_strike",
+        "abilityText": "DOUBLE STRIKE: Comparison reaches 2 deep",
+        "edge_sum": 21,
+        "card_value": 27
+      },
+      {
+        "id": "ta_t3b",
+        "name": "FAST RUNNER",
+        "tier": "III",
+        "edges": {
+          "n": 7,
+          "s": 2,
+          "e": 9,
+          "w": 3
+        },
+        "power": 2,
+        "ability": "surge",
+        "abilityText": "SURGE: Losing rows? +3 to all edges",
+        "edge_sum": 21,
+        "card_value": 25
+      },
+      {
+        "id": "ta_t3c",
+        "name": "FLANKER",
+        "tier": "III",
+        "edges": {
+          "n": 8,
+          "s": 2,
+          "e": 6,
+          "w": 4
+        },
+        "power": 2,
+        "ability": "pierce",
+        "abilityText": "PIERCE: Ties count as wins for this card",
+        "edge_sum": 20,
+        "card_value": 24
+      },
+      {
+        "id": "ta_t4",
+        "name": "THE ACCORD",
+        "tier": "IV",
+        "edges": {
+          "n": 8,
+          "s": 5,
+          "e": 8,
+          "w": 7
+        },
+        "power": 4,
+        "ability": "chain",
+        "abilityText": "CHAIN: Wins cascade to adjacent enemies",
+        "edge_sum": 28,
+        "card_value": 36
+      },
+      {
+        "id": "ta_x1",
+        "name": "MINING COLONY",
+        "tier": "I",
+        "edges": {
+          "n": 4,
+          "s": 2,
+          "e": 3,
+          "w": 5
+        },
+        "power": 1,
+        "ability": null,
+        "abilityText": "Basic Colony World -- pure foundation",
+        "edge_sum": 14,
+        "card_value": 16
+      },
+      {
+        "id": "ta_x2",
+        "name": "GUNSHIP WING",
+        "tier": "II",
+        "edges": {
+          "n": 5,
+          "s": 3,
+          "e": 6,
+          "w": 6
+        },
+        "power": 3,
+        "ability": "sweep",
+        "abilityText": "SWEEP: Contests all 4 adjacent cells on placement",
+        "edge_sum": 20,
+        "card_value": 26
+      },
+      {
+        "id": "ta_x3",
+        "name": "GHOST RUNNER",
+        "tier": "III",
+        "edges": {
+          "n": 8,
+          "s": 2,
+          "e": 5,
+          "w": 4
+        },
+        "power": 2,
+        "ability": "phantom",
+        "abilityText": "PHANTOM: Free placement in home rows",
+        "edge_sum": 19,
+        "card_value": 23
+      }
+    ],
+    "by_tier": {
+      "I": {
+        "avg_edge_sum": 15.17,
+        "avg_value": 17.5,
+        "card_count": 6,
+        "abilities": [
+          "boost",
+          "shield"
+        ]
+      },
+      "II": {
+        "avg_edge_sum": 20.25,
+        "avg_value": 25.75,
+        "card_count": 4,
+        "abilities": [
+          "boost",
+          "commander",
+          "double_strike",
+          "sweep"
+        ]
+      },
+      "III": {
+        "avg_edge_sum": 20.25,
+        "avg_value": 24.75,
+        "card_count": 4,
+        "abilities": [
+          "double_strike",
+          "phantom",
+          "pierce",
+          "surge"
+        ]
+      },
+      "IV": {
+        "avg_edge_sum": 28.0,
+        "avg_value": 36.0,
+        "card_count": 1,
+        "abilities": [
+          "chain"
+        ]
+      }
+    }
+  },
+  "brood": {
+    "cards": [
+      {
+        "id": "br_t1a",
+        "name": "HIVE NODE",
+        "tier": "I",
+        "edges": {
+          "n": 4,
+          "s": 2,
+          "e": 5,
+          "w": 5
+        },
+        "power": 1,
+        "ability": null,
+        "abilityText": "Basic Hive Node",
+        "edge_sum": 16,
+        "card_value": 18
+      },
+      {
+        "id": "br_t1b",
+        "name": "HIVE NODE",
+        "tier": "I",
+        "edges": {
+          "n": 5,
+          "s": 2,
+          "e": 4,
+          "w": 5
+        },
+        "power": 1,
+        "ability": null,
+        "abilityText": "Basic Hive Node",
+        "edge_sum": 16,
+        "card_value": 18
+      },
+      {
+        "id": "br_t1c",
+        "name": "HIVE NODE",
+        "tier": "I",
+        "edges": {
+          "n": 4,
+          "s": 2,
+          "e": 5,
+          "w": 4
+        },
+        "power": 1,
+        "ability": null,
+        "abilityText": "Basic Hive Node",
+        "edge_sum": 15,
+        "card_value": 17
+      },
+      {
+        "id": "br_t1d",
+        "name": "QUEEN CRADLE",
+        "tier": "I",
+        "edges": {
+          "n": 3,
+          "s": 2,
+          "e": 5,
+          "w": 5
+        },
+        "power": 1,
+        "ability": "commander",
+        "abilityText": "COMMANDER: Adjacent same-tier cards +2 all edges",
+        "edge_sum": 15,
+        "card_value": 17
+      },
+      {
+        "id": "br_t1e",
+        "name": "BROOD ANCHOR",
+        "tier": "I",
+        "edges": {
+          "n": 5,
+          "s": 3,
+          "e": 5,
+          "w": 5
+        },
+        "power": 2,
+        "ability": "boost",
+        "abilityText": "BOOST: Adjacent friendly cards +1 all edges",
+        "edge_sum": 18,
+        "card_value": 22
+      },
+      {
+        "id": "br_t2a",
+        "name": "WARRIOR CLUSTER",
+        "tier": "II",
+        "edges": {
+          "n": 6,
+          "s": 3,
+          "e": 6,
+          "w": 6
+        },
+        "power": 3,
+        "ability": "commander",
+        "abilityText": "COMMANDER: Adjacent same-tier cards +2 all edges",
+        "edge_sum": 21,
+        "card_value": 27
+      },
+      {
+        "id": "br_t2b",
+        "name": "SOLDIER MASS",
+        "tier": "II",
+        "edges": {
+          "n": 7,
+          "s": 3,
+          "e": 5,
+          "w": 6
+        },
+        "power": 3,
+        "ability": "boost",
+        "abilityText": "BOOST: Adjacent friendly cards +1 all edges",
+        "edge_sum": 21,
+        "card_value": 27
+      },
+      {
+        "id": "br_t2c",
+        "name": "BIOMECH FLEET",
+        "tier": "II",
+        "edges": {
+          "n": 6,
+          "s": 3,
+          "e": 7,
+          "w": 5
+        },
+        "power": 2,
+        "ability": "sweep",
+        "abilityText": "SWEEP: Contests all 4 adjacent cells on placement",
+        "edge_sum": 21,
+        "card_value": 25
+      },
+      {
+        "id": "br_t3a",
+        "name": "SKIMMER",
+        "tier": "III",
+        "edges": {
+          "n": 7,
+          "s": 2,
+          "e": 8,
+          "w": 3
+        },
+        "power": 3,
+        "ability": "rush",
+        "abilityText": "RUSH: Can be placed adjacent to any enemy card",
+        "edge_sum": 20,
+        "card_value": 26
+      },
+      {
+        "id": "br_t3b",
+        "name": "VOID SKIMMER",
+        "tier": "III",
+        "edges": {
+          "n": 7,
+          "s": 2,
+          "e": 7,
+          "w": 4
+        },
+        "power": 2,
+        "ability": "ambush_strike",
+        "abilityText": "AMBUSH STRIKE: Adjacent to 2+ enemies? +2 all edges",
+        "edge_sum": 20,
+        "card_value": 24
+      },
+      {
+        "id": "br_t3c",
+        "name": "LARVAE STRIKE",
+        "tier": "III",
+        "edges": {
+          "n": 8,
+          "s": 2,
+          "e": 6,
+          "w": 4
+        },
+        "power": 2,
+        "ability": "ambush_strike",
+        "abilityText": "AMBUSH STRIKE: Adjacent to 2+ enemies? +2 all edges",
+        "edge_sum": 20,
+        "card_value": 24
+      },
+      {
+        "id": "br_t4",
+        "name": "THE SOVEREIGN",
+        "tier": "IV",
+        "edges": {
+          "n": 8,
+          "s": 5,
+          "e": 8,
+          "w": 7
+        },
+        "power": 4,
+        "ability": "commander",
+        "abilityText": "COMMANDER: Adjacent same-tier cards +2 all edges",
+        "edge_sum": 28,
+        "card_value": 36
+      },
+      {
+        "id": "br_x1",
+        "name": "HIVE NODE",
+        "tier": "I",
+        "edges": {
+          "n": 5,
+          "s": 2,
+          "e": 4,
+          "w": 4
+        },
+        "power": 1,
+        "ability": null,
+        "abilityText": "Basic Hive Node",
+        "edge_sum": 15,
+        "card_value": 17
+      },
+      {
+        "id": "br_x2",
+        "name": "SWARM WING",
+        "tier": "II",
+        "edges": {
+          "n": 6,
+          "s": 2,
+          "e": 7,
+          "w": 5
+        },
+        "power": 3,
+        "ability": "sweep",
+        "abilityText": "SWEEP: Contests all 4 adjacent cells",
+        "edge_sum": 20,
+        "card_value": 26
+      },
+      {
+        "id": "br_x3",
+        "name": "HIVE LANCE",
+        "tier": "III",
+        "edges": {
+          "n": 9,
+          "s": 2,
+          "e": 6,
+          "w": 3
+        },
+        "power": 2,
+        "ability": "pierce",
+        "abilityText": "PIERCE: Ties count as wins",
+        "edge_sum": 20,
+        "card_value": 24
+      }
+    ],
+    "by_tier": {
+      "I": {
+        "avg_edge_sum": 15.83,
+        "avg_value": 18.17,
+        "card_count": 6,
+        "abilities": [
+          "boost",
+          "commander"
+        ]
+      },
+      "II": {
+        "avg_edge_sum": 20.75,
+        "avg_value": 26.25,
+        "card_count": 4,
+        "abilities": [
+          "boost",
+          "commander",
+          "sweep"
+        ]
+      },
+      "III": {
+        "avg_edge_sum": 20.0,
+        "avg_value": 24.5,
+        "card_count": 4,
+        "abilities": [
+          "ambush_strike",
+          "pierce",
+          "rush"
+        ]
+      },
+      "IV": {
+        "avg_edge_sum": 28.0,
+        "avg_value": 36.0,
+        "card_count": 1,
+        "abilities": [
+          "commander"
+        ]
+      }
+    }
+  },
+  "analysis": {
+    "concerns": [
+      "Brood outvalues Terran at Tier I and Tier II: Brood T1 avg_value=18.17 vs Terran 17.50 (diff -0.67), Brood T2 avg_value=26.25 vs Terran 25.75 (diff -0.50). Brood wins the foundational board more consistently in the early and mid game across both tiers.",
+      "Brood Tier II lacks DOUBLE_STRIKE entirely (abilities: boost/commander/sweep only). Terran STRIKE FORCE has 2-deep comparison reach at Tier II, giving Terran an uncontested mid-board tool. This is a capability asymmetry not reflected in raw edge values.",
+      "Terran Tier III has 4 distinct abilities (double_strike, phantom, pierce, surge) including the unique SURGE comeback mechanic. Brood Tier III has only 3 abilities (ambush_strike x2, rush, pierce) and no resilience/recovery tool, creating an asymmetric comeback gap when Brood falls behind in row scoring."
+    ],
+    "recommendations": [
+      "Add 0.5-1 point to Terran T1 baseline to close the -0.67 avg_value gap: raise MINING COLONY west edge from 5 to 6 (edge_sum 14 -> 15), bringing Terran T1 avg_value from 17.50 to ~17.83.",
+      "Give one Brood Tier II card DOUBLE_STRIKE (e.g. replace SWARM WING sweep with double_strike) to eliminate the uncontested mid-board reach advantage Terran holds at that tier.",
+      "Add a SURGE-equivalent resilience ability to one Brood Tier III card (e.g. give SKIMMER a \"FRENZY: When losing more rows than opponent, +2 to all edges\") so both factions have a comeback mechanism at their highest-tempo tier."
+    ]
+  }
+}
