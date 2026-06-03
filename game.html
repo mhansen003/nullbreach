@@ -3195,13 +3195,14 @@ function showTip(e, card) {
   </div>`;
 
   tt.style.display = 'block';
+  // Fixed: always right-center of screen — out of the way of the cursor
   const ttH = tt.offsetHeight || 480;
-  const ttW = Math.min(tt.offsetWidth || 460, window.innerWidth - 16);
-  const spaceBelow = window.innerHeight - e.clientY;
-  const top  = spaceBelow > ttH + 20 ? e.clientY + 14 : e.clientY - ttH - 14;
-  const left = e.clientX + ttW + 20 > window.innerWidth ? e.clientX - ttW - 14 : e.clientX + 14;
-  tt.style.top  = Math.max(8, top)  + 'px';
-  tt.style.left = Math.max(8, left) + 'px';
+  tt.style.right = '16px';
+  tt.style.left  = 'auto';
+  tt.style.top   = Math.max(8, Math.min(
+    Math.round((window.innerHeight - ttH) / 2),
+    window.innerHeight - ttH - 8
+  )) + 'px';
 }
 
 function showErrorTip(e, reason) {
