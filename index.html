@@ -858,7 +858,7 @@ const RACES = [
     playstyle: 'Board degrader',
     lore: "Ancient beings who reached the inevitable philosophical conclusion long ago: heat death is not a tragedy but a destination. Their technology is designed not to preserve but to accelerate — every weapon is entropy made purposeful, every ship a slow-motion collapse.",
     history: "The Entropy Cult has fought at seventeen convergence points across galactic history. They lose most of them — deliberately. Each defeat weakens the victor. At Galactic Zero they arrive as they always do: with beautiful corroded ships, genuine smiles, and no fear of the outcome.",
-    counter: 'Ward and Immovable abilities resist Drain and Sunder. Quantum Wildcard randomness counters their deterministic decay.'
+    counter: 'Crystal Fortress blocks entropy spread. Quantum Entanglement and Wave Collapse outscore the slow decay strategy.'
   },
   {
     id: 'brood', cover: 'assets/deck_brood.png', loreBg: 'assets/lore_brood.png',
@@ -902,7 +902,7 @@ const RACES = [
     playstyle: 'Denial control',
     lore: "Near-immortal beings thinking in geological time — a 'fast decision' takes a decade. Ships are asteroids shaped over millions of years by forces the Lithos will into specific geometries. They do not build. They wait for matter to become what they already decided it would be.",
     history: "The Lithos have existed since before the current star generation. Their reason for fighting at Galactic Zero is not expansion — it is memory. The sector contains a gravitational record of the previous galactic configuration, and the Lithos will not allow it to be disturbed.",
-    counter: 'Corrosive and Sunder abilities permanently reduce even Immovable edge values. Momentum scoring outpaces their slow power accumulation.'
+    counter: 'Corrosive Strike and Myco Toxin erode even the deepest geological edges. Mycelial Network outscores slow stone accumulation.'
   },
   {
     id: 'quantum', cover: 'assets/deck_quantum.png', loreBg: 'assets/lore_quantum.png',
@@ -1677,7 +1677,7 @@ function startGame() {
   if (!_roomId) return; // normal load, no room
 
   // Show a JOIN overlay on top of the splash — P2 picks faction and joins
-  window.addEventListener('DOMContentLoaded', () => {
+  window.addEventListener('DOMContentLoaded', async () => {
     const ov = document.createElement('div');
     ov.style.cssText = `position:fixed;inset:0;z-index:99998;background:#000000dd;backdrop-filter:blur(6px);
       display:flex;align-items:center;justify-content:center;
@@ -1698,43 +1698,61 @@ function startGame() {
     document.body.appendChild(ov);
 
     let _joinRace = null;
+
+    // Fetch room to find P1's faction — P2 cannot pick the same one
+    let _p1FactionId = null;
+    try {
+      const _rr = await sbGet(`/rest/v1/gz_rooms?id=eq.${_roomId}&select=p1_faction,p1_name`);
+      const _rd = await _rr.json();
+      _p1FactionId = _rd[0]?.p1_faction || null;
+      if (_p1FactionId) {
+        const _p1Name = _rd[0]?.p1_name || _p1FactionId;
+        document.querySelector('#joinRaceGrid')?.insertAdjacentHTML('beforebegin',
+          `<div style="font-size:12px;color:#554466;letter-spacing:1px;margin-bottom:4px;">Your opponent chose <span style="color:#8855ff;">${_p1Name.replace('THE ','')}</span> — pick a different faction</div>`
+        );
+      }
+    } catch(e) { /* proceed without restriction */ }
+
     // Build tiles matching the opponent picker style exactly
     RACES.forEach(r => {
+      const isTaken = r.id === _p1FactionId;
       const tile = document.createElement('div');
       tile.className = 'opp-tile';
       tile.dataset.rid = r.id;
-      tile.style.cssText = `height:130px;border-radius:8px;cursor:pointer;overflow:hidden;
+      tile.style.cssText = `height:130px;border-radius:8px;overflow:hidden;
         background:url('${r.cover}') center/cover;
-        border:2px solid ${r.color}33;position:relative;
-        transition:transform 0.2s,border-color 0.2s,box-shadow 0.2s;`;
+        border:2px solid ${isTaken ? '#1a1a28' : r.color+'33'};position:relative;
+        transition:transform 0.2s,border-color 0.2s,box-shadow 0.2s;
+        cursor:${isTaken ? 'not-allowed' : 'pointer'};
+        filter:${isTaken ? 'brightness(0.3) saturate(0.2)' : 'none'};`;
       tile.innerHTML = `
         <div style="position:absolute;bottom:0;left:0;right:0;background:#000000cc;padding:7px 10px;">
-          <div style="font-family:'Orbitron',monospace;font-size:13px;letter-spacing:1px;color:${r.color};line-height:1.3;">${r.name.replace('THE ','')}</div>
+          <div style="font-family:'Orbitron',monospace;font-size:13px;letter-spacing:1px;color:${isTaken ? '#333' : r.color};line-height:1.3;">${r.name.replace('THE ','')}</div>
+          ${isTaken ? '<div style="font-size:10px;color:#442233;letter-spacing:1px;margin-top:2px;">TAKEN</div>' : ''}
         </div>`;
-      tile.onclick = () => {
-        _joinRace = r;
-        // Deselect all
-        document.querySelectorAll('#joinRaceGrid .opp-tile').forEach(t => {
-          const rid = t.dataset.rid;
-          const rr = RACES.find(x=>x.id===rid);
-          t.style.borderColor = rr ? rr.color+'33' : '#1a1a28';
-          t.style.boxShadow = 'none';
-          t.style.transform = '';
-        });
-        // Select this tile
-        tile.style.borderColor = r.color;
-        tile.style.boxShadow = `0 0 20px ${r.color}66, 0 0 0 1px ${r.color}88`;
-        tile.style.transform = 'scale(1.06)';
-        // Enable JOIN button
-        const btn = document.getElementById('joinBtn');
-        btn.disabled = false;
-        btn.style.background = '#0a1a14';
-        btn.style.borderColor = '#00ffcc';
-        btn.style.color = '#00ffcc';
-        btn.style.boxShadow = '0 0 20px #00ffcc44';
-        btn.style.opacity = '1';
-        btn.style.cursor = 'pointer';
-      };
+      if (!isTaken) {
+        tile.onclick = () => {
+          _joinRace = r;
+          document.querySelectorAll('#joinRaceGrid .opp-tile').forEach(t => {
+            if (t.dataset.rid === _p1FactionId) return; // skip taken tile
+            const rr = RACES.find(x=>x.id===t.dataset.rid);
+            t.style.borderColor = rr ? rr.color+'33' : '#1a1a28';
+            t.style.boxShadow = 'none';
+            t.style.transform = '';
+          });
+          tile.style.borderColor = r.color;
+          tile.style.boxShadow = `0 0 20px ${r.color}66, 0 0 0 1px ${r.color}88`;
+          tile.style.transform = 'scale(1.06)';
+          const btn = document.getElementById('joinBtn');
+          btn.disabled = false;
+          btn.style.background = '#0a1a14';
+          btn.style.borderColor = '#00ffcc';
+          btn.style.color = '#00ffcc';
+          btn.style.boxShadow = '0 0 20px #00ffcc44';
+          btn.style.opacity = '1';
+          btn.style.cursor = 'pointer';
+        };
+      }
       document.getElementById('joinRaceGrid').appendChild(tile);
     });
 
