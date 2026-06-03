@@ -1579,6 +1579,9 @@ function initGame() {
     }
   }
 
+  // Re-render so hazard cells show immediately
+  renderGrid();
+
   addLog('system', 'GAME START -- place from your home row');
   document.addEventListener('click', function _hzv() { document.querySelectorAll('.cell.hazard video').forEach(v=>v.play().catch(()=>{})); document.removeEventListener('click',_hzv); }, {once:true});
 }
@@ -1829,16 +1832,18 @@ function computeScores() {
   rowResults.forEach(r => { if(r==='p')pWins++; if(r==='a')aWins++; });
   colResults.forEach(c => { if(c==='p')pWins++; if(c==='a')aWins++; });
 
+  // Delta scoring: winner gets (their power - loser power) per line, capped at 3
+  // This prevents scores from swinging wildly when one player completely dominates
   let pVP = 0, aVP = 0;
   rows.forEach((row, ri) => {
     const net = row.p - row.a;
-    if (net > 0) pVP += net;
-    else if (net < 0) aVP += (-net);
+    if (net > 0) pVP += Math.min(net, 3);
+    else if (net < 0) aVP += Math.min(-net, 3);
   });
   cols.forEach((col, ci) => {
     const net = col.p - col.a;
-    if (net > 0) pVP += net;
-    else if (net < 0) aVP += (-net);
+    if (net > 0) pVP += Math.min(net, 3);
+    else if (net < 0) aVP += Math.min(-net, 3);
   });
 
   // ECHO: player card with echo in a row AND col both won → count its power again
@@ -1929,6 +1934,20 @@ function renderGrid() {
           tt.style.display='block';
         };
         div.onmouseleave = hideTip;
+        // If user already interacted, upgrade img to video immediately
+        if (window._hzInteracted) {
+          setTimeout(() => {
+            const img = div.querySelector('.hz-img');
+            if (img) {
+              const vid = document.createElement('video');
+              vid.autoplay=true; vid.loop=true; vid.muted=true; vid.playsInline=true;
+              vid.style.cssText = img.style.cssText;
+              vid.innerHTML = '<source src="'+img.dataset.hzvid+'" type="video/mp4">';
+              img.parentElement.replaceChild(vid, img);
+              vid.play().catch(()=>{});
+            }
+          }, 20);
+        }
 
       } else if (cell.card) {
         div.classList.add(cell.owner);
