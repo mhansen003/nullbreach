@@ -879,6 +879,17 @@ button, [onclick] { touch-action: manipulation; }
       </div>
     </div>
   </div>
+  <!-- User Guide button -->
+  <div style="border-top:1px solid #1a1a28;margin-top:4px;padding-top:6px;">
+    <button onclick="showGuide()" style="
+      width:100%;background:transparent;border:1px solid #2a2a3a;color:#555566;
+      font-family:'Orbitron',monospace;font-size:9px;letter-spacing:2px;
+      padding:6px 8px;cursor:pointer;border-radius:4px;transition:all 0.2s;
+    " onmouseenter="this.style.borderColor='#8855ff66';this.style.color='#aa88ff'"
+       onmouseleave="this.style.borderColor='#2a2a3a';this.style.color='#555566'">
+      ? USER GUIDE
+    </button>
+  </div>
 </div>
 
 <!-- Hidden compat stubs -->
@@ -977,6 +988,48 @@ button, [onclick] { touch-action: manipulation; }
   display:none;align-items:center;gap:14px;box-shadow:0 4px 24px #8855ff22;">
   <div style="font-family:'Orbitron',monospace;font-size:12px;letter-spacing:3px;color:#8855ff;">OPPONENT'S TURN</div>
   <div id="mpWaitDots" style="font-size:14px;color:#8855ff66;letter-spacing:4px;">● ○ ○</div>
+</div>
+
+<!-- ═══════════════ HOW TO PLAY MODAL ═══════════════ -->
+<div id="guideModal" style="display:none;position:fixed;inset:0;z-index:99000;
+  background:#000000ee;backdrop-filter:blur(8px);
+  align-items:center;justify-content:center;font-family:'Share Tech Mono','Courier New',monospace;">
+  <div style="background:#06060e;border:1px solid #8855ff66;border-radius:14px;
+    max-width:720px;width:94%;max-height:88vh;overflow:hidden;display:flex;flex-direction:column;
+    box-shadow:0 0 80px #8855ff22;">
+
+    <!-- Header -->
+    <div style="display:flex;align-items:center;justify-content:space-between;
+      padding:16px 24px;border-bottom:1px solid #1a1a28;flex-shrink:0;">
+      <div>
+        <div style="font-family:'Orbitron',monospace;font-size:16px;letter-spacing:4px;color:#8855ff;" id="guideTitle">HOW TO PLAY</div>
+        <div id="guidePageNum" style="font-size:11px;color:#444;letter-spacing:2px;margin-top:2px;">PAGE 1 OF 8</div>
+      </div>
+      <button onclick="closeGuide()" style="background:transparent;border:1px solid #332244;color:#554466;
+        font-family:inherit;font-size:12px;letter-spacing:1px;padding:6px 14px;cursor:pointer;border-radius:4px;
+        transition:all 0.2s;" onmouseenter="this.style.color='#cc99ff'" onmouseleave="this.style.color='#554466'">✕ CLOSE</button>
+    </div>
+
+    <!-- Page content -->
+    <div id="guideContent" style="flex:1;overflow-y:auto;padding:24px 28px;line-height:1.7;"></div>
+
+    <!-- Footer nav -->
+    <div style="display:flex;align-items:center;justify-content:space-between;
+      padding:14px 24px;border-top:1px solid #1a1a28;flex-shrink:0;">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;color:#444;">
+        <input type="checkbox" id="guideDontShow" style="accent-color:#8855ff;">
+        Don't show again
+      </label>
+      <div style="display:flex;gap:10px;">
+        <button id="guidePrev" onclick="guidePage(-1)" style="background:transparent;border:1px solid #332244;
+          color:#554466;font-family:'Orbitron',monospace;font-size:11px;letter-spacing:2px;
+          padding:9px 18px;cursor:pointer;border-radius:5px;transition:all 0.2s;">← PREV</button>
+        <button id="guideNext" onclick="guidePage(1)" style="background:#1a0a2e;border:1px solid #8855ff88;
+          color:#cc99ff;font-family:'Orbitron',monospace;font-size:11px;letter-spacing:2px;
+          padding:9px 20px;cursor:pointer;border-radius:5px;transition:all 0.2s;">NEXT →</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <div class="overlay" id="overlay">
@@ -4124,6 +4177,288 @@ if (_mpRoom && _mpPlayer) {
     }
   });
 }
+
+// ── HOW TO PLAY GUIDE ────────────────────────────────────────────────────────
+const GUIDE_PAGES = [
+  {
+    title: 'WHAT IS GALACTIC ZERO?',
+    html: `
+      <p style="font-size:14px;color:#aaa;margin-bottom:18px;">GALACTIC ZERO is a <b style="color:#fff">tactical card placement game</b>. You and your opponent take turns placing faction cards on a 5×7 grid, fighting for control of rows and columns.</p>
+      <div style="display:flex;gap:16px;margin:18px 0;flex-wrap:wrap;">
+        <div style="flex:1;min-width:180px;background:#0a0a18;border:1px solid #1a1a28;border-radius:8px;padding:14px;">
+          <div style="font-family:'Orbitron',monospace;font-size:11px;color:#8855ff;letter-spacing:2px;margin-bottom:8px;">THE BOARD</div>
+          <div style="display:grid;grid-template-columns:repeat(5,28px);grid-template-rows:repeat(3,28px);gap:2px;margin:8px auto;width:fit-content;">
+            ${[...Array(5)].map((_,i)=>`<div style="width:28px;height:28px;border-radius:3px;background:${i<5?'#ff008022':'#00ffcc22'};border:1px solid ${i<5?'#ff008044':'#00ffcc44'};display:flex;align-items:center;justify-content:center;font-size:9px;color:${i<5?'#ff0080':'#00ffcc'};">${i===0?'AI':i===4?'YOU':''}</div>`).join('')}
+            ${[...Array(10)].map(()=>`<div style="width:28px;height:28px;border-radius:3px;background:#0d0d20;border:1px solid #1a1a28;"></div>`).join('')}
+          </div>
+          <div style="font-size:11px;color:#555;margin-top:8px;">5 rows × 7 columns. AI at top (row 0), You at bottom (row 4).</div>
+        </div>
+        <div style="flex:1;min-width:180px;background:#0a0a18;border:1px solid #1a1a28;border-radius:8px;padding:14px;">
+          <div style="font-family:'Orbitron',monospace;font-size:11px;color:#8855ff;letter-spacing:2px;margin-bottom:8px;">THE GOAL</div>
+          <div style="font-size:13px;color:#aaa;line-height:1.8;">
+            Win more <span style="color:#00ffcc">rows</span> and <span style="color:#00ffcc">columns</span> than your opponent.<br><br>
+            Each won row or column earns you <b style="color:#fff">Victory Points (VP)</b> equal to your cards' power values in that line.
+          </div>
+        </div>
+      </div>
+      <div style="background:#0a0818;border:1px solid #8855ff33;border-radius:6px;padding:12px 16px;font-size:12px;color:#8855ff;">
+        💡 You play from the bottom — your cards always enter from row 4 and push forward toward the enemy.
+      </div>`
+  },
+  {
+    title: 'CARDS — THE BASICS',
+    html: `
+      <p style="font-size:14px;color:#aaa;margin-bottom:16px;">Every card has <b style="color:#fff">4 edge values</b> (N/S/E/W) and a <b style="color:#fff">Power</b> number. Edges are your attack/defense in each direction.</p>
+      <div style="display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start;">
+        <div style="flex-shrink:0;">
+          <div style="width:110px;height:140px;background:#0d0d20;border:2px solid #00ffcc;border-radius:8px;position:relative;margin:0 auto;">
+            <div style="position:absolute;top:6px;left:50%;transform:translateX(-50%);font-size:18px;font-weight:bold;color:#00ffcc;background:rgba(0,0,0,0.72);border-radius:50%;min-width:22px;text-align:center;padding:2px 3px;">7</div>
+            <div style="position:absolute;bottom:6px;left:50%;transform:translateX(-50%);font-size:18px;font-weight:bold;color:#00ffcc;background:rgba(0,0,0,0.72);border-radius:50%;min-width:22px;text-align:center;padding:2px 3px;">2</div>
+            <div style="position:absolute;left:6px;top:50%;transform:translateY(-50%);font-size:18px;font-weight:bold;color:#00ffcc;background:rgba(0,0,0,0.72);border-radius:50%;min-width:22px;text-align:center;padding:2px 3px;">5</div>
+            <div style="position:absolute;right:6px;top:50%;transform:translateY(-50%);font-size:18px;font-weight:bold;color:#00ffcc;background:rgba(0,0,0,0.72);border-radius:50%;min-width:22px;text-align:center;padding:2px 3px;">5</div>
+            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;">
+              <div style="font-size:22px;font-weight:bold;color:#00ffcc;">3</div>
+              <div style="font-size:8px;color:#555;letter-spacing:1px;">POWER</div>
+            </div>
+            <div style="position:absolute;top:4px;left:4px;display:flex;gap:2px;">
+              <span style="width:5px;height:5px;border-radius:50%;background:#4488ff;display:inline-block;"></span>
+              <span style="width:5px;height:5px;border-radius:50%;background:#4488ff;display:inline-block;"></span>
+              <span style="width:5px;height:5px;border-radius:50%;background:#4488ff;display:inline-block;"></span>
+            </div>
+          </div>
+          <div style="font-size:10px;color:#555;text-align:center;margin-top:6px;letter-spacing:1px;">EXAMPLE: TIER III</div>
+        </div>
+        <div style="flex:1;min-width:200px;">
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <div style="background:#0a0a18;border-left:3px solid #00ffcc;border-radius:4px;padding:10px 14px;">
+              <div style="font-family:'Orbitron',monospace;font-size:10px;color:#00ffcc;letter-spacing:1px;">N — NORTH EDGE</div>
+              <div style="font-size:12px;color:#888;margin-top:4px;">Attacks the card above (toward AI home row). Your main forward attack.</div>
+            </div>
+            <div style="background:#0a0a18;border-left:3px solid #00ffcc;border-radius:4px;padding:10px 14px;">
+              <div style="font-family:'Orbitron',monospace;font-size:10px;color:#00ffcc;letter-spacing:1px;">S — SOUTH EDGE</div>
+              <div style="font-size:12px;color:#888;margin-top:4px;">Defends against cards below you. AI attacks from the top.</div>
+            </div>
+            <div style="background:#0a0a18;border-left:3px solid #00ffcc;border-radius:4px;padding:10px 14px;">
+              <div style="font-family:'Orbitron',monospace;font-size:10px;color:#00ffcc;letter-spacing:1px;">E/W — FLANK EDGES</div>
+              <div style="font-size:12px;color:#888;margin-top:4px;">Attack and defend horizontally within the same row.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="background:#0a0818;border:1px solid #44cc4433;border-radius:6px;padding:12px 16px;font-size:12px;color:#88cc44;margin-top:16px;">
+        💡 When two cards face each other, the higher edge value wins that comparison. Ties cancel out.
+      </div>`
+  },
+  {
+    title: 'TIERS — CARD POWER LEVELS',
+    html: `
+      <p style="font-size:14px;color:#aaa;margin-bottom:18px;">Cards come in 4 tiers. Higher tiers are more powerful but have <b style="color:#fff">strict placement rules</b>.</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px;">
+        ${[
+          {tier:'I',col:'#d0d0d0',rule:'Home row only (row 4)',tip:'Your anchor — must go on row 4 first.',dots:1},
+          {tier:'II',col:'#44cc66',rule:'Battle zone (rows 1–3)',tip:'Needs a T1 card placed first to unlock zone.',dots:2},
+          {tier:'III',col:'#4488ff',rule:'Battle zone (rows 1–3)',tip:'High power, big impact. Zone must be open.',dots:3},
+          {tier:'IV',col:'#aa44ff',rule:'Battle zone (rows 1–3)',tip:'Flagship — maximum power. One per deck.',dots:4},
+        ].map(t=>`
+          <div style="background:#0a0a18;border:1px solid ${t.col}44;border-radius:8px;padding:12px 14px;border-left:3px solid ${t.col};">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+              <div style="display:flex;gap:3px;">${[...Array(t.dots)].map(()=>`<span style="width:8px;height:8px;border-radius:50%;background:${t.col};box-shadow:0 0 4px ${t.col};display:inline-block;"></span>`).join('')}</div>
+              <div style="font-family:'Orbitron',monospace;font-size:11px;color:${t.col};letter-spacing:1px;">TIER ${t.tier}</div>
+            </div>
+            <div style="font-size:12px;color:#888;">${t.rule}</div>
+            <div style="font-size:11px;color:#555;margin-top:4px;">${t.tip}</div>
+          </div>`).join('')}
+      </div>
+      <div style="background:#0a0818;border:1px solid #8855ff33;border-radius:6px;padding:12px 16px;">
+        <div style="font-family:'Orbitron',monospace;font-size:10px;color:#8855ff;letter-spacing:2px;margin-bottom:8px;">ZONE EXPANSION</div>
+        <div style="font-size:12px;color:#888;line-height:1.7;">After placing a T1 card, it <b style="color:#fff">opens adjacent cells</b> for your next placement. Every card you play expands your reach further. This is called <b style="color:#fff">Zone Expansion</b> — the board is captured one card at a time.</div>
+      </div>`
+  },
+  {
+    title: 'PLACEMENT — HOW TURNS WORK',
+    html: `
+      <p style="font-size:14px;color:#aaa;margin-bottom:18px;">Each turn, select a card from your hand at the bottom, then click a valid cell on the board. Green outlined cells are valid placements.</p>
+      <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px;">
+        <div style="flex:1;min-width:200px;background:#0a0a18;border:1px solid #1a1a28;border-radius:8px;padding:14px;">
+          <div style="font-family:'Orbitron',monospace;font-size:10px;color:#8855ff;letter-spacing:2px;margin-bottom:10px;">STEP 1 — SELECT CARD</div>
+          <div style="font-size:12px;color:#888;line-height:1.8;">Click a card in your hand at the bottom. It lifts up to show it's selected. Only cards with valid placements are shown.</div>
+        </div>
+        <div style="flex:1;min-width:200px;background:#0a0a18;border:1px solid #1a1a28;border-radius:8px;padding:14px;">
+          <div style="font-family:'Orbitron',monospace;font-size:10px;color:#00ffcc;letter-spacing:2px;margin-bottom:10px;">STEP 2 — PLACE CARD</div>
+          <div style="font-size:12px;color:#888;line-height:1.8;">Click any green-highlighted cell. The card locks in. You can also <b style="color:#fff">drag and drop</b> cards onto valid cells.</div>
+        </div>
+      </div>
+      <div style="background:#0a0a18;border:1px solid #1a1a28;border-radius:8px;padding:14px;margin-bottom:14px;">
+        <div style="font-family:'Orbitron',monospace;font-size:10px;color:#ffdd00;letter-spacing:2px;margin-bottom:8px;">BATTLE PREVIEW</div>
+        <div style="font-size:12px;color:#888;line-height:1.7;">Hover over a valid cell to see a <b style="color:#fff">WIN / LOSE / TIE</b> preview — the game shows you exactly how each edge will compare against adjacent enemies before you commit.</div>
+      </div>
+      <div style="background:#0a0818;border:1px solid #44cc4433;border-radius:6px;padding:12px 16px;font-size:12px;color:#88cc44;">
+        💡 Your tier hand is stacked in collapsed groups. Click any tier stack to expand and see those cards.
+      </div>`
+  },
+  {
+    title: 'SCORING — HOW TO WIN',
+    html: `
+      <p style="font-size:14px;color:#aaa;margin-bottom:16px;">The player with the most <b style="color:#fff">Victory Points</b> at the end wins. VP comes from <b style="color:#fff">winning rows and columns</b>.</p>
+      <div style="background:#0a0a18;border:1px solid #1a1a28;border-radius:8px;padding:16px;margin-bottom:14px;">
+        <div style="font-family:'Orbitron',monospace;font-size:10px;color:#00ffcc;letter-spacing:2px;margin-bottom:10px;">HOW A ROW IS WON</div>
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap;">
+          <div style="background:#00ffcc22;border:1px solid #00ffcc44;border-radius:6px;padding:8px 14px;text-align:center;">
+            <div style="font-size:20px;font-weight:bold;color:#00ffcc;">6</div>
+            <div style="font-size:10px;color:#555;">YOUR CARD</div>
+          </div>
+          <div style="color:#555;font-size:18px;">vs</div>
+          <div style="background:#ff008022;border:1px solid #ff008044;border-radius:6px;padding:8px 14px;text-align:center;">
+            <div style="font-size:20px;font-weight:bold;color:#ff0080;">3</div>
+            <div style="font-size:10px;color:#555;">ENEMY</div>
+          </div>
+          <div style="color:#00ffcc;font-size:14px;">→ YOU WIN ROW</div>
+          <div style="background:#00ffcc11;border-radius:4px;padding:6px 10px;">
+            <div style="font-size:13px;color:#00ffcc;">+<b>3</b> VP</div>
+            <div style="font-size:10px;color:#555;">(6 − 3, net)</div>
+          </div>
+        </div>
+        <div style="font-size:12px;color:#888;line-height:1.7;">Net cancellation: if you have 6 power and enemy has 3, you score <b style="color:#fff">3 VP</b> for that row — not 6. Enemies cancel out your strength.</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div style="background:#0a0a18;border:1px solid #00ffcc33;border-radius:8px;padding:12px;">
+          <div style="font-family:'Orbitron',monospace;font-size:10px;color:#00ffcc;letter-spacing:1px;margin-bottom:6px;">ROW BADGES (RIGHT)</div>
+          <div style="font-size:12px;color:#888;">One badge per row. Shows both players' scores. Hover to highlight who's winning that row.</div>
+        </div>
+        <div style="background:#0a0a18;border:1px solid #ffdd0033;border-radius:8px;padding:12px;">
+          <div style="font-family:'Orbitron',monospace;font-size:10px;color:#ffdd00;letter-spacing:1px;margin-bottom:6px;">COL BADGES (BOTTOM)</div>
+          <div style="font-size:12px;color:#888;">One badge per column. Shows column totals. Rows AND cols both contribute to your final VP.</div>
+        </div>
+      </div>`
+  },
+  {
+    title: 'SPECIAL ABILITIES',
+    html: `
+      <p style="font-size:14px;color:#aaa;margin-bottom:16px;">Some cards carry a <b style="color:#fff">Special Ability</b> — shown on the card in your hand. Each faction has 4 unique ability types with custom names.</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        ${[
+          {col:'#aaaaff',icon:'🛡',name:'SHIELD / LATTICE WARD',desc:'First edge loss permanently blocked in that direction.'},
+          {col:'#ffdd00',icon:'⚡⚡',name:'DOUBLE STRIKE / ACCORD BARRAGE',desc:'After winning an edge, fires a second hit at half strength.'},
+          {col:'#ffcc00',icon:'★★',name:'COMMANDER / FLEET ADMIRAL',desc:'Adjacent same-tier friendlies gain +2 to all edges.'},
+          {col:'#ff9900',icon:'↺↺',name:'FLANK / AFTERIMAGE',desc:'After placing, take an immediate extra turn.'},
+          {col:'#ff6644',icon:'▶!',name:'RUSH / ACID CHARGE',desc:'Place adjacent to any enemy, bypassing zone rules.'},
+          {col:'#88ffff',icon:'◈',name:'PHANTOM / PHASE SHIFT',desc:'Place freely in your own home 2 rows, no zone required.'},
+          {col:'#ff8800',icon:'◎',name:'SNIPER / VOID LANCE',desc:'Silences the nearest enemy in your column — 0 VP.'},
+          {col:'#cc44ff',icon:'✕✕',name:'AMBUSH / DARK SURGE',desc:'2 random adjacent enemies each lose −1 to all 4 edges.'},
+          {col:'#6688aa',icon:'▣',name:'STONEWALL / TECTONIC HOLD',desc:'This card + 2 random adjacent enemies all score 0 VP.'},
+          {col:'#ffdd88',icon:'⚖',name:'DECIDING FACTOR / FAULT LINE',desc:'Tied rows or columns tip +1 to your favor.'},
+          {col:'#c8c8ff',icon:'◈◈',name:'ECHO / QUANTUM ENTANGLEMENT',desc:'If row AND column are both won, score double VP.'},
+          {col:'#00ddff',icon:'↑↓↑',name:'HAT TRICK / RESONANT CHORD',desc:'Middle of a vertical 3-card line: edge power spreads to flankers.'},
+        ].map(a=>`
+          <div style="background:#0a0a18;border:1px solid ${a.col}22;border-left:2px solid ${a.col};border-radius:5px;padding:8px 12px;">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+              <span style="color:${a.col};font-size:12px;">${a.icon}</span>
+              <span style="font-family:'Orbitron',monospace;font-size:8px;color:${a.col};letter-spacing:1px;">${a.name.split('/')[1]?.trim()||a.name}</span>
+            </div>
+            <div style="font-size:11px;color:#666;">${a.desc}</div>
+          </div>`).join('')}
+      </div>`
+  },
+  {
+    title: 'COSMIC HAZARDS',
+    html: `
+      <p style="font-size:14px;color:#aaa;margin-bottom:16px;">In <b style="color:#ff6600">Balanced</b> and <b style="color:#ff4422">Aggressive</b> games, 1–2 <b style="color:#ff6600">Cosmic Hazard</b> objects appear randomly on the battlefield at game start.</p>
+      <div style="display:flex;gap:16px;margin-bottom:16px;flex-wrap:wrap;">
+        <div style="flex:1;min-width:200px;">
+          <div style="display:grid;grid-template-columns:repeat(3,80px);gap:6px;margin-bottom:12px;">
+            ${['BLACK HOLE','PLASMA PULSE','RED GIANT'].map((n,i)=>`
+              <div style="height:70px;border-radius:6px;background:#1a0800;border:2px solid #ff660066;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding:0 0 6px;overflow:hidden;position:relative;">
+                <div style="position:absolute;inset:0;background:radial-gradient(circle,#ff440022 0%,transparent 70%);"></div>
+                <div style="font-size:7px;color:#ff6600;letter-spacing:1px;position:relative;z-index:1;">⚠ ${n}</div>
+              </div>`).join('')}
+          </div>
+        </div>
+        <div style="flex:1;min-width:220px;display:flex;flex-direction:column;gap:10px;">
+          <div style="background:#1a0800;border:1px solid #ff440044;border-radius:8px;padding:12px;">
+            <div style="font-family:'Orbitron',monospace;font-size:10px;color:#ff6600;letter-spacing:2px;margin-bottom:6px;">THE EFFECT</div>
+            <div style="font-size:13px;color:#cc4400;">Any card adjacent to a hazard loses <b style="color:#ff6600;">−2 VP</b> from its scoring contribution.</div>
+          </div>
+          <div style="background:#0a0a18;border:1px solid #1a1a28;border-radius:8px;padding:12px;">
+            <div style="font-size:12px;color:#888;line-height:1.7;">
+              <div>• Hazards affect <b style="color:#fff">both sides</b> equally</div>
+              <div>• They <b style="color:#fff">cannot be destroyed</b></div>
+              <div>• Orange glow shows hazard range</div>
+              <div>• Hover to see the tooltip warning</div>
+              <div>• Score badge hover greys out affected cards</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="background:#0a0818;border:1px solid #ff440033;border-radius:6px;padding:12px 16px;font-size:12px;color:#554433;line-height:1.7;">
+        ⚠ <b style="color:#ff6600;">Strategy:</b> Avoid placing high-power cards next to hazards. Forcing your opponent to play near hazards is a valid tactic — their strong cards lose VP too.
+      </div>`
+  },
+  {
+    title: 'QUICK REFERENCE',
+    html: `
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        ${[
+          {col:'#00ffcc',head:'TURN ORDER',items:['Select a card from your hand','Click a valid (green) cell','AI takes its turn','Repeat until all cards played']},
+          {col:'#ffdd00',head:'WINNING',items:['Most rows won = row VP','Most cols won = col VP','Net cancellation: your power minus enemy power','Higher total VP wins the game']},
+          {col:'#4488ff',head:'PLACEMENT RULES',items:['T1 only on home row (row 4)','T2/T3/T4 in battle zone (rows 1-3)','Must be adjacent to an existing friendly','Some abilities bypass these rules']},
+          {col:'#ff9900',head:'TIPS',items:['Place T1 cards early to unlock zones','High N edges = strong forward attack','Watch the row/col badges — know who leads','Abilities can flip close games']},
+        ].map(s=>`
+          <div style="background:#0a0a18;border:1px solid ${s.col}22;border-top:2px solid ${s.col};border-radius:8px;padding:12px 14px;">
+            <div style="font-family:'Orbitron',monospace;font-size:10px;color:${s.col};letter-spacing:2px;margin-bottom:10px;">${s.head}</div>
+            ${s.items.map(i=>`<div style="font-size:12px;color:#888;margin-bottom:6px;padding-left:10px;border-left:2px solid ${s.col}44;">• ${i}</div>`).join('')}
+          </div>`).join('')}
+      </div>
+      <div style="background:#0a0818;border:1px solid #8855ff33;border-radius:6px;padding:14px;margin-top:14px;text-align:center;">
+        <div style="font-family:'Orbitron',monospace;font-size:13px;color:#8855ff;margin-bottom:6px;">READY TO PLAY?</div>
+        <div style="font-size:12px;color:#555;">Close this guide and place your first card. The game begins on your home row.</div>
+      </div>`
+  },
+];
+
+let _guidePage = 0;
+
+function guidePage(delta) {
+  _guidePage = Math.max(0, Math.min(GUIDE_PAGES.length - 1, _guidePage + delta));
+  renderGuide();
+}
+
+function renderGuide() {
+  const p = GUIDE_PAGES[_guidePage];
+  document.getElementById('guideTitle').textContent = p.title;
+  document.getElementById('guidePageNum').textContent = `PAGE ${_guidePage+1} OF ${GUIDE_PAGES.length}`;
+  document.getElementById('guideContent').innerHTML = p.html;
+  document.getElementById('guidePrev').style.opacity = _guidePage === 0 ? '0.3' : '1';
+  const nextBtn = document.getElementById('guideNext');
+  if (_guidePage === GUIDE_PAGES.length - 1) {
+    nextBtn.textContent = 'DONE ✓';
+    nextBtn.onclick = closeGuide;
+  } else {
+    nextBtn.textContent = 'NEXT →';
+    nextBtn.onclick = () => guidePage(1);
+  }
+}
+
+function showGuide() {
+  _guidePage = 0;
+  renderGuide();
+  const m = document.getElementById('guideModal');
+  m.style.display = 'flex';
+}
+
+function closeGuide() {
+  const m = document.getElementById('guideModal');
+  m.style.display = 'none';
+  if (document.getElementById('guideDontShow')?.checked) {
+    localStorage.setItem('gz_guide_seen', '1');
+  }
+}
+
+// Auto-show on first visit
+window.addEventListener('load', () => {
+  if (!localStorage.getItem('gz_guide_seen')) {
+    setTimeout(showGuide, 800);
+  }
+});
 
 // ── START ─────────────────────────────────────
 // Set active deck from URL param BEFORE initGame reads it
