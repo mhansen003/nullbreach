@@ -989,8 +989,8 @@ button, [onclick] { touch-action: manipulation; }
 </div>
 
 <!-- ═══════════════ HOW TO PLAY MODAL ═══════════════ -->
-<div id="guideModal" style="display:none;position:fixed;inset:0;z-index:99000;
-  background:#000000ee;backdrop-filter:blur(8px);
+<div id="guideModal" onclick="if(event.target===this)closeGuide()" style="display:none;position:fixed;inset:0;z-index:99000;
+  background:#000000ee;backdrop-filter:blur(8px);cursor:pointer;
   align-items:center;justify-content:center;font-family:'Share Tech Mono','Courier New',monospace;">
   <div style="background:#06060e;border:1px solid #8855ff66;border-radius:14px;
     max-width:720px;width:94%;max-height:88vh;overflow:hidden;display:flex;flex-direction:column;
@@ -3687,22 +3687,28 @@ const FACTION_ABILITY_POOLS = {
 };
 
 function assignRandomAbilities(hand, raceId) {
-  // Clear any existing abilities
   hand.forEach(c => { c.ability = null; c.abilityText = 'No special ability'; c.isSpecial = false; });
   const pool = FACTION_ABILITY_POOLS[raceId] || FACTION_ABILITY_POOLS._default;
-  // Prefer T2+ cards for abilities (higher tier = higher weight)
+
+  // Max 1 ability on T1 — they sit in the home row and rarely fight
+  const t1Cards    = hand.filter(c => c.tier === 'I').sort(() => Math.random() - 0.5);
+  const higherCards = hand.filter(c => c.tier !== 'I');
+  // Weight T2/T3/T4 by tier
   const weighted = [];
-  hand.forEach(c => {
-    const w = {I:1, II:2, III:3, IV:5}[c.tier] || 1;
+  higherCards.forEach(c => {
+    const w = {II:2, III:3, IV:5}[c.tier] || 2;
     for (let i = 0; i < w; i++) weighted.push(c);
   });
-  // Pick 5 unique cards from weighted list
+  weighted.sort(() => Math.random() - 0.5);
+
   const chosen = new Set();
-  const shuffled = weighted.sort(() => Math.random() - 0.5);
-  for (const card of shuffled) {
-    if (chosen.size >= 5) break;
+  for (const card of weighted) {
+    if (chosen.size >= 4) break;   // fill 4 slots from T2+
     chosen.add(card);
   }
+  // Allow 1 T1 if we still have a slot (or fewer than 5 higher cards exist)
+  if (chosen.size < 5 && t1Cards.length > 0) chosen.add(t1Cards[0]);
+
   chosen.forEach(card => {
     const ab = pool[Math.floor(Math.random() * pool.length)];
     card.ability = ab;
@@ -4361,7 +4367,10 @@ const GUIDE_PAGES = [
       <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:17px;font-weight:bold;color:#ffdd00;background:#000000cc;padding:2px 5px;border-radius:4px;line-height:1;">4</div>
     </div>
   </div>
-  <div style="margin-top:8px;font-size:12px;color:#ddd;letter-spacing:1px;">Higher edge wins · winner earns the difference in VP</div>
+  <div style="margin-top:10px;max-width:360px;text-align:center;font-size:13px;color:#ddd;line-height:1.7;">
+    Each card has four edges — when two cards are placed next to each other, the touching edges compete.
+    The higher number wins that direction, and the winner scores the <strong>difference</strong> as VP.
+  </div>
 </div>
 
 <!-- SECTION 2: Row and Column scoring with in-game badge style -->
@@ -4369,7 +4378,7 @@ const GUIDE_PAGES = [
 
   <!-- ROW example -->
   <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
-    <div style="font-size:8px;letter-spacing:3px;color:#55aaff;font-family:'Orbitron',monospace;">ROW SCORE ↔</div>
+    <div style="font-size:9px;letter-spacing:2px;color:#aaa;font-family:'Orbitron',monospace;">ROWS  ↔</div>
     <!-- 4-cell horizontal row -->
     <div style="display:flex;gap:2px;align-items:center;">
       <div style="width:38px;height:50px;border-radius:3px;background:#1c0a0a;border:1px solid #ff008055;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:bold;color:#ffdd00;">2</div>
@@ -4386,7 +4395,7 @@ const GUIDE_PAGES = [
         <img src="assets/avatars/crystallis.png" style="width:16px;height:16px;border-radius:50%;object-fit:cover;object-position:top;opacity:0.6;">
       </div>
     </div>
-    <div style="font-size:10px;color:#aaa;text-align:center;">5 vs 2 → <span style="color:#ffdd00;">+3 VP</span></div>
+    <div style="font-size:10px;color:#ccc;text-align:center;">5 vs 2 = +3 VP</div>
   </div>
 
   <!-- Divider -->
@@ -4394,7 +4403,7 @@ const GUIDE_PAGES = [
 
   <!-- COL example -->
   <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
-    <div style="font-size:8px;letter-spacing:3px;color:#ffdd00;font-family:'Orbitron',monospace;">COL SCORE ↕</div>
+    <div style="font-size:9px;letter-spacing:2px;color:#aaa;font-family:'Orbitron',monospace;">COLUMNS  ↕</div>
     <div style="display:flex;gap:6px;align-items:flex-end;">
       <!-- 3-cell vertical column -->
       <div style="display:flex;flex-direction:column;gap:2px;">
@@ -4414,7 +4423,12 @@ const GUIDE_PAGES = [
         </div>
       </div>
     </div>
-    <div style="font-size:10px;color:#aaa;text-align:center;">6 vs 3 → <span style="color:#ffdd00;">+3 VP</span></div>
+    <div style="font-size:10px;color:#ccc;text-align:center;">6 vs 3 = +3 VP</div>
+  </div>
+
+  <div style="max-width:460px;margin:14px auto 0;text-align:center;font-size:13px;color:#ddd;line-height:1.8;">
+    Every row (left to right) and every column (top to bottom) is scored separately.
+    For each line the winner earns the difference in total power as VP — so controlling both rows and columns matters.
   </div>
 
 </div>
