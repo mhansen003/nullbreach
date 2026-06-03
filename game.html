@@ -102,7 +102,7 @@ body {
 .ai-name  { color: #ff0080; font-size: 11px; letter-spacing: 2px; }
 .ai-sub   { color: #444; font-size: 8px; letter-spacing: 1px; margin-top: 2px; }
 .ai-quote { color: #333; font-size: 8px; font-style: italic; margin-top: 3px; }
-.ai-hand-row { display: flex; gap: 6px; align-items: center; }
+.ai-hand-row { display: none; } /* hidden — opponent deck not shown */
 .hand-lbl-v { font-size: 8px; color: #333; letter-spacing: 2px; writing-mode: vertical-lr; transform: rotate(180deg); }
 .facedown {
   width: 50px; height: 66px; border-radius: 3px;
@@ -231,8 +231,7 @@ body {
 /* Card face -- all absolutely positioned inside position:relative .cell */
 .edge {
   position: absolute; font-size: 15px; font-weight: bold; line-height: 1; z-index: 2;
-  background: #000000bb; padding: 2px 5px; border-radius: 4px; min-width: 16px;
-  text-align: center;
+  min-width: 16px; text-align: center; background: transparent;
 }
 .edge.n { top: 5px;    left: 50%; transform: translateX(-50%); }
 .edge.s { bottom: 5px; left: 50%; transform: translateX(-50%); }
@@ -361,6 +360,25 @@ body {
 .player-name  { color: #00ffcc; font-size: 10px; letter-spacing: 2px; }
 .player-sub   { color: #444; font-size: 8px; letter-spacing: 1px; margin-top: 2px; }
 .hand-cards { display: flex; gap: 8px; align-items: flex-end; }
+
+/* Card pop-in: newly eligible cards fly in from below */
+@keyframes cardPopIn {
+  0%   { transform: scale(0.3) translateY(32px) rotate(-4deg); opacity: 0; }
+  55%  { transform: scale(1.1) translateY(-6px) rotate(1.5deg); opacity: 1; }
+  80%  { transform: scale(0.97) translateY(2px) rotate(0deg); }
+  100% { transform: scale(1) translateY(0) rotate(0deg); opacity: 1; }
+}
+.hand-card.card-pop-in {
+  animation: cardPopIn 0.42s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+/* Locked card count badge at end of hand */
+.hand-locked-badge {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  width: 36px; height: 140px; border-radius: 6px;
+  background: #05050e; border: 1px dashed #1a1a28;
+  flex-shrink: 0; gap: 5px; cursor: default;
+  opacity: 0.7;
+}
 
 /* DRAG CARD -- follows cursor */
 #dragCard {
@@ -688,6 +706,7 @@ button, [onclick] { touch-action: manipulation; }
 <!-- AUDIO -->
 <audio id="cardSfx"    preload="auto"><source src="assets/card-place.mp3"   type="audio/mpeg"></audio>
 <audio id="selectSfx"  preload="auto"><source src="assets/deploy-click.mp3" type="audio/mpeg"></audio>
+<audio id="cardPopSfx" preload="auto"><source src="assets/newcard-pop.mp3"  type="audio/mpeg"></audio>
 <audio id="bgTrack"    preload="none"></audio>
 
 <!-- Music controls: mute + volume -->
@@ -1032,6 +1051,7 @@ function initGame() {
     turn:         'player',
     selectedCard: null,
     gameOver:     false,
+    _prevEligibleIds: undefined, // reset for card pop tracking
     log:          [],
   };
   document.getElementById('overlay').classList.remove('show');
@@ -1654,68 +1674,75 @@ function hasPlacedTier(tier) {
 function renderHand() {
   const el = document.getElementById('handCards');
   el.innerHTML = '';
-  // Only render UNUSED cards, sorted by tier (T1→T2→T3→T4)
   const TIER_ORDER = {'I':1,'II':2,'III':3,'IV':4};
-  const sortedHand = G.playerHand.filter(c => !c.used)
+  const unplayed = G.playerHand.filter(c => !c.used)
     .sort((a,b) => (TIER_ORDER[a.tier]||9) - (TIER_ORDER[b.tier]||9));
-  sortedHand.forEach(card => {
-    const div = document.createElement('div');
+
+  // Split: eligible = has at least one valid placement right now
+  const eligible   = unplayed.filter(c => getValidPlacements('player', c).length > 0);
+  const ineligible = unplayed.filter(c => getValidPlacements('player', c).length === 0);
+
+  // Detect newly eligible cards since last render (for pop animation + sound)
+  const eligibleNow = new Set(eligible.map(c => c.id));
+  const prev = G._prevEligibleIds;
+  const newlyEligible = (prev instanceof Set)
+    ? eligible.filter(c => !prev.has(c.id))
+    : [];
+  if (newlyEligible.length > 0 && prev instanceof Set) {
+    setTimeout(playCardPopSfx, 40); // slight delay so DOM paints first
+  }
+  G._prevEligibleIds = eligibleNow;
+
+  const factionC = window.playerFactionColor || '#00ffcc';
+
+  eligible.forEach((card, idx) => {
+    const isNew      = newlyEligible.some(c => c.id === card.id);
     const isSelected = G.selectedCard === card;
-    const isUsed = false; // filtered above
+    const tierDotC   = TIER_COLORS[card.tier] || '#888888';
+    const tdNum      = {'I':1,'II':2,'III':3,'IV':4}[card.tier] || 1;
 
-    // Tier prerequisite check
-    let isBlocked = false;
-    let blockedTitle = '';
-    if (!isUsed) {
-      if (card.tier === 'II' && !hasPlacedTier('I')) {
-        isBlocked = true;
-        blockedTitle = 'Requires a Tier I card to be placed first';
-      } else if (card.tier === 'III' && !hasPlacedTier('II')) {
-        isBlocked = true;
-        blockedTitle = 'Requires a Tier II card to be placed first';
-      } else if (card.tier === 'IV' && !hasPlacedTier('III')) {
-        isBlocked = true;
-        blockedTitle = 'Requires a Tier III card to be placed first';
-      }
+    const div = document.createElement('div');
+    div.className = 'hand-card' + (isSelected ? ' selected' : '');
+    if (isNew) {
+      div.classList.add('card-pop-in');
+      div.style.animationDelay = `${idx * 55}ms`; // stagger when multiple unlock at once
     }
-
-    div.className = 'hand-card' + (isUsed ? ' used' : '') + (isSelected ? ' selected' : '') + (isBlocked ? ' tier-blocked' : '');
-    if (isBlocked) div.title = blockedTitle;
-
-    // Card art background — border = player faction color, dots on card show tier
     if (card.art) div.style.backgroundImage = `url('${card.art}')`;
-    const factionC = window.playerFactionColor || '#00ffcc';
-    const tierDotC = TIER_COLORS[card.tier] || '#888888';
     div.style.borderColor = factionC;
-    div.style.boxShadow = isSelected
+    div.style.boxShadow   = isSelected
       ? `0 0 22px ${factionC}88, 0 0 44px ${factionC}44`
       : `0 0 8px ${factionC}33`;
 
-    const col = factionC;
-    const tdCol = tierDotC;
-    const tdNum = {'I':1,'II':2,'III':3,'IV':4}[card.tier] || 1;
     div.innerHTML = `
-      <span class="hc-e-n" style="color:${col}">${card.edges.n}</span>
-      <span class="hc-e-s" style="color:${col}">${card.edges.s}</span>
-      <span class="hc-e-w" style="color:${col}">${card.edges.w}</span>
-      <span class="hc-e-e" style="color:${col}">${card.edges.e}</span>
-      <!-- Tier dots top-left (no name — just numbers) -->
+      <span class="hc-e-n" style="color:${factionC}">${card.edges.n}</span>
+      <span class="hc-e-s" style="color:${factionC}">${card.edges.s}</span>
+      <span class="hc-e-w" style="color:${factionC}">${card.edges.w}</span>
+      <span class="hc-e-e" style="color:${factionC}">${card.edges.e}</span>
       <div style="position:absolute;top:4px;left:4px;display:flex;gap:2px;z-index:2;">
-        ${Array.from({length:tdNum},()=>`<span style="width:5px;height:5px;border-radius:50%;background:${tdCol};box-shadow:0 0 3px ${tdCol};display:inline-block;"></span>`).join('')}
+        ${Array.from({length:tdNum},()=>`<span style="width:5px;height:5px;border-radius:50%;background:${tierDotC};box-shadow:0 0 3px ${tierDotC};display:inline-block;"></span>`).join('')}
       </div>
       <div class="hc-center">
-        <span class="hc-power-center" style="color:${col}">${card.power}</span>
+        <span class="hc-power-center" style="color:${factionC}">${card.power}</span>
       </div>
-      ${card.ability ? `<span class="hc-ability-tag" style="color:${col}">${ab(card.ability)}</span>` : ''}
+      ${card.ability ? `<span class="hc-ability-tag" style="color:${factionC}">${ab(card.ability)}</span>` : ''}
     `;
 
-    if (!isUsed) {
-      div.onclick = () => onCardSelect(card);
-      div.onmouseenter = e => showTip(e, card);
-      div.onmouseleave = hideTip;
-    }
+    div.onclick       = () => onCardSelect(card);
+    div.onmouseenter  = e  => showTip(e, card);
+    div.onmouseleave  = hideTip;
     el.appendChild(div);
   });
+
+  // Subtle locked indicator at end of hand
+  if (ineligible.length > 0 && eligible.length > 0) {
+    const badge = document.createElement('div');
+    badge.className = 'hand-locked-badge';
+    badge.title = `${ineligible.length} card${ineligible.length>1?'s':''} locked — keep placing to unlock`;
+    badge.innerHTML = `
+      <span style="font-size:13px;color:#2a2a3a;">🔒</span>
+      <span style="font-size:9px;color:#2a2a3a;letter-spacing:1px;font-family:'Courier New',monospace;">+${ineligible.length}</span>`;
+    el.appendChild(badge);
+  }
 }
 
 function renderAiHand() {
@@ -2146,6 +2173,12 @@ function playSelectSfx() {
   const sfx = document.getElementById('selectSfx');
   if (!sfx) return;
   sfx.currentTime = 0; sfx.volume = 0.65;
+  sfx.play().catch(() => {});
+}
+function playCardPopSfx() {
+  const sfx = document.getElementById('cardPopSfx');
+  if (!sfx) return;
+  sfx.currentTime = 0; sfx.volume = 0.55;
   sfx.play().catch(() => {});
 }
 
@@ -2585,10 +2618,14 @@ function showRestartModal() {
   m.addEventListener('click', e => { if (e.target === m) m.remove(); });
 }
 
-// Keep beforeunload for tab close / navigation (browser dialog, can't style)
-window.addEventListener('beforeunload', e => {
-  if (!G.gameOver) { e.preventDefault(); e.returnValue = ''; }
-});
+// Global button click sound — plays for any button not already handled
+document.addEventListener('click', ev => {
+  const btn = ev.target.closest('button');
+  if (btn) {
+    const sfx = document.getElementById('selectSfx');
+    if (sfx) { sfx.currentTime = 0; sfx.volume = 0.4; sfx.play().catch(()=>{}); }
+  }
+}, true);
 
 // ── START ─────────────────────────────────────
 // Set active deck from URL param BEFORE initGame reads it
