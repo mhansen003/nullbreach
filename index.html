@@ -1213,7 +1213,7 @@ function selectRace(race, tileEl) {
       return `
       <div class="ability-showcase" style="color:${race.color};border-color:${race.color}44;background:${race.color}08">
         <div class="absc-title" style="display:flex;align-items:center;gap:8px;">
-          ${_iconSrc ? `<img src="${_iconSrc}" width="40" height="40" style="border-radius:3px;border:1px solid ${race.color}66;flex-shrink:0;" onerror="this.style.display='none'">` : ''}
+          ${_iconSrc ? `<img src="${_iconSrc}" width="56" height="56" style="border-radius:5px;border:1px solid ${race.color}66;flex-shrink:0;object-fit:cover;" onerror="this.style.display='none'">` : ''}
           ${a}
         </div>
         <div class="absc-desc">${ABILITY_DESC[a] || '—'}</div>
@@ -1695,7 +1695,7 @@ function setDiff(d) {
     const lbl = tile.querySelector('.diff-label');
     if (lbl) lbl.style.color = a ? cols[k] : '#aaa';
   });
-  if (_wizStep === 2) setTimeout(() => { if (_wizStep === 2) wizGoTo(3); }, 380);
+  // No auto-advance — user clicks NEXT to proceed after picking difficulty
 }
 setTimeout(() => setDiff('balanced'), 0);
 
@@ -1896,7 +1896,7 @@ Promise.all(
   </div>
 
   <!-- STEP 1: SELECT GAME TYPE -->
-  <div id="wizStep1" style="display:flex;flex-direction:column;align-items:center;gap:20px;width:100%;transition:opacity 0.22s,transform 0.22s;">
+  <div id="wizStep1" style="display:flex;flex-direction:column;align-items:center;gap:28px;width:100%;transition:opacity 0.22s,transform 0.22s;">
     <div style="font-family:'Orbitron',monospace;font-size:20px;letter-spacing:5px;color:#fff;text-shadow:0 0 20px #8855ffaa;">SELECT GAME TYPE</div>
     <div style="display:flex;gap:12px;justify-content:center;">
       <div id="modeComputer" onclick="selectMode('computer')" style="
@@ -1906,7 +1906,7 @@ Promise.all(
         <div style="position:absolute;inset:0;background:linear-gradient(transparent 45%,#000000bb);"></div>
         <div class="mode-check" style="display:none;position:absolute;top:7px;right:7px;width:20px;height:20px;border-radius:50%;background:#00ffcc;align-items:center;justify-content:center;font-size:11px;color:#000;font-weight:bold;">✓</div>
         <div style="position:absolute;bottom:10px;left:0;right:0;text-align:center;">
-          <div style="font-family:'Orbitron',monospace;font-size:13px;letter-spacing:2px;color:#aaa;">VS COMPUTER</div>
+          <div style="font-family:'Orbitron',monospace;font-size:15px;letter-spacing:3px;color:#aaa;">PvE</div>
         </div>
       </div>
       <div id="modeFriend" onclick="selectMode('friend')" style="
@@ -1916,7 +1916,7 @@ Promise.all(
         <div style="position:absolute;inset:0;background:linear-gradient(transparent 45%,#000000bb);"></div>
         <div class="mode-check" style="display:none;position:absolute;top:7px;right:7px;width:20px;height:20px;border-radius:50%;background:#8855ff;align-items:center;justify-content:center;font-size:11px;color:#fff;font-weight:bold;">✓</div>
         <div style="position:absolute;bottom:10px;left:0;right:0;text-align:center;">
-          <div style="font-family:'Orbitron',monospace;font-size:13px;letter-spacing:2px;color:#aaa;">INVITE FRIEND</div>
+          <div style="font-family:'Orbitron',monospace;font-size:15px;letter-spacing:3px;color:#aaa;">PvP</div>
         </div>
       </div>
     </div>
@@ -1940,7 +1940,7 @@ Promise.all(
   </div>
 
   <!-- STEP 2: SELECT DIFFICULTY -->
-  <div id="wizStep2" style="display:none;flex-direction:column;align-items:center;gap:20px;width:100%;transition:opacity 0.22s,transform 0.22s;">
+  <div id="wizStep2" style="display:none;flex-direction:column;align-items:center;gap:28px;width:100%;transition:opacity 0.22s,transform 0.22s;">
     <div style="font-family:'Orbitron',monospace;font-size:20px;letter-spacing:5px;color:#fff;text-shadow:0 0 20px #8855ffaa;">SELECT DIFFICULTY</div>
     <div style="display:flex;gap:12px;justify-content:center;">
       <div id="diff-passive" onclick="setDiff('passive')" style="position:relative;width:218px;height:144px;border-radius:10px;overflow:hidden;cursor:pointer;border:2px solid #1a1a28;transition:all 0.2s;flex-shrink:0;">
@@ -1991,7 +1991,7 @@ Promise.all(
   </div>
 
   <!-- STEP 3: SELECT YOUR OPPONENT -->
-  <div id="wizStep3" style="display:none;flex-direction:column;align-items:center;gap:20px;width:100%;transition:opacity 0.22s,transform 0.22s;">
+  <div id="wizStep3" style="display:none;flex-direction:column;align-items:center;gap:24px;width:100%;transition:opacity 0.22s,transform 0.22s;">
     <div style="font-family:'Orbitron',monospace;font-size:20px;letter-spacing:5px;color:#fff;text-shadow:0 0 20px #8855ffaa;">SELECT YOUR OPPONENT</div>
     <div id="opponentGrid" style="display:grid;grid-template-columns:repeat(4,200px);gap:12px;max-width:860px;overflow:visible;padding:4px 4px 12px;"></div>
     <div style="display:flex;gap:14px;align-items:center;max-width:860px;width:100%;justify-content:space-between;position:sticky;bottom:0;background:#000000dd;backdrop-filter:blur(6px);padding:10px 0 4px;z-index:10;">
