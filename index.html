@@ -374,6 +374,51 @@ body {
 }
 .ds-footer-lore { font-size: 9px; letter-spacing: 3px; color: #9977bb; text-shadow: 0 0 8px #000000aa; }
 
+
+/* Hover effects: ability cards and lore columns pop */
+
+.lore-col-panel:hover {
+  background: #0d0d20 !important;
+  border-color: #8855ff44 !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px #8855ff22;
+}
+.ability-showcase:hover {
+  transform: scale(1.02) translateY(-2px);
+  box-shadow: 0 8px 24px currentColor, 0 0 16px currentColor;
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: default;
+}
+.ability-showcase { transition: transform 0.2s, box-shadow 0.2s; }
+
+/* Lore column tiles hover */
+.lore-col-panel:hover {
+  background: #000000dd !important;
+  border-color: currentColor !important;
+  transform: translateY(-2px);
+  transition: all 0.2s;
+}
+.lore-col-panel { transition: all 0.2s; }
+
+
+/* Hover pop effect on ability cards */
+.ability-showcase {
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s;
+  cursor: default;
+}
+
+.lore-col-panel:hover {
+  background: #0d0d20 !important;
+  border-color: #8855ff44 !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px #8855ff22;
+}
+.ability-showcase:hover {
+  transform: scale(1.025) translateY(-3px);
+  box-shadow: 0 8px 28px currentColor;
+  background: color-mix(in srgb, currentColor 15%, #000000aa) !important;
+}
+
 /* ── ANIMATIONS ── */
 @keyframes fadeIn { from{opacity:0} to{opacity:1} }
 
@@ -650,7 +695,7 @@ button, [onclick] { touch-action: manipulation; }
             <button class="btn-deploy" id="deployBtn" onclick="showOpponentPicker()" style="
               width:180px;padding:12px 0;font-size:12px;letter-spacing:4px;
               animation:launchGlow 2s ease-in-out infinite;
-            ">LAUNCH DECK &#x2197;</button>
+            ">LAUNCH DECK</button>
           </div>
         </div>
 
@@ -672,24 +717,24 @@ button, [onclick] { touch-action: manipulation; }
       <!-- ROW 3: 3-column lore with dark backgrounds -->
       <div class="lore-divider" id="loreDivider"></div>
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:10px;">
-        <div style="background:#000000bb;border:1px solid #1a1a2e;border-radius:6px;padding:14px 16px;">
+        <div class="lore-col-panel" style="background:#000000bb;border:1px solid #1a1a2e;border-radius:6px;padding:14px 16px;transition:all 0.2s;">
           <div class="lore-label" id="loreLabel1">CIVILIZATION</div>
           <div class="lore-text" id="loreText1">—</div>
         </div>
-        <div style="background:#000000bb;border:1px solid #1a1a2e;border-radius:6px;padding:14px 16px;">
+        <div class="lore-col-panel" style="background:#000000bb;border:1px solid #1a1a2e;border-radius:6px;padding:14px 16px;transition:all 0.2s;">
           <div class="lore-label" id="loreLabel2">HISTORY AT SECTOR GZ-0</div>
           <div class="lore-text" id="loreText2">—</div>
         </div>
-        <div style="background:#000000bb;border:1px solid #1a1a2e;border-radius:6px;padding:14px 16px;">
+        <div class="lore-col-panel" style="background:#000000bb;border:1px solid #1a1a2e;border-radius:6px;padding:14px 16px;transition:all 0.2s;">
           <div class="lore-label" id="loreLabel3">WEAKNESS</div>
           <div class="lore-weakness" id="loreText3">—</div>
         </div>
       </div>
     </div>
 
-    <!-- OPPONENT PICKER MODAL -->
-    <div id="opponentModal" style="
-      display:none;position:fixed;inset:0;z-index:2000;
+    <!-- opponent modal moved to body level -->
+    <div id="opponentModal" style="display:none">
+      display:none;position:fixed;inset:0;z-index:99999;
       background:#000000dd;backdrop-filter:blur(6px);
       align-items:center;justify-content:center;flex-direction:column;gap:20px;
       font-family:'Share Tech Mono','Courier New',monospace;
@@ -928,9 +973,10 @@ function measureLoopWidth() {
   const tiles = track.querySelectorAll('.race-tile');
   if (tiles.length < TILE_COUNT + 1) return;
   // Exact distance from tile[0] left edge to tile[TILE_COUNT] left edge
-  const a = tiles[0].getBoundingClientRect().left;
-  const b = tiles[TILE_COUNT].getBoundingClientRect().left;
-  CV_LOOP_PX = Math.abs(b - a);
+  // Use offsetLeft (not affected by CSS transform) for accurate measurement
+  const a = tiles[0].offsetLeft;
+  const b = tiles[TILE_COUNT].offsetLeft;
+  CV_LOOP_PX = Math.round(Math.abs(b - a));
 }
 
 function runConveyor(timestamp) {
@@ -948,7 +994,7 @@ function runConveyor(timestamp) {
     cvPos += move;
     if (cvPos >= CV_LOOP_PX) cvPos -= CV_LOOP_PX;
     if (cvPos < 0)           cvPos += CV_LOOP_PX;
-    track.style.transform = `translateX(${-cvPos}px)`;
+    track.style.transform = `translateX(${-Math.round(cvPos)}px)`;
   }
   requestAnimationFrame(runConveyor);
 }
@@ -1060,7 +1106,7 @@ function selectRace(race, tileEl) {
   const clipTop = cvSection ? Math.round(cvSection.getBoundingClientRect().bottom) : 380;
   bg.style.backgroundImage = `url('${race.loreBg || race.cover}')`;
   // Soft gradient fade: race-bg bleeds up into the conveyor for a natural blend
-  const fadeStart = clipTop + 40; // image only starts showing BELOW the conveyor
+  const fadeStart = clipTop - 10; // blend starts right at conveyor bottom
   const maskGrad = `linear-gradient(to bottom, transparent 0px, transparent ${fadeStart}px, black ${clipTop}px, black 100%)`;
   bg.style.webkitMaskImage = maskGrad;
   bg.style.maskImage = maskGrad;

@@ -1016,7 +1016,10 @@ function initGame() {
     grid: Array(5).fill(null).map(() =>
       Array(7).fill(null).map(() => ({ card: null, owner: null }))
     ),
-    playerHand: PLAYER_CARDS.map(c => ({...c, shieldExpended: false, used: false})),
+    // Load deck based on selected race (from URL params)
+    const RACE_DECKS = { terran: PLAYER_CARDS, brood: BROOD_CARDS };
+    const selectedDeck = RACE_DECKS[new URLSearchParams(window.location.search).get('race') || 'terran'] || PLAYER_CARDS;
+    playerHand: selectedDeck.map(c => ({...c, shieldExpended: false, used: false})),
     aiHand:     AI_CARDS.map(c =>     ({...c, shieldExpended: false, used: false})),
     turn:         'player',
     selectedCard: null,
