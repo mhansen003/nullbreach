@@ -898,7 +898,7 @@ const RACES = [
     name: 'THE LITHOS', sub: 'GEOLOGICAL ANCIENTS',
     color: '#a0896a', avatar: '⬡',
     quote: '"We were here before your stars ignited."',
-    abilities: ['TECTONIC HOLD', 'FAULT LINE', 'TECTONIC ARRAY', 'MONOLITH MASS'],
+    abilities: ['TECTONIC HOLD', 'FAULT LINE', 'TECTONIC ARRAY', 'STONE SKIN'],
     playstyle: 'Denial control',
     lore: "Near-immortal beings thinking in geological time — a 'fast decision' takes a decade. Ships are asteroids shaped over millions of years by forces the Lithos will into specific geometries. They do not build. They wait for matter to become what they already decided it would be.",
     history: "The Lithos have existed since before the current star generation. Their reason for fighting at Galactic Zero is not expansion — it is memory. The sector contains a gravitational record of the previous galactic configuration, and the Lithos will not allow it to be disturbed.",
@@ -974,7 +974,7 @@ const ABILITY_DESC = {
   'TECTONIC HOLD':         'This card = 0 VP. Two random adjacent enemies also contribute 0 VP',
   'FAULT LINE':            'Tied rows or columns tip +1 in your favor — pressure breaks deadlocks',
   'TECTONIC ARRAY':        'Adjacent same-tier friendly cards gain +2 to all edges on placement',
-  'MONOLITH MASS':         'This card counts as 1.5x power in VP — ancient mass wins lines',
+  'STONE SKIN':            'This card counts as 1.5x power in VP — ancient mass wins lines',
   // QUANTUM
   'PROBABILITY CASCADE':   'After placing this card, take an immediate extra turn — probability collapses in your favor',
   'WAVE COLLAPSE':         'Tied rows or columns tip +1 in your favor — state collapses for you',
@@ -985,6 +985,20 @@ const ABILITY_DESC = {
   'SONIC BOOM':            'Win by 3+ and both row AND column are claimed simultaneously',
   'HARMONIC PULSE':        'Adjacent friendly cards of any tier gain +1 to all edges on placement',
   'SONIC RUSH':            'Can be placed adjacent to any enemy card anywhere, bypassing zone rules',
+};
+
+const RACE_ABILITY_KEYS = {
+  terran:     ['shield','double_strike','commander','flank'],
+  crystallis: ['stonewall','mirror','shield','density'],
+  mycos:      ['hat_trick','birthright','echo','overwhelm'],
+  veil:       ['phantom','flank','edge_play','pierce'],
+  entropy:    ['mirror','sweep','double_strike','ambush'],
+  brood:      ['spawn','sweep','rush','boost'],
+  void:       ['sniper','ambush','rush','pierce'],
+  gas:        ['edge_play','overwhelm','birthright','double_strike'],
+  lithos:     ['stonewall','deciding_factor','commander','shield'],
+  quantum:    ['flank','deciding_factor','phantom','sniper'],
+  choir:      ['hat_trick','overwhelm','boost','rush'],
 };
 
 let selectedRace = null;
@@ -1192,12 +1206,19 @@ function selectRace(race, tileEl) {
 
     // Ability showcase cards — show ALL abilities
     const ac = document.getElementById('abilityCards');
-    ac.innerHTML = race.abilities.map(a => `
+    const _abilityKeys = RACE_ABILITY_KEYS[race.id] || [];
+    ac.innerHTML = race.abilities.map((a, i) => {
+      const _key = _abilityKeys[i];
+      const _iconSrc = _key ? `assets/abilities/${race.id}_${_key}.png` : '';
+      return `
       <div class="ability-showcase" style="color:${race.color};border-color:${race.color}44;background:${race.color}08">
-        <div class="absc-title">${a}</div>
+        <div class="absc-title" style="display:flex;align-items:center;gap:8px;">
+          ${_iconSrc ? `<img src="${_iconSrc}" width="40" height="40" style="border-radius:3px;border:1px solid ${race.color}66;flex-shrink:0;" onerror="this.style.display='none'">` : ''}
+          ${a}
+        </div>
         <div class="absc-desc">${ABILITY_DESC[a] || '—'}</div>
-      </div>
-    `).join('');
+      </div>`;
+    }).join('');
 
     // Tier card previews — show one card per tier for this race
     // Tier card art — Terran + Brood have real art; others use deck cover as placeholder
