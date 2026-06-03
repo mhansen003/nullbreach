@@ -824,6 +824,7 @@ button, [onclick] { touch-action: manipulation; }
 <body>
 
 <!-- AUDIO -->
+<audio id="hoverSfx"   preload="auto"><source src="assets/hover.mp3"        type="audio/mpeg"></audio>
 <audio id="cardSfx"    preload="auto"><source src="assets/card-place.mp3"   type="audio/mpeg"></audio>
 <audio id="selectSfx"  preload="auto"><source src="assets/deploy-click.mp3" type="audio/mpeg"></audio>
 <audio id="cardPopSfx" preload="auto"><source src="assets/newcard-pop.mp3"  type="audio/mpeg"></audio>
@@ -2633,7 +2634,7 @@ function renderHand() {
       '<div class="hc-center"><span class="hc-power-center" style="color:'+factionC+'">'+card.power+'</span></div>' +
       '';
     div.onclick      = function() { onCardSelect(card); };
-    div.onmouseenter = function(e) { showTip(e, card); };
+    div.onmouseenter = function(e) { playHoverSfx(); showTip(e, card); };
     div.onmouseleave = hideTip;
     div.draggable    = true;
     div.addEventListener('dragstart', function(e) {
@@ -2706,6 +2707,7 @@ function renderHand() {
 
     if (canOpen) {
       wrap.onmouseenter = function() {
+        playHoverSfx();
         front.style.borderColor = _fc+'cc';
         front.style.boxShadow   = '0 0 20px '+_fc+'55';
         wrap.style.transform    = 'translateY(-5px)';
@@ -3023,6 +3025,12 @@ function hasAnyMoves(owner) {
 }
 
 // ── PLACE CARD ────────────────────────────────
+function playHoverSfx() {
+  const sfx = document.getElementById('hoverSfx');
+  if (!sfx || _sfxMuted) return;
+  sfx.currentTime = 0; sfx.volume = 0.35 * _sfxVol;
+  sfx.play().catch(() => {});
+}
 function playCardSfx() {
   const sfx = document.getElementById('cardSfx');
   if (!sfx || _sfxMuted) return;
