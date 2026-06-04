@@ -780,11 +780,11 @@ button, [onclick] { touch-action: manipulation; }
         </div>
       </div>
       <!-- ROW 2: Fleet 2x2 | Abilities 2x2 -->
-      <div style="display:flex;gap:18px;margin-top:16px;align-items:flex-start;">
+      <div style="display:flex;gap:18px;margin-top:16px;align-items:stretch;">
         <!-- Fleet below avatar -->
-        <div style="flex-shrink:0;width:370px;">
+        <div style="flex-shrink:0;width:370px;display:flex;flex-direction:column;">
           <div style="font-size:9px;letter-spacing:3px;color:#fff;margin-bottom:8px;font-family:'Orbitron',monospace;">FLEET</div>
-          <div id="tierCardPreview" style="display:none;grid-template-columns:repeat(4,1fr);gap:6px;width:370px;"></div>
+          <div id="tierCardPreview" style="display:none;grid-template-columns:repeat(4,1fr);gap:6px;width:370px;flex:1;"></div>
         </div>
         <!-- Abilities to the right -->
         <div style="flex:1;min-width:0;">
@@ -1340,7 +1340,7 @@ function selectRace(race, tileEl) {
         ).join('');
         return `
         <div style="
-          width:84px;height:160px;border-radius:5px;
+          width:84px;height:100%;min-height:120px;border-radius:5px;
           background:url('${s.art}') center/cover;
           border:1px solid #ffffff18;
           position:relative;overflow:hidden;flex-shrink:0;
