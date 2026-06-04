@@ -199,10 +199,10 @@ const GUIDE_PAGES = [
 <div style="display:grid;grid-template-columns:1fr;gap:10px;max-width:460px;margin:0 auto;">
 
 
-  <div style="background:#0a0a18;border-left:3px solid #00ffcc;border-radius:6px;padding:12px;">
+  <div style="background:#0a0a18;border-left:3px solid #8855ff;border-radius:6px;padding:12px;">
 
 
-    <div style="font-size:11px;color:#00ffcc;font-family:'Orbitron',monospace;letter-spacing:3px;margin-bottom:6px;">① STEP 1</div>
+    <div style="font-size:11px;color:#cc99ff;font-family:'Orbitron',monospace;letter-spacing:3px;margin-bottom:6px;">① STEP 1</div>
 
 
     <div style="font-size:14px;color:#e0d8f8;line-height:1.7;">Place a Tier I card on your home row to open the battle zone. The opponent does the same from the top.</div>
@@ -211,13 +211,13 @@ const GUIDE_PAGES = [
   </div>
 
 
-  <div style="background:#0a0a18;border-left:3px solid #ffdd00;border-radius:6px;padding:12px;">
+  <div style="background:#0a0a18;border-left:3px solid #8855ff;border-radius:6px;padding:12px;">
 
 
-    <div style="font-size:11px;color:#ffdd00;font-family:'Orbitron',monospace;letter-spacing:3px;margin-bottom:6px;">② STEP 2</div>
+    <div style="font-size:11px;color:#cc99ff;font-family:'Orbitron',monospace;letter-spacing:3px;margin-bottom:6px;">② STEP 2</div>
 
 
-    <div style="font-size:14px;color:#e0d8f8;line-height:1.7;"><span style="color:#ffdd00;">Yellow cells</span> unlock around each placed card. Your next card must go in one of those cells.</div>
+    <div style="font-size:14px;color:#e0d8f8;line-height:1.7;"><span style="color:#ffdd00;">Yellow cells</span> unlock around each placed card. Future cards can now be placed in these unlocked zones.</div>
 
 
   </div>
@@ -422,59 +422,67 @@ const GUIDE_PAGES = [
 
 
 
-  <!-- Combined rows + columns grid -->
-  <div style="display:flex;flex-direction:column;align-items:center;gap:12px;">
+  <!-- Single board showing row AND column scored together -->
+  <div style="display:flex;gap:20px;justify-content:center;align-items:flex-start;flex-wrap:wrap;">
 
-    <div style="display:flex;gap:2px;flex-direction:column;">
+    <div style="display:flex;flex-direction:column;align-items:flex-start;gap:3px;">
 
-      <!-- Row 0: row scoring (enemy 2 vs player 5) + row badge on right -->
-      <div style="display:flex;gap:2px;align-items:center;">
-        <div style="width:36px;height:44px;border-radius:3px;background:#1c0a0a;border:2px solid #ff008066;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:bold;color:#ffdd00;">2</div>
-        <div style="width:36px;height:44px;border-radius:3px;background:#080810;border:1px dashed #1a1a28;"></div>
-        <div style="width:36px;height:44px;border-radius:3px;background:#0a1c16;border:2px solid #00ffcc55;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:bold;color:#fff;">5</div>
-        <div style="width:36px;height:44px;border-radius:3px;background:#080810;border:1px dashed #1a1a28;"></div>
-        <div style="margin-left:6px;display:flex;flex-direction:column;align-items:center;gap:2px;background:#00ffcc08;border:1px solid #00ffcc44;border-left:3px solid #00ffcc;border-radius:4px;padding:5px 8px;">
-          <img src="assets/avatars/terran.png" style="width:20px;height:20px;border-radius:50%;object-fit:cover;object-position:top;border:2px solid #00ffcc;">
-          <span style="font-size:14px;font-weight:bold;color:#00ffcc;line-height:1;text-shadow:0 0 8px #00ffcc;">+3</span>
-          <span style="font-size:8px;color:#00ffcc88;letter-spacing:1px;font-family:'Orbitron',monospace;">ROW</span>
+      <!-- Row 0: enemy(2) | empty | player(5)  →  ROW +3 -->
+      <div style="display:flex;gap:3px;align-items:center;">
+        <!-- Cell (0,0): enemy, part of BOTH row and column — double-glow -->
+        <div style="width:40px;height:44px;border-radius:4px;background:#1c0a0a;border:2px solid #ff4466;box-shadow:0 0 10px #ff446644,inset 0 0 6px #ff220011;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:bold;color:#ff9999;">2</div>
+        <!-- Cell (0,1): empty -->
+        <div style="width:40px;height:44px;border-radius:4px;background:#080810;border:1px dashed #1a1a28;opacity:0.5;"></div>
+        <!-- Cell (0,2): player row card -->
+        <div style="width:40px;height:44px;border-radius:4px;background:#0a1c16;border:2px solid #00ffcc77;box-shadow:0 0 8px #00ffcc22;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:bold;color:#00ffcc;">5</div>
+        <!-- Row score badge -->
+        <div style="margin-left:8px;display:flex;flex-direction:column;align-items:center;gap:1px;background:#00ffcc0d;border:1px solid #00ffcc44;border-left:3px solid #00ffcc;border-radius:4px;padding:4px 10px;">
+          <span style="font-size:9px;color:#00ffcc99;font-family:'Orbitron',monospace;letter-spacing:1px;">ROW</span>
+          <span style="font-size:17px;font-weight:bold;color:#00ffcc;text-shadow:0 0 8px #00ffcc;line-height:1;">+3</span>
         </div>
       </div>
 
-      <!-- Row 1: column cell (enemy 3) -->
-      <div style="display:flex;gap:2px;">
-        <div style="width:36px;height:44px;border-radius:3px;background:#1c0a0a;border:2px solid #ff008066;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:bold;color:#ffdd00;">3</div>
-        <div style="width:36px;height:44px;border-radius:3px;background:#080810;border:1px dashed #1a1a28;"></div>
-        <div style="width:36px;height:44px;border-radius:3px;background:#080810;border:1px dashed #1a1a28;"></div>
-        <div style="width:36px;height:44px;border-radius:3px;background:#080810;border:1px dashed #1a1a28;"></div>
+      <!-- Row 1: empty -->
+      <div style="display:flex;gap:3px;">
+        <div style="width:40px;height:44px;border-radius:4px;background:#080810;border:1px dashed #1a1a28;opacity:0.4;"></div>
+        <div style="width:40px;height:44px;opacity:0;"></div>
+        <div style="width:40px;height:44px;opacity:0;"></div>
       </div>
 
-      <!-- Row 2: column cell (player 6) -->
-      <div style="display:flex;gap:2px;">
-        <div style="width:36px;height:44px;border-radius:3px;background:#0a1c16;border:2px solid #00ffcc55;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:bold;color:#fff;">6</div>
-        <div style="width:36px;height:44px;border-radius:3px;background:#080810;border:1px dashed #1a1a28;"></div>
-        <div style="width:36px;height:44px;border-radius:3px;background:#080810;border:1px dashed #1a1a28;"></div>
-        <div style="width:36px;height:44px;border-radius:3px;background:#080810;border:1px dashed #1a1a28;"></div>
+      <!-- Row 2: player(6) col card | empty -->
+      <div style="display:flex;gap:3px;">
+        <div style="width:40px;height:44px;border-radius:4px;background:#0a1c16;border:2px solid #00ffcc77;box-shadow:0 0 8px #00ffcc22;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:bold;color:#00ffcc;">6</div>
+        <div style="width:40px;height:44px;opacity:0;"></div>
+        <div style="width:40px;height:44px;opacity:0;"></div>
+      </div>
+
+      <!-- Col score badge below col 0 -->
+      <div style="display:flex;align-items:center;gap:0;margin-top:4px;">
+        <div style="width:40px;display:flex;flex-direction:column;align-items:center;">
+          <div style="display:flex;align-items:center;gap:6px;background:#00ffcc0d;border:1px solid #00ffcc44;border-top:3px solid #00ffcc;border-radius:4px;padding:4px 8px;">
+            <span style="font-size:9px;color:#00ffcc99;font-family:'Orbitron',monospace;letter-spacing:1px;">COL</span>
+            <span style="font-size:17px;font-weight:bold;color:#00ffcc;text-shadow:0 0 8px #00ffcc;line-height:1;">+4</span>
+          </div>
+        </div>
       </div>
 
     </div>
 
-    <!-- Col badge below first column + labels -->
-    <div style="display:flex;gap:12px;align-items:center;">
-      <div style="display:flex;flex-direction:column;align-items:center;gap:2px;background:#00ffcc08;border:1px solid #00ffcc44;border-top:3px solid #00ffcc;border-radius:4px;padding:5px 8px;width:36px;">
-        <img src="assets/avatars/terran.png" style="width:20px;height:20px;border-radius:50%;object-fit:cover;object-position:top;border:2px solid #00ffcc;">
-        <span style="font-size:14px;font-weight:bold;color:#00ffcc;text-shadow:0 0 8px #00ffcc;">+3</span>
-        <span style="font-size:8px;color:#00ffcc88;letter-spacing:1px;font-family:'Orbitron',monospace;">COL</span>
-      </div>
+    <!-- Legend -->
+    <div style="display:flex;flex-direction:column;gap:10px;justify-content:center;padding-top:8px;">
       <div style="font-size:12px;color:#ccc;line-height:1.8;">
-        Row: 5 vs 2 = <span style="color:#00ffcc;font-weight:bold;">+3 VP</span><br>
-        Col: 6 vs 3 = <span style="color:#00ffcc;font-weight:bold;">+3 VP</span>
+        <span style="color:#ff9999;">Enemy card (2)</span> scores in<br>both its row <em>and</em> its column.
+      </div>
+      <div style="background:#0a0a18;border-radius:6px;padding:8px 12px;font-size:12px;color:#ccc;line-height:1.9;">
+        Row: <span style="color:#00ffcc;font-weight:bold;">5</span> − <span style="color:#ff9999;">2</span> = <span style="color:#00ffcc;font-weight:bold;">+3 VP</span><br>
+        Col: <span style="color:#00ffcc;font-weight:bold;">6</span> − <span style="color:#ff9999;">2</span> = <span style="color:#00ffcc;font-weight:bold;">+4 VP</span>
       </div>
     </div>
 
   </div>
 
 
-  <div class="g2-scoring-text" style="max-width:460px;margin:14px auto 0;text-align:center;font-size:13px;color:#ddd;line-height:1.8;">
+  <div class="g2-scoring-text" style="max-width:460px;margin:8px auto 0;text-align:center;font-size:13px;color:#ddd;line-height:1.6;">
 
     Every row (left to right) and every column (top to bottom) is scored separately.
     For each line the winner earns the difference in total power as VP: so controlling both rows and columns matters.
