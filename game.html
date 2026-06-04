@@ -2488,7 +2488,7 @@ button, [onclick] { touch-action: manipulation; }
   .ai-sub, .player-sub { display: none; }
   .ai-quote, .player-quote { display: none; }
   #sbAiNum, #sbPlayerNum { font-size: 18px; }
-  .main-area { flex: 1; overflow: hidden; padding: 34px 0 106px; display: flex; flex-direction: column; min-height: 0; }
+  .main-area { flex: 1; overflow: hidden; padding: 34px 0 220px; display: flex; flex-direction: column; min-height: 0; }
   .board-wrap { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 4px 2px; min-height: 0; }
   .board-and-scores { flex: 0 0 auto; align-items: flex-start; gap: 0; zoom: 1 !important; }
   .board-and-scores > div:first-child { flex: 0 0 auto; display: flex; flex-direction: column; }
@@ -2509,20 +2509,20 @@ button, [onclick] { touch-action: manipulation; }
   .col-score-badge { width: 44px !important; flex: 0 0 44px; height: 26px; font-size: 7px; padding: 2px; }
   .col-score-badge img { width: 16px !important; height: 16px !important; }
   .col-score-badge span { font-size: 11px !important; }
-  .player-area { position: fixed !important; bottom: 0 !important; left: 0 !important; right: 0 !important; z-index: 200; max-height: 120px; padding: 0; border-top: 1px solid #1a1a28; background: #06060edd; backdrop-filter: blur(6px); }
+  .player-area { position: fixed !important; bottom: 0 !important; left: 0 !important; right: 0 !important; z-index: 200; max-height: 210px; padding: 0; border-top: 1px solid #1a1a28; background: #06060edd; backdrop-filter: blur(6px); }
   .player-area::-webkit-scrollbar { display: none; }
   .player-portrait { display: none; }
   #handCards { display: flex !important; flex-direction: column !important; overflow: visible !important; flex-wrap: nowrap !important; gap: 0 !important; width: 100%; }
-  .mobile-deck-expanded { display: flex; flex-direction: row; gap: 5px; overflow-x: auto; overflow-y: visible; padding: 5px 8px 4px; -webkit-overflow-scrolling: touch; scrollbar-width: none; min-height: 0; touch-action: pan-x; }
+  .mobile-deck-expanded { display: flex; flex-direction: row; gap: 5px; overflow-x: auto; overflow-y: visible; padding: 5px 8px 4px; -webkit-overflow-scrolling: touch; scrollbar-width: none; height: 96px; flex-shrink: 0; touch-action: pan-x; }
   .mobile-deck-expanded:empty { display: none; }
   .mobile-deck-expanded::-webkit-scrollbar { display: none; }
   .mobile-deck-covers { display: flex; gap: 4px; padding: 6px 8px 8px; flex-shrink: 0; justify-content: space-around; }
   .mobile-deck-cover { position: relative; width: 64px; height: 86px; border-radius: 6px; flex-shrink: 0; cursor: pointer; user-select: none; overflow: hidden; transition: transform 0.15s, box-shadow 0.15s; }
   .mobile-deck-cover.empty { opacity: 0.25; cursor: default; pointer-events: none; }
   .mobile-deck-cover.active { transform: translateY(-4px); }
-  #mobileCardPanel { display: none; position: fixed; right: -210px; top: 80px; width: 195px; background: #06060ef2; border: 1px solid #1a1a28; border-right: none; border-radius: 10px 0 0 10px; transition: right 0.25s ease; z-index: 500; padding: 8px 10px 8px 10px; backdrop-filter: blur(8px); }
+  #mobileCardPanel { display: none; position: fixed; right: -195px; top: 80px; bottom: 220px; width: 195px; background: #06060ef2; border: 1px solid #1a1a28; border-right: none; border-radius: 10px 0 0 10px; transition: right 0.25s ease; z-index: 500; padding: 8px 10px 8px 10px; backdrop-filter: blur(8px); overflow-y: auto; }
   #mobileCardPanel.open { right: 0; }
-  #mobileCardPanelTab { position: absolute; left: -30px; top: 50%; transform: translateY(-50%); width: 30px; height: 60px; background: #06060ef2; border: 1px solid #1a1a28; border-right: none; border-radius: 10px 0 0 10px; display: flex; align-items: center; justify-content: center; font-size: 14px; color: #888; cursor: pointer; }
+  #mobileCardPanelTab { position: absolute; left: -36px; top: 50%; transform: translateY(-50%); width: 36px; height: 76px; background: #0c0c1e; border: 1px solid #2a2a44; border-right: none; border-radius: 10px 0 0 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; color: #aaa; cursor: pointer; transition: background 0.2s, box-shadow 0.2s; }
   .hand-card { width: 64px !important; height: 86px !important; }
   .hc-e-n, .hc-e-s, .hc-e-w, .hc-e-e { font-size: 10px; min-width: 14px; }
   .hc-power-center { font-size: 14px; }
@@ -5883,7 +5883,7 @@ function showAbilityZone(ability) {
 
   function mkOverlay(el) {
     const ov = document.createElement('div');
-    ov.dataset.abilityZone = '1';
+    ov.setAttribute('data-az','1');
     ov.style.cssText = 'position:absolute;inset:0;z-index:7;pointer-events:none;border-radius:3px;'
       + 'background:' + abilCol + '28;border:2px solid ' + abilCol + '99;'
       + 'box-shadow:inset 0 0 8px ' + abilCol + '22;';
@@ -5913,7 +5913,7 @@ function showAbilityZone(ability) {
 
 let _zoneSuppressed = false;
 function clearAbilityZone() {
-  document.querySelectorAll('[data-abilityZone]').forEach(el => el.remove());
+  document.querySelectorAll('[data-az]').forEach(el => el.remove());
 }
 function suppressZone(ms) {
   _zoneSuppressed = true;
@@ -8906,37 +8906,62 @@ function showMobileCardPanel(card) {
   const e = card.edges.e + (mod && mod.e || 0);
   const w = card.edges.w + (mod && mod.w || 0);
 
+  const abiInfo = card.ability ? (ABILITY_ICONS[card.ability] || {icon:'✦', color: tierCol, label: card.ability.replace(/_/g,' ').toUpperCase()}) : null;
+  const abiCol = abiInfo ? abiInfo.color : tierCol;
+  const abiLabel = card.abilityLabel || (abiInfo ? abiInfo.label : '');
+  const abiIcon = abiInfo ? abiInfo.icon : '';
+  const abiDesc = abiInfo ? (ABILITY_TEXT[card.ability] || card.abilityText || '') : '';
+
   const dots = Array.from({length: tierNum}, function() {
     return '<span style="width:5px;height:5px;border-radius:50%;background:' + tierCol + ';box-shadow:0 0 3px ' + tierCol + ';display:inline-block;"></span>';
   }).join('');
 
+  const emptyDots = Array.from({length: 4 - tierNum}, function() {
+    return '<span style="width:5px;height:5px;border-radius:50%;border:1px solid #2a2a3a;display:inline-block;"></span>';
+  }).join('');
+
   content.innerHTML =
-    (card.art ? '<div style="width:100%;height:96px;border-radius:6px;background-image:url(\'' + card.art + '\');background-size:cover;background-position:center top;border:1px solid ' + tierCol + '55;margin-bottom:8px;"></div>' : '') +
-    '<div style="display:flex;align-items:center;gap:5px;margin-bottom:3px;">' +
-      '<div style="display:flex;gap:2px;">' + dots + '</div>' +
+    (card.art ? '<div style="width:100%;height:90px;border-radius:6px;background-image:url(\'' + card.art + '\');background-size:cover;background-position:center top;border:1px solid ' + tierCol + '55;margin-bottom:7px;"></div>' : '') +
+    '<div style="display:flex;align-items:center;justify-content:space-between;gap:5px;margin-bottom:3px;">' +
+      '<div style="display:flex;gap:2px;align-items:center;">' + dots + emptyDots + '</div>' +
       '<div style="font-size:8px;font-family:\'Courier New\',monospace;letter-spacing:1px;color:' + tierCol + ';">T' + card.tier + '</div>' +
+      '<div style="font-size:8px;font-family:\'Courier New\',monospace;color:#666;letter-spacing:1px;">PWR <span style="color:' + _fc + ';font-size:10px;font-weight:bold;">' + card.power + '</span></div>' +
     '</div>' +
-    '<div style="font-size:10px;font-family:\'Orbitron\',monospace;color:#ccc;margin-bottom:8px;line-height:1.3;">' + (card.name || '') + '</div>' +
-    '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;grid-template-rows:1fr 1fr 1fr;gap:3px;width:100%;margin-bottom:8px;">' +
-      '<div></div>' +
+    '<div style="font-size:10px;font-family:\'Orbitron\',monospace;color:#ccc;margin-bottom:7px;line-height:1.3;font-weight:700;">' + (card.name || '') + '</div>' +
+    '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;grid-template-rows:1fr 1fr 1fr;gap:3px;width:100%;margin-bottom:7px;">' +
+      '<div style="font-size:7px;color:#555;font-family:\'Courier New\',monospace;display:flex;align-items:flex-end;justify-content:flex-end;padding-bottom:1px;">N</div>' +
       '<div style="text-align:center;background:#111;border:1px solid ' + tierCol + '44;border-radius:4px;padding:3px 4px;font-size:14px;font-weight:bold;font-family:\'Courier New\',monospace;color:#ddd;">' + n + '</div>' +
       '<div></div>' +
       '<div style="text-align:center;background:#111;border:1px solid ' + tierCol + '44;border-radius:4px;padding:3px 4px;font-size:14px;font-weight:bold;font-family:\'Courier New\',monospace;color:#ddd;">' + w + '</div>' +
-      '<div style="text-align:center;background:#0a0a18;border:2px solid ' + _fc + '88;border-radius:6px;padding:3px 4px;font-size:18px;font-weight:bold;font-family:\'Courier New\',monospace;color:' + _fc + ';">' + card.power + '</div>' +
+      '<div style="text-align:center;background:#0a0a18;border:2px solid ' + _fc + '66;border-radius:6px;padding:3px 4px;font-size:16px;font-weight:bold;font-family:\'Courier New\',monospace;color:' + _fc + ';">' + card.power + '</div>' +
       '<div style="text-align:center;background:#111;border:1px solid ' + tierCol + '44;border-radius:4px;padding:3px 4px;font-size:14px;font-weight:bold;font-family:\'Courier New\',monospace;color:#ddd;">' + e + '</div>' +
       '<div></div>' +
       '<div style="text-align:center;background:#111;border:1px solid ' + tierCol + '44;border-radius:4px;padding:3px 4px;font-size:14px;font-weight:bold;font-family:\'Courier New\',monospace;color:#ddd;">' + s + '</div>' +
-      '<div></div>' +
+      '<div style="font-size:7px;color:#555;font-family:\'Courier New\',monospace;display:flex;align-items:flex-start;padding-top:1px;">S</div>' +
     '</div>' +
-    (card.ability ? '<div style="font-size:8px;letter-spacing:1px;color:' + tierCol + ';font-family:\'Courier New\',monospace;text-align:center;border-top:1px solid #1a1a28;padding-top:5px;margin-top:2px;">' + card.ability.toUpperCase() + '</div>' : '');
+    '<div style="font-size:7px;color:#444;font-family:\'Courier New\',monospace;display:flex;justify-content:space-between;margin:-4px 0 6px;padding:0 1px;">' +
+      '<span>W</span><span>E</span>' +
+    '</div>' +
+    (abiInfo ?
+      '<div style="border-top:1px solid #1a1a2888;padding-top:6px;margin-top:2px;">' +
+        '<div style="display:flex;align-items:center;gap:5px;margin-bottom:4px;">' +
+          '<span style="font-size:13px;">' + abiIcon + '</span>' +
+          '<span style="font-size:8px;font-family:\'Orbitron\',monospace;letter-spacing:1px;color:' + abiCol + ';font-weight:700;">' + abiLabel + '</span>' +
+        '</div>' +
+        '<div style="font-size:9px;color:#aaa;line-height:1.45;">' + abiDesc + '</div>' +
+      '</div>'
+    :
+      '<div style="border-top:1px solid #1a1a2888;padding-top:6px;margin-top:2px;font-size:8px;color:#333;font-style:italic;font-family:\'Courier New\',monospace;">No special ability</div>'
+    );
 
   panel.style.borderColor = tierCol + '88';
   const tab = document.getElementById('mobileCardPanelTab');
   if (tab) {
     tab.textContent = '◀';
     tab.style.borderColor = tierCol + '88';
-    tab.style.background = tierCol + '22';
+    tab.style.background = tierCol + '33';
     tab.style.color = tierCol;
+    tab.style.boxShadow = '-3px 0 12px ' + tierCol + '66';
   }
 }
 
@@ -8945,7 +8970,7 @@ function hideMobileCardPanel() {
   if (!panel) return;
   panel.classList.remove('open');
   const tab = document.getElementById('mobileCardPanelTab');
-  if (tab) { tab.textContent = '◄'; tab.style.borderColor = ''; }
+  if (tab) { tab.textContent = '◄'; tab.style.borderColor = ''; tab.style.background = '#0c0c1e'; tab.style.color = '#aaa'; tab.style.boxShadow = 'none'; }
   setTimeout(function() { if (!panel.classList.contains('open')) panel.style.display = 'none'; }, 280);
 }
 
@@ -12232,7 +12257,8 @@ function showTip(e, card) {
           <div style="font-family:'Orbitron',monospace;font-size:10px;letter-spacing:1px;color:#ffdd00;font-weight:700;">${card.abilityLabel || abi.label}</div>
 
 
-          <div style="display:flex;gap:10px;align-items:flex-start;margin-top:2px;"><div style="flex:1;font-size:11px;color:#ddd;line-height:1.55;">${card.abilityText}</div>${buildAbilityVisual(card.ability) ? `<div style="flex-shrink:0;padding-top:2px;">${buildAbilityVisual(card.ability)}</div>` : ""}</div>
+          <div style="font-size:11px;color:#ddd;line-height:1.55;margin-top:2px;">${card.abilityText}</div>
+            ${buildAbilityVisual(card.ability) ? `<div style="margin-top:8px;padding-top:8px;border-top:1px solid #ffdd0022;display:flex;justify-content:center;">${buildAbilityVisual(card.ability)}</div>` : ""}
         </div>
       </div>` : `
 
