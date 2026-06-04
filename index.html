@@ -782,9 +782,9 @@ button, [onclick] { touch-action: manipulation; }
       <!-- ROW 2: Fleet 2x2 | Abilities 2x2 -->
       <div style="display:flex;gap:18px;margin-top:16px;align-items:flex-start;">
         <!-- Fleet below avatar -->
-        <div style="flex-shrink:0;">
+        <div style="flex-shrink:0;width:370px;">
           <div style="font-size:9px;letter-spacing:3px;color:#fff;margin-bottom:8px;font-family:'Orbitron',monospace;">FLEET</div>
-          <div id="tierCardPreview" style="display:none;grid-template-columns:1fr 1fr;gap:6px;width:300px;"></div>
+          <div id="tierCardPreview" style="display:none;grid-template-columns:repeat(4,1fr);gap:6px;width:370px;"></div>
         </div>
         <!-- Abilities to the right -->
         <div style="flex:1;min-width:0;">
@@ -1336,11 +1336,11 @@ function selectRace(race, tileEl) {
       tcp.innerHTML = samples.map(s => {
         const tCol = TC[s.tier];
         const dots = Array.from({length:TDOTS[s.tier]||1},()=>
-          `<span style="width:6px;height:6px;border-radius:50%;background:${tCol};box-shadow:0 0 3px ${tCol};display:inline-block;"></span>`
+          `<span style="width:5px;height:5px;border-radius:50%;background:${tCol};box-shadow:0 0 3px ${tCol};display:inline-block;"></span>`
         ).join('');
         return `
         <div style="
-          width:140px;height:186px;border-radius:6px;
+          width:84px;height:112px;border-radius:5px;
           background:url('${s.art}') center/cover;
           border:1px solid #ffffff18;
           position:relative;overflow:hidden;flex-shrink:0;
