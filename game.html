@@ -12140,8 +12140,7 @@ function showTip(e, card) {
           <div style="font-family:'Orbitron',monospace;font-size:10px;letter-spacing:1px;color:#ffdd00;font-weight:700;">${card.abilityLabel || abi.label}</div>
 
 
-          <div style="font-size:11px;color:#ddd;line-height:1.5;">${card.abilityText}</div>
-          ${buildAbilityVisual(card.ability) ? `<div style="margin-top:10px;padding-top:10px;border-top:1px solid #ffdd0022;display:flex;justify-content:center;">${buildAbilityVisual(card.ability)}</div>` : ''}
+          <div style="display:flex;gap:10px;align-items:flex-start;margin-top:2px;"><div style="flex:1;font-size:11px;color:#ddd;line-height:1.55;">${card.abilityText}</div>${buildAbilityVisual(card.ability) ? `<div style="flex-shrink:0;padding-top:2px;">${buildAbilityVisual(card.ability)}</div>` : ""}</div>
         </div>
       </div>` : `
 
