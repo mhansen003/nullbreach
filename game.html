@@ -29,6 +29,10 @@
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
+/* Hide all scrollbars globally */
+* { scrollbar-width: none; }
+*::-webkit-scrollbar { display: none; }
+
 
 body {
 
@@ -2525,8 +2529,18 @@ button, [onclick] { touch-action: manipulation; }
   .hc-power-center { font-size: 14px; }
   .hc-tier-badge { font-size: 7px; }
   #tooltip, #errorTip { display: none !important; }
-  #guideModal { padding: 8px 0; }
-  #guideContent { padding: 12px 14px; font-size: 13px; }
+  /* Guide: full-screen on mobile to stop game bleeding through */
+  #guideModal { padding: 0; align-items: flex-start !important; }
+  #guideModal > div:first-of-type {
+    width: 100% !important; max-width: 100% !important;
+    border-radius: 0 !important; max-height: 100svh !important;
+    height: 100svh !important; box-shadow: none !important;
+  }
+  #guideContent { padding: 12px 16px; font-size: 13px; }
+  /* Ability cards on p3: single column */
+  #guideContent div[style*="display:flex;gap:24px"] {
+    flex-direction: column !important; align-items: center !important; gap: 16px !important;
+  }
   .turn-tag { font-size: 9px; padding: 2px 6px; }
   #logPanel { display: none; }
   .ai-area { display: none !important; }
@@ -3036,7 +3050,7 @@ button, [onclick] { touch-action: manipulation; }
     <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 28px 18px;border-bottom:1px solid #ffffff0a;flex-shrink:0;background:linear-gradient(90deg,#8855ff0d 0%,transparent 70%);">
       <div>
         <div style="font-family:'Orbitron',monospace;font-size:18px;letter-spacing:5px;color:#fff;text-shadow:0 0 20px #8855ff55;" id="guideTitle">HOW TO PLAY</div>
-        <div id="guidePageNum" style="font-size:11px;color:#9988bb;letter-spacing:3px;margin-top:4px;">PAGE 1 OF 4</div>
+        <div id="guidePageNum" style="font-size:12px;color:#ccbbee;letter-spacing:3px;margin-top:5px;">PAGE 1 OF 4</div>
       </div>
       <button onclick="closeGuide()" style="background:#ffffff0a;border:1px solid #ffffff22;color:#ccbbee;font-family:'Orbitron',monospace;font-size:11px;letter-spacing:2px;padding:8px 16px;cursor:pointer;border-radius:6px;transition:all 0.2s;"
         onmouseenter="this.style.background='#ffffff1a';this.style.borderColor='#cc99ff55';this.style.color='#fff'"
