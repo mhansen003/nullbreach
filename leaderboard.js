@@ -133,7 +133,7 @@ function _lbRenderModal() {
     const aF    = _LB_FACTIONS[aId];
     const entry = data[_lbKey(pId, aId)];
     const has   = !!entry;
-    const inits = entry?.initials || '---';
+    const inits = entry?.initials || 'AAA';
     const delta = entry?.delta    ?? null;
 
     return `
@@ -160,9 +160,9 @@ function _lbRenderModal() {
         <!-- Initials -->
         <div style="
           width:70px;text-align:center;flex-shrink:0;
-          font-family:'Orbitron',monospace;font-weight:700;letter-spacing:3px;
-          font-size:${has?'17px':'12px'};
-          color:${has?'#ffdd00':'#ffffff44'};
+          font-family:'Orbitron',monospace;font-weight:900;letter-spacing:3px;
+          font-size:17px;
+          color:${has?'#ffdd00':'#ffffff33'};
           ${has?'text-shadow:0 0 12px #ffdd0055;':''}
         ">${inits}</div>
 
