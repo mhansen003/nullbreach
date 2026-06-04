@@ -564,11 +564,15 @@ button, [onclick] { touch-action: manipulation; }
   /* Hide duplicate fixed launch button — mobileLaunchBar handles it */
   #desktopLaunchBar { display: none !important; }
 
-  /* Ability showcase: stack vertically */
-  .ability-cards-row { flex-direction: column !important; gap: 8px !important; }
-  .ability-showcase  { padding: 10px 12px; }
-  .absc-title { font-size: 12px; }
-  .absc-desc  { font-size: 12px; }
+  /* Ability showcase: image on top, text below */
+  .ability-cards-row { grid-template-columns: 1fr !important; gap: 10px !important; }
+  .ability-showcase  { flex-direction: column !important; padding: 0 !important; }
+  .ability-showcase img { width: 100% !important; height: 110px !important;
+    border-right: none !important; border-bottom: 1px solid currentColor;
+    object-position: center center !important; }
+  .ability-showcase > div { padding: 10px 12px !important; }
+  .absc-title { font-size: 13px !important; margin-bottom: 4px; }
+  .absc-desc  { font-size: 12px !important; }
 
   /* Lore text */
   .lore-text     { font-size: 13px; line-height: 1.7; }
@@ -641,8 +645,8 @@ button, [onclick] { touch-action: manipulation; }
   #audioControls { gap: 4px !important; top: 6px !important; right: 6px !important; }
   #audioControls > div { padding: 5px 8px !important; font-size: 16px !important; letter-spacing: 0 !important; }
   #audioControls .lb-label, #audioControls span { display: none !important; }
-  /* Show mobile-only leaderboard button */
-  #lbMobileBtn { display: flex !important; }
+  /* Mobile leaderboard float btn: hidden since audioControls now shows it */
+  #lbMobileBtn { display: none !important; }
 
   /* Mode tile labels */
   #modeComputer > div:last-child > div,
