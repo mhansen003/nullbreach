@@ -11847,13 +11847,13 @@ function showTip(e, card) {
       ${abi ? `
 
 
-      <div style="border:1px solid #ffdd0044;border-radius:5px;padding:7px 10px;background:#ffdd0008;display:flex;gap:10px;align-items:stretch;">
+      <div style="border:1px solid #ffdd0044;border-radius:5px;padding:0;background:#ffdd0008;display:flex;flex-direction:row;gap:0;align-items:stretch;overflow:hidden;">
 
 
-        ${_iconSrc ? `<img src="${_iconSrc}" style="height:100%;width:82px;min-height:82px;border-radius:6px;flex-shrink:0;object-fit:cover;align-self:stretch;" onerror="this.style.display='none'">` : ''}
+        ${_iconSrc ? `<img src="${_iconSrc}" style="width:88px;flex-shrink:0;object-fit:cover;object-position:center;align-self:stretch;display:block;border-right:1px solid #ffdd0033;" onerror="this.style.display='none'">` : ''}
 
 
-        <div style="flex:1;display:flex;flex-direction:column;gap:4px;justify-content:center;">
+        <div style="flex:1;display:flex;flex-direction:column;gap:4px;justify-content:center;padding:8px 10px;">
 
 
           <div style="font-family:'Orbitron',monospace;font-size:10px;letter-spacing:1px;color:#ffdd00;font-weight:700;">${card.abilityLabel || abi.label}</div>
