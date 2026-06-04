@@ -85,7 +85,7 @@ function computeBattleResults() {
             if (cell.card.ability === 'overwhelm' && hMargin >= 3) b[r][c].vW++;
 
 
-            if ((east.card.ability === 'shield' || east.card.ability === 'stonewall') && !east.card.shieldExpended) {
+            if (east.card.ability === 'shield' && !east.card.shieldExpended) {
 
 
               east.card.shieldExpended = true;
@@ -99,6 +99,10 @@ function computeBattleResults() {
 
 
             if (!east.card.shieldBlockH) b[r][c+1].hL++;
+            // REVENGE: east card loses H — penalize the cell card
+            if (east.card.ability === 'revenge') {
+              cell.card._revengePenalty = (cell.card._revengePenalty || 0) + 1;
+            }
 
 
             // DOUBLE STRIKE 2nd hit at half strength
@@ -140,7 +144,7 @@ function computeBattleResults() {
             if (east.card.ability === 'overwhelm' && hMargin >= 3) b[r][c+1].vW++;
 
 
-            if ((cell.card.ability === 'shield' || cell.card.ability === 'stonewall') && !cell.card.shieldExpended) {
+            if (cell.card.ability === 'shield' && !cell.card.shieldExpended) {
 
 
               cell.card.shieldExpended = true;
@@ -154,6 +158,10 @@ function computeBattleResults() {
 
 
             if (!cell.card.shieldBlockH) b[r][c].hL++;
+            // REVENGE: cell loses H — penalize the east card
+            if (cell.card.ability === 'revenge') {
+              east.card._revengePenalty = (east.card._revengePenalty || 0) + 1;
+            }
 
 
             if (east.card.ability === 'double_strike' && c > 0) {
@@ -237,7 +245,7 @@ function computeBattleResults() {
             // SHIELD V: south card blocks first V loss — permanently
 
 
-            if ((south.card.ability === 'shield' || south.card.ability === 'stonewall') && !south.card.shieldExpended) {
+            if (south.card.ability === 'shield' && !south.card.shieldExpended) {
 
 
               south.card.shieldExpended = true;
@@ -251,6 +259,10 @@ function computeBattleResults() {
 
 
             if (!south.card.shieldBlockV) b[r+1][c].vL++;
+            // REVENGE: south card loses V — penalize the cell card
+            if (south.card.ability === 'revenge') {
+              cell.card._revengePenalty = (cell.card._revengePenalty || 0) + 1;
+            }
 
 
             // DOUBLE STRIKE downward at half strength
@@ -295,7 +307,7 @@ function computeBattleResults() {
             // SHIELD V: cell (north card) blocks first V loss — permanently
 
 
-            if ((cell.card.ability === 'shield' || cell.card.ability === 'stonewall') && !cell.card.shieldExpended) {
+            if (cell.card.ability === 'shield' && !cell.card.shieldExpended) {
 
 
               cell.card.shieldExpended = true;
@@ -309,6 +321,10 @@ function computeBattleResults() {
 
 
             if (!cell.card.shieldBlockV) b[r][c].vL++;
+            // REVENGE: cell loses V — penalize the south card
+            if (cell.card.ability === 'revenge') {
+              south.card._revengePenalty = (south.card._revengePenalty || 0) + 1;
+            }
 
 
             // DOUBLE STRIKE upward at half strength
@@ -598,12 +614,6 @@ function computeScores() {
       if (!cell.card) continue;
 
 
-      // STONEWALL: this card or victim contributes 0 VP
-
-
-      if (cell.card.stonewalled || cell.card.stonewall_victim) continue;
-
-
       // SNIPER: sniped card contributes 0 VP
 
 
@@ -637,7 +647,7 @@ function computeScores() {
         .filter(({dr,dc}) => { const rr=r+dr,cc=c+dc; return rr>=0&&rr<5&&cc>=0&&cc<7&&G.grid[rr][cc].owner==='hazard'; }).length;
 
 
-      const effPower = Math.max(0, basePower - _adjHazards * 2);
+      const effPower = Math.max(1, basePower - _adjHazards * 2 - (cell.card._revengePenalty || 0));
 
 
       if (countsH) { if (cell.owner==='player') rows[r].p += effPower; else rows[r].a += effPower; }
@@ -676,13 +686,26 @@ function computeScores() {
     if (rowResults[r] === 'tie') {
 
 
-      const hasDf = G.grid[r].some(cell => cell.card && cell.owner === 'player' && cell.card.ability === 'deciding_factor' && !cell.card.stonewalled && !cell.card.sniped);
+      const hasDf = G.grid[r].some(cell => cell.card && cell.owner === 'player' && cell.card.ability === 'deciding_factor' && !cell.card.sniped);
 
 
-      if (hasDf) { rowResults[r] = 'p'; continue; }
+      if (hasDf) {
+        rowResults[r] = 'p';
+        addLog('compare', 'DECIDING FACTOR — tie broken in row ' + (r+1) + ' for player');
+        setTimeout(function() {
+          for (let _dc=0; _dc<7; _dc++) {
+            const _dfcell = G.grid[r][_dc];
+            if (_dfcell.card && _dfcell.card.ability === 'deciding_factor' && _dfcell.owner === 'player') {
+              const _dfel = document.querySelector('.cell[data-r="'+r+'"][data-c="'+_dc+'"]');
+              if (_dfel) { _dfel.classList.add('just-placed'); setTimeout(function(){_dfel.classList.remove('just-placed');},600); }
+            }
+          }
+        }, 100);
+        continue;
+      }
 
 
-      const hasAiDfRow = G.grid[r].some(cell => cell.card && cell.owner === 'ai' && cell.card.ability === 'deciding_factor' && !cell.card.stonewalled && !cell.card.sniped);
+      const hasAiDfRow = G.grid[r].some(cell => cell.card && cell.owner === 'ai' && cell.card.ability === 'deciding_factor' && !cell.card.sniped);
 
 
       if (hasAiDfRow) rowResults[r] = 'a';
@@ -709,7 +732,7 @@ function computeScores() {
         const cell = G.grid[r][c];
 
 
-        if (cell.card && cell.owner === 'player' && cell.card.ability === 'deciding_factor' && !cell.card.stonewalled && !cell.card.sniped) { hasDf = true; break; }
+        if (cell.card && cell.owner === 'player' && cell.card.ability === 'deciding_factor' && !cell.card.sniped) { hasDf = true; break; }
 
 
       }
@@ -730,7 +753,7 @@ function computeScores() {
       const _c2 = G.grid[_r3][c];
 
 
-      if (_c2.card && _c2.owner==='ai' && _c2.card.ability==='deciding_factor' && !_c2.card.stonewalled && !_c2.card.sniped) hasAiDf3 = true;
+      if (_c2.card && _c2.owner==='ai' && _c2.card.ability==='deciding_factor' && !_c2.card.sniped) hasAiDf3 = true;
 
 
     }
@@ -814,70 +837,7 @@ function computeScores() {
 
 
 
-  // ECHO: player card with echo in a row AND col both won → count its power again
-
-
-  for (let r = 0; r < 5; r++) {
-
-
-    for (let c = 0; c < 7; c++) {
-
-
-      const cell = G.grid[r][c];
-
-
-      if (!cell.card || cell.owner !== 'player' || cell.card.ability !== 'echo') continue;
-
-
-      if (cell.card.stonewalled || cell.card.stonewall_victim || cell.card.sniped) continue;
-
-
-      if (rawRowResults[r] === 'p' && rawColResults[c] === 'p') {
-
-
-        pVP += cell.card.power; // count once more (double total)
-
-
-      }
-
-
-    }
-
-
-  }
-
-
-  // AI ECHO too
-
-
-  for (let r = 0; r < 5; r++) {
-
-
-    for (let c = 0; c < 7; c++) {
-
-
-      const cell = G.grid[r][c];
-
-
-      if (!cell.card || cell.owner !== 'ai' || cell.card.ability !== 'echo') continue;
-
-
-      if (cell.card.stonewalled || cell.card.stonewall_victim || cell.card.sniped) continue;
-
-
-      if (rawRowResults[r] === 'a' && rawColResults[c] === 'a') {
-
-
-        aVP += cell.card.power;
-
-
-      }
-
-
-    }
-
-
-  }
+  // ECHO ability removed — replaced by LAMB (handled via 0-edge scoring)
 
 
 

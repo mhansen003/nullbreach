@@ -4,19 +4,19 @@ const RACE_ABILITY_NAMES = {
   terran:     { shield:'COLONIAL BULWARK', double_strike:'ACCORD BARRAGE', commander:'FLEET ADMIRAL', flank:'PINCER MANEUVER' },
 
 
-  brood:      { spawn:'HIVE PULSE', sweep:'MANDIBLE LEVEL', rush:'ACID CHARGE', boost:"QUEEN'S FAVOR" },
+  brood:      { spawn:'HIVE PULSE', laser_focus:'MANDIBLE FOCUS', rush:'ACID CHARGE', boost:"QUEEN'S FAVOR" },
 
 
-  crystallis: { stonewall:'CRYSTAL FORTRESS', mirror:'REFRACTION', shield:'LATTICE WARD', density:'CRYSTAL DENSITY' },
+  crystallis: { fortify:'CRYSTAL FORTRESS', revenge:'REFRACTION REVENGE', shield:'LATTICE WARD', density:'CRYSTAL DENSITY' },
 
 
-  mycos:      { hat_trick:'MYCELIUM LINK', birthright:'SPORE BURST', echo:'MYCELIAL NETWORK', overwhelm:'MYCO SURGE' },
+  mycos:      { home_invader:'MYCELIUM LINK', birthright:'SPORE BURST', lamb:'MYCELIAL SACRIFICE', overwhelm:'MYCO SURGE' },
 
 
   veil:       { phantom:'PHASE SHIFT', flank:'AFTERIMAGE', edge_play:'LIGHT BEND', pierce:'PHOTON LANCE' },
 
 
-  entropy:    { mirror:'ENTROPY REVERSAL', sweep:'RUST EQUALIZE', double_strike:'SECOND ROT', ambush:'CORROSIVE STRIKE' },
+  entropy:    { revenge:'ENTROPY REVERSAL', laser_focus:'RUST EQUALIZE', double_strike:'SECOND ROT', ambush:'CORROSIVE STRIKE' },
 
 
   void:       { sniper:'VOID LANCE', ambush:'DARK SURGE', rush:'DARK LUNGE', pierce:'EVENT HORIZON' },
@@ -25,13 +25,13 @@ const RACE_ABILITY_NAMES = {
   gas:        { edge_play:'STORM WRAP', overwhelm:'PLASMA SURGE', birthright:'STORM BIRTH', double_strike:'TWIN PLASMA' },
 
 
-  lithos:     { stonewall:'TECTONIC HOLD', deciding_factor:'FAULT LINE', commander:'TECTONIC ARRAY', shield:'STONE SKIN' },
+  lithos:     { fortify:'TECTONIC HOLD', deciding_factor:'FAULT LINE', commander:'TECTONIC ARRAY', shield:'STONE SKIN' },
 
 
   quantum:    { flank:'PROBABILITY CASCADE', deciding_factor:'WAVE COLLAPSE', phantom:'SUPERPOSITION', sniper:'OBSERVER EFFECT' },
 
 
-  choir:      { hat_trick:'RESONANT CHORD', overwhelm:'SONIC BOOM', boost:'HARMONIC PULSE', rush:'SONIC RUSH' },
+  choir:      { home_invader:'RESONANT CHORD', overwhelm:'SONIC BOOM', boost:'HARMONIC PULSE', rush:'SONIC RUSH' },
 
 
 };
@@ -51,7 +51,7 @@ const ABILITY_TEXT = {
   boost: 'All adjacent friendly cards gain +1 to every edge when placed.',
 
 
-  sweep: 'On placement, all 4 edges normalize to the second-highest value on the card.',
+  fortify: 'Claims all adjacent empty cells — opponents cannot place there.',
 
 
   flank: 'After placing this card, take one extra turn immediately.',
@@ -75,25 +75,25 @@ const ABILITY_TEXT = {
   intimidate: 'Adjacent enemies lose 1 from their highest edge on placement.',
 
 
-  mirror: 'When flanked by enemies on the same axis, those enemies swap their facing edges.',
+  revenge: 'When defeated in battle, the winning card permanently loses 1 VP.',
 
 
   ambush: '2 random adjacent enemies each lose 1 from every edge on placement.',
 
 
-  stonewall: 'This card and 2 adjacent enemies score 0 VP — purely positional.',
+  laser_focus: 'Combines all four edges into the North facing. Zero on all other sides.',
 
 
   sniper: 'Cancels the opposing home-row card in this column — it scores 0 VP.',
 
 
-  birthright: 'At game start, a bonus Tier II card is added to your hand.',
+  birthright: 'On placement, a bonus Tier II card is added to your hand.',
 
 
   deciding_factor:'DECIDING FACTOR: Tied rows/cols tip +1 to your favor',
 
 
-  echo: 'If you win both the row AND column containing this card, its power is doubled.',
+  lamb: '5 VP but zero edges. Scores full value uncontested, nothing if attacked.',
 
 
   overwhelm: 'Win an edge comparison by 3 or more — and you also win the opposing axis.',
@@ -102,7 +102,7 @@ const ABILITY_TEXT = {
   density: 'This card contributes 1.5× its power to the row/column score.',
 
 
-  hat_trick: 'Middle of a 3-card vertical line — distributes edge bonuses to the cards above and below.',
+  home_invader: 'Can be placed directly on the opponent\'s home row.',
 
 
   edge_play: 'Placed on a board edge, this card wraps around to fight the card on the opposite side.',
@@ -116,19 +116,19 @@ const FACTION_ABILITY_POOLS = {
   terran:     ['shield','double_strike','commander','flank'],
 
 
-  brood:      ['spawn','sweep','rush','boost'],
+  brood:      ['spawn','laser_focus','rush','boost'],
 
 
-  crystallis: ['stonewall','mirror','shield','density'],
+  crystallis: ['fortify','revenge','shield','density'],
 
 
-  mycos:      ['hat_trick','birthright','echo','overwhelm'],
+  mycos:      ['home_invader','birthright','lamb','overwhelm'],
 
 
   veil:       ['phantom','flank','edge_play','pierce'],
 
 
-  entropy:    ['mirror','sweep','double_strike','ambush'],
+  entropy:    ['revenge','laser_focus','double_strike','ambush'],
 
 
   void:       ['sniper','ambush','rush','pierce'],
@@ -137,16 +137,16 @@ const FACTION_ABILITY_POOLS = {
   gas:        ['edge_play','overwhelm','birthright','double_strike'],
 
 
-  lithos:     ['stonewall','deciding_factor','commander','shield'],
+  lithos:     ['fortify','deciding_factor','commander','shield'],
 
 
   quantum:    ['flank','deciding_factor','phantom','sniper'],
 
 
-  choir:      ['hat_trick','overwhelm','boost','cloak'],
+  choir:      ['home_invader','overwhelm','boost','cloak'],
 
 
-  _default:   ['shield','double_strike','boost','sweep','pierce','flank'],
+  _default:   ['shield','double_strike','boost','laser_focus','pierce','flank'],
 
 
 };
@@ -175,7 +175,7 @@ const ABILITY_ICONS = {
   shield:         { icon:'🛡',   color:'#aaaaff', label:'SHIELD'         },
 
 
-  sweep:          { icon:'↔↕',  color:'#ff88ff', label:'SWEEP'          },
+  fortify:        { icon:'⬡',   color:'#4488ff', label:'FORTIFY'        },
 
 
   phantom:        { icon:'◈',   color:'#88ffff', label:'PHANTOM'        },
@@ -193,13 +193,13 @@ const ABILITY_ICONS = {
   intimidate:     { icon:'↓↓',  color:'#ff6644', label:'INTIMIDATE'     },
 
 
-  mirror:         { icon:'⇔',   color:'#cc44ff', label:'MIRROR'         },
+  revenge:        { icon:'↩⚡',  color:'#ff4488', label:'REVENGE'        },
 
 
   ambush:         { icon:'✕✕',  color:'#cc44ff', label:'AMBUSH'         },
 
 
-  stonewall:      { icon:'▣',   color:'#6688aa', label:'STONEWALL'      },
+  laser_focus:    { icon:'◉',   color:'#ff4400', label:'LASER FOCUS'    },
 
 
   sniper:         { icon:'◎',   color:'#ff8800', label:'SNIPER'         },
@@ -211,7 +211,7 @@ const ABILITY_ICONS = {
   deciding_factor:{ icon:'⚖',   color:'#ffdd88', label:'DECIDING FACTOR'},
 
 
-  echo:           { icon:'◈◈',  color:'#c8c8ff', label:'ECHO'           },
+  lamb:           { icon:'★',   color:'#ffdd00', label:'LAMB'           },
 
 
   overwhelm:      { icon:'▲▲',  color:'#88cc44', label:'OVERWHELM'      },
@@ -220,7 +220,7 @@ const ABILITY_ICONS = {
   density:        { icon:'⬛+',  color:'#9b59b6', label:'DENSITY'        },
 
 
-  hat_trick:      { icon:'↑↓↑', color:'#00ddff', label:'HAT TRICK'      },
+  home_invader:   { icon:'↑⚔',  color:'#ff0066', label:'HOME INVADER'   },
 
 
   edge_play:      { icon:'↩↪',  color:'#ff55aa', label:'EDGE PLAY'      },

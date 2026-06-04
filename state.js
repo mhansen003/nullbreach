@@ -175,67 +175,7 @@ function initGame() {
 
 
 
-  // BIRTHRIGHT: if any player card has birthright ability, add bonus T2 unit
-
-
-  if (G.playerHand.some(c => c.ability === 'birthright')) {
-
-
-    const bonusCard = {
-
-
-      id: 'birthright_bonus',
-
-
-      name: 'BONUS UNIT',
-
-
-      tier: 'II',
-
-
-      tierLabel: 'BONUS',
-
-
-      zone: 'wide_cross',
-
-
-      edges: { n:4, s:3, e:4, w:4 },
-
-
-      power: 2,
-
-
-      ability: null,
-
-
-      abilityText: 'Spawned by BIRTHRIGHT',
-
-
-      art: G.playerHand.find(c => c.tier === 'II')?.art || '',
-
-
-      shieldExpended: false,
-
-
-      used: false,
-
-
-      edgeMod: { n:0, s:0, e:0, w:0 },
-
-
-      _isBirthrightBonus: true
-
-
-    };
-
-
-    G.playerHand.push(bonusCard);
-
-
-    addLog('system', 'BIRTHRIGHT — bonus T2 unit added to your hand');
-
-
-  }
+  // BIRTHRIGHT: bonus card now granted ON PLACEMENT (see abilities.js applyPlacementAbility)
 
 
 

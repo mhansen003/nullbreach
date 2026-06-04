@@ -850,6 +850,24 @@ function renderGrid() {
 
 
   // Passive ability zone glows on placed cards with spatial effects
+  // FORTIFY: show dashed border + lock icon on fortified empty cells
+  for (let r=0; r<5; r++) for (let c=0; c<7; c++) {
+    const cell = G.grid[r][c];
+    if (!cell.fortifiedBy) continue;
+    const cellEl = document.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`);
+    if (!cellEl) continue;
+    const col = cell.fortifiedBy === 'player' ? '#4488ff' : '#ff4466';
+    const ov = document.createElement('div');
+    ov.dataset.passiveZone = '1';
+    ov.style.cssText = `position:absolute;inset:0;pointer-events:none;z-index:2;border-radius:3px;border:2px dashed ${col}88;background:${col}11;`;
+    const lk = document.createElement('div');
+    lk.dataset.passiveZone = '1';
+    lk.style.cssText = `position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:16px;opacity:0.6;pointer-events:none;z-index:3;`;
+    lk.textContent = '🔒';
+    cellEl.appendChild(ov);
+    cellEl.appendChild(lk);
+  }
+
   try { renderPassiveAbilityGlows(el); } catch(e) { console.error("Passive glow error:", e.message, e.stack); }
 
   // Battle comparison indicators in gaps
@@ -927,8 +945,8 @@ function renderPassiveAbilityGlows(el) {
         });
       }
 
-      // ── STONEWALL: blue/teal defensive glow on self ──────────────────────
-      else if (card.ability === 'stonewall') {
+      // ── FORTIFY: blue glow on self; dashed blue border on fortified empty cells ──
+      else if (card.ability === 'fortify') {
         const cellEl = document.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`);
         if (cellEl) {
           const ov = document.createElement('div');
@@ -938,14 +956,47 @@ function renderPassiveAbilityGlows(el) {
         }
       }
 
-      // ── POSITIVE zone abilities: boost/commander/spawn/hat_trick/mirror ──
+      // ── REVENGE: red pulsing border on revenge cards ──────────────────────
+      else if (card.ability === 'revenge') {
+        const cellEl = document.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`);
+        if (cellEl) {
+          const ov = document.createElement('div');
+          ov.dataset.passiveZone = '1';
+          ov.style.cssText = `position:absolute;inset:0;pointer-events:none;z-index:1;border-radius:3px;background:#ff448818;border:2px solid #ff448855;box-shadow:inset 0 0 10px #ff440022;animation:hazardPulse2 1.4s ease-in-out infinite;`;
+          cellEl.appendChild(ov);
+        }
+        // Show red glow on adjacent enemy cells to signal revenge threat
+        ADJ4.forEach(({dr,dc}) => {
+          const nr=r+dr, nc=c+dc;
+          if (nr<0||nr>=5||nc<0||nc>=7) return;
+          const tgt = G.grid[nr][nc];
+          if (!tgt.card || tgt.owner === cell.owner) return;
+          const tgtEl = document.querySelector(`.cell[data-r="${nr}"][data-c="${nc}"]`);
+          if (!tgtEl) return;
+          const ov = document.createElement('div');
+          ov.dataset.passiveZone = '1';
+          ov.style.cssText = `position:absolute;inset:0;pointer-events:none;z-index:1;border-radius:3px;background:#ff448811;border:1px dashed #ff448844;`;
+          tgtEl.appendChild(ov);
+        });
+      }
+
+      // ── LAMB: golden shimmer on high-value zero-edge card ────────────────
+      else if (card.ability === 'lamb') {
+        const cellEl = document.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`);
+        if (cellEl) {
+          const ov = document.createElement('div');
+          ov.dataset.passiveZone = '1';
+          ov.style.cssText = `position:absolute;inset:0;pointer-events:none;z-index:1;border-radius:3px;background:#ffdd0015;border:2px solid #ffdd0044;box-shadow:inset 0 0 14px #ffdd0022;animation:hazardPulse2 2s ease-in-out infinite;`;
+          cellEl.appendChild(ov);
+        }
+      }
+
+      // ── POSITIVE zone abilities: boost/commander/spawn ────────────────────
       else {
         const POSITIVE_ZONES = {
           boost:     { dirs:ADJ4, col:'#00ffcc', op:'0.18' },
           commander: { dirs:ADJ4, col:'#ffcc00', op:'0.18' },
           spawn:     { dirs:ADJ4, col:'#88cc44', op:'0.18' },
-          hat_trick: { dirs:[{dr:-1,dc:0},{dr:1,dc:0}], col:'#00ddff', op:'0.18' },
-          mirror:    { dirs:[{dr:0,dc:-1},{dr:0,dc:1}], col:'#cc44ff', op:'0.22' },
         };
         const zone = POSITIVE_ZONES[card.ability];
         if (!zone) continue;

@@ -12,47 +12,7 @@ function _applySnipe(card, r, c) {
   }
 }
 
-function _applyMirror(mCard, mr, mc, mOwner) {
-  if (mCard._mirrorSwaps) {
-    mCard._mirrorSwaps.forEach(function(s) {
-      s.tCard.edgeMod = s.tCard.edgeMod || {n:0,s:0,e:0,w:0};
-      s.tCard.edgeMod[s.edge] -= s.delta;
-    });
-  }
-  mCard._mirrorSwaps = [];
-  const mN = (mr>0) ? G.grid[mr-1][mc] : null;
-  const mS = (mr<4) ? G.grid[mr+1][mc] : null;
-  const mW = (mc>0) ? G.grid[mr][mc-1] : null;
-  const mE = (mc<6) ? G.grid[mr][mc+1] : null;
-  const nEn = mN && mN.card && mN.owner !== mOwner;
-  const sEn = mS && mS.card && mS.owner !== mOwner;
-  const wEn = mW && mW.card && mW.owner !== mOwner;
-  const eEn = mE && mE.card && mE.owner !== mOwner;
-  if (nEn && sEn) {
-    var nc = mN.card, sc = mS.card;
-    nc.edgeMod = nc.edgeMod || {n:0,s:0,e:0,w:0};
-    sc.edgeMod = sc.edgeMod || {n:0,s:0,e:0,w:0};
-    var ncSeff = nc.edges.s + (nc.edgeMod.s||0);
-    var scNeff = sc.edges.n + (sc.edgeMod.n||0);
-    var dNC = (scNeff - nc.edges.s) - nc.edgeMod.s;
-    var dSC = (ncSeff - sc.edges.n) - sc.edgeMod.n;
-    nc.edgeMod.s += dNC; sc.edgeMod.n += dSC;
-    mCard._mirrorSwaps.push({tCard:nc,edge:'s',delta:dNC},{tCard:sc,edge:'n',delta:dSC});
-    addLog('compare', 'MIRROR — ' + nc.name + ' and ' + sc.name + ' edges reversed (V)');
-  }
-  if (wEn && eEn) {
-    var wc = mW.card, ec = mE.card;
-    wc.edgeMod = wc.edgeMod || {n:0,s:0,e:0,w:0};
-    ec.edgeMod = ec.edgeMod || {n:0,s:0,e:0,w:0};
-    var wcEeff = wc.edges.e + (wc.edgeMod.e||0);
-    var ecWeff = ec.edges.w + (ec.edgeMod.w||0);
-    var dWC = (ecWeff - wc.edges.e) - wc.edgeMod.e;
-    var dEC = (wcEeff - ec.edges.w) - ec.edgeMod.w;
-    wc.edgeMod.e += dWC; ec.edgeMod.w += dEC;
-    mCard._mirrorSwaps.push({tCard:wc,edge:'e',delta:dWC},{tCard:ec,edge:'w',delta:dEC});
-    addLog('compare', 'MIRROR — ' + wc.name + ' and ' + ec.name + ' edges reversed (H)');
-  }
-}
+// _applyMirror removed — mirror ability replaced by revenge
 
 function applyPlacementAbility(card, r, c, owner) {
 
@@ -151,43 +111,31 @@ function applyPlacementAbility(card, r, c, owner) {
 
 
 
-  // SWEEP: normalise all edges to the 2nd highest edge value
+  // LASER FOCUS: sums all 4 edges into the North facing only. S/E/W become 0.
 
 
-  if (card.ability === 'sweep') {
+  if (card.ability === 'laser_focus') {
 
 
-    const base = card.edges;
+    const total = card.edges.n + card.edges.s + card.edges.e + card.edges.w;
 
 
-    const existing = card.edgeMod || {n:0,s:0,e:0,w:0};
+    card.edgeMod = card.edgeMod || {n:0,s:0,e:0,w:0};
 
 
-    const effN = base.n + existing.n, effS = base.s + existing.s;
+    card.edgeMod.n = total - card.edges.n;   // make N = total
 
 
-    const effE = base.e + existing.e, effW = base.w + existing.w;
+    card.edgeMod.s = -card.edges.s;           // make S = 0
 
 
-    const sorted = [effN, effS, effE, effW].sort((a,b) => b-a);
+    card.edgeMod.e = -card.edges.e;           // make E = 0
 
 
-    const target = sorted[1];
+    card.edgeMod.w = -card.edges.w;           // make W = 0
 
 
-    card.edgeMod = {
-
-
-      n: target - base.n, s: target - base.s,
-
-
-      e: target - base.e, w: target - base.w,
-
-
-    };
-
-
-    addLog('compare', `SWEEP: ${card.name} normalises all edges to ${target} (2nd highest was ${sorted[0]}→${target})`);
+    addLog('compare', `LASER FOCUS — ${card.name} concentrates all power forward: N=${total}`);
 
 
   }
@@ -262,12 +210,17 @@ function applyPlacementAbility(card, r, c, owner) {
 
 
 
-  // MIRROR: sandwiched between enemies on same axis — swap their facing edges
-
-
-  // MIRROR: _applyMirror is module-scope (see above applyPlacementAbility)
-  if (card.ability === 'mirror') {
-    _applyMirror(card, r, c, owner);
+  // FORTIFY: claims adjacent empty cells as reserved — opponents cannot place there
+  if (card.ability === 'fortify') {
+    dirs.forEach(({dr,dc}) => {
+      const nr=r+dr, nc=c+dc;
+      if (nr<0||nr>=5||nc<0||nc>=7) return;
+      const tgt = G.grid[nr][nc];
+      if (!tgt.card) {
+        tgt.fortifiedBy = owner; // mark as reserved by this player
+      }
+    });
+    addLog('compare', `FORTIFY — ${card.name} claims adjacent territory`);
   }
 
 
@@ -363,21 +316,7 @@ function applyPlacementAbility(card, r, c, owner) {
 
 
 
-  // STONEWALL: blocks first incoming battle loss (both axes) + suppresses 1 adjacent enemy V-loss
-  if (card.ability === 'stonewall') {
-    // Stonewall also suppresses 1 adjacent enemy's vertical wins this turn
-    dirs.forEach(({dr,dc}) => {
-      const nr=r+dr, nc=c+dc;
-      if (nr<0||nr>=5||nc<0||nc>=7) return;
-      const nb = G.grid[nr][nc];
-      if (nb.card && nb.owner !== owner) {
-        nb.card.stonewall_victim = true;
-        const cellEl = document.querySelector(`.cell[data-r="${nr}"][data-c="${nc}"]`);
-        if (cellEl) { cellEl.classList.add('ambush-hit'); setTimeout(() => cellEl.classList.remove('ambush-hit'), 850); }
-      }
-    });
-    addLog('compare', `STONEWALL — ${card.name} fortifies position, blocking all incoming attacks`);
-  }
+  // REVENGE: passive — triggers in battle scoring (see battle.js computeScores)
 
 
 
@@ -402,85 +341,39 @@ function applyPlacementAbility(card, r, c, owner) {
 
 
 
-  // HAT TRICK: middle of 3-card vertical line — spread N/S edges to flankers
+  // HOME INVADER: placement rule handled in placement.js — no placement-time effect here
+  // LAMB: stats set during assignRandomAbilities — no placement-time effect here
 
-
-  function _applyHatTrick(htCard, htR, htC, htOwner) {
-
-
-    if (htCard._hatTrickApplied) return;
-
-
-    if (htR < 1 || htR > 3) return;
-
-
-    const northCell = G.grid[htR-1][htC];
-
-
-    const southCell = G.grid[htR+1][htC];
-
-
-    if (!northCell.card || northCell.owner !== htOwner) return;
-
-
-    if (!southCell.card || southCell.owner !== htOwner) return;
-
-
-    htCard._hatTrickApplied = true;
-
-
-    const bonusN = Math.floor(htCard.edges.n / 3);
-
-
-    northCell.card.edgeMod = northCell.card.edgeMod || {n:0,s:0,e:0,w:0};
-
-
-    northCell.card.edgeMod.s += bonusN; northCell.card.edgeMod.e += bonusN; northCell.card.edgeMod.w += bonusN;
-
-
-    const bonusS = Math.floor(htCard.edges.s / 3);
-
-
-    southCell.card.edgeMod = southCell.card.edgeMod || {n:0,s:0,e:0,w:0};
-
-
-    southCell.card.edgeMod.n += bonusS; southCell.card.edgeMod.e += bonusS; southCell.card.edgeMod.w += bonusS;
-
-
-    addLog('compare', `HAT TRICK — formation bonus applied (+${bonusN}/${bonusS})`);
-
-
-  }
-
-
-  if (card.ability === 'hat_trick') _applyHatTrick(card, r, c, owner);
-
-
-  // Retroactive: if this card completes a HAT_TRICK formation for an adjacent middle card
-
-
-  [-1, 1].forEach(dr => {
-
-
-    const nr = r + dr;
-
-
-    if (nr < 0 || nr >= 5) return;
-
-
-    const adj = G.grid[nr][c];
-
-
-    if (adj.card && adj.card.ability === 'hat_trick' && adj.owner === owner) {
-
-
-      _applyHatTrick(adj.card, nr, c, owner);
-
-
+  // BIRTHRIGHT: on placement, add a bonus T2 card to hand
+  if (card.ability === 'birthright') {
+    if (owner === 'player') {
+      const availableT2 = (window.__activeDeck || G.playerHand).filter(c =>
+        c.tier === 'II' && !G.playerHand.some(h => h.id === c.id) && !c.used
+      );
+      if (availableT2.length > 0) {
+        const src = availableT2[Math.floor(Math.random() * availableT2.length)];
+        const bonus = {...src};
+        bonus.id = bonus.id + '_br_' + Date.now();
+        bonus.used = false; bonus.shieldExpended = false;
+        bonus.edgeMod = {n:0,s:0,e:0,w:0};
+        G.playerHand.push(bonus);
+        addLog('player', `BIRTHRIGHT — ${card.name} grants a bonus card: ${bonus.name}`);
+        if (typeof showToast === 'function') showToast(`BIRTHRIGHT: ${bonus.name} added to your hand`);
+      }
+    } else {
+      // AI birthright: pick a random unused T2 from aiHand pool
+      const aiAvail = G.aiHand.filter(c => c.tier === 'II' && !c.used);
+      if (aiAvail.length > 0) {
+        const src = aiAvail[Math.floor(Math.random() * aiAvail.length)];
+        const bonus = {...src};
+        bonus.id = bonus.id + '_br_' + Date.now();
+        bonus.used = false; bonus.shieldExpended = false;
+        bonus.edgeMod = {n:0,s:0,e:0,w:0};
+        G.aiHand.push(bonus);
+        addLog('compare', `BIRTHRIGHT — AI ${card.name} grants a bonus card: ${bonus.name}`);
+      }
     }
-
-
-  });
+  }
 
 
 
@@ -557,12 +450,7 @@ function fireReactiveAbilities(newR, newC, newCard, newOwner) {
           }
           break;
 
-        // MIRROR: enemy placed adjacent — re-evaluate sandwich
-        case 'mirror':
-          if (dist === 1) {
-            _applyMirror(aCard, r, c, cell.owner);
-          }
-          break;
+        // No additional reactive cases for replaced abilities
       }
     }
   }
@@ -689,6 +577,14 @@ function assignRandomAbilities(hand, raceId) {
 
 
     card.isSpecial = true;
+
+
+    // LAMB: zero all edges, set power to 5
+    if (ab === 'lamb') {
+      card._lambOriginalEdges = {...card.edges};
+      card.edges = {n:0, s:0, e:0, w:0};
+      card.power = 5;
+    }
 
 
   });

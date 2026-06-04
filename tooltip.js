@@ -1,7 +1,7 @@
 function showAbilityZone(ability, _baseR, _baseC, _owner) {
   if (_zoneSuppressed) return;
   // Zone color: green=passive/buff, red=offensive
-  const _passiveAbils = new Set(['shield','boost','commander','phantom','cloak','spawn','mirror','stonewall','birthright','deciding_factor','echo','density']);
+  const _passiveAbils = new Set(['shield','boost','commander','phantom','cloak','spawn','fortify','birthright','deciding_factor','lamb','density']);
   const abilCol = _passiveAbils.has(ability) ? '#44ff88' : (_owner==='ai' ? '#ff2244' : '#ff5533');
   // Use explicit position from placed card, or guess from nearest player card
   let baseR = (_baseR !== undefined) ? _baseR : 4;
@@ -19,17 +19,18 @@ function showAbilityZone(ability, _baseR, _baseC, _owner) {
     spawn:          [{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}],
     ambush:         [{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}],
     intimidate:     [{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}],
-    stonewall:      [{dr:0,dc:0},{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}],
-    mirror:         [{dr:0,dc:-1},{dr:0,dc:1}],
-    hat_trick:      [{dr:-1,dc:0},{dr:0,dc:0},{dr:1,dc:0}],
+    fortify:        [{dr:0,dc:0},{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}],
+    revenge:        [{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}],
+    laser_focus:    [{dr:-1,dc:0},{dr:-2,dc:0}],
     double_strike:  [{dr:-1,dc:0},{dr:-2,dc:0}],
     sniper:         [{dr:-1,dc:0},{dr:-2,dc:0},{dr:-3,dc:0},{dr:-4,dc:0}],
-    echo:           [{dr:-1,dc:0},{dr:-2,dc:0},{dr:0,dc:-1},{dr:0,dc:-2},{dr:0,dc:1},{dr:0,dc:2}],
+    lamb:           [{dr:0,dc:0}],
     overwhelm:      [{dr:-1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}],
     density:        [{dr:0,dc:0}],
     phantom:        [{dr:0,dc:0},{dr:-1,dc:0}],
     deciding_factor:[{dr:-1,dc:0},{dr:-2,dc:0},{dr:-3,dc:0},{dr:-4,dc:0}],
     cloak:          [{dr:0,dc:0}],
+    home_invader:   [{dr:-1,dc:0},{dr:-2,dc:0},{dr:-3,dc:0},{dr:-4,dc:0}],
   };
 
   function mkOverlay(el) {
@@ -106,21 +107,22 @@ function buildAbilityVisual(ability) {
     rush:           G([empty(),e(),empty(), cell(YOU,YB,'★?',true,'0.7'),empty(),e(), empty(),empty(),cell(YOU,YB,'★?',true,'0.7')]),
     sniper:         G([zero('0'),empty(),empty(), empty(),empty(),empty(), y('★'),empty(),empty()]),
     ambush:         G([empty(),cell(EC,EB,'E',false,'','-1',EB),empty(), cell(EC,EB,'E',false,'','-1',EB),y('★'),e(), empty(),e(),empty()]),
-    stonewall:      G([empty(),`<div style="width:24px;height:20px;border-radius:2px;background:#220000;border:2px solid ${EB};display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:${EB};">0</div>`,empty(),
-                       `<div style="width:24px;height:20px;border-radius:2px;background:#220000;border:2px solid ${EB};display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:${EB};">0</div>`,
-                       `<div style="width:24px;height:20px;border-radius:2px;background:#ffffff18;border:3px solid #fff;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#fff;">0</div>`,
-                       `<div style="width:24px;height:20px;border-radius:2px;background:#220000;border:2px solid ${EB};display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:${EB};">0</div>`,
-                       empty(),`<div style="width:24px;height:20px;border-radius:2px;background:#220000;border:2px solid ${EB};display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:${EB};">0</div>`,empty()]),
-    mirror:         G([empty(),empty(),empty(), hit('3↔8'),y('★'),hit('8↔3'), empty(),empty(),empty()]),
+    fortify:        G([empty(),`<div style="width:24px;height:20px;border-radius:2px;background:#001830;border:2px dashed #4488ff88;display:flex;align-items:center;justify-content:center;font-size:8px;color:#4488ff;">🔒</div>`,empty(),
+                       `<div style="width:24px;height:20px;border-radius:2px;background:#001830;border:2px dashed #4488ff88;display:flex;align-items:center;justify-content:center;font-size:8px;color:#4488ff;">🔒</div>`,
+                       `<div style="width:24px;height:20px;border-radius:2px;background:#0a2040;border:3px solid #4488ff;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#4488ff;">★</div>`,
+                       `<div style="width:24px;height:20px;border-radius:2px;background:#001830;border:2px dashed #4488ff88;display:flex;align-items:center;justify-content:center;font-size:8px;color:#4488ff;">🔒</div>`,
+                       empty(),`<div style="width:24px;height:20px;border-radius:2px;background:#001830;border:2px dashed #4488ff88;display:flex;align-items:center;justify-content:center;font-size:8px;color:#4488ff;">🔒</div>`,empty()]),
+    revenge:        G([empty(),empty(),empty(), e(),y('↩'),empty(), empty(),empty(),empty()]),
+    laser_focus:    `<div style="display:flex;align-items:center;gap:8px;"><div style="color:#aaa;font-size:10px;">N+S+E+W</div><span style="color:#ff4400;font-size:14px;">→</span><div style="color:#ff4400;font-size:12px;font-weight:700;">N only</div></div>`,
     deciding_factor:`<div style="display:flex;align-items:center;gap:8px;"><div style="color:#aaa;font-size:13px;font-weight:600;">3=3</div><span style="color:#00ffcc;font-size:14px;">→</span><div style="color:#00ffcc;font-size:12px;font-weight:700;">WIN</div></div>`,
-    hat_trick:      G([empty(),cell(ALLY,AB,'A',false,'','+',YB),empty(), empty(),y('★'),empty(), empty(),cell(ALLY,AB,'A',false,'','+',YB),empty()]),
+    home_invader:   G([empty(),y('★'),empty(), empty(),empty(),empty(), empty(),empty(),empty()]),
     edge_play:      G5([y('★'),empty(),empty(),empty(),e()]),
-    birthright:     `<div style="display:flex;align-items:center;gap:6px;">${a('T1')}${a('T2')}${a('T3')}<span style="color:#00ffcc;">+</span>${bonus('T2')}</div>`,
+    birthright:     `<div style="display:flex;align-items:center;gap:6px;">${y('★')}<span style="color:#00ffcc;font-size:12px;">PLACE</span><span style="color:#ffaaff;font-size:14px;">→</span>${bonus('T2')}</div>`,
     boost:          G([empty(),cell(ALLY,AB,'A',false,'','+',YB),empty(), cell(ALLY,AB,'A',false,'','+',YB),y('★'),cell(ALLY,AB,'A',false,'','+',YB), empty(),cell(ALLY,AB,'A',false,'','+',YB),empty()]),
     commander:      G([empty(),cell(ALLY,AB,'T2',false,'','+2',YB),empty(), a('T1','0.3'),y('★'),cell(ALLY,AB,'T2',false,'','+2',YB), empty(),empty(),empty()]),
     surge:          `<div style="display:flex;align-items:center;gap:8px;"><div style="color:#ff4466;font-size:11px;">Losing</div><span style="color:#00ffcc;font-size:14px;">→</span>${y('+3')}</div>`,
     overwhelm:      G([empty(),cell(ALLY,YB,'E↑',false,'','✓',YB),empty(), e('E←'),y('★'),empty(), empty(),empty(),empty()]),
-    echo:           G([a('—','0.4'),cell(ALLY,AB,'↕',false,''),a('—','0.4'), cell(ALLY,AB,'↔',false,''),cell(YOU,YB,'×2',false,'','✓',YB),cell(ALLY,AB,'↔',false,''), a('—','0.4'),cell(ALLY,AB,'↕',false,''),a('—','0.4')]),
+    lamb:           `<div style="display:flex;align-items:center;gap:8px;">${y('5')}<span style="color:#ffdd00;font-size:11px;">0 edges</span><span style="color:#ffdd00;font-size:12px;font-weight:700;">5 VP safe</span></div>`,
     density:        `<div style="display:flex;align-items:center;gap:8px;">${y('4')}<span style="color:#00ffcc;font-size:14px;">→</span><div style="font-size:18px;font-weight:700;color:#00ffcc;">6 <span style="font-size:9px;color:#bbb;">VP</span></div></div>`,
     cloak:          G([empty(),empty(),empty(), e(),cell(YOU,YB,'????',false,''),empty(), empty(),empty(),empty()]),
     phantom:        G([empty(),empty(),empty(), cell(YOU,YB,'★?',true,'0.7'),cell(YOU,YB,'★?',true,'0.7'),cell(YOU,YB,'★?',true,'0.7'), a('','0.3'),a('','0.3'),a('','0.3')]),

@@ -189,7 +189,12 @@ function getValidPlacements(owner, card) {
       .map(s => { const [r,c] = s.split(',').map(Number); return {r,c}; })
 
 
-      .filter(({r}) => r !== enemyHome); // only restriction: can't enter enemy home
+      .filter(({r,c}) => {
+        if (r === enemyHome) return false;
+        const cell = G.grid[r][c];
+        if (cell.fortifiedBy && cell.fortifiedBy !== owner) return false;
+        return true;
+      });
 
 
   }
@@ -198,13 +203,35 @@ function getValidPlacements(owner, card) {
 
 
 
-  return [...set]
+  const validCells = [...set]
 
 
     .map(s => { const [r,c] = s.split(',').map(Number); return {r,c}; })
 
 
-    .filter(({r}) => r >= minAllowed && r <= maxAllowed);
+    .filter(({r,c}) => {
+      if (r < minAllowed || r > maxAllowed) return false;
+      const cell = G.grid[r][c];
+      if (cell.fortifiedBy && cell.fortifiedBy !== owner) return false;
+      return true;
+    });
+
+
+  // HOME INVADER: also add opponent home row cells as valid
+  if (card.ability === 'home_invader') {
+    const enemyHomeRow = owner === 'player' ? 0 : 4;
+    const seen = new Set(validCells.map(({r,c}) => r+','+c));
+    for (let hc = 0; hc < 7; hc++) {
+      const cell = G.grid[enemyHomeRow][hc];
+      if (!cell.card && cell.owner !== 'hazard' && !(cell.fortifiedBy && cell.fortifiedBy !== owner)) {
+        const key = enemyHomeRow+','+hc;
+        if (!seen.has(key)) { seen.add(key); validCells.push({r: enemyHomeRow, c: hc}); }
+      }
+    }
+  }
+
+
+  return validCells;
 
 
 }
