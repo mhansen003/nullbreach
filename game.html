@@ -1555,7 +1555,7 @@ body {
   font-family: Inter, system-ui, -apple-system, sans-serif;
 
 
-  z-index:9500; pointer-events:none; width:250px; max-height:65vh;
+  z-index:9500; pointer-events:none; width:300px; max-height:65vh;
 
 
   animation: tipGlow 2.5s ease-in-out infinite;
@@ -12248,7 +12248,7 @@ function showTip(e, card) {
       <div style="border:1px solid #ffdd0044;border-radius:5px;padding:0;background:#ffdd0008;display:flex;flex-direction:row;gap:0;align-items:stretch;overflow:hidden;">
 
 
-        ${_iconSrc ? `<img src="${_iconSrc}" style="width:88px;flex-shrink:0;object-fit:cover;object-position:center;align-self:stretch;display:block;border-right:1px solid #ffdd0033;" onerror="this.style.display='none'">` : ''}
+        ${_iconSrc ? `<img src="${_iconSrc}" style="width:72px;flex-shrink:0;object-fit:cover;object-position:center;align-self:stretch;display:block;border-right:1px solid #ffdd0033;" onerror="this.style.display='none'">` : ''}
 
 
         <div style="flex:1;display:flex;flex-direction:column;gap:6px;padding:8px 10px;">
@@ -12257,7 +12257,7 @@ function showTip(e, card) {
           <div style="font-family:'Orbitron',monospace;font-size:10px;letter-spacing:1px;color:#ffdd00;font-weight:700;">${card.abilityLabel || abi.label}</div>
 
 
-          <div style="font-size:11px;color:#ddd;line-height:1.55;margin-top:2px;">${card.abilityText}</div>
+          <div style="font-size:10.5px;color:#ddd;line-height:1.5;margin-top:2px;">${card.abilityText}</div>
             ${buildAbilityVisual(card.ability) ? `<div style="margin-top:8px;padding-top:8px;border-top:1px solid #ffdd0022;display:flex;justify-content:center;">${buildAbilityVisual(card.ability)}</div>` : ""}
         </div>
       </div>` : `
