@@ -5857,7 +5857,8 @@ const TIER_COLORS = { 'I':'#d0d0d0', 'II':'#44cc66', 'III':'#4488ff', 'IV':'#aa4
 // When hovering an ability card in hand, highlights grid cells affected by it
 function showAbilityZone(ability, _baseR, _baseC, _owner) {
   if (_zoneSuppressed) return;
-  const abilCol = (ABILITY_ICONS[ability] || {color:'#888'}).color;
+  // Red for ability zones (distinct from yellow placement adjacents)
+  const abilCol = _owner === 'ai' ? '#ff2244' : '#ff5533'; // enemy=bright red, player=orange-red
   // Use explicit position from placed card, or guess from nearest player card
   let baseR = (_baseR !== undefined) ? _baseR : 4;
   let baseC = (_baseC !== undefined) ? _baseC : 3;
@@ -5891,7 +5892,7 @@ function showAbilityZone(ability, _baseR, _baseC, _owner) {
     const ov = document.createElement('div');
     ov.setAttribute('data-az','1');
     ov.style.cssText = 'position:absolute;inset:0;z-index:7;pointer-events:none;border-radius:3px;'
-      + 'background:' + abilCol + '28;border:2px solid ' + abilCol + '99;'
+      + 'background:' + abilCol + '33;border:2px solid ' + abilCol + 'cc;'
       + 'box-shadow:inset 0 0 8px ' + abilCol + '22;';
     el.appendChild(ov);
   }
