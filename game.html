@@ -6894,7 +6894,7 @@ function renderGrid() {
 
 
   // Passive ability zone glows on placed cards with spatial effects
-  renderPassiveAbilityGlows(el);
+  try { renderPassiveAbilityGlows(el); } catch(e) { console.error("Passive glow error:", e.message, e.stack); }
 
   // Battle comparison indicators in gaps
   renderBattleIndicators(el);
