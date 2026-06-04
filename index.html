@@ -1537,6 +1537,8 @@ function showDeckSelect() {
 
 function showSplash() {
   stopCivVoice(); // Stop voice when going back to splash
+  const _mbar = document.getElementById('mobileLaunchBar');
+  if (_mbar) _mbar.style.display = 'none';
   document.getElementById('deckselect').classList.add('hidden');
   // Reset race bg
   const bg = document.getElementById('race-bg');
