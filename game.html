@@ -7385,9 +7385,11 @@ function showBattleTip(e, d) {
   const left = e.clientX + ttW + 20 > window.innerWidth ? e.clientX - ttW - 14 : e.clientX + 14;
 
 
+  // Clear fixed-corner positioning from card tooltip before cursor-follow
+  tt.style.right  = 'auto';
+  tt.style.bottom = 'auto';
+  tt.style.width  = '220px'; // battle tips are narrower than card tips
   tt.style.top  = Math.max(8, top)  + 'px';
-
-
   tt.style.left = Math.max(8, left) + 'px';
 
 
@@ -12285,14 +12287,9 @@ function showTip(e, card) {
 
 
   const ttH = tt.offsetHeight || 360;
-
-
+  tt.style.width  = '300px'; // reset from narrower battle tip
   tt.style.right  = '16px';
-
-
   tt.style.left   = 'auto';
-
-
   tt.style.bottom = '16px';
 
 
