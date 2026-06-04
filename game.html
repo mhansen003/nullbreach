@@ -3014,6 +3014,16 @@ button, [onclick] { touch-action: manipulation; }
 <!-- Multiplayer waiting banner: slim top bar, doesn't cover board -->
 
 
+<!-- MP turn timer bar — shows 60s countdown when it's your turn -->
+<div id="mpTurnTimer" style="display:none;position:fixed;top:44px;left:0;right:0;z-index:49999;height:4px;pointer-events:none;">
+  <div id="mpTimerBar" style="height:100%;width:100%;background:#00ffcc;transition:background 0.5s;transform-origin:left;"></div>
+</div>
+<div id="mpTurnBanner" style="display:none;position:fixed;top:44px;left:50%;transform:translateX(-50%);z-index:50000;
+  background:#00ffcc18;border:1px solid #00ffcc44;border-radius:0 0 8px 8px;padding:4px 20px;
+  font-family:'Orbitron',monospace;font-size:11px;letter-spacing:3px;color:#00ffcc;pointer-events:none;">
+  YOUR TURN <span id="mpTimerCount">1:00</span>
+</div>
+
 <div id="mpWaitOverlay" style="display:none;position:fixed;top:42px;left:50%;transform:translateX(-50%);z-index:50000;
 
 

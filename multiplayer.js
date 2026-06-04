@@ -64,6 +64,47 @@ let _mpPollInt  = null; // polling interval handle
 
 let _mpMyTurn   = _mpPlayer === 1; // P1 goes first
 
+// ── 60-second turn timer ──────────────────────────────────────────────────────
+let _mpTimerInterval = null;
+let _mpTimerSecs = 60;
+
+function mpStartTurnTimer() {
+  mpStopTurnTimer();
+  _mpTimerSecs = 60;
+  const bar   = document.getElementById('mpTimerBar');
+  const count = document.getElementById('mpTimerCount');
+  const timer = document.getElementById('mpTurnTimer');
+  const banner = document.getElementById('mpTurnBanner');
+  if (timer)  timer.style.display  = 'block';
+  if (banner) banner.style.display = 'block';
+  _mpTimerInterval = setInterval(() => {
+    _mpTimerSecs--;
+    const pct = Math.max(0, _mpTimerSecs / 60 * 100);
+    if (bar) {
+      bar.style.width = pct + '%';
+      bar.style.background = _mpTimerSecs > 30 ? '#00ffcc'
+        : _mpTimerSecs > 15 ? '#ffdd00' : '#ff4444';
+    }
+    if (count) {
+      const m = Math.floor(_mpTimerSecs / 60);
+      const s = String(_mpTimerSecs % 60).padStart(2, '0');
+      count.textContent = m + ':' + s;
+    }
+    if (_mpTimerSecs <= 0) {
+      mpStopTurnTimer();
+      if (typeof forfeitGame === 'function') forfeitGame();
+    }
+  }, 1000);
+}
+
+function mpStopTurnTimer() {
+  if (_mpTimerInterval) { clearInterval(_mpTimerInterval); _mpTimerInterval = null; }
+  const timer  = document.getElementById('mpTurnTimer');
+  const banner = document.getElementById('mpTurnBanner');
+  if (timer)  timer.style.display  = 'none';
+  if (banner) banner.style.display = 'none';
+}
+
 function mpShowWaiting(show) {
 
 
@@ -274,6 +315,9 @@ function mpApplyMove(move) {
 
       setTimeout(() => { _ov.style.display = 'none'; _ov.innerHTML = _orig; _ov.style.borderColor = _origBorder; }, 1400);
 
+      // Start 60s turn timer after flash
+      setTimeout(() => { if (!G.gameOver && G.turn !== 'ai') mpStartTurnTimer(); }, 1500);
+
 
     }, 620);
 
@@ -289,6 +333,7 @@ function mpStartPolling() {
   if (_mpPollInt) clearInterval(_mpPollInt);
 
 
+  mpStopTurnTimer(); // stop timer when waiting for opponent
   mpShowWaiting(true);
 
 
@@ -419,20 +464,13 @@ if (_mpRoom && _mpPlayer) {
 
 
     // P2 waits for P1's first move
-
-
     if (_mpPlayer === 2) {
-
-
-      G.turn = 'ai'; // disable player input until P1 moves
-
-
+      G.turn = 'ai';
       renderScoreHeader();
-
-
       mpStartPolling();
-
-
+    } else {
+      // P1 goes first — start their timer after a short delay
+      setTimeout(() => { if (!G.gameOver) mpStartTurnTimer(); }, 1000);
     }
 
 

@@ -7,6 +7,9 @@ function placeCard(card, r, c, owner) {
   card.used = true;
 
 
+  // Stop MP turn timer on placement
+  if (typeof mpStopTurnTimer === 'function') mpStopTurnTimer();
+
   applyPlacementAbility(card, r, c, owner);
   fireReactiveAbilities(r, c, card, owner);  // opponent ability cards react
   // Immediately recompute all battle results so ability edgeMod changes are visible
