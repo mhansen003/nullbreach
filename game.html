@@ -370,7 +370,7 @@ body {
   align-items: center; justify-content: center;
 
 
-  padding: 8px;
+  padding: 8px 8px 0;
 
 
   overflow: hidden;
@@ -1105,7 +1105,7 @@ body {
   background: transparent; border-top: 1px solid #0a0a1a44;
 
 
-  padding: 10px 14px 8px;  /* extra top for card pop-in bounce clearance */
+  padding: 2px 14px 8px;  /* reduced top gap */
 
 
   overflow: visible;
@@ -2635,10 +2635,10 @@ button, [onclick] { touch-action: manipulation; }
   </div>
 
 
-  <!-- User Guide button -->
+  <!-- User Guide button (hidden via CSS, in hamburger) -->
 
 
-  <div style="border-top:1px solid #1a1a28;margin-top:4px;padding-top:6px;">
+  <div id="fhGuideBtn" style="border-top:1px solid #1a1a28;margin-top:4px;padding-top:6px;">
 
 
     <button onclick="showGuide()" style="
@@ -6165,7 +6165,7 @@ function renderGrid() {
             const blast = document.createElement('div');
 
 
-            blast.style.cssText = `position:absolute;inset:0;pointer-events:none;z-index:3;border-radius:4px;background:linear-gradient(${gradDir},#ff660055 0%,#ff440022 35%,transparent 55%);`;
+            blast.style.cssText = `position:absolute;inset:0;pointer-events:none;z-index:3;border-radius:4px;background:linear-gradient(${gradDir},#ff660055 0%,#ff440022 35%,transparent 55%);animation:hazardPulse2 1.8s ease-in-out infinite;`;
 
 
             div.appendChild(blast);
@@ -6312,7 +6312,7 @@ function renderGrid() {
           const blast = document.createElement('div');
 
 
-          blast.style.cssText = `position:absolute;inset:0;pointer-events:none;z-index:2;border-radius:3px;background:linear-gradient(${gradDir},#ff660055 0%,#ff440022 42%,transparent 62%);`;
+          blast.style.cssText = `position:absolute;inset:0;pointer-events:none;z-index:2;border-radius:3px;background:linear-gradient(${gradDir},#ff660055 0%,#ff440022 42%,transparent 62%);animation:hazardPulse2 1.8s ease-in-out infinite;`;
 
 
           div.appendChild(blast);
@@ -7804,6 +7804,7 @@ function renderScoreHeader(_precomputed) {
 
 
   const sbAiName= document.getElementById('sbAiName');
+  const sbAiAvEl= document.getElementById('sbAiAvatar');
 
 
   const sbAiLead= document.getElementById('sbAiLead');
@@ -8481,7 +8482,7 @@ function renderHand() {
         group.style.cssText = 'display:flex;gap:8px;align-items:flex-end;flex-shrink:0;' +
 
 
-          'padding:8px 10px 6px;border-radius:10px;' +
+          'padding:8px 10px 6px 22px;border-radius:10px;' +
 
 
           'background:' + tCol + '08;' +
@@ -8502,10 +8503,10 @@ function renderHand() {
         var lbl = document.createElement('div');
 
 
-        lbl.style.cssText = 'position:absolute;top:-8px;left:10px;background:#080810;padding:0 6px;font-size:7px;letter-spacing:2px;color:'+tCol+';font-family:\'Courier New\',monospace;border:1px solid '+tCol+'44;border-radius:3px;cursor:pointer;user-select:none;';
+        lbl.style.cssText = 'position:absolute;left:0;top:0;bottom:0;width:18px;display:flex;align-items:center;justify-content:center;writing-mode:vertical-lr;transform:rotate(180deg);font-size:6px;letter-spacing:2px;border-radius:10px 0 0 10px;background:' + tCol + '18;border-right:1px solid ' + tCol + '33;cursor:pointer;user-select:none;color:'+tCol+';font-family:\'Courier New\',monospace;border:1px solid '+tCol+'44;border-radius:3px;cursor:pointer;user-select:none;';
 
 
-        lbl.textContent = 'TIER ' + tier + '  ✕';
+        lbl.textContent = tier;
 
 
         lbl.title = 'Click to collapse';
@@ -14064,7 +14065,9 @@ const GUIDE_PAGES = [
 @keyframes g4fade{0%{opacity:0}100%{opacity:1}}
 
 
-@keyframes g4pulse{0%,100%{box-shadow:0 0 10px #ff440055,inset 0 0 6px #ff220022}50%{box-shadow:0 0 28px #ff660088,inset 0 0 16px #ff440033}}
+@keyframes g4pulse{0%,100%{box-shadow:0 0 10px #ff440055,inset 0 0 6px #ff220022}
+@keyframes hazardPulse2 { 0%,100%{opacity:0.55} 50%{opacity:1} }
+50%{box-shadow:0 0 28px #ff660088,inset 0 0 16px #ff440033}}
 
 
 
@@ -14384,6 +14387,15 @@ const GUIDE_PAGES = [
 
 
 
+
+
+  /* Compact score panel: avatar + number only, name on hover via title */
+  #sbAiName, #sbPlayerName { display:none !important; }
+  #sbAiAvatar, #sbPlayerAvatar { width:44px !important; height:44px !important; cursor:help; }
+  #sbAiNum, #sbPlayerNum { font-size:20px !important; }
+  #fhAi, #fhPlayer { gap:8px !important; padding:3px 6px !important; }
+  /* Hide user guide button - it's in hamburger menu now */
+  #fhGuideBtn { display:none !important; }
 
 </style>
 
