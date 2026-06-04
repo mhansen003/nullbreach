@@ -149,11 +149,11 @@ function _lbRenderModal() {
 
         <!-- Opponent -->
         <div style="display:flex;align-items:center;gap:12px;flex:1;min-width:0;">
-          <div style="font-size:9px;letter-spacing:2px;color:#2a2a3e;font-family:'Courier New',monospace;flex-shrink:0;width:16px;text-align:right;">vs</div>
+          <div style="font-size:9px;letter-spacing:2px;color:#444466;font-family:'Courier New',monospace;flex-shrink:0;width:16px;text-align:right;">vs</div>
           <img src="${aF.img}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;object-position:top;border:2px solid ${aF.color}${has?'cc':'44'};flex-shrink:0;${has?`box-shadow:0 0 12px ${aF.color}44;`:''}">
           <div>
             <div style="font-family:'Orbitron',monospace;font-size:10px;letter-spacing:1px;color:${has?aF.color:aF.color+'66'};font-weight:700;">${aF.short}</div>
-            <div style="font-family:'Courier New',monospace;font-size:8px;letter-spacing:1px;color:#2a2a3e;margin-top:1px;">${aF.name}</div>
+            <div style="font-family:'Courier New',monospace;font-size:8px;letter-spacing:1px;color:#556677;margin-top:1px;">${aF.name}</div>
           </div>
         </div>
 
@@ -162,7 +162,7 @@ function _lbRenderModal() {
           width:70px;text-align:center;flex-shrink:0;
           font-family:'Orbitron',monospace;font-weight:700;letter-spacing:3px;
           font-size:${has?'17px':'12px'};
-          color:${has?'#ffdd00':'#252535'};
+          color:${has?'#ffdd00':'#ffffff44'};
           ${has?'text-shadow:0 0 12px #ffdd0055;':''}
         ">${inits}</div>
 
@@ -173,7 +173,7 @@ function _lbRenderModal() {
         <div style="
           width:72px;text-align:right;flex-shrink:0;
           font-family:'Courier New',monospace;font-size:12px;letter-spacing:1px;
-          color:${has?'#00ffcc':'#202030'};
+          color:${has?'#00ffcc':'#ffffff33'};
           ${has?'text-shadow:0 0 8px #00ffcc33;':''}
         ">${delta!==null?'+'+delta+' VP':'--'}</div>
       </div>`;
@@ -251,10 +251,10 @@ function _lbRenderModal() {
 
     <!-- Column labels -->
     <div style="flex-shrink:0;display:flex;align-items:center;gap:0;padding:6px 24px;background:#020208;border-bottom:1px solid #0a0a16;">
-      <div style="flex:1;font-size:8px;letter-spacing:3px;color:#1e1e30;font-family:'Courier New',monospace;">OPPONENT</div>
-      <div style="width:70px;text-align:center;font-size:8px;letter-spacing:2px;color:#1e1e30;font-family:'Courier New',monospace;">INITIALS</div>
+      <div style="flex:1;font-size:8px;letter-spacing:3px;color:#556677;font-family:'Courier New',monospace;">OPPONENT</div>
+      <div style="width:70px;text-align:center;font-size:8px;letter-spacing:2px;color:#556677;font-family:'Courier New',monospace;">INITIALS</div>
       <div style="width:7px;"></div>
-      <div style="width:72px;text-align:right;font-size:8px;letter-spacing:2px;color:#1e1e30;font-family:'Courier New',monospace;">WIN BY</div>
+      <div style="width:72px;text-align:right;font-size:8px;letter-spacing:2px;color:#556677;font-family:'Courier New',monospace;">WIN BY</div>
     </div>
 
     <!-- Opponent rows -->
