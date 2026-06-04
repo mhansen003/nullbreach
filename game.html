@@ -5855,7 +5855,7 @@ const TIER_COLORS = { 'I':'#d0d0d0', 'II':'#44cc66', 'III':'#4488ff', 'IV':'#aa4
 
 // ── ABILITY ZONE PREVIEW ─────────────────────────────────────────────────────
 // When hovering an ability card in hand, highlights grid cells affected by it
-function showAbilityZone(ability, _baseR, _baseC) {
+function showAbilityZone(ability, _baseR, _baseC, _owner) {
   if (_zoneSuppressed) return;
   const abilCol = (ABILITY_ICONS[ability] || {color:'#888'}).color;
   // Use explicit position from placed card, or guess from nearest player card
@@ -5910,7 +5910,8 @@ function showAbilityZone(ability, _baseR, _baseC) {
   const pattern = PATTERNS[ability];
   if (!pattern) return;
   pattern.forEach(({dr,dc}) => {
-    const r = baseR+dr, c = baseC+dc;
+    const fwd = (_owner==='ai') ? -1 : 1;
+    const r = baseR+(dr*fwd), c = baseC+dc;
     if (r<0||r>=5||c<0||c>=7) return;
     const el = document.querySelector('.cell[data-r="'+r+'"][data-c="'+c+'"]');
     if (el) mkOverlay(el);
@@ -6310,6 +6311,7 @@ function renderGrid() {
 
 
           ${cell.card.stonewall_victim ? `<div style="position:absolute;inset:0;z-index:4;pointer-events:none;border-radius:4px;background:rgba(0,0,0,0.35);display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px;"><span style="font-size:8px;letter-spacing:1px;color:#777;font-family:'Courier New',monospace;background:#0a0a14;padding:2px 4px;border-radius:3px;border:1px solid #2a2a2a;opacity:0.9;">BLOCKED</span></div>` : ''}
+          ${(()=>{ const m=cell.card.edgeMod; const pen=(m?.n||0); return pen<0?`<div style="position:absolute;top:3px;left:3px;z-index:5;pointer-events:none;background:#880000cc;border:1px solid #ff444488;border-radius:3px;padding:1px 4px;font-size:9px;font-weight:bold;color:#ff8888;font-family:'Courier New',monospace;">${pen} edges</div>`:''; })()}
 
 
         `;
@@ -6385,7 +6387,7 @@ function renderGrid() {
 
 
             showTip(ev, cardWithBuf);
-            if (cell.card.ability) showAbilityZone(cell.card.ability, r, c);
+            if (cell.card.ability) showAbilityZone(cell.card.ability, r, c, cell.owner);
 
           }
 
@@ -6965,7 +6967,8 @@ function renderPassiveAbilityGlows(el) {
       const zone = PASSIVE_ZONES[cell.card.ability];
       if (!zone) continue;
       zone.dirs.forEach(({dr, dc}) => {
-        const nr = r + dr, nc = c + dc;
+        const _fwd = (cell.owner==='ai') ? -1 : 1;
+        const nr = r + (dr*_fwd), nc = c + dc;
         if (nr < 0 || nr >= 5 || nc < 0 || nc >= 7) return;
         const targetCell = G.grid[nr][nc];
         // For negative abilities: only highlight enemy cells or empty cells
