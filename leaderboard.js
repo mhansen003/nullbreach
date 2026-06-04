@@ -40,22 +40,23 @@ function _lbSave(data) {
 function _lbKey(p, a) { return p + '_vs_' + a; }
 
 // ── Win hook ──────────────────────────────────────────────────────────────────
-function checkLeaderboardRecord(playerFaction, aiFaction, playerVP, aiVP) {
+function checkLeaderboardRecord(playerFaction, aiFaction, playerVP, aiVP, mode) {
   if (!playerFaction || !aiFaction || playerVP <= aiVP) return;
   const delta    = playerVP - aiVP;
   const existing = _lbLoad()[_lbKey(playerFaction, aiFaction)];
   if (!existing || delta > (existing.delta || 0)) {
-    setTimeout(() => showInitialsEntry(playerFaction, aiFaction, delta), 800);
+    setTimeout(() => showInitialsEntry(playerFaction, aiFaction, delta, mode || 'pve'), 800);
   }
 }
-function saveLeaderboardEntry(pFac, aFac, initials, delta) {
+function saveLeaderboardEntry(pFac, aFac, initials, delta, mode) {
   const data = _lbLoad();
-  data[_lbKey(pFac, aFac)] = { initials: initials.toUpperCase(), delta };
+  data[_lbKey(pFac, aFac)] = { initials: initials.toUpperCase(), delta, mode: mode || 'pve' };
   _lbSave(data);
 }
 
 // ── Initials entry ────────────────────────────────────────────────────────────
-function showInitialsEntry(playerFaction, aiFaction, delta) {
+function showInitialsEntry(playerFaction, aiFaction, delta, mode) {
+  var _lbMode = mode || 'pve';
   const pF = _LB_FACTIONS[playerFaction] || { name:playerFaction, color:'#00ffcc', img:'' };
   const aF = _LB_FACTIONS[aiFaction]    || { name:aiFaction,    color:'#ff0080', img:'' };
 
@@ -84,7 +85,7 @@ function showInitialsEntry(playerFaction, aiFaction, delta) {
       </div>
       <div style="display:flex;gap:12px;justify-content:center;">
         <button onclick="_lbSkipInitials()" style="padding:10px 24px;border-radius:6px;cursor:pointer;background:transparent;border:1px solid #222244;color:#444466;font-family:'Courier New',monospace;font-size:11px;letter-spacing:2px;transition:all 0.2s;" onmouseenter="this.style.borderColor='#555577';this.style.color='#8888aa'" onmouseleave="this.style.borderColor='#222244';this.style.color='#444466'">SKIP</button>
-        <button onclick="_lbSubmitInitials('${playerFaction}','${aiFaction}',${delta})" style="padding:10px 28px;border-radius:6px;cursor:pointer;background:linear-gradient(135deg,#aa8800,#776600);border:1px solid #ffdd0077;color:#ffdd00;font-family:'Orbitron',monospace;font-size:11px;letter-spacing:2px;box-shadow:0 0 18px #ffdd0033;transition:all 0.2s;" onmouseenter="this.style.boxShadow='0 0 28px #ffdd0066'" onmouseleave="this.style.boxShadow='0 0 18px #ffdd0033'">SUBMIT</button>
+        <button onclick="_lbSubmitInitials('${playerFaction}','${aiFaction}',${delta},'${_lbMode}')" style="padding:10px 28px;border-radius:6px;cursor:pointer;background:linear-gradient(135deg,#aa8800,#776600);border:1px solid #ffdd0077;color:#ffdd00;font-family:'Orbitron',monospace;font-size:11px;letter-spacing:2px;box-shadow:0 0 18px #ffdd0033;transition:all 0.2s;" onmouseenter="this.style.boxShadow='0 0 28px #ffdd0066'" onmouseleave="this.style.boxShadow='0 0 18px #ffdd0033'">SUBMIT</button>
       </div>
     </div>`;
   document.body.appendChild(el);
@@ -112,13 +113,13 @@ function showInitialsEntry(playerFaction, aiFaction, delta) {
   });
 }
 function _lbSkipInitials() { document.getElementById('lbInitialsOverlay')?.remove(); }
-function _lbSubmitInitials(pFac, aFac, delta) {
+function _lbSubmitInitials(pFac, aFac, delta, mode) {
   try {
     var a=(document.getElementById('lbInit0')||{}).value||'-';
     var b=(document.getElementById('lbInit1')||{}).value||'-';
     var c=(document.getElementById('lbInit2')||{}).value||'-';
     var initials=(a+b+c).toUpperCase().padEnd(3,'-');
-    saveLeaderboardEntry(pFac, aFac, initials, delta);
+    saveLeaderboardEntry(pFac, aFac, initials, delta, mode);
   } catch(e) {}
   // Remove overlay first: always, even if save failed
   var ov = document.getElementById('lbInitialsOverlay');
@@ -157,6 +158,8 @@ function _lbRenderModal() {
     const has   = !!entry;
     const inits = entry?.initials || 'AAA';
     const delta = entry?.delta    ?? null;
+    const mode  = entry?.mode     || null;
+    const isPvP = mode === 'pvp';
 
     return `
       <div style="
@@ -176,14 +179,11 @@ function _lbRenderModal() {
           <div style="font-family:'Orbitron',monospace;font-size:11px;letter-spacing:1px;color:${has?aF.color:'#aabbcc'};font-weight:700;">${aF.short}</div>
         </div>
 
-        <!-- Initials -->
-        <div style="
-          width:70px;text-align:center;flex-shrink:0;
-          font-family:'Orbitron',monospace;font-weight:900;letter-spacing:3px;
-          font-size:17px;
-          color:${has?'#ffdd00':'#ffffff33'};
-          ${has?'text-shadow:0 0 12px #ffdd0055;':''}
-        ">${inits}</div>
+        <!-- Initials + mode badge -->
+        <div style="width:82px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:2px;">
+          <div style="font-family:'Orbitron',monospace;font-weight:900;letter-spacing:3px;font-size:17px;color:${has?'#ffdd00':'#ffffff33'};${has?'text-shadow:0 0 12px #ffdd0055;':''}">${inits}</div>
+          ${has ? `<div style="font-size:7px;letter-spacing:2px;font-family:'Courier New',monospace;padding:1px 5px;border-radius:3px;${isPvP?'color:#cc88ff;background:#8855ff18;border:1px solid #8855ff44;':'color:#00ffcc88;background:#00ffcc08;border:1px solid #00ffcc22;'}">${isPvP?'PvP':'PvE'}</div>` : ''}
+        </div>
 
         <!-- Divider -->
         <div style="width:1px;height:28px;background:#0d0d1a;flex-shrink:0;margin:0 6px;"></div>
@@ -290,6 +290,10 @@ function _lbRenderModal() {
   </div>`;
 
   document.body.appendChild(modal);
+
+  // Hide the mobile LAUNCH DECK bar while leaderboard is open
+  const _lb = document.getElementById('mobileLaunchBar') || document.getElementById('desktopLaunchBar');
+  if (_lb) _lb.style.display = 'none';
 }
 
 function _lbSetTab(id) {
@@ -301,5 +305,12 @@ function hideLeaderboard() {
   const m = document.getElementById('lbModal');
   if (!m) return;
   m.style.opacity='0'; m.style.transition='opacity 0.18s';
-  setTimeout(()=>m.remove(), 200);
+  setTimeout(()=>{
+    m.remove();
+    // Restore LAUNCH DECK bar
+    const _lb = document.getElementById('mobileLaunchBar');
+    if (_lb && window.selectedRace) _lb.style.display = 'block';
+    const _dlb = document.getElementById('desktopLaunchBar');
+    if (_dlb && window.selectedRace) _dlb.style.display = 'flex';
+  }, 200);
 }

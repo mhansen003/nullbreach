@@ -1781,9 +1781,46 @@ function selectMode(mode) {
   }
 }
 
+function promptP1Initials() {
+  const ov = document.createElement('div');
+  ov.id = 'p1InitialsOv';
+  ov.style.cssText = 'position:fixed;inset:0;z-index:300000;display:flex;align-items:center;justify-content:center;background:#000000cc;backdrop-filter:blur(6px);';
+  ov.innerHTML = `
+    <div style="background:#080810;border:1px solid #8855ff55;border-radius:14px;padding:28px 32px;max-width:340px;width:90%;text-align:center;font-family:'Courier New',monospace;box-shadow:0 0 50px #8855ff22;">
+      <div style="font-family:'Orbitron',monospace;font-size:13px;letter-spacing:4px;color:#cc99ff;margin-bottom:6px;">ENTER YOUR TAG</div>
+      <div style="font-size:11px;color:#555;letter-spacing:2px;margin-bottom:20px;">shown to your opponent when they join</div>
+      <div style="display:flex;gap:8px;justify-content:center;margin-bottom:24px;">
+        ${[0,1,2].map(i=>`<input id="p1Init${i}" maxlength="1" type="text" style="width:52px;height:60px;text-align:center;background:#0a0a18;border:2px solid #8855ff44;color:#cc99ff;font-size:28px;font-weight:700;font-family:'Orbitron',monospace;border-radius:8px;caret-color:transparent;text-transform:uppercase;outline:none;" placeholder="-">`).join('')}
+      </div>
+      <div style="display:flex;gap:10px;justify-content:center;">
+        <button onclick="document.getElementById('p1InitialsOv').remove()" style="padding:10px 20px;border-radius:6px;cursor:pointer;background:transparent;border:1px solid #222244;color:#445;font-family:inherit;font-size:11px;letter-spacing:2px;">SKIP</button>
+        <button id="p1InitSubmit" onclick="_submitP1Initials()" style="padding:10px 24px;border-radius:6px;cursor:pointer;background:linear-gradient(135deg,#5533aa,#3322aa);border:1px solid #8855ff77;color:#cc99ff;font-family:'Orbitron',monospace;font-size:11px;letter-spacing:2px;">CREATE ROOM →</button>
+      </div>
+    </div>`;
+  document.body.appendChild(ov);
+  [0,1,2].forEach(i => {
+    const inp = document.getElementById('p1Init'+i);
+    if (i===0) setTimeout(()=>{inp.focus();inp.select();},50);
+    inp.addEventListener('input',function(){this.value=this.value.toUpperCase().replace(/[^A-Z]/g,'');if(this.value.length===1&&i<2){setTimeout(()=>{var n=document.getElementById('p1Init'+(i+1));if(n){n.focus();n.select();}},0);}});
+    inp.addEventListener('keydown',function(e){if(e.key==='Backspace'&&!this.value&&i>0){setTimeout(()=>{var p=document.getElementById('p1Init'+(i-1));if(p){p.focus();p.select();}},0);}});
+    inp.addEventListener('focus',function(){this.style.borderColor='#8855ff';this.style.boxShadow='0 0 12px #8855ff44';});
+    inp.addEventListener('blur',function(){this.style.borderColor='#8855ff44';this.style.boxShadow='none';});
+  });
+}
+function _submitP1Initials() {
+  const a=document.getElementById('p1Init0')?.value||'-';
+  const b=document.getElementById('p1Init1')?.value||'-';
+  const c=document.getElementById('p1Init2')?.value||'-';
+  window._p1Initials = (a+b+c).toUpperCase().padEnd(3,'-');
+  document.getElementById('p1InitialsOv')?.remove();
+  createRoom();
+}
+
 async function createRoom() {
   if (!selectedRace) return;
   const roomId = genRoomId();
+  const initials = window._p1Initials || '---';
+  window._p1Initials = null;
   const inviteUrl = window.location.origin + window.location.pathname + '?room=' + roomId;
 
   // POST room to Supabase
@@ -1792,6 +1829,7 @@ async function createRoom() {
     p1_faction: selectedRace.id,
     p1_color: selectedRace.color,
     p1_name: selectedRace.name,
+    p1_initials: initials,
     status: 'waiting',
     moves: []
   });
@@ -1804,7 +1842,9 @@ async function createRoom() {
   m.innerHTML = `
     <div style="background:#07070f;border:1px solid #8855ff88;border-radius:12px;padding:32px 40px;max-width:500px;width:92%;text-align:center;box-shadow:0 0 60px #8855ff22;">
       <div style="font-family:'Orbitron',monospace;font-size:18px;letter-spacing:4px;color:#8855ff;margin-bottom:6px;">INVITE A FRIEND</div>
-      <div style="font-size:13px;color:#555;letter-spacing:1px;margin-bottom:22px;">Send this link: the game begins when they select their deck</div>
+      <div style="font-size:13px;color:#555;letter-spacing:1px;margin-bottom:${initials!=='---'?'6px':'22px'};">Send this link: the game begins when they select their deck</div>
+      ${initials!=='---'?`<div style="font-size:12px;color:#cc99ff;letter-spacing:3px;margin-bottom:16px;font-family:'Orbitron',monospace;">${initials} · WAITING</div>`:''}
+
       <div style="background:#0a0a18;border:1px solid #1a1a28;border-radius:6px;padding:14px;font-size:12px;color:#00ffcc;word-break:break-all;margin-bottom:20px;line-height:1.5;">${inviteUrl}</div>
       <div style="display:flex;gap:12px;justify-content:center;margin-bottom:24px;">
         <button onclick="navigator.clipboard.writeText('${inviteUrl}');this.textContent='COPIED ✓';this.style.borderColor='#00ffcc88';" style="background:#0a1a2e;border:1px solid #00ffcc66;color:#00ffcc;font-family:'Orbitron',inherit;font-size:13px;letter-spacing:2px;padding:12px 28px;cursor:pointer;border-radius:5px;transition:all 0.2s;">COPY LINK</button>
@@ -1827,7 +1867,7 @@ async function createRoom() {
     if (data[0]?.status === 'playing') {
       clearInterval(pollRoom); clearInterval(dotTimer); m.remove();
       stopCivVoice();
-      const params = new URLSearchParams({ race: selectedRace.id, color: selectedRace.color, name: selectedRace.name });
+      const params = new URLSearchParams({ race: selectedRace.id, color: selectedRace.color, name: selectedRace.name, p1initials: initials });
       window.location.href = `game.html?${params}&difficulty=${_selectedDifficulty}&room=${roomId}&player=1&p2faction=${data[0].p2_faction}`;
     }
   }, 2000);
@@ -1915,7 +1955,7 @@ function startGame() {
       display:flex;align-items:center;justify-content:flex-start;
       font-family:'Share Tech Mono','Courier New',monospace;flex-direction:column;gap:16px;overflow-y:auto;padding:24px 12px;box-sizing:border-box;`;
     ov.innerHTML = `
-      <div style="font-family:'Orbitron',monospace;font-size:clamp(14px,4vw,20px);letter-spacing:clamp(2px,1vw,5px);color:#fff;text-shadow:0 0 20px #8855ffaa;text-align:center;padding:0 12px;">YOU'VE BEEN CHALLENGED</div>
+      <div id="challengeTitle" style="font-family:'Orbitron',monospace;font-size:clamp(14px,4vw,20px);letter-spacing:clamp(2px,1vw,5px);color:#fff;text-shadow:0 0 20px #8855ffaa;text-align:center;padding:0 12px;">YOU'VE BEEN CHALLENGED</div>
       <div style="font-size:clamp(10px,3vw,13px);color:#555;letter-spacing:clamp(1px,0.5vw,2px);margin-bottom:4px;text-align:center;">SELECT YOUR CIVILIZATION</div>
       <div id="joinRaceGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,200px));gap:10px;width:min(860px,92vw);overflow:visible;padding:4px 4px 12px;justify-content:center;"></div>
       <div style="position:sticky;bottom:0;left:0;right:0;display:flex;justify-content:center;width:100%;padding:12px 8px 8px;box-sizing:border-box;background:linear-gradient(to bottom,transparent,#000000cc 30%);z-index:10;">
@@ -1931,10 +1971,10 @@ function startGame() {
 
     let _joinRace = null;
 
-    // Fetch room: check status + P1 faction
+    // Fetch room: check status + P1 faction + P1 initials
     let _p1FactionId = null;
     try {
-      const _rr = await sbGet(`/rest/v1/gz_rooms?id=eq.${_roomId}&select=p1_faction,p1_name,status,p2_faction`);
+      const _rr = await sbGet(`/rest/v1/gz_rooms?id=eq.${_roomId}&select=p1_faction,p1_name,p1_initials,status,p2_faction`);
       const _rd = await _rr.json();
 
       // Game already started: lock out the 3rd+ person
@@ -1950,6 +1990,14 @@ function startGame() {
       }
 
       _p1FactionId = _rd[0]?.p1_faction || null;
+      const _p1Initials = _rd[0]?.p1_initials || null;
+
+      // Show P1 initials in the challenge title if available
+      if (_p1Initials && _p1Initials !== '---') {
+        const titleEl = document.getElementById('challengeTitle');
+        if (titleEl) titleEl.innerHTML = `<span style="color:#cc99ff;">${_p1Initials}</span> WANTS TO CHALLENGE YOU`;
+      }
+
       if (_p1FactionId) {
         const _p1Name = _rd[0]?.p1_name || _p1FactionId;
         document.querySelector('#joinRaceGrid')?.insertAdjacentHTML('beforebegin',
@@ -2002,12 +2050,35 @@ function startGame() {
     });
 
     window._joinRace = () => _joinRace;
+
+    // Add P2 initials input above the JOIN button
+    const _initialsRow = document.createElement('div');
+    _initialsRow.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:8px;padding:12px 0 4px;';
+    _initialsRow.innerHTML = `
+      <div style="font-size:10px;letter-spacing:3px;color:#555;font-family:'Orbitron',monospace;">YOUR TAG (OPTIONAL)</div>
+      <div style="display:flex;gap:8px;">
+        ${[0,1,2].map(i=>`<input id="p2Init${i}" maxlength="1" type="text" style="width:44px;height:52px;text-align:center;background:#0a0a18;border:2px solid #8855ff33;color:#cc99ff;font-size:24px;font-weight:700;font-family:'Orbitron',monospace;border-radius:7px;caret-color:transparent;text-transform:uppercase;outline:none;" placeholder="-">`).join('')}
+      </div>`;
+    document.querySelector('div[style*="position:sticky"]')?.insertAdjacentElement('beforebegin', _initialsRow);
+    [0,1,2].forEach(i => {
+      const inp = document.getElementById('p2Init'+i);
+      if (!inp) return;
+      inp.addEventListener('input',function(){this.value=this.value.toUpperCase().replace(/[^A-Z]/g,'');if(this.value.length===1&&i<2){setTimeout(()=>{var n=document.getElementById('p2Init'+(i+1));if(n){n.focus();n.select();}},0);}});
+      inp.addEventListener('keydown',function(e){if(e.key==='Backspace'&&!this.value&&i>0){setTimeout(()=>{var p=document.getElementById('p2Init'+(i-1));if(p){p.focus();p.select();}},0);}});
+      inp.addEventListener('focus',function(){this.style.borderColor='#8855ff';this.style.boxShadow='0 0 10px #8855ff33';});
+      inp.addEventListener('blur',function(){this.style.borderColor='#8855ff33';this.style.boxShadow='none';});
+    });
   });
 })();
 
 async function joinRoom(roomId) {
   const race = window._joinRace();
   if (!race) return;
+  // Collect P2 initials if entered
+  const _p2i = (document.getElementById('p2Init0')?.value||'-') +
+               (document.getElementById('p2Init1')?.value||'-') +
+               (document.getElementById('p2Init2')?.value||'-');
+  window._p2Initials = _p2i.toUpperCase().padEnd(3,'-');
   const btn = document.getElementById('joinBtn');
   btn.textContent = 'JOINING...'; btn.disabled = true;
 
@@ -2025,11 +2096,12 @@ async function joinRoom(roomId) {
   sessionStorage.setItem('gz_ai_race', p1Faction);
 
   await sbPatch(`/rest/v1/gz_rooms?id=eq.${roomId}`, {
-    p2_faction: race.id, p2_color: race.color, p2_name: race.name, status: 'playing'
+    p2_faction: race.id, p2_color: race.color, p2_name: race.name,
+    p2_initials: window._p2Initials || '---', status: 'playing'
   });
 
   stopCivVoice();
-  const params = new URLSearchParams({ race: race.id, color: race.color, name: race.name });
+  const params = new URLSearchParams({ race: race.id, color: race.color, name: race.name, p2initials: window._p2Initials || '---' });
   window.location.href = `game.html?${params}&room=${roomId}&player=2&aifaction=${p1Faction}`;
 }
 
@@ -2143,7 +2215,7 @@ function quickStartGame() {
         onmouseleave="this.style.borderColor='#8855ff99';this.style.color='#cc99ff';this.style.background='#0d0818'">
         ← BACK
       </button>
-      <button id="wizNextBtn" disabled onclick="if(_selectedMode==='computer')wizGoTo(2);else if(selectedRace)createRoom();else alert('Please select your faction first, then choose Invite Friend.')" style="
+      <button id="wizNextBtn" disabled onclick="if(_selectedMode==='computer')wizGoTo(2);else if(selectedRace)promptP1Initials();else alert('Please select your faction first, then choose Invite Friend.')" style="
         background:#0a0a14;border:2px solid #2a3a2a;color:#2a4a2a;
         font-family:'Orbitron',monospace;font-size:13px;letter-spacing:3px;
         padding:12px 28px;border-radius:6px;cursor:not-allowed;

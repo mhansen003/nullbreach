@@ -171,9 +171,9 @@ function checkWin() {
 
   const pWon = s.pVP > s.aVP, draw = s.pVP === s.aVP;
 
-  // Leaderboard record check: only on player win, not AI/multiplayer
-  if (pWon && !_mpRoom && typeof checkLeaderboardRecord === 'function') {
-    checkLeaderboardRecord(window.playerRaceId, window.aiRaceId, s.pVP, s.aVP);
+  // Leaderboard record check on player win (PvE and PvP)
+  if (pWon && typeof checkLeaderboardRecord === 'function') {
+    checkLeaderboardRecord(window.playerRaceId, window.aiRaceId, s.pVP, s.aVP, _mpRoom ? 'pvp' : 'pve');
   }
 
 
