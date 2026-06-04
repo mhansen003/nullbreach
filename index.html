@@ -615,9 +615,8 @@ button, [onclick] { touch-action: manipulation; }
     justify-content: space-between !important;
   }
 
-  /* Audio controls */
-  #audioControls { bottom: auto !important; top: 8px !important; right: 8px !important; }
-  #muteBtn, #voiceMuteBtn { font-size: 9px !important; padding: 3px 7px !important; letter-spacing: 1px !important; }
+  /* Audio controls: hide on mobile (BACK button occupies top-right) */
+  #audioControls { display: none !important; }
 
   /* Mode tile labels */
   #modeComputer > div:last-child > div,
