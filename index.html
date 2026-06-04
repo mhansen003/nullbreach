@@ -567,68 +567,64 @@ button, [onclick] { touch-action: manipulation; }
 
   /* ── WIZARD MODAL ── */
   #opponentModal {
-    padding: 16px 12px 80px !important;
-    gap: 14px !important;
+    overflow: hidden !important;
+    padding: 12px 0 0 !important;
+    gap: 10px !important;
     justify-content: flex-start !important;
+    align-items: center !important;
   }
   /* Step headings */
   #wizStep1 > div:first-child,
   #wizStep2 > div:first-child,
   #wizStep3 > div:first-child { font-size: 15px !important; letter-spacing: 3px !important; }
 
+  /* Steps 1+2 scroll independently if needed */
+  #wizStep1, #wizStep2 { gap: 16px !important; overflow-y: auto !important; padding: 4px 12px 16px !important; width: 100% !important; }
+
   /* Step 1 mode tiles: stack vertically, full width */
-  #wizStep1 > div:nth-child(2) { flex-direction: column !important; align-items: center !important; gap: 10px !important; }
+  #wizStep1 > div:nth-child(2) { flex-direction: column !important; align-items: center !important; gap: 16px !important; }
   #modeComputer, #modeFriend { width: min(300px, 88vw) !important; height: 96px !important; }
 
-  /* Step 2 difficulty tiles: 1 column */
-  #wizStep2 > div:nth-child(2) { flex-direction: column !important; align-items: center !important; gap: 8px !important; }
-  #diff-passive, #diff-balanced, #diff-aggressive { width: min(300px, 88vw) !important; height: 80px !important; }
+  /* Step 2 difficulty tiles: stacked vertically */
+  #wizStep2 > div:nth-child(2) { flex-direction: column !important; align-items: center !important; gap: 10px !important; width: 100% !important; }
+  #diff-passive, #diff-balanced, #diff-aggressive { width: min(310px, 88vw) !important; max-width: none !important; height: 100px !important; flex-shrink: 0 !important; }
 
-  /* Step gaps */
-  #wizStep1, #wizStep2 { gap: 16px !important; }
-  #wizStep3 { gap: 12px !important; }
-
-  /* BACK/NEXT button rows: full-width, always reachable */
+  /* BACK/NEXT button rows */
   #wizStep1 > div:last-child,
   #wizStep2 > div:last-child { width: min(300px, 88vw); justify-content: space-between !important; }
 
-  /* Opponent grid: 2 columns */
+  /* Step 3: flex column so grid scrolls and buttons stay at bottom */
+  #wizStep3 {
+    flex: 1 !important; min-height: 0 !important; overflow: hidden !important;
+    display: flex !important; flex-direction: column !important;
+    gap: 0 !important; width: 100% !important; padding: 0 !important;
+  }
+  #wizStep3 > div:first-child { flex-shrink: 0 !important; padding: 0 0 8px !important; }
   #opponentGrid {
+    flex: 1 !important; min-height: 0 !important;
+    overflow-y: auto !important; -webkit-overflow-scrolling: touch !important;
     grid-template-columns: repeat(2, minmax(0,1fr)) !important;
-    max-width: min(360px, 92vw) !important;
-    gap: 8px !important; width: 92vw !important; padding: 8px !important;
+    width: 92vw !important; gap: 8px !important; padding: 8px !important;
+    max-width: none !important;
+  }
+  /* Button bar: static at bottom, never overlaps grid */
+  #wizStep3 > div:last-child {
+    flex-shrink: 0 !important; position: static !important;
+    width: 100% !important; padding: 10px 16px 14px !important;
+    box-sizing: border-box !important; gap: 12px !important;
+    justify-content: space-between !important;
   }
 
-  /* Audio controls: move to top-right so they don't collide with bottom launch bar */
+  /* Audio controls */
   #audioControls { bottom: auto !important; top: 8px !important; right: 8px !important; }
-  #muteBtn, #voiceMuteBtn {
-    font-size: 9px !important; padding: 3px 7px !important;
-    letter-spacing: 1px !important;
-  }
+  #muteBtn, #voiceMuteBtn { font-size: 9px !important; padding: 3px 7px !important; letter-spacing: 1px !important; }
 
-  /* ── WIZARD: mode tile labels — white text + strong shadow for contrast ── */
+  /* Mode tile labels */
   #modeComputer > div:last-child > div,
   #modeFriend   > div:last-child > div {
     color: #fff !important;
     font-size: 17px !important;
     text-shadow: 0 0 16px #000, 0 2px 8px #000, 0 0 40px #000 !important;
-  }
-  /* Extra spacing between PvE/PvP tiles */
-  #wizStep1 > div:nth-child(2) { gap: 16px !important; }
-
-  /* Difficulty tiles: 3-column row on mobile (less height, more context visible) */
-  #wizStep2 > div:nth-child(2) {
-    flex-direction: row !important;
-    flex-wrap: nowrap !important;
-    gap: 8px !important;
-    width: 92vw !important;
-    justify-content: center !important;
-  }
-  #diff-passive, #diff-balanced, #diff-aggressive {
-    width: calc(30vw - 4px) !important;
-    max-width: none !important;
-    height: 96px !important;
-    flex-shrink: 1 !important;
   }
 }
 
