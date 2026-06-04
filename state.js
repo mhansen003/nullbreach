@@ -171,6 +171,9 @@ function initGame() {
 
   G.aiHand.forEach(c => { if (!c.edgeMod) c.edgeMod = {n:0,s:0,e:0,w:0}; });
 
+  // Re-render hand now that abilities are assigned (stars + ability tags)
+  renderHand();
+
 
 
 
