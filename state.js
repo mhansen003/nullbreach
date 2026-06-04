@@ -265,10 +265,10 @@ function initGame() {
         const _hz = _shuffledH[_placed];
 
 
-        // P2 uses 4-_hr so hazard appears at visual row 4-_hr (symmetric with P1 visual row _hr)
-        // Column also mirrors for full 180 degree flip
-        const _hzR = (_mpPlayer === 2) ? (4 - _hr) : _hr;
-        const _hzC = (_mpPlayer === 2) ? (6 - _hc) : _hc;
+        // Both players store hazard at same game coords;
+        // P2 reversed rendering [4,3,2,1,0]/[6,5,4,3,2,1,0] auto-mirrors visual position.
+        const _hzR = _hr;
+        const _hzC = _hc;
         G.grid[_hzR][_hzC] = { card: { ..._hz, power:0, tier:'I', edges:{n:0,s:0,e:0,w:0}, edgeMod:{n:0,s:0,e:0,w:0}, used:false, isHazard:true }, owner:'hazard' };
 
 
