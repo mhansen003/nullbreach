@@ -477,7 +477,10 @@ function onCellClick(r, c) {
       if (_mpRoom && _mpPlayer) {
         const _fSeed = Math.floor(Math.random() * 1000000);
         window._mpSeed = seededRand(_fSeed);
-        mpSubmitMove(_placedCardId || 'unknown', r, c, _fSeed, true);
+        // P2 submits mirrored coords so P1's mpApplyMove (4-r, col) gives correct position
+        const _sr1 = (_mpPlayer===2) ? (4-r) : r;
+        const _sc1 = (_mpPlayer===2) ? (6-c) : c;
+        mpSubmitMove(_placedCardId || 'unknown', _sr1, _sc1, _fSeed, true);
       }
       showToast('↺ FLANK: EXTRA TURN!', '#ff9900');
       renderAll();
@@ -491,7 +494,9 @@ function onCellClick(r, c) {
     if (_mpRoom && _mpPlayer) {
       const seed = Math.floor(Math.random() * 1000000);
       window._mpSeed = seededRand(seed);
-      mpSubmitMove(_placedCardId || 'unknown', r, c, seed).then(() => {
+      const _sr = (_mpPlayer===2) ? (4-r) : r;
+      const _sc = (_mpPlayer===2) ? (6-c) : c;
+      mpSubmitMove(_placedCardId || 'unknown', _sr, _sc, seed).then(() => {
         if (!G.gameOver) {
           const allUsed = G.playerHand.every(c=>c.used) && G.aiHand.every(c=>c.used);
           if (!allUsed) mpStartPolling();

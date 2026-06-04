@@ -265,8 +265,11 @@ function initGame() {
         const _hz = _shuffledH[_placed];
 
 
-        const _hzR = (_mpPlayer === 2) ? (4 - _hr) : _hr;
-        G.grid[_hzR][_hc] = { card: { ..._hz, power:0, tier:'I', edges:{n:0,s:0,e:0,w:0}, edgeMod:{n:0,s:0,e:0,w:0}, used:false, isHazard:true }, owner:'hazard' };
+        // Both players use same game coords; P2 rendering [4,3,2,1,0] handles visual flip
+        // Also mirror column for P2 so hazard appears at symmetric visual position
+        const _hzR = _hr;
+        const _hzC = (_mpPlayer === 2) ? (6 - _hc) : _hc;
+        G.grid[_hzR][_hzC] = { card: { ..._hz, power:0, tier:'I', edges:{n:0,s:0,e:0,w:0}, edgeMod:{n:0,s:0,e:0,w:0}, used:false, isHazard:true }, owner:'hazard' };
 
 
         addLog('system', `⚠ ${_hz.name} emerged at [${_hr},${_hc}]: adjacent cards lose 2 VP`);

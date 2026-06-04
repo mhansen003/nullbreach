@@ -209,10 +209,11 @@ function mpApplyMove(move) {
   // Mirror row: opponent's home row (4) = our AI home row (0), battle zone rows invert
 
 
-  const applyR = 4 - move.r;
-
-
-  const applyC = move.c;
+  // P2 has mirrored board: receiving P1's move needs NO row flip
+  // (P1's row 4 = game row 4 on P2's board = P2's visual TOP with rows [4,3,2,1,0])
+  const applyR = (_mpPlayer === 2) ? move.r : (4 - move.r);
+  // Column also mirrors for a full 180° board flip
+  const applyC = (_mpPlayer === 2) ? (6 - move.c) : move.c;
 
 
   // noTurnFlip=true: opponent has an extra FLANK turn, don't give control to this player yet
