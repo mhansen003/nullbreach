@@ -326,13 +326,13 @@ const GUIDE_PAGES = [
       <div style="display:flex;align-items:center;gap:3px;animation:g2dp 0.4s ease 1.0s both;">
 
 
-        <span style="font-size:15px;font-weight:bold;color:#fff;">4</span>
+        <span style="font-size:15px;font-weight:bold;color:#fff;">6</span>
 
 
         <span style="font-size:9px;color:#bbb;">vs</span>
 
 
-        <span style="font-size:15px;font-weight:bold;color:#ffdd00;">3</span>
+        <span style="font-size:15px;font-weight:bold;color:#ffdd00;">4</span>
 
 
       </div>
@@ -380,7 +380,7 @@ const GUIDE_PAGES = [
       <span style="position:absolute;bottom:3px;left:50%;transform:translateX(-50%);font-size:11px;font-weight:bold;color:#ffdd00;background:rgba(0,0,0,0.8);border-radius:50%;min-width:16px;text-align:center;padding:1px 2px;line-height:1.4;">5</span>
 
 
-      <span style="position:absolute;left:3px;top:50%;transform:translateY(-50%);font-size:14px;font-weight:bold;color:#ffdd00;background:rgba(0,0,0,0.9);border-radius:50%;min-width:20px;text-align:center;padding:1px 2px;line-height:1.4;">4</span>
+      <span style="position:absolute;left:3px;top:50%;transform:translateY(-50%);font-size:14px;font-weight:bold;color:#ffdd00;background:rgba(0,0,0,0.9);border-radius:50%;min-width:20px;text-align:center;padding:1px 2px;line-height:1.4;animation:g2glow 1.2s ease 1s infinite;box-shadow:0 0 0 2px #ffdd0044;">4</span>
 
 
       <span style="position:absolute;right:3px;top:50%;transform:translateY(-50%);font-size:11px;font-weight:bold;color:#ffdd00;background:rgba(0,0,0,0.8);border-radius:50%;min-width:16px;text-align:center;padding:1px 2px;line-height:1.4;">7</span>
