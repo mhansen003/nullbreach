@@ -2466,6 +2466,8 @@ button, [onclick] { touch-action: manipulation; }
 
 .cell.hazard { animation: hazardPulse 2.5s ease-in-out infinite; }
 
+@keyframes tapPulse { 0%,100% { opacity:0.6; transform:scale(0.95); } 50% { opacity:1; transform:scale(1.05); } }
+
 
 
   /* Score panel: avatar+number only */
@@ -2494,7 +2496,10 @@ button, [onclick] { touch-action: manipulation; }
   .board-and-scores > div:first-child { flex: 0 0 auto; display: flex; flex-direction: column; }
   .board-dir-row { display: none; }
   .log-panel { display: none; }
-  #rowScores { display: none !important; }
+  #rowScores { display: flex !important; flex-direction: column; gap: 2px; }
+  .row-score-badge { width: 40px !important; height: 52px !important; gap: 2px; }
+  .row-score-badge img { width: 20px !important; height: 20px !important; }
+  .row-score-badge span { font-size: 12px !important; }
   #grid { grid-template-columns: repeat(7, 44px); grid-template-rows: repeat(5, 52px); gap: 2px; width: auto; flex: 0 0 auto; }
   .cell { width: 44px !important; height: 52px !important; min-height: 0; border-radius: 2px; }
   .edge { font-size: 10px; min-width: 13px; padding: 1px 2px; }
@@ -2513,16 +2518,17 @@ button, [onclick] { touch-action: manipulation; }
   .player-area::-webkit-scrollbar { display: none; }
   .player-portrait { display: none; }
   #handCards { display: flex !important; flex-direction: column !important; overflow: visible !important; flex-wrap: nowrap !important; gap: 0 !important; width: 100%; }
-  .mobile-deck-expanded { display: flex; flex-direction: row; gap: 5px; overflow-x: auto; overflow-y: visible; padding: 5px 8px 4px; -webkit-overflow-scrolling: touch; scrollbar-width: none; height: 96px; flex-shrink: 0; touch-action: pan-x; }
+  .mobile-deck-expanded { display: flex; flex-direction: row; gap: 5px; overflow-x: auto; overflow-y: hidden; padding: 5px 8px 4px; -webkit-overflow-scrolling: touch; scrollbar-width: none; height: 96px; flex-shrink: 0; touch-action: pan-x; justify-content: center; }
   .mobile-deck-expanded:empty { display: none; }
   .mobile-deck-expanded::-webkit-scrollbar { display: none; }
   .mobile-deck-covers { display: flex; gap: 4px; padding: 6px 8px 8px; flex-shrink: 0; justify-content: space-around; }
   .mobile-deck-cover { position: relative; width: 64px; height: 86px; border-radius: 6px; flex-shrink: 0; cursor: pointer; user-select: none; overflow: hidden; transition: transform 0.15s, box-shadow 0.15s; }
   .mobile-deck-cover.empty { opacity: 0.25; cursor: default; pointer-events: none; }
   .mobile-deck-cover.active { transform: translateY(-4px); }
-  #mobileCardPanel { display: none; position: fixed; right: -195px; top: 80px; bottom: 220px; width: 195px; background: #06060ef2; border: 1px solid #1a1a28; border-right: none; border-radius: 10px 0 0 10px; transition: right 0.25s ease; z-index: 500; padding: 8px 10px 8px 10px; backdrop-filter: blur(8px); overflow-y: auto; }
+  #mobileCardPanel { display: block; position: fixed; right: -195px; top: 80px; bottom: 220px; width: 195px; background: #06060ef2; border: 1px solid #1a1a28; border-right: none; border-radius: 10px 0 0 10px; transition: right 0.25s ease; z-index: 500; padding: 8px 10px 8px 10px; backdrop-filter: blur(8px); overflow-y: auto; }
   #mobileCardPanel.open { right: 0; }
   #mobileCardPanelTab { position: absolute; left: -36px; top: 50%; transform: translateY(-50%); width: 36px; height: 76px; background: #0c0c1e; border: 1px solid #2a2a44; border-right: none; border-radius: 10px 0 0 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; color: #aaa; cursor: pointer; transition: background 0.2s, box-shadow 0.2s; }
+  body { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
   .hand-card { width: 64px !important; height: 86px !important; }
   .hc-e-n, .hc-e-s, .hc-e-w, .hc-e-e { font-size: 10px; min-width: 14px; }
   .hc-power-center { font-size: 14px; }
@@ -3269,7 +3275,7 @@ const RACE_DATA = {
   terran:     { name:'THE TERRAN ACCORD',      sub:'UNITED COLONIAL FEDERATION',     color:'#7ab8e8', avatar:'★',  avatarImg:'assets/avatars/terran.png',    quote:'"We are many worlds, one purpose."',            loreBg:'assets/lore_terran.png'     },
 
 
-  crystallis: { name:'THE CRYSTALLIS',          sub:'SILICON LATTICE CIVILIZATION',   color:'#a8d8ff', avatar:'💎', avatarImg:'assets/avatars/crystallis.png', quote:'"You will fracture against us."',                loreBg:'assets/lore_crystallis.png' },
+  crystallis: { name:'THE CRYSTALLIS',          sub:'SILICON LATTICE CIVILIZATION',   color:'#00ccff', avatar:'💎', avatarImg:'assets/avatars/crystallis.png', quote:'"You will fracture against us."',                loreBg:'assets/lore_crystallis.png' },
 
 
   mycos:      { name:'THE MYCOS DRIFT',         sub:'DISTRIBUTED FUNGAL INTELLIGENCE',color:'#9dcf6e', avatar:'🍄', avatarImg:'assets/avatars/mycos.png',      quote:'"We have already begun."',                      loreBg:'assets/lore_mycos.png'      },
@@ -6557,6 +6563,13 @@ function renderGrid() {
 
           div.addEventListener('drop', e => { e.preventDefault(); if (G.selectedCard) onCellClick(r, c); });
 
+          // Mobile: pulsing TAP hint on valid placement cells
+          if (window.innerWidth <= 480 && G.selectedCard) {
+            const tapHint = document.createElement('div');
+            tapHint.style.cssText = 'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:"Orbitron",monospace;font-size:7px;letter-spacing:1px;color:#fff;pointer-events:none;z-index:5;animation:tapPulse 1s ease-in-out infinite;';
+            tapHint.textContent = 'TAP';
+            div.appendChild(tapHint);
+          }
 
           // Zone preview + battle outcome preview on hover
 
@@ -8276,6 +8289,7 @@ function renderHand() {
           e.preventDefault();
         } else {
           hideDragCard(); // clean up ghost even on simple tap
+          e.preventDefault(); // prevent synthetic click from double-firing onCardSelect
         }
         _tdStart = null; _tdDragging = false;
       }, { passive: false });
@@ -8907,7 +8921,7 @@ function showMobileCardPanel(card) {
     tab.style.borderColor = tierCol + '88';
     tab.style.background = tierCol + '33';
     tab.style.color = tierCol;
-    tab.style.boxShadow = '-3px 0 12px ' + tierCol + '66';
+    tab.style.boxShadow = '-3px 0 14px ' + tierCol + '99';
   }
 }
 
@@ -8916,8 +8930,15 @@ function hideMobileCardPanel() {
   if (!panel) return;
   panel.classList.remove('open');
   const tab = document.getElementById('mobileCardPanelTab');
-  if (tab) { tab.textContent = '◄'; tab.style.borderColor = ''; tab.style.background = '#0c0c1e'; tab.style.color = '#aaa'; tab.style.boxShadow = 'none'; }
-  setTimeout(function() { if (!panel.classList.contains('open')) panel.style.display = 'none'; }, 280);
+  if (tab) { tab.textContent = '◀'; tab.style.borderColor = ''; tab.style.background = '#0c0c1e'; tab.style.color = '#aaa'; tab.style.boxShadow = 'none'; }
+  // clear content after slide-out animation
+  setTimeout(function() {
+    if (!panel.classList.contains('open')) {
+      const content = document.getElementById('mobileCardPanelContent');
+      if (content) content.innerHTML = '';
+      panel.style.borderColor = '';
+    }
+  }, 280);
 }
 
 function toggleMobileCardPanel() {
@@ -8926,7 +8947,6 @@ function toggleMobileCardPanel() {
   if (panel.classList.contains('open')) {
     hideMobileCardPanel();
   } else {
-    panel.style.display = 'block';
     setTimeout(function() { panel.classList.add('open'); }, 10);
     const tab = document.getElementById('mobileCardPanelTab');
     if (tab) tab.textContent = '▶';
@@ -11091,7 +11111,6 @@ function onCellClick(r, c) {
 
   hideDragCard();
   hideMobileCardPanel();
-  if (window.innerWidth <= 480) window._activeTier = null;
 
 
   document.body.style.cursor = 'default';
