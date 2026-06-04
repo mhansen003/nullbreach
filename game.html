@@ -2474,6 +2474,65 @@ button, [onclick] { touch-action: manipulation; }
   #sbAiNum, #sbPlayerNum { font-size:20px !important; }
   #fhAi, #fhPlayer { gap:8px !important; padding:3px 6px !important; }
   #fhGuideBtn { display:none !important; }
+
+/* ═══════════════════════════════════════════════════════════════════
+   MOBILE LAYOUT ≤ 480px  (iPhone 13+)
+   ═══════════════════════════════════════════════════════════════════ */
+@media (max-width: 480px) {
+  body { display: flex; flex-direction: column; height: 100dvh; overflow: hidden; touch-action: pan-y; }
+  .header, .ai-area { flex-shrink: 0; }
+  .header { padding: 4px 8px; gap: 0; }
+  .ai-area, .player-area { padding: 2px 6px; gap: 6px; min-height: 0; flex-direction: row; align-items: center; }
+  .ai-avatar, .player-avatar { width: 36px; height: 36px; font-size: 16px; }
+  .ai-name, .player-name { font-size: 9px; letter-spacing: 1px; }
+  .ai-sub, .player-sub { display: none; }
+  .ai-quote, .player-quote { display: none; }
+  #sbAiNum, #sbPlayerNum { font-size: 18px; }
+  .main-area { flex: 1; overflow: hidden; padding: 0; display: flex; flex-direction: column; min-height: 0; }
+  .board-wrap { flex: 1; display: flex; justify-content: center; align-items: flex-start; padding: 4px 2px; min-height: 0; }
+  .board-and-scores { flex: 0 0 auto; align-items: flex-start; gap: 0; zoom: 1 !important; }
+  .board-and-scores > div:first-child { flex: 0 0 auto; display: flex; flex-direction: column; }
+  .board-dir-row { display: none; }
+  .log-panel { display: none; }
+  #rowScores { display: none !important; }
+  #grid { grid-template-columns: repeat(7, 44px); grid-template-rows: repeat(5, 52px); gap: 2px; width: auto; flex: 0 0 auto; }
+  .cell { width: 44px !important; height: 52px !important; min-height: 0; border-radius: 2px; }
+  .edge { font-size: 10px; min-width: 13px; padding: 1px 2px; }
+  .edge.n { top: 2px; } .edge.s { bottom: 2px; } .edge.w { left: 2px; } .edge.e { right: 2px; }
+  .cell-power { font-size: 16px; }
+  .tier-dots { top: 2px; left: 2px; gap: 2px; }
+  .tier-dot { width: 5px; height: 5px; }
+  .ability-tag { font-size: 5px; bottom: 2px; }
+  .ability-star { font-size: 18px !important; }
+  .bti { width: 24px !important; height: 24px !important; }
+  .col-score-row { flex-shrink: 0; gap: 2px !important; }
+  .col-score-badge { width: 44px !important; flex: 0 0 44px; height: 26px; font-size: 7px; padding: 2px; }
+  .col-score-badge img { width: 16px !important; height: 16px !important; }
+  .col-score-badge span { font-size: 11px !important; }
+  .player-area { flex-shrink: 0; max-height: 175px; overflow: visible; overflow-x: hidden; padding: 0; border-top: 1px solid #1a1a28; background: #06060edd; backdrop-filter: blur(6px); }
+  .player-area::-webkit-scrollbar { display: none; }
+  .player-portrait { display: none; }
+  #handCards { display: flex !important; flex-direction: column !important; overflow: visible !important; flex-wrap: nowrap !important; gap: 0 !important; width: 100%; }
+  .mobile-deck-expanded { display: flex; flex-direction: row; gap: 5px; overflow-x: auto; overflow-y: visible; padding: 5px 8px 4px; -webkit-overflow-scrolling: touch; scrollbar-width: none; min-height: 0; }
+  .mobile-deck-expanded:empty { display: none; }
+  .mobile-deck-expanded::-webkit-scrollbar { display: none; }
+  .mobile-tier-tabs { display: flex; gap: 5px; padding: 4px 8px 6px; flex-shrink: 0; }
+  .mobile-tier-tab { flex: 1; min-height: 48px; border-radius: 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; cursor: pointer; user-select: none; transition: background 0.12s, border-color 0.12s; border: 1px solid transparent; }
+  .mobile-tier-tab.empty { opacity: 0.3; cursor: default; pointer-events: none; }
+  .hand-card { width: 64px !important; height: 86px !important; }
+  .hc-e-n, .hc-e-s, .hc-e-w, .hc-e-e { font-size: 10px; min-width: 14px; }
+  .hc-power-center { font-size: 14px; }
+  .hc-tier-badge { font-size: 7px; }
+  #tooltip, #errorTip { display: none !important; }
+  #guideModal { padding: 8px 0; }
+  #guideContent { padding: 12px 14px; font-size: 13px; }
+  .turn-tag { font-size: 9px; padding: 2px 6px; }
+  #logPanel { display: none; }
+  .ai-area { max-height: 50px; }
+  .ai-avatar { width: 34px; height: 34px; }
+  .ai-portrait { min-width: 0; padding: 2px 4px; }
+  #sbAiName { font-size: 8px; }
+}
 </style>
 
 
@@ -6929,6 +6988,7 @@ function renderBattleIndicators(el) {
 
 
       if (cell.owner === 'hazard' || nb.owner === 'hazard') continue;
+      if (cell.card.isHazard || nb.card.isHazard) continue;
 
 
 
@@ -7138,6 +7198,7 @@ function showBattleTip(e, d) {
 
 
 
+  if (d.cellOwner === 'hazard' || d.nbOwner === 'hazard') { hideTip(); return; }
   const dirLabel = d.axis==='h' ? 'HORIZONTAL BATTLE' : 'VERTICAL BATTLE';
 
 
@@ -14262,335 +14323,7 @@ const GUIDE_PAGES = [
 
 
 
-/* ══════════════════════════════════════════════════════════════════════════
-
-
-   MOBILE LAYOUT ≤ 480px
-
-
-   Design: grid fills width, deck strip at bottom, no side badges, compact header
-
-
-   ══════════════════════════════════════════════════════════════════════════ */
-
-
-@media (max-width: 480px) {
-
-
-  body { overflow-x: hidden; touch-action: pan-y; }
-
-
-
-
-
-  /* ── Overall layout: body is the flex column ── */
-
-
-  body {
-
-
-    display: flex; flex-direction: column;
-
-
-    height: 100dvh; overflow: hidden;
-
-
-  }
-
-
-  .header, .ai-area { flex-shrink: 0; }
-
-
-
-
-
-  /* ── Header: compact score bar ── */
-
-
-  .header { padding: 4px 8px; gap: 0; }
-
-
-  .ai-area, .player-area {
-
-
-    padding: 2px 6px; gap: 6px; min-height: 0;
-
-
-    flex-direction: row; align-items: center;
-
-
-  }
-
-
-  .ai-avatar, .player-avatar { width: 36px; height: 36px; font-size: 16px; }
-
-
-  .ai-name, .player-name   { font-size: 9px; letter-spacing: 1px; }
-
-
-  .ai-sub, .player-sub     { display: none; }
-
-
-  .ai-quote, .player-quote { display: none; }
-
-
-  #sbAiNum, #sbPlayerNum   { font-size: 18px; }
-
-
-
-
-
-  /* ── Main area + grid chain: each wrapper must flex:1 ── */
-
-
-  .main-area { flex: 1; overflow: hidden; padding: 0; display: flex; flex-direction: column; min-height: 0; }
-
-
-  .board-wrap { flex: 1; display: flex; justify-content: center; align-items: flex-start; padding: 4px 2px; min-height: 0; }
-
-
-  .board-and-scores { flex: 0 0 auto; align-items: flex-start; gap: 0; zoom: 1 !important; }
-
-
-  .board-and-scores > div:first-child { flex: 0 0 auto; display: flex; flex-direction: column; }
-
-
-  .board-dir-row { display:none; }
-
-
-  .log-panel { display:none; }
-
-
-
-
-
-  /* ── Grid: fills full width, no side badges ── */
-
-
-  #rowScores { display: none !important; }   /* side badges hidden — no room */
-
-
-  #grid {
-
-
-    grid-template-columns: repeat(7, 44px);
-
-
-    grid-template-rows: repeat(5, 52px);
-
-
-    gap: 2px;
-
-
-    width: auto;
-
-
-    flex: 0 0 auto;
-
-
-  }
-
-
-  .cell { width: 44px !important; height: 52px !important; min-height: 0; border-radius: 2px; }
-
-
-  .edge   { font-size: 10px; min-width: 13px; padding: 1px 2px; }
-
-
-  .edge.n { top: 2px; }
-
-
-  .edge.s { bottom: 2px; }
-
-
-  .edge.w { left: 2px; }
-
-
-  .edge.e { right: 2px; }
-
-
-  .cell-power { font-size: 16px; }
-
-
-  .tier-dots  { top: 2px; left: 2px; gap: 2px; }
-
-
-  .tier-dot   { width: 5px; height: 5px; }
-
-
-  .ability-tag { font-size: 5px; bottom: 2px; }
-
-
-  .ability-star { font-size: 18px !important; }
-
-
-  .bti { width: 24px !important; height: 24px !important; }
-
-
-
-
-
-  /* ── Col score badges: tiny strip below grid ── */
-
-
-  .col-score-row { flex-shrink: 0; gap: 2px !important; }
-
-
-  .col-score-badge { width: 44px !important; flex: 0 0 44px; height: 26px; font-size: 7px; padding: 2px; }
-
-
-  .col-score-badge img { width: 16px !important; height: 16px !important; }
-
-
-  .col-score-badge span { font-size: 11px !important; }
-
-
-
-
-
-  /* ── Player hand: tier-tab accordion ── */
-
-
-  .player-area {
-
-
-    flex-shrink: 0;
-
-
-    max-height: 175px;
-
-
-    overflow: visible;
-
-
-    overflow-x: hidden;
-
-
-
-
-    padding: 0;
-
-
-    border-top: 1px solid #1a1a28;
-
-
-    background: #06060edd;
-
-
-    backdrop-filter: blur(6px);
-
-
-  }
-
-
-  .player-area::-webkit-scrollbar { display: none; }
-
-
-  .player-portrait { display: none; }
-
-  /* ── Mobile tier accordion ── */
-  #handCards { display:flex !important; flex-direction:column !important; overflow:visible !important; flex-wrap:nowrap !important; gap:0 !important; width:100%; }
-  .mobile-deck-expanded { display:flex; flex-direction:row; gap:5px; overflow-x:auto; overflow-y:visible; padding:5px 8px 4px; -webkit-overflow-scrolling:touch; scrollbar-width:none; min-height:0; }
-  .mobile-deck-expanded:empty { display:none; }
-  .mobile-deck-expanded::-webkit-scrollbar { display:none; }
-  .mobile-tier-tabs { display:flex; gap:5px; padding:4px 8px 6px; flex-shrink:0; }
-  .mobile-tier-tab { flex:1; min-height:48px; border-radius:6px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; cursor:pointer; user-select:none; transition:background 0.12s,border-color 0.12s; border:1px solid transparent; }
-  .mobile-tier-tab.empty { opacity:0.3; cursor:default; pointer-events:none; }
-
-
-
-
-
-  /* ── Hand cards: smaller on mobile ── */
-
-
-  .hand-card { width: 64px !important; height: 86px !important; }
-
-
-  .hc-e-n, .hc-e-s, .hc-e-w, .hc-e-e { font-size: 10px; min-width: 14px; }
-
-
-  .hc-power-center { font-size: 14px; }
-
-
-  .hc-tier-badge   { font-size: 7px; }
-
-
-
-
-
-  /* buildStack cards also smaller */
-
-
-  /* (handled by JS _activeTier system) */
-
-
-
-
-
-  /* ── No tooltips on mobile — too small ── */
-
-
-  #tooltip, #errorTip { display: none !important; }
-
-
-
-
-
-  /* ── User guide ── */
-
-
-  #guideModal { padding: 8px 0; }
-
-
-  #guideContent { padding: 12px 14px; font-size: 13px; }
-
-
-
-
-
-  /* ── Turn tag & other header elements ── */
-
-
-  .turn-tag { font-size: 9px; padding: 2px 6px; }
-
-
-  #logPanel { display: none; }  /* hide log on mobile, too cramped */
-
-
-
-
-
-  /* ── AI area top: minimal ── */
-
-
-  .ai-area { max-height: 50px; }
-
-
-  .ai-avatar { width: 34px; height: 34px; }
-
-
-  .ai-portrait { min-width: 0; padding: 2px 4px; }
-
-
-  #sbAiName { font-size: 8px; }
-
-
-}
-
-
-
-
-
-
-  /* Compact score panel: avatar + number only, name on hover via title */
-  #sbAiName, #sbPlayerName { display:none !important; }
-  #sbAiAvatar, #sbPlayerAvatar { width:44px !important; height:44px !important; cursor:help; }
-  #sbAiNum, #sbPlayerNum { font-size:20px !important; }
-  #fhAi, #fhPlayer { gap:8px !important; padding:3px 6px !important; }
-  /* Hide user guide button - it's in hamburger menu now */
-  #fhGuideBtn { display:none !important; }
-
+/* Mobile layout CSS moved to main <head> style block */
 </style>
 
 
