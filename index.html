@@ -655,8 +655,8 @@ button, [onclick] { touch-action: manipulation; }
 <!-- Civilization voice intro — plays on deck selection -->
 <audio id="civVoice" preload="none"></audio>
 
-<!-- AUDIO CONTROLS — bottom right, stacked vertically -->
-<div id="audioControls" style="position:fixed;bottom:20px;right:20px;z-index:200;display:flex;flex-direction:column;gap:6px;align-items:flex-end;">
+<!-- AUDIO CONTROLS — top right, next to header -->
+<div id="audioControls" style="position:fixed;top:10px;right:10px;z-index:200;display:flex;flex-direction:row;gap:6px;align-items:center;">
   <!-- Music mute -->
   <div id="muteBtn" onclick="toggleMute()" style="
     padding:5px 12px;border-radius:4px;
@@ -716,7 +716,7 @@ button, [onclick] { touch-action: manipulation; }
         GALACTIC ZERO<br>
         <span style="color:#332255;font-size:8px;">v0.1 PROTOTYPE</span>
       </div>
-      <button class="btn-back" onclick="showSplash()">&#x2190; BACK</button>
+      <!-- BACK button removed — audio controls are top-right -->
     </div>
   </div>
 
@@ -1354,19 +1354,17 @@ function selectRace(race, tileEl) {
       tcp.innerHTML = samples.map(s => {
         const tCol = TC[s.tier];
         const dots = Array.from({length:TDOTS[s.tier]||1},()=>
-          `<span style="width:7px;height:7px;border-radius:50%;background:${tCol};box-shadow:0 0 4px ${tCol};display:inline-block;"></span>`
+          `<span style="width:6px;height:6px;border-radius:50%;background:${tCol};box-shadow:0 0 3px ${tCol};display:inline-block;"></span>`
         ).join('');
         return `
         <div style="
-          width:88px;height:118px;border-radius:6px;
-          background:#0d0d1e;
-          border:2px solid ${tCol};
-          position:relative;flex-shrink:0;
-          box-shadow:0 0 12px ${tCol}44;
-          display:flex;align-items:center;justify-content:center;
+          width:120px;height:160px;border-radius:6px;
+          background:url('${s.art}') center/cover;
+          border:1px solid #ffffff18;
+          position:relative;overflow:hidden;flex-shrink:0;
+          ${s.placeholder ? 'filter:brightness(0.3) saturate(0.3);' : ''}
         ">
           <div style="position:absolute;top:5px;left:5px;display:flex;gap:2px;">${dots}</div>
-          <div style="font-family:'Orbitron',monospace;font-size:8px;letter-spacing:1px;color:${tCol};text-align:center;padding:0 6px;line-height:1.4;">${s.name}</div>
         </div>`;
       }).join('');
       tcp.style.display = 'flex';
