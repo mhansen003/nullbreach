@@ -2017,7 +2017,7 @@ function renderGrid() {
             <span class="cell-power" style="color:${pwrColor}">${cell.card.power}</span>
           </div>
           ${cell.card.ability ? `<span class="ability-tag" style="color:${factionCol}88">${ab(cell.card.ability)}</span>` : ''}
-          ${cell.card.ability && !cell.card.shieldExpended ? `<span style="position:absolute;top:3px;right:3px;z-index:5;font-size:14px;filter:drop-shadow(0 0 5px #bb44ffcc);pointer-events:none;">\u2605</span>` : ''}
+          ${cell.card.ability && !cell.card.shieldExpended ? `<span style="position:absolute;top:2px;right:2px;z-index:5;font-size:28px;pointer-events:none;">\u2605</span>` : ''}
           ${cell.card.shieldExpended ? `<span style="position:absolute;top:3px;right:3px;z-index:5;font-size:11px;filter:drop-shadow(0 0 4px #aaaaff);pointer-events:none;">\uD83D\uDEE1</span>` : ''}
           <img src="${cell.owner==='player'?(window.playerAvatarImg||''):(window.aiAvatarImg||'')}" style="position:absolute;bottom:3px;right:3px;width:18px;height:18px;border-radius:50%;object-fit:cover;object-position:top;border:1px solid ${factionCol}55;opacity:0.6;z-index:2;pointer-events:none;" onerror="this.style.display='none'">
           ${cell.card.stonewalled ? `<div style="position:absolute;inset:0;z-index:4;pointer-events:none;border-radius:4px;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;"><span style="font-size:9px;letter-spacing:1px;color:#888;font-family:'Orbitron',monospace;background:#0a0a14;padding:2px 5px;border-radius:3px;border:1px solid #333;opacity:0.9;">0 VP</span></div>` : ''}
@@ -2661,7 +2661,7 @@ function renderHand() {
       '<div style="position:absolute;top:4px;left:4px;display:flex;gap:2px;z-index:2;">' +
         Array.from({length:tdNum},function(){return '<span style="width:5px;height:5px;border-radius:50%;background:'+tCol+';box-shadow:0 0 3px '+tCol+';display:inline-block;"></span>';}).join('') +
       '</div>' +
-      (card.ability ? '<span style="position:absolute;top:3px;right:4px;font-size:14px;z-index:3;filter:drop-shadow(0 0 5px #bb44ffcc);" title="'+ab(card.ability)+'">★</span>' : '') +
+      (card.ability ? '<span class="ability-star" style="position:absolute;top:2px;right:2px;font-size:28px;z-index:3;pointer-events:none;" title="'+ab(card.ability)+'">★</span>' : '') +
       '<div class="hc-center"><span class="hc-power-center" style="color:'+factionC+'">'+card.power+'</span></div>' +
       '';
     div.onclick      = function() { onCardSelect(card); };
