@@ -5009,7 +5009,7 @@ function computeBattleResults() {
             if (cell.card.ability === 'overwhelm' && hMargin >= 3) b[r][c].vW++;
 
 
-            if (east.card.ability === 'shield' && !east.card.shieldExpended) {
+            if ((east.card.ability === 'shield' || east.card.ability === 'stonewall') && !east.card.shieldExpended) {
 
 
               east.card.shieldExpended = true;
@@ -5064,7 +5064,7 @@ function computeBattleResults() {
             if (east.card.ability === 'overwhelm' && hMargin >= 3) b[r][c+1].vW++;
 
 
-            if (cell.card.ability === 'shield' && !cell.card.shieldExpended) {
+            if ((cell.card.ability === 'shield' || cell.card.ability === 'stonewall') && !cell.card.shieldExpended) {
 
 
               cell.card.shieldExpended = true;
@@ -5161,7 +5161,7 @@ function computeBattleResults() {
             // SHIELD V: south card blocks first V loss — permanently
 
 
-            if (south.card.ability === 'shield' && !south.card.shieldExpended) {
+            if ((south.card.ability === 'shield' || south.card.ability === 'stonewall') && !south.card.shieldExpended) {
 
 
               south.card.shieldExpended = true;
@@ -5219,7 +5219,7 @@ function computeBattleResults() {
             // SHIELD V: cell (north card) blocks first V loss — permanently
 
 
-            if (cell.card.ability === 'shield' && !cell.card.shieldExpended) {
+            if ((cell.card.ability === 'shield' || cell.card.ability === 'stonewall') && !cell.card.shieldExpended) {
 
 
               cell.card.shieldExpended = true;
@@ -6962,7 +6962,7 @@ function renderPassiveAbilityGlows(el) {
         for (let sc=0; sc<7; sc++) {
           if (sc === c) continue;
           const tgtCell = G.grid[r][sc];
-          const tgtEl = document.querySelector(`.cell[data-r=${r}][data-c=${sc}]`);
+          const tgtEl = document.querySelector(`.cell[data-r="${r}"][data-c="${sc}"]`);
           if (!tgtEl) continue;
           const isEnemy = tgtCell.owner !== cell.owner;
           const col = isEnemy ? '#ff8800' : '#ff880033';
@@ -6988,7 +6988,7 @@ function renderPassiveAbilityGlows(el) {
           if (nr<0||nr>=5||nc<0||nc>=7) return;
           const tgt = G.grid[nr][nc];
           if (tgt.card && tgt.owner === cell.owner) return;
-          const tgtEl = document.querySelector(`.cell[data-r=${nr}][data-c=${nc}]`);
+          const tgtEl = document.querySelector(`.cell[data-r="${nr}"][data-c="${nc}"]`);
           if (!tgtEl) return;
           const ov = document.createElement('div');
           ov.dataset.passiveZone = '1';
@@ -7006,7 +7006,7 @@ function renderPassiveAbilityGlows(el) {
           if (nr<0||nr>=5||nc<0||nc>=7) return;
           const tgt = G.grid[nr][nc];
           if (tgt.card && tgt.owner === cell.owner) return;
-          const tgtEl = document.querySelector(`.cell[data-r=${nr}][data-c=${nc}]`);
+          const tgtEl = document.querySelector(`.cell[data-r="${nr}"][data-c="${nc}"]`);
           if (!tgtEl) return;
           const alpha = charges === 2 ? '33' : '18';
           const ov = document.createElement('div');
@@ -7018,7 +7018,7 @@ function renderPassiveAbilityGlows(el) {
 
       // ── STONEWALL: blue/teal defensive glow on self ──────────────────────
       else if (card.ability === 'stonewall') {
-        const cellEl = document.querySelector(`.cell[data-r=${r}][data-c=${c}]`);
+        const cellEl = document.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`);
         if (cellEl) {
           const ov = document.createElement('div');
           ov.dataset.passiveZone = '1';
@@ -7045,7 +7045,7 @@ function renderPassiveAbilityGlows(el) {
           if (nr<0||nr>=5||nc<0||nc>=7) return;
           const tgt = G.grid[nr][nc];
           if (tgt.card && tgt.owner !== cell.owner) return;
-          const tgtEl = document.querySelector(`.cell[data-r=${nr}][data-c=${nc}]`);
+          const tgtEl = document.querySelector(`.cell[data-r="${nr}"][data-c="${nc}"]`);
           if (!tgtEl) return;
           const gradDir = GRAD_DIR[`${dr},${dc}`] || 'center';
           const opHex = Math.round(parseFloat(zone.op)*255).toString(16).padStart(2,'0');
@@ -9819,6 +9819,48 @@ function _applySnipe(card, r, c) {
   }
 }
 
+function _applyMirror(mCard, mr, mc, mOwner) {
+  if (mCard._mirrorSwaps) {
+    mCard._mirrorSwaps.forEach(function(s) {
+      s.tCard.edgeMod = s.tCard.edgeMod || {n:0,s:0,e:0,w:0};
+      s.tCard.edgeMod[s.edge] -= s.delta;
+    });
+  }
+  mCard._mirrorSwaps = [];
+  const mN = (mr>0) ? G.grid[mr-1][mc] : null;
+  const mS = (mr<4) ? G.grid[mr+1][mc] : null;
+  const mW = (mc>0) ? G.grid[mr][mc-1] : null;
+  const mE = (mc<6) ? G.grid[mr][mc+1] : null;
+  const nEn = mN && mN.card && mN.owner !== mOwner;
+  const sEn = mS && mS.card && mS.owner !== mOwner;
+  const wEn = mW && mW.card && mW.owner !== mOwner;
+  const eEn = mE && mE.card && mE.owner !== mOwner;
+  if (nEn && sEn) {
+    var nc = mN.card, sc = mS.card;
+    nc.edgeMod = nc.edgeMod || {n:0,s:0,e:0,w:0};
+    sc.edgeMod = sc.edgeMod || {n:0,s:0,e:0,w:0};
+    var ncSeff = nc.edges.s + (nc.edgeMod.s||0);
+    var scNeff = sc.edges.n + (sc.edgeMod.n||0);
+    var dNC = (scNeff - nc.edges.s) - nc.edgeMod.s;
+    var dSC = (ncSeff - sc.edges.n) - sc.edgeMod.n;
+    nc.edgeMod.s += dNC; sc.edgeMod.n += dSC;
+    mCard._mirrorSwaps.push({tCard:nc,edge:'s',delta:dNC},{tCard:sc,edge:'n',delta:dSC});
+    addLog('compare', 'MIRROR — ' + nc.name + ' and ' + sc.name + ' edges reversed (V)');
+  }
+  if (wEn && eEn) {
+    var wc = mW.card, ec = mE.card;
+    wc.edgeMod = wc.edgeMod || {n:0,s:0,e:0,w:0};
+    ec.edgeMod = ec.edgeMod || {n:0,s:0,e:0,w:0};
+    var wcEeff = wc.edges.e + (wc.edgeMod.e||0);
+    var ecWeff = ec.edges.w + (ec.edgeMod.w||0);
+    var dWC = (ecWeff - wc.edges.e) - wc.edgeMod.e;
+    var dEC = (wcEeff - ec.edges.w) - ec.edgeMod.w;
+    wc.edgeMod.e += dWC; ec.edgeMod.w += dEC;
+    mCard._mirrorSwaps.push({tCard:wc,edge:'e',delta:dWC},{tCard:ec,edge:'w',delta:dEC});
+    addLog('compare', 'MIRROR — ' + wc.name + ' and ' + ec.name + ' edges reversed (H)');
+  }
+}
+
 function applyPlacementAbility(card, r, c, owner) {
 
 
@@ -10030,51 +10072,7 @@ function applyPlacementAbility(card, r, c, owner) {
   // MIRROR: sandwiched between enemies on same axis — swap their facing edges
 
 
-  // MIRROR: sandwiched between enemies on same axis — swap their facing edges
-  // _applyMirror is also called reactively when a new enemy completes a sandwich
-  function _applyMirror(mCard, mr, mc, mOwner) {
-    // Undo previous mirror swap if any
-    if (mCard._mirrorSwaps) {
-      mCard._mirrorSwaps.forEach(({tCard, edge, delta}) => {
-        tCard.edgeMod = tCard.edgeMod || {n:0,s:0,e:0,w:0};
-        tCard.edgeMod[edge] -= delta; // undo
-      });
-    }
-    mCard._mirrorSwaps = [];
-    const mN = (mr>0) ? G.grid[mr-1][mc] : null;
-    const mS = (mr<4) ? G.grid[mr+1][mc] : null;
-    const mW = (mc>0) ? G.grid[mr][mc-1] : null;
-    const mE = (mc<6) ? G.grid[mr][mc+1] : null;
-    const nEn = mN && mN.card && mN.owner !== mOwner;
-    const sEn = mS && mS.card && mS.owner !== mOwner;
-    const wEn = mW && mW.card && mW.owner !== mOwner;
-    const eEn = mE && mE.card && mE.owner !== mOwner;
-    if (nEn && sEn) {
-      const nc = mN.card, sc = mS.card;
-      nc.edgeMod = nc.edgeMod || {n:0,s:0,e:0,w:0};
-      sc.edgeMod = sc.edgeMod || {n:0,s:0,e:0,w:0};
-      const ncSeff = nc.edges.s + (nc.edgeMod.s||0);
-      const scNeff = sc.edges.n + (sc.edgeMod.n||0);
-      const dNC = (scNeff - nc.edges.s) - nc.edgeMod.s;
-      const dSC = (ncSeff - sc.edges.n) - sc.edgeMod.n;
-      nc.edgeMod.s += dNC; sc.edgeMod.n += dSC;
-      mCard._mirrorSwaps.push({tCard:nc, edge:'s', delta:dNC},{tCard:sc, edge:'n', delta:dSC});
-      addLog('compare', `MIRROR — ${nc.name} and ${sc.name} edges reversed (V)`);
-    }
-    if (wEn && eEn) {
-      const wc = mW.card, ec = mE.card;
-      wc.edgeMod = wc.edgeMod || {n:0,s:0,e:0,w:0};
-      ec.edgeMod = ec.edgeMod || {n:0,s:0,e:0,w:0};
-      const wcEeff = wc.edges.e + (wc.edgeMod.e||0);
-      const ecWeff = ec.edges.w + (ec.edgeMod.w||0);
-      const dWC = (ecWeff - wc.edges.e) - wc.edgeMod.e;
-      const dEC = (wcEeff - ec.edges.w) - ec.edgeMod.w;
-      wc.edgeMod.e += dWC; ec.edgeMod.w += dEC;
-      mCard._mirrorSwaps.push({tCard:wc, edge:'e', delta:dWC},{tCard:ec, edge:'w', delta:dEC});
-      addLog('compare', `MIRROR — ${wc.name} and ${ec.name} edges reversed (H)`);
-    }
-  }
-
+  // MIRROR: _applyMirror is module-scope (see above applyPlacementAbility)
   if (card.ability === 'mirror') {
     _applyMirror(card, r, c, owner);
   }
@@ -10174,8 +10172,6 @@ function applyPlacementAbility(card, r, c, owner) {
 
   // STONEWALL: blocks first incoming battle loss (both axes) + suppresses 1 adjacent enemy V-loss
   if (card.ability === 'stonewall') {
-    card.shieldBlockH = true;  // blocks first H loss
-    card.shieldBlockV = true;  // blocks first V loss (reuse shield mechanism)
     // Stonewall also suppresses 1 adjacent enemy's vertical wins this turn
     dirs.forEach(({dr,dc}) => {
       const nr=r+dr, nc=c+dc;
