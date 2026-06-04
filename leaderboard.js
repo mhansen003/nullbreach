@@ -2,6 +2,17 @@
 
 const _LB_KEY = 'gz_lb_v1';
 
+// Seed demo entry so the leaderboard isn't entirely blank on first view
+(function() {
+  try {
+    var _d = JSON.parse(localStorage.getItem(_LB_KEY) || '{}');
+    if (!_d['terran_vs_veil']) {
+      _d['terran_vs_veil'] = { initials: 'MDH', delta: 7 };
+      localStorage.setItem(_LB_KEY, JSON.stringify(_d));
+    }
+  } catch(e) {}
+})();
+
 const _LB_FACTIONS = {
   terran:     { name:'TERRAN ACCORD',   short:'TERRAN',     color:'#7ab8e8', img:'assets/avatars/terran.png'     },
   brood:      { name:'BROOD SOVEREIGN', short:'BROOD',      color:'#88cc44', img:'assets/avatars/brood.png'      },
