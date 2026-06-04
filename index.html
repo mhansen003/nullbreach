@@ -562,14 +562,42 @@ button, [onclick] { touch-action: manipulation; }
   /* Footer: hide on mobile (no room) */
   .ds-footer { display: none; }
 
-  /* ── OPPONENT MODAL ── */
-  #opponentModal > div:nth-child(1) { font-size: 16px !important; letter-spacing: 3px !important; }
+  /* Hide original deploy wrap — replaced by body-level #mobileLaunchBar */
+  #deployWrap { display: none !important; }
+
+  /* ── WIZARD MODAL ── */
+  #opponentModal {
+    padding: 16px 12px 80px !important;
+    gap: 14px !important;
+    justify-content: flex-start !important;
+  }
+  /* Step headings */
+  #wizStep1 > div:first-child,
+  #wizStep2 > div:first-child,
+  #wizStep3 > div:first-child { font-size: 15px !important; letter-spacing: 3px !important; }
+
+  /* Step 1 mode tiles: stack vertically, full width */
+  #wizStep1 > div:nth-child(2) { flex-direction: column !important; align-items: center !important; gap: 10px !important; }
+  #modeComputer, #modeFriend { width: min(300px, 88vw) !important; height: 96px !important; }
+
+  /* Step 2 difficulty tiles: 1 column */
+  #wizStep2 > div:nth-child(2) { flex-direction: column !important; align-items: center !important; gap: 8px !important; }
+  #diff-passive, #diff-balanced, #diff-aggressive { width: min(300px, 88vw) !important; height: 80px !important; }
+
+  /* Step gaps */
+  #wizStep1, #wizStep2 { gap: 16px !important; }
+  #wizStep3 { gap: 12px !important; }
+
+  /* BACK/NEXT button rows: full-width, always reachable */
+  #wizStep1 > div:last-child,
+  #wizStep2 > div:last-child { width: min(300px, 88vw); justify-content: space-between !important; }
+
+  /* Opponent grid: 2 columns */
   #opponentGrid {
     grid-template-columns: repeat(2, minmax(0,1fr)) !important;
     max-width: min(360px, 92vw) !important;
     gap: 8px !important; width: 92vw !important; padding: 8px !important;
   }
-  #opponentModal { padding: 16px 8px !important; }
 
   /* Audio controls */
   #muteBtn, #voiceMuteBtn {
@@ -1328,6 +1356,13 @@ function selectRace(race, tileEl) {
     `;
     document.getElementById('deployWrap').style.display = 'block';
     lc.classList.add('visible');
+    // Mobile launch bar: update colour and show
+    const _mbar = document.getElementById('mobileLaunchBar');
+    if (_mbar) {
+      const _mbtn = document.getElementById('mobileLaunchBtn');
+      if (_mbtn) { _mbtn.style.borderColor = race.color; _mbtn.style.color = race.color; _mbtn.style.background = race.color + '18'; }
+      _mbar.style.display = 'block';
+    }
 
     // Play civilization voice intro
     playCivVoice(race.id);
@@ -1375,6 +1410,13 @@ if (_isMobile) {
   gv.style.display = 'none';
   const _hint = document.getElementById('dsEmptyText');
   if (_hint) _hint.textContent = 'TAP A CIVILIZATION TO SELECT';
+
+  // Body-level launch bar — appended to <body> so overflow:hidden on ancestors can't clip it
+  const _mbar = document.createElement('div');
+  _mbar.id = 'mobileLaunchBar';
+  _mbar.style.cssText = 'display:none;position:fixed;bottom:0;left:0;right:0;z-index:99998;padding:10px 16px 20px;background:linear-gradient(transparent,#020208 30%);';
+  _mbar.innerHTML = '<button id="mobileLaunchBtn" onclick="showOpponentPicker()" style="width:100%;padding:16px 0;font-family:\'Orbitron\',monospace;font-size:13px;letter-spacing:4px;border:2px solid #00ffcc;color:#00ffcc;background:transparent;border-radius:4px;cursor:pointer;text-transform:uppercase;white-space:nowrap;">LAUNCH DECK</button>';
+  document.body.appendChild(_mbar);
   _splashBg.style.backgroundImage = "url('assets/splash.png')";
   _splashBg.style.backgroundSize = 'cover';
   _splashBg.style.backgroundPosition = 'center top';
