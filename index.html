@@ -769,26 +769,28 @@ button, [onclick] { touch-action: manipulation; }
         <!-- LEFT: Avatar -->
         <div style="flex-shrink:0;">
           <div id="loreAvatar" style="width:180px;min-height:200px;border-radius:8px;overflow:hidden;border:2px solid #ffffff22;background:#06050e;"></div>
-          <div class="ds-deploy-wrap" id="deployWrap" style="display:none;"><button class="btn-deploy" id="deployBtn" onclick="showOpponentPicker()" style="width:180px;">LAUNCH DECK</button></div>
         </div>
-        <!-- CENTER: Name/Sub/Quote + Lore -->
-        <div style="flex:2;display:flex;flex-direction:column;gap:8px;min-width:0;">
+        <!-- CENTER/RIGHT: Name/Sub/Quote + Lore paragraph -->
+        <div style="flex:1;display:flex;flex-direction:column;gap:8px;min-width:0;">
           <div class="ds-race-name" id="loreName">—</div>
           <div class="ds-race-sub" id="loreSub">—</div>
           <div class="ds-race-quote" id="loreQuote">—</div>
           <div id="loreText1" style="font-size:12px;color:#ccc;line-height:1.7;margin-top:6px;">—</div>
           <div style="display:none;"><div id="loreLabel1"></div><div id="loreLabel2"></div><div id="loreText2"></div><div id="loreLabel3"></div><div id="loreText3"></div><div class="lore-weakness" id="loreText3b"></div><div id="loreDivider"></div></div>
         </div>
-        <!-- RIGHT: Fleet 2x2 -->
+      </div>
+      <!-- ROW 2: Fleet 2x2 | Abilities 2x2 -->
+      <div style="display:flex;gap:18px;margin-top:16px;align-items:flex-start;">
+        <!-- Fleet below avatar -->
         <div style="flex-shrink:0;">
           <div style="font-size:9px;letter-spacing:3px;color:#fff;margin-bottom:8px;font-family:'Orbitron',monospace;">FLEET</div>
-          <div id="tierCardPreview" style="display:none;grid-template-columns:1fr 1fr;gap:6px;width:252px;"></div>
+          <div id="tierCardPreview" style="display:none;grid-template-columns:1fr 1fr;gap:6px;width:300px;"></div>
         </div>
-      </div>
-      <!-- ROW 2: Abilities 2x2 -->
-      <div style="margin-top:16px;">
-        <div style="font-size:9px;letter-spacing:3px;color:#fff;margin-bottom:8px;font-family:'Orbitron',monospace;">SPECIAL ABILITIES</div>
-        <div class="ability-cards-row" id="abilityCards" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;"></div>
+        <!-- Abilities to the right -->
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:9px;letter-spacing:3px;color:#fff;margin-bottom:8px;font-family:'Orbitron',monospace;">SPECIAL ABILITIES</div>
+          <div class="ability-cards-row" id="abilityCards" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;"></div>
+        </div>
       </div>
     </div>
     </div>
@@ -1350,7 +1352,7 @@ function selectRace(race, tileEl) {
       tcp.style.display = 'grid';
     }
 
-    const btn = document.getElementById('deployBtn');
+    const btn = document.getElementById('deployBtn'); if (!btn) return; // removed from DOM
     btn.style.cssText = `
       font-family:'Orbitron',monospace;font-size:12px;letter-spacing:4px;
       padding:12px 0;cursor:pointer;text-transform:uppercase;border-radius:4px;
@@ -1358,7 +1360,7 @@ function selectRace(race, tileEl) {
       border:2px solid ${race.color};color:${race.color};background:${race.color}11;
       animation:launchGlow 2s ease-in-out infinite;
     `;
-    document.getElementById('deployWrap').style.display = 'block';
+    const _dw = document.getElementById('deployWrap'); if (_dw) _dw.style.display = 'block';
     const _flb = document.getElementById('fixedLaunchBtn');
     if (_flb) { _flb.style.display='block'; _flb.style.borderColor=race.color; _flb.style.color=race.color; _flb.style.background=race.color+'11'; _flb.style.boxShadow='0 0 24px '+race.color+'44'; }
     lc.classList.add('visible');
