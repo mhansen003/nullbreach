@@ -6891,9 +6891,10 @@ function renderGrid() {
 
 
 
+  // Passive ability zone glows on placed cards with spatial effects
+  renderPassiveAbilityGlows(el);
+
   // Battle comparison indicators in gaps
-
-
   renderBattleIndicators(el);
 
 
@@ -6936,6 +6937,54 @@ function ab(a) {
 
 
 
+
+// Passive ability zone glows — persistent visual effect on cells affected by placed ability cards
+function renderPassiveAbilityGlows(el) {
+  // Abilities that persistently affect adjacent cells
+  const PASSIVE_ZONES = {
+    // NEGATIVE — red glow on affected enemy/neutral cells
+    ambush:     { dirs:[{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}], col:'#ff4444', opacity:'0.35' },
+    intimidate: { dirs:[{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}], col:'#ff4444', opacity:'0.3' },
+    sniper:     { dirs:[{dr:-1,dc:0},{dr:-2,dc:0},{dr:-3,dc:0},{dr:-4,dc:0}], col:'#ff8800', opacity:'0.25' },
+    stonewall:  { dirs:[{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}], col:'#ff4444', opacity:'0.2' },
+    // POSITIVE — green/teal glow on affected friendly cells
+    boost:     { dirs:[{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}], col:'#00ffcc', opacity:'0.2' },
+    commander: { dirs:[{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}], col:'#ffcc00', opacity:'0.2' },
+    spawn:     { dirs:[{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}], col:'#88cc44', opacity:'0.2' },
+    hat_trick: { dirs:[{dr:-1,dc:0},{dr:1,dc:0}], col:'#00ddff', opacity:'0.2' },
+    mirror:    { dirs:[{dr:0,dc:-1},{dr:0,dc:1}], col:'#cc44ff', opacity:'0.25' },
+  };
+
+  const GRAD_DIR = { n:'to bottom', s:'to top', w:'to right', e:'to left' };
+  const DIR_KEY = {'-1,0':'n', '1,0':'s', '0,-1':'w', '0,1':'e'};
+
+  for (let r = 0; r < 5; r++) {
+    for (let c = 0; c < 7; c++) {
+      const cell = G.grid[r][c];
+      if (!cell.card || !cell.card.ability || cell.owner === 'hazard') continue;
+      const zone = PASSIVE_ZONES[cell.card.ability];
+      if (!zone) continue;
+      zone.dirs.forEach(({dr, dc}) => {
+        const nr = r + dr, nc = c + dc;
+        if (nr < 0 || nr >= 5 || nc < 0 || nc >= 7) return;
+        const targetCell = G.grid[nr][nc];
+        // For negative abilities: only highlight enemy cells or empty cells
+        // For positive abilities: only highlight friendly cells
+        const isNeg = ['ambush','intimidate','sniper','stonewall'].includes(cell.card.ability);
+        if (isNeg && targetCell.card && targetCell.owner === cell.owner) return; // skip own cards for neg
+        if (!isNeg && targetCell.card && targetCell.owner !== cell.owner) return; // skip enemies for pos
+        const el2 = document.querySelector(`.cell[data-r=${nr}][data-c=${nc}]`);
+        if (!el2) return;
+        const dk = dr + ',' + dc;
+        const gradDir = GRAD_DIR[DIR_KEY[dk]] || 'to center';
+        const ov = document.createElement('div');
+        ov.dataset.passiveZone = '1';
+        ov.style.cssText = `position:absolute;inset:0;pointer-events:none;z-index:1;border-radius:3px;background:linear-gradient(${gradDir},${zone.col}${Math.round(parseFloat(zone.opacity)*255).toString(16).padStart(2,'0')} 0%,transparent 65%);border:1px solid ${zone.col}44;`;
+        el2.appendChild(ov);
+      });
+    }
+  }
+}
 function renderBattleIndicators(el) {
 
 
