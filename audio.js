@@ -97,7 +97,18 @@ function playNextTrack() {
   audio.volume = 0.4;
 
 
-  audio.play().catch(() => {});
+  audio.play().catch(() => {
+    // Autoplay blocked — retry on first user interaction
+    const retry = () => {
+      audio.play().catch(() => {});
+      document.removeEventListener('click', retry, true);
+      document.removeEventListener('keydown', retry, true);
+      document.removeEventListener('touchstart', retry, true);
+    };
+    document.addEventListener('click',      retry, { once:true, capture:true });
+    document.addEventListener('keydown',    retry, { once:true, capture:true });
+    document.addEventListener('touchstart', retry, { once:true, capture:true });
+  });
 
 
 }
