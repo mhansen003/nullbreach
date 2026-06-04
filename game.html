@@ -2537,10 +2537,8 @@ button, [onclick] { touch-action: manipulation; }
     height: 100svh !important; box-shadow: none !important;
   }
   #guideContent { padding: 12px 16px; font-size: 13px; }
-  /* Ability cards on p3: single column */
-  #guideContent div[style*="display:flex;gap:24px"] {
-    flex-direction: column !important; align-items: center !important; gap: 16px !important;
-  }
+  /* Ability cards on p3: stay side-by-side but ensure they fit */
+  #guideContent div[style*="gap:24px"] { gap: 12px !important; justify-content: center !important; }
   .turn-tag { font-size: 9px; padding: 2px 6px; }
   #logPanel { display: none; }
   .ai-area { display: none !important; }
@@ -3042,7 +3040,7 @@ button, [onclick] { touch-action: manipulation; }
 <!-- ═══════════════ HOW TO PLAY MODAL ═══════════════ -->
 
 
-<div id="guideModal" onclick="if(event.target===this)closeGuide()" style="display:none;position:fixed;inset:0;z-index:99000;background:#000000dd;backdrop-filter:blur(14px);cursor:pointer;align-items:center;justify-content:center;font-family:'Inter',system-ui,sans-serif;">
+<div id="guideModal" onclick="if(event.target===this)closeGuide()" style="display:none;position:fixed;inset:0;z-index:99000;background:#000000f5;backdrop-filter:blur(6px);cursor:pointer;align-items:center;justify-content:center;font-family:'Inter',system-ui,sans-serif;">
 
   <div style="background:linear-gradient(160deg,#0d0d1e 0%,#080810 100%);border:1px solid #8855ff44;border-radius:16px;max-width:740px;width:96%;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 0 60px #8855ff18,0 24px 64px #00000099;cursor:default;">
 
@@ -3076,7 +3074,9 @@ button, [onclick] { touch-action: manipulation; }
       </div>
     </div>
 
-  </div>iv>
+  </div>
+
+</div>
 
 
 
