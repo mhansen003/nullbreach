@@ -555,10 +555,19 @@ function assignRandomAbilities(hand, raceId) {
 
 
 
-  chosen.forEach(card => {
+  // Build an assignment list: all pool abilities in shuffled order first,
+  // then random picks for any slots beyond pool size.
+  // Guarantees every pool ability appears at least once before duplicates.
+  const _shuffledPool = [...pool].sort(() => _arng() - 0.5);
+  const _chosenArr = Array.from(chosen);
+  const _assignments = _chosenArr.map((_, i) =>
+    i < _shuffledPool.length
+      ? _shuffledPool[i]
+      : pool[Math.floor(_arng() * pool.length)]
+  );
 
-
-    const ab = pool[Math.floor(_arng() * pool.length)];
+  _chosenArr.forEach((card, i) => {
+    const ab = _assignments[i];
 
 
     card.ability = ab;
