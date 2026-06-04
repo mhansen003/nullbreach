@@ -373,19 +373,13 @@ function renderGrid() {
           }
 
 
-          // Yellow dotted lines on adjacent EMPTY cells — shows influence range for next placement
-          [{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}].forEach(({dr,dc}) => {
-            const nr2 = r+dr, nc2 = c+dc;
-            if (nr2<0||nr2>=5||nc2<0||nc2>=7) return;
-            const adjEl = document.querySelector(`.cell[data-r="${nr2}"][data-c="${nc2}"]`);
-            if (!adjEl) return;
-            const g = G.grid[nr2][nc2];
-            if (g.owner === 'hazard') return;
-            if (g.card && g.owner === cell.owner) return; // skip friendly occupied
-            // Enemy card: red dashed. Empty or neutral: yellow dashed.
-            const _isEnemy = g.card && g.owner !== cell.owner;
-            adjEl.style.outline = _isEnemy ? '2px dashed #ff555588' : '2px dashed #ffdd0088';
-            adjEl.style.outlineOffset = '0px'; // outer edge of cell, not inset
+          // Show the card's zone expansion — same future-valid style as the tooltip zone diagram
+          const _zonePreview = typeof getZonePreview === 'function'
+            ? getZonePreview(r, c, cell.card, cell.owner)
+            : [];
+          _zonePreview.forEach(({r:zr, c:zc}) => {
+            const zEl = document.querySelector(`.cell[data-r="${zr}"][data-c="${zc}"]`);
+            if (zEl && !zEl.classList.contains('valid')) zEl.classList.add('future-valid');
           });
 
 
@@ -393,9 +387,7 @@ function renderGrid() {
 
 
         div.onmouseleave = () => {
-
-
-          document.querySelectorAll('.cell[style*="dashed"]').forEach(el => { el.style.outline=''; el.style.outlineOffset=''; el.style.boxShadow=''; });
+          document.querySelectorAll('.cell.future-valid').forEach(el => el.classList.remove('future-valid'));
           hideTip();
           clearAbilityZone();
         };
