@@ -255,7 +255,7 @@ function checkWin() {
         <div style="display:flex;flex-direction:column;align-items:center;gap:3px;">
 
 
-          <span style="font-size:11px;color:#222;letter-spacing:3px;">VS</span>
+          <span style="font-size:11px;color:#666;letter-spacing:3px;">VS</span>
 
 
         </div>
@@ -294,7 +294,7 @@ function checkWin() {
       <div style="font-size:10px;color:#444;letter-spacing:2px;">
 
 
-        ${s.pWins} rows/cols won by you | ${s.aWins} by AI
+        ${s.pWins} rows/cols to you &nbsp;·&nbsp; ${s.aWins} to AI
 
 
       </div>

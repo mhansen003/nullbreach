@@ -56,7 +56,7 @@ function _buildScoreBreakdown(axis, idx) {
     <div style="display:flex;align-items:center;gap:12px;padding:10px 0 12px;border-bottom:1px solid #ffffff0a;margin-bottom:8px;">
       ${winAvg ? `<img src="${winAvg}" style="width:44px;height:44px;border-radius:50%;object-fit:cover;border:2px solid ${winCol};box-shadow:0 0 12px ${winCol}44;flex-shrink:0;">` : `<div style="width:44px;height:44px;border-radius:50%;background:#ffdd0022;border:2px solid #ffdd0066;display:flex;align-items:center;justify-content:center;font-size:18px;">⚖</div>`}
       <div>
-        <div style="font-family:'Orbitron',monospace;font-size:14px;font-weight:700;color:${winCol};letter-spacing:1px;">${winName}</div>
+        <div style="font-family:'Orbitron',monospace;font-size:12px;font-weight:700;color:${winCol};letter-spacing:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px;">${winName}</div>
         <div style="font-size:10px;color:#888;letter-spacing:2px;margin-top:2px;">${result==='tie'?'ALL TIED':'WINS '+label}</div>
       </div>
       <div style="margin-left:auto;text-align:right;">
