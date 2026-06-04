@@ -3939,12 +3939,12 @@ function showTip(e, card) {
   </div>`;
 
   tt.style.display = 'block';
-  // Bottom-left of screen — doesn't obscure the grid or hand
+  // Right side, vertically centered
   const ttH = tt.offsetHeight || 360;
-  tt.style.left   = '16px';
-  tt.style.right  = 'auto';
-  tt.style.bottom = '16px';
-  tt.style.top    = 'auto';
+  tt.style.right  = '16px';
+  tt.style.left   = 'auto';
+  tt.style.bottom = 'auto';
+  tt.style.top    = Math.max(8, Math.min(Math.round((window.innerHeight-ttH)/2), window.innerHeight-ttH-8))+'px';
 }
 
 function showErrorTip(e, reason) {
