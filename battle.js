@@ -101,7 +101,7 @@ function computeBattleResults() {
             if (!east.card.shieldBlockH) b[r][c+1].hL++;
             // REVENGE: east card loses H — penalize the cell card
             if (east.card.ability === 'revenge') {
-              cell.card._revengePenalty = (cell.card._revengePenalty || 0) + 1;
+              cell.card._revengePenalty = Math.min((cell.card._revengePenalty || 0) + 1, 9);
             }
 
 
@@ -160,7 +160,7 @@ function computeBattleResults() {
             if (!cell.card.shieldBlockH) b[r][c].hL++;
             // REVENGE: cell loses H — penalize the east card
             if (cell.card.ability === 'revenge') {
-              east.card._revengePenalty = (east.card._revengePenalty || 0) + 1;
+              east.card._revengePenalty = Math.min((east.card._revengePenalty || 0) + 1, 9);
             }
 
 
@@ -261,7 +261,7 @@ function computeBattleResults() {
             if (!south.card.shieldBlockV) b[r+1][c].vL++;
             // REVENGE: south card loses V — penalize the cell card
             if (south.card.ability === 'revenge') {
-              cell.card._revengePenalty = (cell.card._revengePenalty || 0) + 1;
+              cell.card._revengePenalty = Math.min((cell.card._revengePenalty || 0) + 1, 9);
             }
 
 
@@ -323,7 +323,7 @@ function computeBattleResults() {
             if (!cell.card.shieldBlockV) b[r][c].vL++;
             // REVENGE: cell loses V — penalize the south card
             if (cell.card.ability === 'revenge') {
-              south.card._revengePenalty = (south.card._revengePenalty || 0) + 1;
+              south.card._revengePenalty = Math.min((south.card._revengePenalty || 0) + 1, 9);
             }
 
 
@@ -647,7 +647,9 @@ function computeScores() {
         .filter(({dr,dc}) => { const rr=r+dr,cc=c+dc; return rr>=0&&rr<5&&cc>=0&&cc<7&&G.grid[rr][cc].owner==='hazard'; }).length;
 
 
-      const effPower = Math.max(1, basePower - _adjHazards * 2 - (cell.card._revengePenalty || 0));
+      // REVENGE: cap penalty to basePower-1 so floor of 1 is always kept
+      const _revPen = Math.min(cell.card._revengePenalty || 0, Math.max(0, basePower - 1));
+      const effPower = Math.max(1, basePower - _adjHazards * 2 - _revPen);
 
 
       if (countsH) { if (cell.owner==='player') rows[r].p += effPower; else rows[r].a += effPower; }

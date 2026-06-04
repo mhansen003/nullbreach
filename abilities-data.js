@@ -90,7 +90,7 @@ const ABILITY_TEXT = {
   birthright: 'On placement, a bonus Tier II card is added to your hand.',
 
 
-  deciding_factor:'DECIDING FACTOR: Tied rows/cols tip +1 to your favor',
+  deciding_factor:'When a row or column ends in a tie, this card tips the result in your favor.',
 
 
   lamb: '5 VP but zero edges. Scores full value uncontested, nothing if attacked.',
