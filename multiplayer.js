@@ -218,7 +218,7 @@ function mpApplyMove(move) {
   // (P1's row 4 = game row 4 on P2's board = P2's visual TOP with rows [4,3,2,1,0])
   const applyR = (_mpPlayer === 2) ? move.r : (4 - move.r);
   // Column also mirrors for a full 180° board flip
-  const applyC = (_mpPlayer === 2) ? (6 - move.c) : move.c;
+  const applyC = (_mpPlayer === 2) ? move.c : (6 - move.c);
 
 
   // noTurnFlip=true: opponent has an extra FLANK turn, don't give control to this player yet
