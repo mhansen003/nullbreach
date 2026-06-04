@@ -131,7 +131,38 @@ function closeMenu() {
 
   if (b) b.style.display = 'none';
 
+  // Also close audio sub-panel
+  _closeAudioPanel();
 
+}
+
+let _audioPanelOpen = false;
+function _closeAudioPanel() {
+  const ap = document.getElementById('audioPanel');
+  const btn = document.getElementById('audioToggleBtn');
+  if (!ap) return;
+  ap.style.opacity = '0';
+  ap.style.transform = 'translateX(8px)';
+  setTimeout(() => { if (!_audioPanelOpen) ap.style.display = 'none'; }, 180);
+  _audioPanelOpen = false;
+  if (btn) btn.querySelector('span:last-child').textContent = '◀';
+}
+
+function toggleAudioPanel() {
+  const ap = document.getElementById('audioPanel');
+  const btn = document.getElementById('audioToggleBtn');
+  if (!ap) return;
+  if (_audioPanelOpen) {
+    _closeAudioPanel();
+  } else {
+    _audioPanelOpen = true;
+    ap.style.display = 'block';
+    requestAnimationFrame(() => {
+      ap.style.opacity = '1';
+      ap.style.transform = 'translateX(0)';
+    });
+    if (btn) btn.querySelector('span:last-child').textContent = '▶';
+  }
 }
 
 function updateMuteLabel() {
