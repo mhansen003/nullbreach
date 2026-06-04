@@ -307,7 +307,7 @@ function renderScoreBadges(_precomputed) {
     const rowWinCol  = res==='p' ? pCol : res==='a' ? aCol : '#333';
 
 
-    const rowBg      = res==='p' ? pCol+'08' : res==='a' ? aCol+'08' : (p===0&&a===0)?'#07070f':'#0d0c18';
+    const rowBg      = res==='p' ? '#06060e' : res==='a' ? '#06060e' : (p===0&&a===0)?'#06060e':'#06060e';
 
 
     const rowBorder  = res==='p' ? pCol+'55' : res==='a' ? aCol+'55' : (p===0&&a===0)?'#111120':'#221a33';
@@ -424,7 +424,7 @@ function renderScoreBadges(_precomputed) {
     const colWinCol  = res==='p' ? pCol : res==='a' ? aCol : '#333';
 
 
-    const colBg      = res==='p' ? pCol+'08' : res==='a' ? aCol+'08' : (p===0&&a===0)?'#07070f':'#0d0c18';
+    const colBg      = res==='p' ? '#06060e' : res==='a' ? '#06060e' : (p===0&&a===0)?'#06060e':'#06060e';
 
 
     const colBorder  = res==='p' ? pCol+'55' : res==='a' ? aCol+'55' : (p===0&&a===0)?'#111120':'#221a33';
