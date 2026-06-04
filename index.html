@@ -766,50 +766,52 @@ button, [onclick] { touch-action: manipulation; }
       <!-- ROW 1: [Avatar+GlowBtn] [Name/Quote/Pills] [TierCards] -->
       <div style="display:flex;gap:18px;align-items:stretch;margin-bottom:10px;">
 
-        <!-- LEFT: Avatar + glowing LAUNCH DECK button -->
-        <div style="flex-shrink:0;display:flex;flex-direction:column;gap:8px;">
+        <!-- LEFT: Avatar only (Launch Deck is fixed bottom-center) -->
+        <div style="flex-shrink:0;">
           <div id="loreAvatar" style="
-            width:180px;flex:1;min-height:180px;border-radius:8px;
+            width:180px;flex:1;min-height:220px;border-radius:8px;
             overflow:hidden;border:2px solid #ffffff22;background:#06050e;
           "></div>
-          <div class="ds-deploy-wrap" id="deployWrap">
-            <button class="btn-deploy" id="deployBtn" onclick="showOpponentPicker()" style="
-              width:180px;padding:12px 0;font-size:12px;letter-spacing:4px;
-              animation:launchGlow 2s ease-in-out infinite;
-            ">LAUNCH DECK</button>
+          <!-- hidden compat stubs -->
+          <div class="ds-deploy-wrap" id="deployWrap" style="display:none;">
+            <button class="btn-deploy" id="deployBtn" onclick="showOpponentPicker()" style="width:180px;padding:12px 0;font-size:12px;letter-spacing:4px;animation:launchGlow 2s ease-in-out infinite;">LAUNCH DECK</button>
           </div>
         </div>
 
-        <!-- CENTER: Name / quote / ability pills only -->
-        <div style="flex:1;display:flex;flex-direction:column;gap:8px;min-width:0;">
-          <div class="ds-race-name" id="loreName">—</div>
-          <div class="ds-race-sub" id="loreSub">—</div>
-          <div class="ds-race-quote" id="loreQuote">—</div>
-          
-        </div>
+        <!-- RIGHT: Name/Quote + FLEET 2x2 + ABILITIES 2x2 -->
+        <div style="flex:1;display:flex;flex-direction:column;gap:14px;min-width:0;">
 
-        <!-- RIGHT: Tier card previews -->
-        <div id="tierCardPreview" style="display:none;flex-direction:row;gap:8px;flex-shrink:0;"></div>
+          <!-- Name/Sub/Quote + FLEET grid side by side -->
+          <div style="display:flex;gap:18px;align-items:flex-start;">
+            <!-- Civ text -->
+            <div style="flex:1;display:flex;flex-direction:column;gap:8px;min-width:0;">
+              <div class="ds-race-name" id="loreName">—</div>
+              <div class="ds-race-sub" id="loreSub">—</div>
+              <div class="ds-race-quote" id="loreQuote">—</div>
+            </div>
+            <!-- FLEET 2x2 -->
+            <div style="flex-shrink:0;">
+              <div style="font-size:8px;letter-spacing:3px;color:#555;margin-bottom:8px;font-family:'Orbitron',monospace;">FLEET</div>
+              <div id="tierCardPreview" style="display:none;grid-template-columns:1fr 1fr;gap:6px;width:252px;"></div>
+            </div>
+          </div>
+
+          <!-- ABILITIES 2x2 -->
+          <div>
+            <div style="font-size:8px;letter-spacing:3px;color:#555;margin-bottom:8px;font-family:'Orbitron',monospace;">SPECIAL ABILITIES</div>
+            <div class="ability-cards-row" id="abilityCards" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;"></div>
+          </div>
+
+        </div>
       </div>
 
-      <!-- ROW 2: Ability showcase — full width, bigger text -->
-      <div class="ability-cards-row" id="abilityCards"></div>
-
-      <!-- ROW 3: 3-column lore with dark backgrounds -->
-      <div class="lore-divider" id="loreDivider"></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:10px;">
-        <div class="lore-col-panel" style="background:#000000bb;border:1px solid #1a1a2e;border-radius:6px;padding:14px 16px;transition:all 0.2s;">
-          <div class="lore-label" id="loreLabel1">CIVILIZATION</div>
-          <div class="lore-text" id="loreText1">—</div>
-        </div>
-        <div class="lore-col-panel" style="background:#000000bb;border:1px solid #1a1a2e;border-radius:6px;padding:14px 16px;transition:all 0.2s;">
-          <div class="lore-label" id="loreLabel2">HISTORY AT SECTOR GZ-0</div>
-          <div class="lore-text" id="loreText2">—</div>
-        </div>
-        <div class="lore-col-panel" style="background:#000000bb;border:1px solid #1a1a2e;border-radius:6px;padding:14px 16px;transition:all 0.2s;">
-          <div class="lore-label" id="loreLabel3">WEAKNESS</div>
-          <div class="lore-weakness" id="loreText3">—</div>
-        </div>
+      <!-- Lore columns removed per user request -->
+      <div id="loreDivider" style="display:none;"></div>
+      <div style="display:none;">
+        <div id="loreLabel1"></div><div id="loreText1"></div>
+        <div id="loreLabel2"></div><div id="loreText2"></div>
+        <div id="loreLabel3"></div><div id="loreText3"></div>
+        <div class="lore-weakness" id="loreText3b"></div>
       </div>
     </div>
 
@@ -1367,7 +1369,7 @@ function selectRace(race, tileEl) {
           <div style="position:absolute;top:5px;left:5px;display:flex;gap:2px;">${dots}</div>
         </div>`;
       }).join('');
-      tcp.style.display = 'flex';
+      tcp.style.display = 'grid';
     }
 
     const btn = document.getElementById('deployBtn');
@@ -2133,7 +2135,7 @@ Promise.all(
 
 <!-- Fixed bottom-right Launch Deck button — always visible on lore screen -->
 <button id="fixedLaunchBtn" onclick="showOpponentPicker()" style="
-  display:none; position:fixed; bottom:24px; right:24px; z-index:99900;
+  display:none; position:fixed; bottom:24px; left:50%; transform:translateX(-50%); z-index:99900;
   font-family:'Orbitron',monospace; font-size:12px; letter-spacing:4px;
   padding:14px 28px; border-radius:6px; cursor:pointer;
   border:2px solid #00ffcc; color:#00ffcc; background:#00ffcc11;
