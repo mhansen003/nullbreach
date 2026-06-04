@@ -3171,6 +3171,7 @@ button, [onclick] { touch-action: manipulation; }
 <script src="turn.js"></script>
 <script src="state.js"></script>
 <script src="ui.js"></script>
+<script src="leaderboard.js"></script>
 
 <script>
 
@@ -3405,6 +3406,16 @@ initGame();
       ← BACK TO DECK SELECT
 
 
+    </button>
+
+    <button onclick="showLeaderboard();closeMenu()" style="
+      background:transparent;border:1px solid #ffdd0055;color:#ffdd00;
+      font-family:inherit;font-size:11px;letter-spacing:2px;padding:9px 14px;
+      cursor:pointer;border-radius:4px;text-align:left;width:100%;transition:all 0.2s;
+      box-shadow:0 0 8px #ffdd0011;
+    " onmouseenter="this.style.background='#1a1200';this.style.borderColor='#ffdd00';this.style.boxShadow='0 0 14px #ffdd0033'"
+       onmouseleave="this.style.background='transparent';this.style.borderColor='#ffdd0055';this.style.boxShadow='0 0 8px #ffdd0011'">
+      🏆 LEADERBOARD
     </button>
 
 

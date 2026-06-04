@@ -171,6 +171,11 @@ function checkWin() {
 
   const pWon = s.pVP > s.aVP, draw = s.pVP === s.aVP;
 
+  // Leaderboard record check — only on player win, not AI/multiplayer
+  if (pWon && !_mpRoom && typeof checkLeaderboardRecord === 'function') {
+    checkLeaderboardRecord(window.playerRaceId, window.aiRaceId, s.pVP, s.aVP);
+  }
+
 
   const winCol2 = pWon ? (window.playerFactionColor||'#00ffcc') : draw ? '#888' : (window.aiFactionColor||'#ff0080');
 
