@@ -3909,14 +3909,12 @@ function showTip(e, card) {
   </div>`;
 
   tt.style.display = 'block';
-  // Fixed: always right-center of screen — out of the way of the cursor
+  // Bottom-left of screen — doesn't obscure the grid or hand
   const ttH = tt.offsetHeight || 360;
-  tt.style.right = '16px';
-  tt.style.left  = 'auto';
-  tt.style.top   = Math.max(8, Math.min(
-    Math.round((window.innerHeight - ttH) / 2),
-    window.innerHeight - ttH - 8
-  )) + 'px';
+  tt.style.left   = '16px';
+  tt.style.right  = 'auto';
+  tt.style.bottom = '16px';
+  tt.style.top    = 'auto';
 }
 
 function showErrorTip(e, reason) {
@@ -4332,31 +4330,81 @@ const GUIDE_PAGES = [
   {
     title: 'THE BATTLEFIELD',
     html: `
-      <style>@keyframes g1fly{0%{opacity:0;transform:translateY(22px) scale(0.82)}100%{opacity:1;transform:none}}@keyframes g1adj{0%{opacity:0}100%{opacity:1}}@keyframes g1pulse{0%,100%{border-color:#ffdd0055}50%{border-color:#ffdd00bb}}</style><div style="text-align:center;margin-bottom:12px;"><div style="font-size:10px;color:#ff0080;letter-spacing:3px;margin-bottom:6px;font-family:'Orbitron',monospace;">OPPONENT</div><div style="display:inline-grid;grid-template-columns:repeat(7,40px);grid-template-rows:repeat(3,52px);gap:3px;"><div style="width:40px;height:52px;border-radius:4px;position:relative;background:#0a0a17;border:1px solid #1a1a2e;border-bottom:3px solid #ff008033;"></div>
-<div style="width:40px;height:52px;border-radius:4px;position:relative;background:#0a0a17;border:1px solid #1a1a2e;border-bottom:3px solid #ff008033;"></div>
-<div style="width:40px;height:52px;border-radius:4px;position:relative;background:#0a0a17;border:1px solid #1a1a2e;border-bottom:3px solid #ff008033;"></div>
-<div style="width:40px;height:52px;border-radius:4px;position:relative;background:#ff008008;border:1px dashed #ff008044;border-bottom:3px solid #ff008033;"></div>
-<div style="width:40px;height:52px;border-radius:4px;position:relative;background:linear-gradient(145deg,#1c0a0a,#150818);border:2px solid #ff0080;border-bottom:3px solid #ff0080;display:flex;align-items:center;justify-content:center;"><img src="assets/avatars/crystallis.png" style="width:26px;height:26px;border-radius:50%;object-fit:cover;object-position:top;opacity:0.9;"></div>
-<div style="width:40px;height:52px;border-radius:4px;position:relative;background:#ff008008;border:1px dashed #ff008044;border-bottom:3px solid #ff008033;"></div>
-<div style="width:40px;height:52px;border-radius:4px;position:relative;background:#0a0a17;border:1px solid #1a1a2e;border-bottom:3px solid #ff008033;"></div>
-<div style="width:40px;height:52px;border-radius:4px;position:relative;background:#080810;border:1px dashed #151525;"></div>
-<div style="width:40px;height:52px;border-radius:4px;position:relative;background:#080810;border:1px dashed #151525;"></div>
-<div style="width:40px;height:52px;border-radius:4px;position:relative;background:#ffdd0008;border:2px dashed #ffdd0088;animation:g1adj 0.35s ease 1.6s both,g1pulse 1.4s ease 1.9500000000000002s infinite;"></div>
-<div style="width:40px;height:52px;border-radius:4px;position:relative;background:#ffdd0008;border:2px dashed #ffdd0088;animation:g1pulse 1.4s ease 0.3s infinite;"></div>
-<div style="width:40px;height:52px;border-radius:4px;position:relative;background:#ff008008;border:1px dashed #ff008044;"></div>
-<div style="width:40px;height:52px;border-radius:4px;position:relative;background:#080810;border:1px dashed #151525;"></div>
-<div style="width:40px;height:52px;border-radius:4px;position:relative;background:#080810;border:1px dashed #151525;"></div>
-<div style="width:40px;height:52px;border-radius:4px;position:relative;background:#0a0a17;border:1px solid #1a1a2e;border-top:3px solid #00ffcc33;"></div>
-<div style="width:40px;height:52px;border-radius:4px;position:relative;background:#ffdd0008;border:2px dashed #ffdd0088;border-top:3px solid #00ffcc33;animation:g1adj 0.35s ease 1.6s both,g1pulse 1.4s ease 1.9500000000000002s infinite;"></div>
-<div style="width:40px;height:52px;border-radius:4px;position:relative;background:linear-gradient(145deg,#0a1c16,#08151e);border:2px solid #00ffcc;border-top:3px solid #00ffcc;display:flex;align-items:center;justify-content:center;animation:g1fly 0.45s cubic-bezier(0.2,0,0.3,1) 1.0s both;"><img src="assets/avatars/terran.png" style="width:26px;height:26px;border-radius:50%;object-fit:cover;object-position:top;opacity:0.9;"></div>
-<div style="width:40px;height:52px;border-radius:4px;position:relative;background:linear-gradient(145deg,#0a1c16,#08151e);border:2px solid #00ffcc;border-top:3px solid #00ffcc;display:flex;align-items:center;justify-content:center;"><img src="assets/avatars/terran.png" style="width:26px;height:26px;border-radius:50%;object-fit:cover;object-position:top;opacity:0.9;"></div>
-<div style="width:40px;height:52px;border-radius:4px;position:relative;background:#ffdd0008;border:2px dashed #ffdd0088;border-top:3px solid #00ffcc33;animation:g1pulse 1.4s ease 0.3s infinite;"></div>
-<div style="width:40px;height:52px;border-radius:4px;position:relative;background:#0a0a17;border:1px solid #1a1a2e;border-top:3px solid #00ffcc33;"></div>
-<div style="width:40px;height:52px;border-radius:4px;position:relative;background:#0a0a17;border:1px solid #1a1a2e;border-top:3px solid #00ffcc33;"></div>
-</div><div style="font-size:10px;color:#00ffcc;letter-spacing:3px;margin-top:6px;font-family:'Orbitron',monospace;">YOU</div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:460px;margin:0 auto;"><div style="background:#0a0a18;border-left:3px solid #00ffcc;border-radius:6px;padding:12px;"><div style="font-size:10px;color:#00ffcc;font-family:'Orbitron',monospace;letter-spacing:2px;margin-bottom:5px;">STEP 1</div><div style="font-size:13px;color:#ddd;">Place a Tier I card on your home row (bottom). The opponent does the same from the top.</div></div><div style="background:#0a0a18;border-left:3px solid #ffdd00;border-radius:6px;padding:12px;"><div style="font-size:10px;color:#ffdd00;font-family:'Orbitron',monospace;letter-spacing:2px;margin-bottom:5px;">STEP 2</div><div style="font-size:13px;color:#ddd;"><span style="color:#ffdd00;">Yellow cells</span> unlock around each card. Your next card must go in one of those cells.</div></div></div>
+      <style>
+/* 5-second loop timeline percentages:
+   0-12%: blank (reset)    12-28%: card1 flies in    28-44%: adj1 appear
+   44-58%: card2 flies in  58-72%: adj2 appear       72-90%: hold   90-100%: fade */
+@keyframes g1c1{0%,12%{opacity:0;transform:translateY(18px) scale(0.85)}28%{opacity:1;transform:none}90%{opacity:1}100%{opacity:0}}
+@keyframes g1c2{0%,44%{opacity:0;transform:translateY(18px) scale(0.85)}58%{opacity:1;transform:none}90%{opacity:1}100%{opacity:0}}
+@keyframes g1ai{0%,5%{opacity:0}16%{opacity:1}90%{opacity:1}100%{opacity:0}}
+@keyframes g1adj1{0%,28%{opacity:0}44%{opacity:1}90%{opacity:1}100%{opacity:0}}
+@keyframes g1adj2{0%,58%{opacity:0}72%{opacity:1}90%{opacity:1}100%{opacity:0}}
+@keyframes g1pink{0%,5%{opacity:0}16%{opacity:0.85}90%{opacity:0.85}100%{opacity:0}}
+@keyframes g1pulse{0%,100%{border-color:#ffdd0055}50%{border-color:#ffdd00bb}}
+</style>
+<div style="text-align:center;margin-bottom:12px;">
+  <div style="font-size:10px;color:#ff0080;letter-spacing:3px;margin-bottom:6px;font-family:'Orbitron',monospace;">OPPONENT</div>
+  <div style="display:inline-grid;grid-template-columns:repeat(7,40px);grid-template-rows:repeat(3,52px);gap:3px;">
+
+    <!-- ROW 0: AI home -->
+    <div style="background:#0a0a17;border:1px solid #1a1a2e;border-bottom:2px solid #ff008033;border-radius:3px;"></div>
+    <div style="background:#0a0a17;border:1px solid #1a1a2e;border-bottom:2px solid #ff008033;border-radius:3px;"></div>
+    <div style="background:#0a0a17;border:1px solid #1a1a2e;border-bottom:2px solid #ff008033;border-radius:3px;"></div>
+    <!-- col3: AI pink adj -->
+    <div style="background:#ff008008;border:1px dashed #ff008044;border-bottom:2px solid #ff008033;border-radius:3px;animation:g1pink 5s ease infinite;"></div>
+    <!-- col4: AI card -->
+    <div style="background:linear-gradient(145deg,#1c0a0a,#150818);border:1px solid #ff008055;border-bottom:2px solid #ff0080;border-radius:3px;display:flex;align-items:center;justify-content:center;animation:g1ai 5s ease infinite;">
+      <img src="assets/avatars/crystallis.png" style="width:22px;height:22px;border-radius:50%;object-fit:cover;object-position:top;opacity:0.9;">
+    </div>
+    <!-- col5: AI pink adj -->
+    <div style="background:#ff008008;border:1px dashed #ff008044;border-bottom:2px solid #ff008033;border-radius:3px;animation:g1pink 5s ease infinite;"></div>
+    <div style="background:#0a0a17;border:1px solid #1a1a2e;border-bottom:2px solid #ff008033;border-radius:3px;"></div>
+
+    <!-- ROW 1: Battle zone -->
+    <div style="background:#080810;border:1px dashed #151525;border-radius:3px;"></div>
+    <!-- col1: adj2 after player card 2 -->
+    <div style="background:#ffdd0008;border:1px dashed #ffdd0088;border-radius:3px;animation:g1adj2 5s ease infinite,g1pulse 1.4s ease infinite;"></div>
+    <!-- col2: adj1 after player card 1 -->
+    <div style="background:#ffdd0008;border:1px dashed #ffdd0088;border-radius:3px;animation:g1adj1 5s ease infinite,g1pulse 1.4s ease 0.3s infinite;"></div>
+    <!-- col3: adj1 after player card 1 (N of card) -->
+    <div style="background:#ffdd0008;border:1px dashed #ffdd0088;border-radius:3px;animation:g1adj1 5s ease infinite,g1pulse 1.4s ease 0.6s infinite;"></div>
+    <!-- col4: AI pink adj (S of AI card) -->
+    <div style="background:#ff008008;border:1px dashed #ff008044;border-radius:3px;animation:g1pink 5s ease infinite;"></div>
+    <div style="background:#080810;border:1px dashed #151525;border-radius:3px;"></div>
+    <div style="background:#080810;border:1px dashed #151525;border-radius:3px;"></div>
+
+    <!-- ROW 2: Player home -->
+    <div style="background:#0a0a17;border:1px solid #1a1a2e;border-top:2px solid #00ffcc33;border-radius:3px;"></div>
+    <!-- col1: adj2 -->
+    <div style="background:#ffdd0008;border:1px dashed #ffdd0088;border-top:2px solid #00ffcc33;border-radius:3px;animation:g1adj2 5s ease infinite,g1pulse 1.4s ease 0.2s infinite;"></div>
+    <!-- col2: player card 2 (flies in) -->
+    <div style="background:linear-gradient(145deg,#0a1c16,#08151e);border:1px solid #00ffcc55;border-top:2px solid #00ffcc;border-radius:3px;display:flex;align-items:center;justify-content:center;animation:g1c2 5s ease infinite;">
+      <img src="assets/avatars/terran.png" style="width:22px;height:22px;border-radius:50%;object-fit:cover;object-position:top;opacity:0.9;">
+    </div>
+    <!-- col3: player card 1 -->
+    <div style="background:linear-gradient(145deg,#0a1c16,#08151e);border:1px solid #00ffcc55;border-top:2px solid #00ffcc;border-radius:3px;display:flex;align-items:center;justify-content:center;animation:g1c1 5s ease infinite;">
+      <img src="assets/avatars/terran.png" style="width:22px;height:22px;border-radius:50%;object-fit:cover;object-position:top;opacity:0.9;">
+    </div>
+    <!-- col4: adj1 -->
+    <div style="background:#ffdd0008;border:1px dashed #ffdd0088;border-top:2px solid #00ffcc33;border-radius:3px;animation:g1adj1 5s ease infinite,g1pulse 1.4s ease 0.9s infinite;"></div>
+    <div style="background:#0a0a17;border:1px solid #1a1a2e;border-top:2px solid #00ffcc33;border-radius:3px;"></div>
+    <div style="background:#0a0a17;border:1px solid #1a1a2e;border-top:2px solid #00ffcc33;border-radius:3px;"></div>
+  </div>
+  <div style="font-size:10px;color:#00ffcc;letter-spacing:3px;margin-top:6px;font-family:'Orbitron',monospace;">YOU</div>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:460px;margin:0 auto;">
+  <div style="background:#0a0a18;border-left:3px solid #00ffcc;border-radius:6px;padding:12px;">
+    <div style="font-size:10px;color:#00ffcc;font-family:'Orbitron',monospace;letter-spacing:2px;margin-bottom:5px;">STEP 1</div>
+    <div style="font-size:13px;color:#ddd;">Place a Tier I card on your home row to open the battle zone. The opponent does the same from the top.</div>
+  </div>
+  <div style="background:#0a0a18;border-left:3px solid #ffdd00;border-radius:6px;padding:12px;">
+    <div style="font-size:10px;color:#ffdd00;font-family:'Orbitron',monospace;letter-spacing:2px;margin-bottom:5px;">STEP 2</div>
+    <div style="font-size:13px;color:#ddd;"><span style="color:#ffdd00;">Yellow cells</span> unlock around each placed card. Your next card must go in one of those cells.</div>
+  </div>
+</div>
     `
   },
-    {
+  {
     title: 'CARDS & SCORING',
     html: `
       <style>
@@ -4477,73 +4525,70 @@ const GUIDE_PAGES = [
 @keyframes g3tip{0%{opacity:0;transform:translateX(10px)}100%{opacity:1;transform:none}}
 </style>
 
-<!-- Placement rules — brief -->
+<!-- Placement rules -->
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;">
   <div style="background:#0a0a18;border-left:3px solid #d0d0d0;border-radius:5px;padding:10px 12px;">
-    <div style="font-size:9px;color:#d0d0d0;font-family:'Orbitron',monospace;letter-spacing:2px;margin-bottom:4px;">TIER I</div>
-    <div style="font-size:12px;color:#ddd;">Home row only. Place first to open the battle zone.</div>
+    <div style="font-size:10px;color:#d0d0d0;font-family:'Orbitron',monospace;letter-spacing:2px;margin-bottom:4px;">TIER I</div>
+    <div style="font-size:13px;color:#ddd;line-height:1.6;">Home row only. Place first to open the battle zone.</div>
   </div>
   <div style="background:#0a0a18;border-left:3px solid #8855ff;border-radius:5px;padding:10px 12px;">
-    <div style="font-size:9px;color:#8855ff;font-family:'Orbitron',monospace;letter-spacing:2px;margin-bottom:4px;">TIER II–IV</div>
-    <div style="font-size:12px;color:#ddd;">Battle zone rows 1–3. Must be adjacent to a card you already played.</div>
+    <div style="font-size:10px;color:#8855ff;font-family:'Orbitron',monospace;letter-spacing:2px;margin-bottom:4px;">TIER II–IV</div>
+    <div style="font-size:13px;color:#ddd;line-height:1.6;">Battle zone rows 1–3. Must be adjacent to a card you already played.</div>
   </div>
 </div>
 
-<!-- Two ability card examples -->
-<div style="font-size:9px;letter-spacing:3px;color:#aaa;text-align:center;margin-bottom:12px;font-family:'Orbitron',monospace;">SPECIAL ABILITIES</div>
-<div style="display:flex;gap:20px;justify-content:center;align-items:flex-start;">
+<!-- Two ability card examples — full game card size -->
+<div style="font-size:10px;letter-spacing:3px;color:#ccc;text-align:center;margin-bottom:14px;font-family:'Orbitron',monospace;">SPECIAL ABILITIES — cards marked ★ carry a unique power</div>
+<div style="display:flex;gap:24px;justify-content:center;align-items:flex-start;">
 
   <!-- Card 1: Shield -->
-  <div style="display:flex;flex-direction:column;align-items:center;gap:8px;animation:g3fly 0.4s ease 0.3s both;">
-    <!-- Card -->
-    <div style="position:relative;width:88px;height:116px;border-radius:5px;overflow:hidden;border:2px solid #00ffcc;background:#0a1c16;">
-      <img src="assets/cards/terran/t1_a.png" style="width:100%;height:100%;object-fit:cover;object-position:center top;filter:brightness(1.25);">
-      <span style="position:absolute;top:3px;left:50%;transform:translateX(-50%);font-size:11px;font-weight:bold;color:#fff;background:rgba(0,0,0,0.8);border-radius:50%;min-width:16px;text-align:center;padding:1px 2px;">6</span>
-      <span style="position:absolute;bottom:3px;left:50%;transform:translateX(-50%);font-size:11px;font-weight:bold;color:#fff;background:rgba(0,0,0,0.8);border-radius:50%;min-width:16px;text-align:center;padding:1px 2px;">2</span>
-      <span style="position:absolute;left:3px;top:50%;transform:translateY(-50%);font-size:11px;font-weight:bold;color:#fff;background:rgba(0,0,0,0.8);border-radius:50%;min-width:16px;text-align:center;padding:1px 2px;">3</span>
-      <span style="position:absolute;right:3px;top:50%;transform:translateY(-50%);font-size:11px;font-weight:bold;color:#fff;background:rgba(0,0,0,0.8);border-radius:50%;min-width:16px;text-align:center;padding:1px 2px;">5</span>
-      <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:16px;font-weight:bold;color:#fff;background:#000000cc;padding:2px 5px;border-radius:4px;line-height:1;">2</div>
-      <!-- Pulsing star -->
-      <span class="ability-star" style="position:absolute;top:3px;right:3px;font-size:14px;z-index:5;pointer-events:none;">★</span>
+  <div style="display:flex;flex-direction:column;align-items:center;gap:10px;animation:g3fly 0.4s ease 0.3s both;">
+    <div style="position:relative;width:114px;height:152px;border-radius:5px;overflow:hidden;border:2px solid #00ffcc;background:#0a1c16;">
+      <img src="assets/cards/terran/t1_a.png" style="width:100%;height:100%;object-fit:cover;object-position:center top;filter:brightness(1.3);">
+      <span style="position:absolute;top:4px;left:50%;transform:translateX(-50%);font-size:13px;font-weight:bold;color:#fff;background:rgba(0,0,0,0.82);border-radius:50%;min-width:19px;text-align:center;padding:1px 3px;">6</span>
+      <span style="position:absolute;bottom:4px;left:50%;transform:translateX(-50%);font-size:13px;font-weight:bold;color:#fff;background:rgba(0,0,0,0.82);border-radius:50%;min-width:19px;text-align:center;padding:1px 3px;">2</span>
+      <span style="position:absolute;left:4px;top:50%;transform:translateY(-50%);font-size:13px;font-weight:bold;color:#fff;background:rgba(0,0,0,0.82);border-radius:50%;min-width:19px;text-align:center;padding:1px 3px;">3</span>
+      <span style="position:absolute;right:4px;top:50%;transform:translateY(-50%);font-size:13px;font-weight:bold;color:#fff;background:rgba(0,0,0,0.82);border-radius:50%;min-width:19px;text-align:center;padding:1px 3px;">5</span>
+      <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:22px;font-weight:bold;color:#fff;background:#000000cc;padding:3px 6px;border-radius:4px;line-height:1;">2</div>
+      <span class="ability-star" style="position:absolute;top:4px;right:4px;font-size:16px;z-index:5;pointer-events:none;">★</span>
     </div>
     <!-- Tooltip -->
-    <div style="background:#0a0a14;border:1px solid #aaaaff55;border-radius:6px;padding:8px;width:140px;animation:g3tip 0.4s ease 0.7s both;">
-      <div style="display:flex;gap:7px;align-items:stretch;">
-        <img src="assets/abilities/terran_shield.png" style="width:44px;min-height:44px;border-radius:4px;object-fit:cover;align-self:stretch;" onerror="this.style.background='#1a1a2e';this.style.display='flex'">
+    <div style="background:#0a0a14;border:1px solid #aaaaff55;border-radius:6px;padding:10px;width:160px;animation:g3tip 0.4s ease 0.7s both;">
+      <div style="display:flex;gap:8px;align-items:stretch;">
+        <img src="assets/abilities/terran_shield.png" style="width:52px;min-height:52px;border-radius:5px;object-fit:cover;align-self:stretch;" onerror="this.style.background='#1a1a2e'">
         <div style="flex:1;">
-          <div style="font-size:9px;color:#aaaaff;font-family:'Orbitron',monospace;font-weight:bold;margin-bottom:3px;">SHIELD</div>
-          <div style="font-size:10px;color:#ccc;line-height:1.4;">Absorbs the first loss in battle.</div>
+          <div style="font-size:10px;color:#aaaaff;font-family:'Orbitron',monospace;font-weight:bold;margin-bottom:4px;">SHIELD</div>
+          <div style="font-size:12px;color:#ddd;line-height:1.5;">Absorbs the first loss in battle.</div>
         </div>
       </div>
     </div>
   </div>
 
   <!-- Card 2: Double Strike -->
-  <div style="display:flex;flex-direction:column;align-items:center;gap:8px;animation:g3fly 0.4s ease 0.5s both;">
-    <!-- Card -->
-    <div style="position:relative;width:88px;height:116px;border-radius:5px;overflow:hidden;border:2px solid #00ffcc;background:#0a1c16;">
+  <div style="display:flex;flex-direction:column;align-items:center;gap:10px;animation:g3fly 0.4s ease 0.5s both;">
+    <div style="position:relative;width:114px;height:152px;border-radius:5px;overflow:hidden;border:2px solid #00ffcc;background:#0a1c16;">
       <img src="assets/cards/terran/t2_c.png" style="width:100%;height:100%;object-fit:cover;object-position:center top;filter:brightness(1.2);">
-      <span style="position:absolute;top:3px;left:50%;transform:translateX(-50%);font-size:11px;font-weight:bold;color:#fff;background:rgba(0,0,0,0.8);border-radius:50%;min-width:16px;text-align:center;padding:1px 2px;">7</span>
-      <span style="position:absolute;bottom:3px;left:50%;transform:translateX(-50%);font-size:11px;font-weight:bold;color:#fff;background:rgba(0,0,0,0.8);border-radius:50%;min-width:16px;text-align:center;padding:1px 2px;">4</span>
-      <span style="position:absolute;left:3px;top:50%;transform:translateY(-50%);font-size:11px;font-weight:bold;color:#fff;background:rgba(0,0,0,0.8);border-radius:50%;min-width:16px;text-align:center;padding:1px 2px;">3</span>
-      <span style="position:absolute;right:3px;top:50%;transform:translateY(-50%);font-size:13px;font-weight:bold;color:#fff;background:rgba(0,0,0,0.9);border-radius:50%;min-width:18px;text-align:center;padding:1px 2px;">8</span>
-      <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:16px;font-weight:bold;color:#fff;background:#000000cc;padding:2px 5px;border-radius:4px;line-height:1;">4</div>
-      <span class="ability-star" style="position:absolute;top:3px;right:3px;font-size:14px;z-index:5;pointer-events:none;">★</span>
+      <span style="position:absolute;top:4px;left:50%;transform:translateX(-50%);font-size:13px;font-weight:bold;color:#fff;background:rgba(0,0,0,0.82);border-radius:50%;min-width:19px;text-align:center;padding:1px 3px;">7</span>
+      <span style="position:absolute;bottom:4px;left:50%;transform:translateX(-50%);font-size:13px;font-weight:bold;color:#fff;background:rgba(0,0,0,0.82);border-radius:50%;min-width:19px;text-align:center;padding:1px 3px;">4</span>
+      <span style="position:absolute;left:4px;top:50%;transform:translateY(-50%);font-size:13px;font-weight:bold;color:#fff;background:rgba(0,0,0,0.82);border-radius:50%;min-width:19px;text-align:center;padding:1px 3px;">3</span>
+      <span style="position:absolute;right:4px;top:50%;transform:translateY(-50%);font-size:15px;font-weight:bold;color:#fff;background:rgba(0,0,0,0.9);border-radius:50%;min-width:21px;text-align:center;padding:1px 3px;">8</span>
+      <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:22px;font-weight:bold;color:#fff;background:#000000cc;padding:3px 6px;border-radius:4px;line-height:1;">4</div>
+      <span class="ability-star" style="position:absolute;top:4px;right:4px;font-size:16px;z-index:5;pointer-events:none;">★</span>
     </div>
     <!-- Tooltip -->
-    <div style="background:#0a0a14;border:1px solid #ffdd0044;border-radius:6px;padding:8px;width:140px;animation:g3tip 0.4s ease 0.9s both;">
-      <div style="display:flex;gap:7px;align-items:stretch;">
-        <img src="assets/abilities/terran_double_strike.png" style="width:44px;min-height:44px;border-radius:4px;object-fit:cover;align-self:stretch;" onerror="this.style.background='#1a1a2e'">
+    <div style="background:#0a0a14;border:1px solid #ffdd0044;border-radius:6px;padding:10px;width:160px;animation:g3tip 0.4s ease 0.9s both;">
+      <div style="display:flex;gap:8px;align-items:stretch;">
+        <img src="assets/abilities/terran_double_strike.png" style="width:52px;min-height:52px;border-radius:5px;object-fit:cover;align-self:stretch;" onerror="this.style.background='#1a1a2e'">
         <div style="flex:1;">
-          <div style="font-size:9px;color:#ffdd00;font-family:'Orbitron',monospace;font-weight:bold;margin-bottom:3px;">DOUBLE STRIKE</div>
-          <div style="font-size:10px;color:#ccc;line-height:1.4;">Second hit on a far enemy at half strength.</div>
+          <div style="font-size:10px;color:#ffdd00;font-family:'Orbitron',monospace;font-weight:bold;margin-bottom:4px;">DOUBLE STRIKE</div>
+          <div style="font-size:12px;color:#ddd;line-height:1.5;">Second hit on a far enemy at half strength.</div>
         </div>
       </div>
     </div>
   </div>
 
 </div>
-<div style="text-align:center;margin-top:14px;font-size:12px;color:#888;">The <span class="ability-star" style="font-size:12px;">★</span> on a card means it carries a special ability. Hover in-game to see what it does.</div>
+<div style="text-align:center;margin-top:14px;font-size:13px;color:#bbb;">The <span class="ability-star" style="font-size:13px;">★</span> marks a special ability. Hover in-game to see what it does.</div>
     `
   },
   {
