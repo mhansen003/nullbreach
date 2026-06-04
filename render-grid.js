@@ -444,7 +444,10 @@ function renderGrid() {
         _emptyHzDirs.forEach(({de}) => {
 
 
-          const gradDir = {n:'to bottom',s:'to top',w:'to right',e:'to left'}[de];
+          const _emptyGradMap = _p2view
+            ? {n:'to top',s:'to bottom',w:'to left',e:'to right'}
+            : {n:'to bottom',s:'to top',w:'to right',e:'to left'};
+          const gradDir = _emptyGradMap[de];
 
 
           const blast = document.createElement('div');
