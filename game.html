@@ -2293,20 +2293,6 @@ button, [onclick] { touch-action: manipulation; }
 
 
 
-  /* Volume + mute controls — tuck closer to hud */
-
-
-  #scoreHud + div {
-
-
-    right: 148px !important;
-
-
-    bottom: 10px !important;
-
-
-  }
-
 
 
 
@@ -2467,6 +2453,7 @@ button, [onclick] { touch-action: manipulation; }
 .cell.hazard { animation: hazardPulse 2.5s ease-in-out infinite; }
 
 @keyframes tapPulse { 0%,100% { opacity:0.6; transform:scale(0.95); } 50% { opacity:1; transform:scale(1.05); } }
+@keyframes confirmPulse { 0%,100% { opacity:0.85; transform:scale(1); } 50% { opacity:1; transform:scale(1.12); } }
 
 
 
@@ -2476,6 +2463,8 @@ button, [onclick] { touch-action: manipulation; }
   #sbAiNum, #sbPlayerNum { font-size:20px !important; }
   #fhAi, #fhPlayer { gap:8px !important; padding:3px 6px !important; }
   #fhGuideBtn { display:none !important; }
+
+#mobileCardPanel, #mobileCardPanelTab { display: none; }
 
 /* ═══════════════════════════════════════════════════════════════════
    MOBILE LAYOUT ≤ 480px  (iPhone 13+)
@@ -2525,9 +2514,9 @@ button, [onclick] { touch-action: manipulation; }
   .mobile-deck-cover { position: relative; width: 64px; height: 86px; border-radius: 6px; flex-shrink: 0; cursor: pointer; user-select: none; overflow: hidden; transition: transform 0.15s, box-shadow 0.15s; }
   .mobile-deck-cover.empty { opacity: 0.25; cursor: default; pointer-events: none; }
   .mobile-deck-cover.active { transform: translateY(-4px); }
-  #mobileCardPanel { display: block; position: fixed; right: -195px; top: 80px; bottom: 220px; width: 195px; background: #06060ef2; border: 1px solid #1a1a28; border-right: none; border-radius: 10px 0 0 10px; transition: right 0.25s ease; z-index: 500; padding: 8px 10px 8px 10px; backdrop-filter: blur(8px); overflow-y: auto; }
+  #mobileCardPanel { display: block; position: fixed; right: -195px; top: 80px; bottom: 220px; width: 195px; background: #06060ef2; border: 1px solid #1a1a28; border-right: none; border-radius: 10px 0 0 10px; transition: right 0.25s ease; z-index: 500; padding: 8px 10px 8px 10px; backdrop-filter: blur(8px); overflow-y: auto; overflow-x: hidden; }
   #mobileCardPanel.open { right: 0; }
-  #mobileCardPanelTab { position: absolute; left: -36px; top: 50%; transform: translateY(-50%); width: 36px; height: 76px; background: #0c0c1e; border: 1px solid #2a2a44; border-right: none; border-radius: 10px 0 0 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; color: #aaa; cursor: pointer; transition: background 0.2s, box-shadow 0.2s; }
+  #mobileCardPanelTab { position: fixed; right: 0; bottom: 230px; top: auto; transform: none; width: 36px; height: 76px; background: #0c0c1e; border: 1px solid #2a2a44; border-right: none; border-radius: 10px 0 0 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; color: #aaa; cursor: pointer; transition: right 0.25s ease, background 0.2s, box-shadow 0.2s; z-index: 501; }
   body { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
   .hand-card { width: 64px !important; height: 86px !important; }
   .hc-e-n, .hc-e-s, .hc-e-w, .hc-e-e { font-size: 10px; min-width: 14px; }
@@ -2557,9 +2546,9 @@ button, [onclick] { touch-action: manipulation; }
 
 <!-- Mobile card info panel (right-side slide-out) -->
 <div id="mobileCardPanel">
-  <div id="mobileCardPanelTab" onclick="toggleMobileCardPanel()">◀</div>
   <div id="mobileCardPanelContent"></div>
 </div>
+<div id="mobileCardPanelTab" onclick="toggleMobileCardPanel()">◀</div>
 
 <!-- AUDIO -->
 
@@ -4662,6 +4651,8 @@ function initGame() {
 
     _flankTriggered: null,
 
+    _previewCell: null,
+
 
 
 
@@ -6100,7 +6091,7 @@ function renderGrid() {
           <div style="position:absolute;inset:0;background:linear-gradient(transparent 50%,#ff440022);z-index:1;pointer-events:none;"></div>
 
 
-          <div style="position:absolute;bottom:4px;left:0;right:0;text-align:center;font-family:'Orbitron',monospace;font-size:7px;letter-spacing:1px;color:#ff6600;text-shadow:0 0 6px #ff6600;z-index:2;">⚠ ${cell.card.name}</div>
+          ${window.innerWidth > 480 ? `<div style="position:absolute;bottom:4px;left:0;right:0;text-align:center;font-family:'Orbitron',monospace;font-size:7px;letter-spacing:1px;color:#ff6600;text-shadow:0 0 6px #ff6600;z-index:2;">⚠ ${cell.card.name}</div>` : ''}
 
 
         `;
@@ -6449,8 +6440,6 @@ function renderGrid() {
         div.onclick = function() {
           if (window.innerWidth > 480) return;
           showMobileCardPanel(cell.card);
-          const panel = document.getElementById('mobileCardPanel');
-          if (panel) { panel.style.display = 'block'; setTimeout(() => panel.classList.add('open'), 10); }
         };
 
       } else {
@@ -6527,6 +6516,13 @@ function renderGrid() {
 
           div.classList.add('valid');
 
+          // Highlight the previewed placement cell on mobile
+          if (window.innerWidth <= 480 && G._previewCell && G._previewCell.r === r && G._previewCell.c === c) {
+            div.style.border = '2px solid #00ffcccc';
+            div.style.boxShadow = '0 0 14px #00ffcc66, inset 0 0 8px #00ffcc22';
+            div.style.background = '#0e2a1e';
+          }
+
 
           // Persistent hazard warning icon on valid cells bordering a hazard
 
@@ -6563,12 +6559,18 @@ function renderGrid() {
 
           div.addEventListener('drop', e => { e.preventDefault(); if (G.selectedCard) onCellClick(r, c); });
 
-          // Mobile: pulsing TAP hint on valid placement cells
+          // Mobile: TAP hint (or CONFIRM for previewed cell)
           if (window.innerWidth <= 480 && G.selectedCard) {
+            const isPrev = G._previewCell && G._previewCell.r === r && G._previewCell.c === c;
             const tapHint = document.createElement('div');
-            tapHint.style.cssText = 'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:"Orbitron",monospace;font-size:7px;letter-spacing:1px;color:#fff;pointer-events:none;z-index:5;animation:tapPulse 1s ease-in-out infinite;';
-            tapHint.textContent = 'TAP';
-            div.appendChild(tapHint);
+            if (isPrev) {
+              tapHint.style.cssText = 'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:"Orbitron",monospace;font-size:6px;letter-spacing:1px;color:#00ffcc;pointer-events:none;z-index:6;animation:confirmPulse 0.7s ease-in-out infinite;text-shadow:0 0 8px #00ffcc;';
+              tapHint.textContent = '✓ TAP';
+            } else if (!G._previewCell) {
+              tapHint.style.cssText = 'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:"Orbitron",monospace;font-size:7px;letter-spacing:1px;color:#ffffff99;pointer-events:none;z-index:5;animation:tapPulse 1s ease-in-out infinite;';
+              tapHint.textContent = 'TAP';
+            }
+            if (tapHint.textContent) div.appendChild(tapHint);
           }
 
           // Zone preview + battle outcome preview on hover
@@ -6971,8 +6973,8 @@ function renderBattleIndicators(el) {
 
 
       // center in horizontal gap between col c and c+1
-      chipX: (r,c) => { const m=_mobileDims(); return m ? c*m.sw+m.cw+m.gap/2-12 : c*CS_W+124+3-CHIP/2; },
-      chipY: (r,c) => { const m=_mobileDims(); return m ? r*m.sh+m.ch/2-12 : r*CS_H+76-CHIP/2; } },
+      chipX: (r,c) => { const m=_mobileDims(); return m ? c*m.sw+m.cw+m.gap/2-9 : c*CS_W+124+3-CHIP/2; },
+      chipY: (r,c) => { const m=_mobileDims(); return m ? r*m.sh+m.ch/2-9 : r*CS_H+76-CHIP/2; } },
 
 
     { dr:1, dc:0, myE:'s', theirE:'n', axis:'v',
@@ -6982,8 +6984,8 @@ function renderBattleIndicators(el) {
 
 
       // center in vertical gap between row r and r+1
-      chipX: (r,c) => { const m=_mobileDims(); return m ? c*m.sw+m.cw/2-12 : c*CS_W+62-CHIP/2; },
-      chipY: (r,c) => { const m=_mobileDims(); return m ? r*m.sh+m.ch+m.gap/2-12 : r*CS_H+152+3-CHIP/2; } },
+      chipX: (r,c) => { const m=_mobileDims(); return m ? c*m.sw+m.cw/2-9 : c*CS_W+62-CHIP/2; },
+      chipY: (r,c) => { const m=_mobileDims(); return m ? r*m.sh+m.ch+m.gap/2-9 : r*CS_H+152+3-CHIP/2; } },
 
 
   ];
@@ -7166,7 +7168,21 @@ function renderBattleIndicators(el) {
 
 
 
-      if (isTie) {
+      const _mDims = _mobileDims();
+      if (_mDims) {
+        // Mobile: compact W/L/T text chips
+        const mChipSz = 18;
+        if (isTie) {
+          chip.style.cssText = `position:absolute;left:${x}px;top:${y}px;width:${mChipSz}px;height:${mChipSz}px;z-index:6;background:#1a1a2a;border:1px solid #555;`;
+          chip.innerHTML = `<span style="pointer-events:none;font-size:8px;font-weight:bold;font-family:'Courier New',monospace;color:#fff;">T</span>`;
+        } else {
+          const isPlayerWin = winnerOwner === 'player';
+          const mCol = isPlayerWin ? '#00dd66' : '#ff3355';
+          const mLbl = isPlayerWin ? 'W' : 'L';
+          chip.style.cssText = `position:absolute;left:${x}px;top:${y}px;width:${mChipSz}px;height:${mChipSz}px;border:2px solid ${mCol};--wc:${mCol};background:${mCol}22;z-index:6;`;
+          chip.innerHTML = `<span style="pointer-events:none;font-size:9px;font-weight:bold;font-family:'Courier New',monospace;color:${mCol};">${mLbl}</span>`;
+        }
+      } else if (isTie) {
 
 
         chip.style.cssText = `position:absolute;left:${x}px;top:${y}px;width:${CHIP}px;height:${CHIP}px;z-index:6;`;
@@ -8091,10 +8107,10 @@ function renderHand() {
   eligible.forEach(c => (byTier[c.tier]=byTier[c.tier]||[]).push(c));
 
 
-  const inelByTier = {I:0,II:0,III:0,IV:0};
+  const inelByTier = {I:[],II:[],III:[],IV:[]};
 
 
-  ineligible.forEach(c => inelByTier[c.tier]=(inelByTier[c.tier]||0)+1);
+  ineligible.forEach(c => (inelByTier[c.tier]=inelByTier[c.tier]||[]).push(c));
 
 
 
@@ -8106,10 +8122,10 @@ function renderHand() {
   // undefined = first load; null = user explicitly collapsed; string = tier open
   const _isMobile = window.innerWidth <= 480;
   if (window._activeTier === undefined) {
-    // Mobile starts collapsed so only covers show; desktop auto-selects lowest tier
-    window._activeTier = _isMobile ? null : (['I','II','III','IV'].find(t=>byTier[t]?.length>0) || 'I');
-  } else if (window._activeTier && !byTier[window._activeTier]?.length) {
-    // Active tier ran out of cards — collapse on mobile, pick next on desktop
+    // Mobile auto-opens T1; desktop auto-selects lowest eligible tier
+    window._activeTier = _isMobile ? 'I' : (['I','II','III','IV'].find(t=>byTier[t]?.length>0) || 'I');
+  } else if (window._activeTier && !byTier[window._activeTier]?.length && !inelByTier[window._activeTier]?.length) {
+    // Active tier completely empty — collapse on mobile, pick next on desktop
     window._activeTier = _isMobile ? null : (['I','II','III','IV'].find(t=>byTier[t]?.length>0) || null);
   }
 
@@ -8611,40 +8627,48 @@ function renderHand() {
     coversRow.className = 'mobile-deck-covers';
 
     ['I','II','III','IV'].forEach(function(t) {
-      const cards  = byTier[t] || [];
-      const locked = inelByTier[t] || 0;
-      const total  = cards.length + locked;
-      const tCol   = TIER_COLORS[t] || '#888';
-      const tNum   = TIER_ORDER[t];
-      const isAct  = window._activeTier === t;
+      const cards    = byTier[t] || [];
+      const inelCards = inelByTier[t] || [];
+      const locked   = inelCards.length;
+      const total    = cards.length + locked;
+      const tCol     = TIER_COLORS[t] || '#888';
+      const tNum     = TIER_ORDER[t];
+      const isAct    = window._activeTier === t;
+      const hasAny   = total > 0;
+      const onlyLocked = hasAny && cards.length === 0;
 
       const cover = document.createElement('div');
-      cover.className = 'mobile-deck-cover' + (isAct ? ' active' : '') + (total === 0 ? ' empty' : '');
+      cover.className = 'mobile-deck-cover' + (isAct ? ' active' : '');
       cover.style.cssText =
         'background-color:#0c0c1e;background-size:cover;background-position:center top;' +
-        'border:2px solid ' + (total > 0 ? (isAct ? _fc + 'cc' : _fc + '44') : '#1a1a28') + ';' +
-        'box-shadow:' + (isAct ? '0 0 14px ' + _fc + '88' : total > 0 ? '0 0 6px ' + _fc + '22' : 'none') + ';';
+        'border:2px solid ' + (hasAny ? (isAct ? _fc + 'cc' : onlyLocked ? '#3a3a50' : _fc + '44') : '#1a1a2866') + ';' +
+        'box-shadow:' + (isAct ? '0 0 14px ' + _fc + '88' : hasAny && !onlyLocked ? '0 0 6px ' + _fc + '22' : 'none') + ';';
 
-      if (cards[0] && cards[0].art) {
-        cover.style.backgroundImage = "url('" + cards[0].art + "')";
-        cover.style.filter = isAct ? 'brightness(1)' : 'brightness(0.75)';
+      // Use eligible art first, fall back to ineligible art, both get dimmed when locked/empty
+      const artCard = cards[0] || inelCards[0];
+      if (artCard && artCard.art) {
+        cover.style.backgroundImage = "url('" + artCard.art + "')";
+        cover.style.filter = isAct ? 'brightness(1)' : (onlyLocked ? 'brightness(0.3) saturate(0.2)' : !hasAny ? 'brightness(0.15) saturate(0)' : 'brightness(0.75)');
+      } else if (!hasAny) {
+        cover.style.filter = 'brightness(0.15)';
       }
 
       const dots = Array.from({length: tNum}, function() {
         return '<span style="width:4px;height:4px;border-radius:50%;background:' + tCol + ';box-shadow:0 0 3px ' + tCol + ';display:inline-block;"></span>';
       }).join('');
 
-      const countHtml = total > 0
-        ? '<div style="position:absolute;bottom:3px;right:3px;background:#0a0a1acc;border:1px solid ' + _fc + '66;border-radius:8px;padding:1px 5px;font-size:9px;font-weight:bold;color:' + _fc + ';font-family:\'Courier New\',monospace;">' +
+      const countHtml = hasAny
+        ? '<div style="position:absolute;bottom:3px;right:3px;background:#0a0a1acc;border:1px solid ' + (onlyLocked ? '#3a3a50' : _fc + '66') + ';border-radius:8px;padding:1px 5px;font-size:9px;font-weight:bold;color:' + (onlyLocked ? '#555' : _fc) + ';font-family:\'Courier New\',monospace;">' +
             cards.length + (locked > 0 ? '<span style="opacity:0.45;font-size:7px;">+' + locked + '</span>' : '') +
-          '</div>'
-        : '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:8px;color:#444;font-family:\'Courier New\',monospace;">NONE</div>';
+          '</div>' +
+          (onlyLocked ? '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:3;"><span style="font-size:14px;opacity:0.5;">🔒</span></div>' : '')
+        : '<div style="position:absolute;inset:0;background:#00000066;border-radius:4px;z-index:3;"></div>';
 
       cover.innerHTML =
         '<div style="position:absolute;top:3px;left:3px;display:flex;gap:2px;z-index:2;">' + dots + '</div>' +
         countHtml;
 
-      if (total > 0) {
+      if (cards.length > 0) {
         cover.onclick = function() {
           window._activeTier = (window._activeTier === t) ? null : t;
           renderHand();
@@ -8698,7 +8722,7 @@ function renderHand() {
     var cards  = byTier[tier]  || [];
 
 
-    var locked = inelByTier[tier] || 0;
+    var locked = (inelByTier[tier] || []).length;
 
 
     if (cards.length === 0) return; // hide tiers until at least 1 card is eligible
@@ -8881,6 +8905,9 @@ function showMobileCardPanel(card) {
   }).join('');
 
   content.innerHTML =
+    '<div style="display:flex;justify-content:flex-end;margin-bottom:4px;">' +
+      '<div onclick="hideMobileCardPanel()" style="cursor:pointer;width:28px;height:28px;border-radius:50%;background:#1a1a2c;border:1px solid ' + tierCol + '55;display:flex;align-items:center;justify-content:center;font-size:14px;color:#aaa;flex-shrink:0;" title="Close">✕</div>' +
+    '</div>' +
     (card.art ? '<div style="width:100%;height:90px;border-radius:6px;background-image:url(\'' + card.art + '\');background-size:cover;background-position:center top;border:1px solid ' + tierCol + '55;margin-bottom:7px;"></div>' : '') +
     '<div style="display:flex;align-items:center;justify-content:space-between;gap:5px;margin-bottom:3px;">' +
       '<div style="display:flex;gap:2px;align-items:center;">' + dots + emptyDots + '</div>' +
@@ -8915,6 +8942,7 @@ function showMobileCardPanel(card) {
     );
 
   panel.style.borderColor = tierCol + '88';
+  // Panel stays closed — tab glows to signal "tap me for details"
   const tab = document.getElementById('mobileCardPanelTab');
   if (tab) {
     tab.textContent = '◀';
@@ -8930,10 +8958,22 @@ function hideMobileCardPanel() {
   if (!panel) return;
   panel.classList.remove('open');
   const tab = document.getElementById('mobileCardPanelTab');
-  if (tab) { tab.textContent = '◀'; tab.style.borderColor = ''; tab.style.background = '#0c0c1e'; tab.style.color = '#aaa'; tab.style.boxShadow = 'none'; }
-  // clear content after slide-out animation
+  // Restore glow if a card is still selected; otherwise reset fully
+  if (G.selectedCard && tab) {
+    const _tc = TIER_COLORS[G.selectedCard.tier] || (window.playerFactionColor || '#00ffcc');
+    tab.style.right = '0';
+    tab.textContent = '◀';
+    tab.style.borderColor = _tc + '88';
+    tab.style.background = _tc + '33';
+    tab.style.color = _tc;
+    tab.style.boxShadow = '-3px 0 14px ' + _tc + '99';
+  } else if (tab) {
+    tab.style.right = '0';
+    tab.textContent = '◀'; tab.style.borderColor = ''; tab.style.background = '#0c0c1e'; tab.style.color = '#aaa'; tab.style.boxShadow = 'none';
+  }
+  // clear content after slide-out animation only if no card selected
   setTimeout(function() {
-    if (!panel.classList.contains('open')) {
+    if (!panel.classList.contains('open') && !G.selectedCard) {
       const content = document.getElementById('mobileCardPanelContent');
       if (content) content.innerHTML = '';
       panel.style.borderColor = '';
@@ -8944,12 +8984,12 @@ function hideMobileCardPanel() {
 function toggleMobileCardPanel() {
   const panel = document.getElementById('mobileCardPanel');
   if (!panel) return;
+  const tab = document.getElementById('mobileCardPanelTab');
   if (panel.classList.contains('open')) {
     hideMobileCardPanel();
   } else {
     setTimeout(function() { panel.classList.add('open'); }, 10);
-    const tab = document.getElementById('mobileCardPanelTab');
-    if (tab) tab.textContent = '▶';
+    if (tab) { tab.style.right = '195px'; tab.textContent = '▶'; }
   }
 }
 
@@ -11044,6 +11084,7 @@ function onCardSelect(card) {
 
 
     G.selectedCard = null;
+    G._previewCell = null;
 
 
     hideDragCard();
@@ -11060,6 +11101,7 @@ function onCardSelect(card) {
 
 
     G.selectedCard = card;
+    G._previewCell = null;
 
 
     document.body.style.cursor = 'none';
@@ -11097,6 +11139,20 @@ function onCellClick(r, c) {
   if (!getValidPlacements('player', G.selectedCard).some(v=>v.r===r&&v.c===c)) return;
 
 
+  // Mobile 3-tap: first tap previews location, second tap confirms placement
+  if (window.innerWidth <= 480) {
+    const prev = G._previewCell;
+    if (!prev || prev.r !== r || prev.c !== c) {
+      // First tap on this cell — show preview
+      G._previewCell = {r, c};
+      clearAbilityZone();
+      if (G.selectedCard.ability) showAbilityZone(G.selectedCard.ability, r, c);
+      renderGrid();
+      return;
+    }
+    // Second tap on same cell — confirm: fall through to placement
+    G._previewCell = null;
+  }
 
 
 
