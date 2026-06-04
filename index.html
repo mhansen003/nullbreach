@@ -639,6 +639,8 @@ button, [onclick] { touch-action: manipulation; }
 
   /* Audio controls: hide on mobile (BACK button occupies top-right) */
   #audioControls { display: none !important; }
+  /* Show mobile-only leaderboard button */
+  #lbMobileBtn { display: flex !important; }
 
   /* Mode tile labels */
   #modeComputer > div:last-child > div,
@@ -2238,6 +2240,18 @@ function quickStartGame() {
     LAUNCH DECK ▶
   </button>
 </div>
+<!-- Mobile leaderboard button — hidden on desktop, shown on mobile via CSS -->
+<div id="lbMobileBtn" onclick="showLeaderboard()" style="
+  display:none;position:fixed;bottom:76px;left:12px;z-index:300;
+  width:44px;height:44px;border-radius:50%;
+  background:#000000cc;border:1px solid #ffdd0066;
+  align-items:center;justify-content:center;
+  font-size:20px;cursor:pointer;
+  box-shadow:0 0 14px #ffdd0033;
+  transition:all 0.2s;
+" onmouseenter="this.style.background='#ffdd0022';this.style.borderColor='#ffdd00'"
+   onmouseleave="this.style.background='#000000cc';this.style.borderColor='#ffdd0066'"
+   title="Hall of Champions">🏆</div>
 <script src="leaderboard.js"></script>
 </body>
 </html>

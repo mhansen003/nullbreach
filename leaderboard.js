@@ -17,7 +17,7 @@ const _LB_FACTIONS = {
 };
 const _LB_ORDER = ['terran','brood','crystallis','mycos','veil','entropy','void','gas','lithos','quantum','choir'];
 
-let _lbFilterFaction = null; // null = show all
+let _lbActiveFaction = 'terran'; // which player faction tab is active
 
 // ── Storage ───────────────────────────────────────────────────────────────────
 function _lbLoad() {
@@ -102,156 +102,179 @@ function _lbSubmitInitials(pFac, aFac, delta) {
   saveLeaderboardEntry(pFac, aFac, initials, delta);
   document.getElementById('lbInitialsOverlay')?.remove();
   const flash=document.createElement('div');
-  flash.style.cssText='position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:100000;font-family:"Orbitron",monospace;font-size:20px;letter-spacing:4px;color:#ffdd00;text-shadow:0 0 20px #ffdd00;pointer-events:none;transition:opacity 0.4s;';
+  flash.style.cssText='position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:100000;font-family:"Orbitron",monospace;font-size:20px;letter-spacing:4px;color:#ffdd00;text-shadow:0 0 20px #ffdd00;pointer-events:none;';
   flash.textContent=initials+' · RECORDED';
   document.body.appendChild(flash);
-  setTimeout(()=>{flash.style.opacity='0';},900);
   setTimeout(()=>flash.remove(),1400);
 }
 
 // ── Leaderboard modal ─────────────────────────────────────────────────────────
 function showLeaderboard() {
   if (document.getElementById('lbModal')) return;
-  _lbFilterFaction = null;
+  // Default to player's current faction if known, else first faction
+  _lbActiveFaction = window.playerRaceId || 'terran';
+  if (!_LB_FACTIONS[_lbActiveFaction]) _lbActiveFaction = 'terran';
   _lbRenderModal();
 }
 
 function _lbRenderModal() {
   document.getElementById('lbModal')?.remove();
-  const data   = _lbLoad();
-  const total  = Object.keys(data).length;
-  const filter = _lbFilterFaction;
+  const data = _lbLoad();
+  const pId  = _lbActiveFaction;
+  const pF   = _LB_FACTIONS[pId];
+  const total = Object.keys(data).length;
 
-  // Build cards
-  const pairs = [];
-  _LB_ORDER.forEach(pId => {
-    _LB_ORDER.filter(aId=>aId!==pId).forEach(aId => {
-      if (filter && pId !== filter) return;
-      pairs.push({ pId, aId, entry: data[_lbKey(pId,aId)] || null });
-    });
-  });
+  // Count records for active faction
+  const facRecords = _LB_ORDER.filter(a=>a!==pId&&data[_lbKey(pId,a)]).length;
 
-  const cardsHtml = pairs.map(({pId,aId,entry}) => {
-    const pF      = _LB_FACTIONS[pId];
-    const aF      = _LB_FACTIONS[aId];
-    const inits   = entry?.initials || '---';
-    const delta   = entry?.delta    ?? null;
-    const has     = !!entry;
-    const glow    = has ? `box-shadow:0 0 0 1px ${pF.color}33,0 4px 24px ${pF.color}18;` : 'box-shadow:0 0 0 1px #1a1a2a;';
+  // Opponent rows for active faction
+  const opponents = _LB_ORDER.filter(aId => aId !== pId);
+  const rowsHtml = opponents.map(aId => {
+    const aF    = _LB_FACTIONS[aId];
+    const entry = data[_lbKey(pId, aId)];
+    const has   = !!entry;
+    const inits = entry?.initials || '---';
+    const delta = entry?.delta    ?? null;
 
-    return `<div style="background:#07070f;border-radius:10px;padding:14px 16px;${glow}transition:transform 0.15s,box-shadow 0.15s;cursor:default;"
-      onmouseenter="this.style.transform='translateY(-2px)';this.style.boxShadow='0 0 0 1px ${pF.color}66,0 8px 32px ${pF.color}22'"
-      onmouseleave="this.style.transform='';this.style.boxShadow='${has ? `0 0 0 1px ${pF.color}33,0 4px 24px ${pF.color}18` : '0 0 0 1px #1a1a2a'}'">
+    return `
+      <div style="
+        display:flex;align-items:center;gap:0;
+        padding:0 24px;height:54px;
+        border-bottom:1px solid #0a0a16;
+        transition:background 0.12s;
+        ${has ? `background:${aF.color}08;` : ''}
+      "
+      onmouseenter="this.style.background='${has ? aF.color+'14' : '#ffffff08'}'"
+      onmouseleave="this.style.background='${has ? aF.color+'08' : 'transparent'}'">
 
-      <!-- Factions row -->
-      <div style="display:flex;align-items:center;gap:0;margin-bottom:10px;">
-        <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:0;">
-          <img src="${pF.img}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;object-position:top;border:2px solid ${pF.color}88;flex-shrink:0;">
-          <span style="font-family:'Courier New',monospace;font-size:9px;letter-spacing:1px;color:${pF.color};overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">${pF.short}</span>
+        <!-- Opponent -->
+        <div style="display:flex;align-items:center;gap:12px;flex:1;min-width:0;">
+          <div style="font-size:9px;letter-spacing:2px;color:#2a2a3e;font-family:'Courier New',monospace;flex-shrink:0;width:16px;text-align:right;">vs</div>
+          <img src="${aF.img}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;object-position:top;border:2px solid ${aF.color}${has?'cc':'44'};flex-shrink:0;${has?`box-shadow:0 0 12px ${aF.color}44;`:''}">
+          <div>
+            <div style="font-family:'Orbitron',monospace;font-size:10px;letter-spacing:1px;color:${has?aF.color:aF.color+'66'};font-weight:700;">${aF.short}</div>
+            <div style="font-family:'Courier New',monospace;font-size:8px;letter-spacing:1px;color:#2a2a3e;margin-top:1px;">${aF.name}</div>
+          </div>
         </div>
-        <div style="font-size:9px;color:#2a2a44;letter-spacing:2px;padding:0 6px;flex-shrink:0;">VS</div>
-        <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:0;justify-content:flex-end;">
-          <span style="font-family:'Courier New',monospace;font-size:9px;letter-spacing:1px;color:${aF.color};overflow:hidden;white-space:nowrap;text-overflow:ellipsis;text-align:right;">${aF.short}</span>
-          <img src="${aF.img}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;object-position:top;border:2px solid ${aF.color}88;flex-shrink:0;">
-        </div>
-      </div>
 
-      <!-- Record row -->
-      <div style="border-top:1px solid #0d0d1a;padding-top:9px;display:flex;align-items:center;justify-content:space-between;">
-        <div style="font-family:'Orbitron',monospace;font-size:${has?'18px':'13px'};font-weight:700;letter-spacing:3px;
-          color:${has?'#ffdd00':'#2a2a3e'};
-          ${has?'text-shadow:0 0 12px #ffdd0066;':''}">
-          ${inits}
-        </div>
-        <div style="font-family:'Courier New',monospace;font-size:11px;letter-spacing:1px;
-          color:${has?'#00ffcc':'#252535'};
-          ${has?'text-shadow:0 0 8px #00ffcc44;':''}">
-          ${delta!==null?'+'+delta+' VP':'--'}
-        </div>
-      </div>
-    </div>`;
+        <!-- Initials -->
+        <div style="
+          width:70px;text-align:center;flex-shrink:0;
+          font-family:'Orbitron',monospace;font-weight:700;letter-spacing:3px;
+          font-size:${has?'17px':'12px'};
+          color:${has?'#ffdd00':'#252535'};
+          ${has?'text-shadow:0 0 12px #ffdd0055;':''}
+        ">${inits}</div>
+
+        <!-- Divider -->
+        <div style="width:1px;height:28px;background:#0d0d1a;flex-shrink:0;margin:0 6px;"></div>
+
+        <!-- Delta -->
+        <div style="
+          width:72px;text-align:right;flex-shrink:0;
+          font-family:'Courier New',monospace;font-size:12px;letter-spacing:1px;
+          color:${has?'#00ffcc':'#202030'};
+          ${has?'text-shadow:0 0 8px #00ffcc33;':''}
+        ">${delta!==null?'+'+delta+' VP':'--'}</div>
+      </div>`;
   }).join('');
 
-  // Filter pills
-  const pillsHtml = `
-    <div style="display:flex;gap:6px;align-items:center;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding-bottom:2px;">
-      <div onclick="_lbSetFilter(null)" style="
-        padding:5px 14px;border-radius:20px;cursor:pointer;white-space:nowrap;
-        font-family:'Courier New',monospace;font-size:9px;letter-spacing:2px;transition:all 0.15s;
-        ${!_lbFilterFaction?'background:#8855ff33;border:1px solid #8855ff88;color:#cc99ff;':'background:#0a0a18;border:1px solid #1a1a2a;color:#444466;'}
-      ">ALL</div>
-      ${_LB_ORDER.map(id=>{
-        const f=_LB_FACTIONS[id];
-        const active=_lbFilterFaction===id;
-        return `<div onclick="_lbSetFilter('${id}')" style="
-          display:flex;align-items:center;gap:5px;padding:4px 10px 4px 6px;border-radius:20px;cursor:pointer;white-space:nowrap;transition:all 0.15s;
-          ${active?`background:${f.color}22;border:1px solid ${f.color}88;`:'background:#0a0a18;border:1px solid #1a1a2a;'}
-        ">
-          <img src="${f.img}" style="width:18px;height:18px;border-radius:50%;object-fit:cover;object-position:top;border:1px solid ${f.color}66;">
-          <span style="font-family:'Courier New',monospace;font-size:9px;letter-spacing:1px;color:${active?f.color:'#444466'};">${f.short}</span>
-        </div>`;
-      }).join('')}
-    </div>`;
+  // Faction tab pills
+  const tabsHtml = _LB_ORDER.map(id => {
+    const f      = _LB_FACTIONS[id];
+    const active = id === pId;
+    const recs   = _LB_ORDER.filter(a=>a!==id&&data[_lbKey(id,a)]).length;
+    return `
+      <div onclick="_lbSetTab('${id}')" style="
+        display:flex;flex-direction:column;align-items:center;gap:4px;
+        padding:8px 10px;cursor:pointer;border-radius:8px;flex-shrink:0;
+        transition:all 0.15s;
+        ${active
+          ? `background:${f.color}22;border-bottom:2px solid ${f.color};`
+          : 'border-bottom:2px solid transparent;'}
+      "
+      onmouseenter="if(this.dataset.id!=='${pId}')this.style.background='${f.color}11'"
+      onmouseleave="if(this.dataset.id!=='${pId}')this.style.background='transparent'"
+      data-id="${id}">
+        <img src="${f.img}" style="width:${active?'38px':'30px'};height:${active?'38px':'30px'};border-radius:50%;object-fit:cover;object-position:top;border:2px solid ${active?f.color:f.color+'44'};transition:all 0.15s;${active?`box-shadow:0 0 14px ${f.color}55;`:''}">
+        ${recs > 0 ? `<div style="font-size:7px;color:${active?f.color:'#444466'};font-family:'Courier New',monospace;letter-spacing:1px;">${recs}/10</div>` : `<div style="font-size:7px;color:#222232;font-family:'Courier New',monospace;">—</div>`}
+      </div>`;
+  }).join('');
 
   const modal = document.createElement('div');
   modal.id = 'lbModal';
-  modal.style.cssText = 'position:fixed;inset:0;z-index:99990;display:flex;flex-direction:column;background:#020208f8;backdrop-filter:blur(8px);overflow:hidden;';
+  modal.style.cssText = 'position:fixed;inset:0;z-index:99990;display:flex;align-items:center;justify-content:center;background:#000000bb;backdrop-filter:blur(8px);padding:20px;';
 
-  modal.innerHTML = `
+  modal.innerHTML = `<div id="lbInner" style="display:flex;flex-direction:column;width:100%;max-width:780px;height:100%;max-height:90vh;background:#020208;border:1px solid #1a1a2a;border-radius:14px;overflow:hidden;box-shadow:0 24px 80px #000000cc;">
+
     <style>
-      #lbModal ::-webkit-scrollbar { width:4px; height:4px; }
-      #lbModal ::-webkit-scrollbar-track { background:transparent; }
-      #lbModal ::-webkit-scrollbar-thumb { background:#1a1a38; border-radius:2px; }
-      @keyframes lbFadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
-      @keyframes lbFlash  { 0%{opacity:0;transform:translate(-50%,-50%) scale(0.85)} 20%{opacity:1;transform:translate(-50%,-50%) scale(1.02)} 70%{opacity:1} 100%{opacity:0} }
+      #lbModal ::-webkit-scrollbar{width:4px;height:4px}
+      #lbModal ::-webkit-scrollbar-track{background:transparent}
+      #lbModal ::-webkit-scrollbar-thumb{background:#1a1a38;border-radius:2px}
+      @keyframes lbFadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
     </style>
 
     <!-- Banner -->
-    <div style="position:relative;flex-shrink:0;height:clamp(130px,18vw,220px);overflow:hidden;">
+    <div style="position:relative;flex-shrink:0;height:clamp(110px,15vw,190px);overflow:hidden;">
       <img src="assets/leaderboard-banner.png" style="width:100%;height:100%;object-fit:cover;object-position:center 35%;display:block;">
-      <div style="position:absolute;inset:0;background:linear-gradient(transparent 25%,#020208f0 100%);"></div>
-      <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:18px;">
-        <div style="font-family:'Orbitron',monospace;font-size:clamp(20px,3.5vw,38px);font-weight:900;letter-spacing:6px;color:#fff;text-shadow:0 0 40px #ffdd0077,0 2px 12px #000;">HALL OF CHAMPIONS</div>
-        <div style="font-family:'Courier New',monospace;font-size:10px;letter-spacing:5px;color:#ffdd0099;margin-top:5px;">GALACTIC ZERO · FACTION RECORDS</div>
+      <div style="position:absolute;inset:0;background:linear-gradient(transparent 20%,#020208f2 100%);"></div>
+      <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:14px;">
+        <div style="font-family:'Orbitron',monospace;font-size:clamp(18px,3vw,34px);font-weight:900;letter-spacing:6px;color:#fff;text-shadow:0 0 40px #ffdd0077,0 2px 12px #000;">HALL OF CHAMPIONS</div>
+        <div style="font-family:'Courier New',monospace;font-size:9px;letter-spacing:5px;color:#ffdd0088;margin-top:4px;">GALACTIC ZERO · FACTION RECORDS</div>
       </div>
-      <button onclick="hideLeaderboard()" style="position:absolute;top:12px;right:14px;background:#000000aa;border:1px solid #ffffff22;border-radius:50%;width:36px;height:36px;cursor:pointer;color:#888;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;line-height:1;"
+      <button onclick="hideLeaderboard()" style="position:absolute;top:10px;right:12px;background:#000000aa;border:1px solid #ffffff22;border-radius:50%;width:34px;height:34px;cursor:pointer;color:#888;font-size:15px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;line-height:1;"
         onmouseenter="this.style.background='#ffffff18';this.style.color='#fff'"
         onmouseleave="this.style.background='#000000aa';this.style.color='#888'">✕</button>
     </div>
 
-    <!-- Stats + filter bar -->
-    <div style="flex-shrink:0;padding:12px 20px 10px;border-bottom:1px solid #0d0d1a;background:#020208;">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-        <div style="font-family:'Courier New',monospace;font-size:9px;letter-spacing:2px;color:#333355;">
-          <span style="color:${total>0?'#ffdd00':'#333355'};font-size:11px;font-weight:700;">${total}</span>
-          <span style="color:#222238;"> / 110 RECORDS SET</span>
-        </div>
-        <div style="font-family:'Courier New',monospace;font-size:8px;letter-spacing:2px;color:#1e1e2e;">
-          ${filter ? `SHOWING: <span style="color:${_LB_FACTIONS[filter]?.color||'#fff'}">${_LB_FACTIONS[filter]?.name||filter}</span>` : 'ALL MATCHUPS'}
-        </div>
+    <!-- Faction tabs -->
+    <div style="flex-shrink:0;border-bottom:1px solid #0d0d1a;background:#030310;overflow-x:auto;scrollbar-width:none;">
+      <div style="display:flex;gap:2px;padding:6px 14px 0;min-width:max-content;">
+        ${tabsHtml}
       </div>
-      ${pillsHtml}
     </div>
 
-    <!-- Card grid -->
-    <div id="lbGrid" style="flex:1;overflow-y:auto;overflow-x:hidden;padding:16px 20px 24px;">
-      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;animation:lbFadeIn 0.25s ease;">
-        ${cardsHtml || '<div style="color:#222238;font-family:\'Courier New\',monospace;font-size:12px;letter-spacing:2px;grid-column:1/-1;text-align:center;padding:40px;">NO RECORDS YET</div>'}
+    <!-- Active faction header -->
+    <div style="flex-shrink:0;padding:14px 24px 12px;background:linear-gradient(90deg,${pF.color}14 0%,transparent 60%);border-bottom:1px solid ${pF.color}22;display:flex;align-items:center;gap:16px;">
+      <img src="${pF.img}" style="width:52px;height:52px;border-radius:50%;object-fit:cover;object-position:top;border:2px solid ${pF.color};box-shadow:0 0 20px ${pF.color}55;flex-shrink:0;">
+      <div>
+        <div style="font-family:'Orbitron',monospace;font-size:14px;font-weight:900;letter-spacing:3px;color:${pF.color};text-shadow:0 0 16px ${pF.color}55;">${pF.name}</div>
+        <div style="font-family:'Courier New',monospace;font-size:9px;letter-spacing:2px;color:#444466;margin-top:3px;">
+          PLAYING AS THIS FACTION · ${facRecords} / 10 RECORDS SET
+        </div>
       </div>
+      <div style="margin-left:auto;text-align:right;">
+        <div style="font-family:'Courier New',monospace;font-size:8px;letter-spacing:2px;color:#222238;">TOTAL</div>
+        <div style="font-family:'Orbitron',monospace;font-size:18px;font-weight:700;color:${total>0?'#ffdd00':'#222238'};${total>0?'text-shadow:0 0 10px #ffdd0044;':''}">${total}<span style="font-size:10px;color:#222238;"> /110</span></div>
+      </div>
+    </div>
+
+    <!-- Column labels -->
+    <div style="flex-shrink:0;display:flex;align-items:center;gap:0;padding:6px 24px;background:#020208;border-bottom:1px solid #0a0a16;">
+      <div style="flex:1;font-size:8px;letter-spacing:3px;color:#1e1e30;font-family:'Courier New',monospace;">OPPONENT</div>
+      <div style="width:70px;text-align:center;font-size:8px;letter-spacing:2px;color:#1e1e30;font-family:'Courier New',monospace;">INITIALS</div>
+      <div style="width:7px;"></div>
+      <div style="width:72px;text-align:right;font-size:8px;letter-spacing:2px;color:#1e1e30;font-family:'Courier New',monospace;">WIN BY</div>
+    </div>
+
+    <!-- Opponent rows -->
+    <div style="flex:1;overflow-y:auto;overflow-x:hidden;animation:lbFadeIn 0.2s ease;">
+      ${rowsHtml}
     </div>
 
     <!-- Footer -->
-    <div style="flex-shrink:0;padding:10px 20px;border-top:1px solid #0d0d1a;background:#020208;display:flex;align-items:center;justify-content:flex-end;">
+    <div style="flex-shrink:0;padding:10px 20px;border-top:1px solid #0a0a14;background:#020208;display:flex;align-items:center;justify-content:flex-end;">
       <button onclick="hideLeaderboard()" style="padding:8px 24px;border-radius:5px;cursor:pointer;background:transparent;border:1px solid #1a1a33;color:#444466;font-family:'Courier New',monospace;font-size:10px;letter-spacing:2px;transition:all 0.2s;"
         onmouseenter="this.style.borderColor='#8855ff';this.style.color='#aa88ff'"
         onmouseleave="this.style.borderColor='#1a1a33';this.style.color='#444466'">CLOSE</button>
-    </div>`;
+    </div>
+  </div>`;
 
   document.body.appendChild(modal);
 }
 
-function _lbSetFilter(faction) {
-  _lbFilterFaction = faction;
+function _lbSetTab(id) {
+  _lbActiveFaction = id;
   _lbRenderModal();
 }
 
