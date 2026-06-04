@@ -854,7 +854,7 @@ button, [onclick] { touch-action: manipulation; }
 ">
   <!-- AI row (top) -->
   <div id="fhAi" style="display:flex;align-items:center;gap:10px;padding:4px 6px;border-radius:6px;transition:all 0.3s;">
-    <img id="sbAiAvatar" src="" style="width:64px;height:64px;border-radius:50%;object-fit:cover;object-position:top;border:2px solid #333;flex-shrink:0;transition:all 0.3s;">
+    <img id="sbAiAvatar" src="" style="width:64px;height:64px;border-radius:50%;object-fit:cover;object-position:top;border:2px solid #333;flex-shrink:0;transition:all 0.3s;filter:brightness(1.3);">
     <div style="flex:1;min-width:0;">
       <div id="sbAiName" style="font-family:'Orbitron',monospace;font-size:13px;letter-spacing:1px;color:#999;overflow:hidden;white-space:nowrap;transition:color 0.3s;"></div>
       <div style="display:flex;align-items:baseline;gap:4px;margin-top:2px;">
@@ -867,7 +867,7 @@ button, [onclick] { touch-action: manipulation; }
   <div style="height:1px;background:#111120;"></div>
   <!-- Player row (bottom) -->
   <div id="fhPlayer" style="display:flex;align-items:center;gap:10px;padding:4px 6px;border-radius:6px;transition:all 0.3s;">
-    <img id="sbPlayerAvatar" src="" style="width:64px;height:64px;border-radius:50%;object-fit:cover;object-position:top;border:2px solid #333;flex-shrink:0;transition:all 0.3s;">
+    <img id="sbPlayerAvatar" src="" style="width:64px;height:64px;border-radius:50%;object-fit:cover;object-position:top;border:2px solid #333;flex-shrink:0;transition:all 0.3s;filter:brightness(1.3);">
     <div style="flex:1;min-width:0;">
       <div id="sbPlayerName" style="font-family:'Orbitron',monospace;font-size:13px;letter-spacing:1px;color:#999;overflow:hidden;white-space:nowrap;transition:color 0.3s;"></div>
       <div style="display:flex;align-items:baseline;gap:4px;margin-top:2px;">
@@ -1140,8 +1140,8 @@ function initRaceTheme() {
   window.aiAvatarImg        = ai.avatarImg     || `assets/avatars/${aiRaceId}.png`;
 
   // Safe zone bar colors — CSS custom properties on :root
-  document.documentElement.style.setProperty('--player-safe-col', player.color + '66');
-  document.documentElement.style.setProperty('--ai-safe-col',     ai.color     + '66');
+  document.documentElement.style.setProperty('--player-safe-col', player.color + 'bb');
+  document.documentElement.style.setProperty('--ai-safe-col',     ai.color     + 'bb');
 
   // Seed faction HUD immediately
   const sbAi = document.getElementById('sbAiAvatar');
@@ -3914,7 +3914,7 @@ function showTip(e, card) {
     <div style="padding:8px 12px 10px;">
       ${abi ? `
       <div style="border:1px solid #ffdd0044;border-radius:5px;padding:7px 10px;background:#ffdd0008;display:flex;gap:10px;align-items:stretch;">
-        ${_iconSrc ? `<img src="${_iconSrc}" style="height:100%;width:56px;min-height:56px;border-radius:5px;flex-shrink:0;object-fit:cover;align-self:stretch;" onerror="this.style.display='none'">` : ''}
+        ${_iconSrc ? `<img src="${_iconSrc}" style="height:100%;width:82px;min-height:82px;border-radius:6px;flex-shrink:0;object-fit:cover;align-self:stretch;" onerror="this.style.display='none'">` : ''}
         <div style="flex:1;display:flex;flex-direction:column;gap:4px;justify-content:center;">
           <div style="font-family:'Orbitron',monospace;font-size:10px;letter-spacing:1px;color:#ffdd00;font-weight:700;">${card.abilityLabel || abi.label}</div>
           <div style="font-size:11px;color:#ddd;line-height:1.5;">${card.abilityText}</div>
