@@ -4469,6 +4469,23 @@ let G = {};   // game state shorthand
 
 
 
+
+// Load sticky audio settings from localStorage
+function loadAudioSettings() {
+  try {
+    const mv = localStorage.getItem('gz_musicVol');
+    if (mv !== null) setVolume(Number(mv));
+
+    const mm = localStorage.getItem('gz_musicMuted');
+    if (mm === '1' && !musicMuted) toggleGameMusic();
+
+    const sv = localStorage.getItem('gz_sfxVol');
+    if (sv !== null) setSfxVolume(Number(sv));
+
+    const sm = localStorage.getItem('gz_sfxMuted');
+    if (sm === '1') { _sfxMuted = true; const btn=document.getElementById('sfxMuteBtn'); if(btn) btn.textContent='🔇 UNMUTE SFX'; }
+  } catch(e) {}
+}
 function initGame() {
 
 
@@ -12342,6 +12359,7 @@ function setVolume(val) {
 
 
   if (s1) s1.value = val;
+  try { localStorage.setItem('gz_musicVol', val); } catch(e){}
 
 
   if (s2) s2.value = val;
@@ -12615,6 +12633,7 @@ function toggleGameMusic() {
 
 
   if (!musicStarted && !musicMuted) startGameMusic();
+  try { localStorage.setItem('gz_musicMuted', musicMuted ? '1' : '0'); } catch(e){}
 
 
 }
@@ -13290,6 +13309,7 @@ if (_mpRoom && _mpPlayer) {
 
 
   window.addEventListener('load', () => {
+  loadAudioSettings();
 
 
     // P2 waits for P1's first move
