@@ -395,7 +395,7 @@ const GUIDE_PAGES = [
   </div>
 
 
-  <div class="g2-desc" style="margin-top:10px;max-width:360px;text-align:center;font-size:13px;color:#ddd;line-height:1.7;">
+  <div class="g2-desc" style="margin:10px auto 0;max-width:360px;text-align:center;font-size:13px;color:#ddd;line-height:1.7;">
 
 
     Each card has four edges: when cards are placed next to an enemy, the touching edges compete.
