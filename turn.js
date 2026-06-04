@@ -9,6 +9,9 @@ function placeCard(card, r, c, owner) {
 
   applyPlacementAbility(card, r, c, owner);
   fireReactiveAbilities(r, c, card, owner);  // opponent ability cards react
+  // Immediately recompute all battle results so ability edgeMod changes are visible
+  // before doComparisons and renderAll run. computeScores updates G.grid[r][c].battle.
+  computeScores();
 
 
   // Play card placement sound for both players (AI slightly softer + delayed)
@@ -507,6 +510,7 @@ function onCellClick(r, c) {
     }
 
     if (!hasAnyMoves('ai')) {
+      if (!hasAnyMoves('player')) { checkWin(); return; }
       G.turn = 'player';
       addLog('system', 'AI has no moves -- your turn again');
       renderScoreHeader();
