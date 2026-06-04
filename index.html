@@ -1838,7 +1838,7 @@ function startGame() {
       <div style="font-family:'Orbitron',monospace;font-size:clamp(14px,4vw,20px);letter-spacing:clamp(2px,1vw,5px);color:#fff;text-shadow:0 0 20px #8855ffaa;text-align:center;padding:0 12px;">YOU'VE BEEN CHALLENGED</div>
       <div style="font-size:clamp(10px,3vw,13px);color:#555;letter-spacing:clamp(1px,0.5vw,2px);margin-bottom:4px;text-align:center;">SELECT YOUR CIVILIZATION</div>
       <div id="joinRaceGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,200px));gap:10px;width:min(860px,92vw);overflow:visible;padding:4px 4px 12px;justify-content:center;"></div>
-      <div style="display:flex;justify-content:center;width:min(860px,92vw);margin-top:4px;padding:0 8px;box-sizing:border-box;">
+      <div style="position:sticky;bottom:0;left:0;right:0;display:flex;justify-content:center;width:100%;padding:12px 8px 8px;box-sizing:border-box;background:linear-gradient(to bottom,transparent,#000000cc 30%);z-index:10;">
         <button id="joinBtn" disabled onclick="joinRoom('${_roomId}')" style="
           background:#0a0a14;border:2px solid #2a2a3a;color:#444;
           font-family:'Orbitron',monospace;font-size:13px;letter-spacing:4px;
