@@ -1832,7 +1832,7 @@ function startGame() {
   window.addEventListener('DOMContentLoaded', async () => {
     const ov = document.createElement('div');
     ov.style.cssText = `position:fixed;inset:0;z-index:99998;background:#000000dd;backdrop-filter:blur(6px);
-      display:flex;align-items:center;justify-content:center;
+      display:flex;align-items:center;justify-content:flex-start;
       font-family:'Share Tech Mono','Courier New',monospace;flex-direction:column;gap:16px;overflow-y:auto;padding:24px 12px;box-sizing:border-box;`;
     ov.innerHTML = `
       <div style="font-family:'Orbitron',monospace;font-size:clamp(14px,4vw,20px);letter-spacing:clamp(2px,1vw,5px);color:#fff;text-shadow:0 0 20px #8855ffaa;text-align:center;padding:0 12px;">YOU'VE BEEN CHALLENGED</div>
