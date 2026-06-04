@@ -569,10 +569,17 @@ function renderScoreHeader(_precomputed) {
   const aAvg = window.aiAvatarImg        || '';
 
 
-  const pNam = window.playerFactionName  || 'YOU';
+  let pNam = window.playerFactionName  || 'YOU';
+  let aNam = window.aiFactionName      || 'AI';
 
-
-  const aNam = window.aiFactionName      || 'AI';
+  // In multiplayer, show player initials when available
+  if (window._mpPlayer === 1) {
+    if (window._mpP1Initials && window._mpP1Initials !== '---') pNam = window._mpP1Initials;
+    if (window._mpP2Initials && window._mpP2Initials !== '---') aNam = window._mpP2Initials;
+  } else if (window._mpPlayer === 2) {
+    if (window._mpP2Initials && window._mpP2Initials !== '---') pNam = window._mpP2Initials;
+    if (window._mpP1Initials && window._mpP1Initials !== '---') aNam = window._mpP1Initials;
+  }
 
 
 

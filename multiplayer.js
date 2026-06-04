@@ -23,6 +23,11 @@ const _mpPlayer = parseInt(_mpParams.get('player') || '0'); // 1 or 2, 0 = singl
 
 const _mpP2Fac  = _mpParams.get('p2faction') || ''; // P1 knows P2's faction from room
 
+const _mpP1Initials = _mpParams.get('p1initials') || '';
+const _mpP2Initials = _mpParams.get('p2initials') || '';
+window._mpP1Initials = _mpP1Initials;
+window._mpP2Initials = _mpP2Initials;
+
 
 // P2: set P1's faction as the AI race so the correct deck loads
 

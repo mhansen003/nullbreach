@@ -1862,12 +1862,12 @@ async function createRoom() {
 
   // Poll for P2 joining
   const pollRoom = setInterval(async () => {
-    const r = await sbGet(`/rest/v1/gz_rooms?id=eq.${roomId}&select=status,p2_faction`);
+    const r = await sbGet(`/rest/v1/gz_rooms?id=eq.${roomId}&select=status,p2_faction,p2_initials`);
     const data = await r.json();
     if (data[0]?.status === 'playing') {
       clearInterval(pollRoom); clearInterval(dotTimer); m.remove();
       stopCivVoice();
-      const params = new URLSearchParams({ race: selectedRace.id, color: selectedRace.color, name: selectedRace.name, p1initials: initials });
+      const params = new URLSearchParams({ race: selectedRace.id, color: selectedRace.color, name: selectedRace.name, p1initials: initials, p2initials: data[0].p2_initials || '---' });
       window.location.href = `game.html?${params}&difficulty=${_selectedDifficulty}&room=${roomId}&player=1&p2faction=${data[0].p2_faction}`;
     }
   }, 2000);
@@ -2083,7 +2083,7 @@ async function joinRoom(roomId) {
   btn.textContent = 'JOINING...'; btn.disabled = true;
 
   // Double-check: re-fetch room status before patching to prevent race conditions
-  const roomResp = await sbGet(`/rest/v1/gz_rooms?id=eq.${roomId}&select=p1_faction,p1_color,status,p2_faction`);
+  const roomResp = await sbGet(`/rest/v1/gz_rooms?id=eq.${roomId}&select=p1_faction,p1_color,status,p2_faction,p1_initials`);
   const roomData = await roomResp.json();
   if (roomData[0]?.status === 'playing' || roomData[0]?.p2_faction) {
     btn.textContent = 'GAME ALREADY STARTED';
@@ -2101,7 +2101,7 @@ async function joinRoom(roomId) {
   });
 
   stopCivVoice();
-  const params = new URLSearchParams({ race: race.id, color: race.color, name: race.name, p2initials: window._p2Initials || '---' });
+  const params = new URLSearchParams({ race: race.id, color: race.color, name: race.name, p2initials: window._p2Initials || '---', p1initials: roomData[0]?.p1_initials || '---' });
   window.location.href = `game.html?${params}&room=${roomId}&player=2&aifaction=${p1Faction}`;
 }
 
