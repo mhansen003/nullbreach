@@ -429,72 +429,29 @@ function showTip(e, card) {
 
 
 
-    <!-- Compact: image + title/VP/tier | compass | zone | ability -->
-
-
-    <div style="display:flex;gap:10px;padding:10px 12px 8px;border-bottom:1px solid var(--tc-dim);">
-
-
+    <!-- Header: card art + name/VP/tier -->
+    <div style="display:flex;gap:12px;padding:12px 14px 10px;border-bottom:1px solid var(--tc-dim);">
       ${card.art ? `
-
-
-      <div style="position:relative;flex-shrink:0;width:72px;height:94px;">
-
-
-        <img src="${card.art}" style="width:100%;height:100%;object-fit:cover;object-position:top;border-radius:5px;border:1px solid var(--tc-dim);">
-
-
-        <div style="position:absolute;inset:0;border-radius:5px;overflow:hidden;pointer-events:none;">
-
-
+      <div style="position:relative;flex-shrink:0;width:80px;height:104px;">
+        <img src="${card.art}" style="width:100%;height:100%;object-fit:cover;object-position:top;border-radius:6px;border:1px solid var(--tc-dim);">
+        <div style="position:absolute;inset:0;border-radius:6px;overflow:hidden;pointer-events:none;">
           <div style="position:absolute;width:100%;height:35%;background:linear-gradient(transparent,var(--tc-glow),transparent);animation:tipScan 3.5s ease-in-out infinite;"></div>
-
-
         </div>
-
-
       </div>` : ''}
-
-
-      <div style="flex:1;display:flex;flex-direction:column;gap:5px;min-width:0;">
-
-
-        <div style="font-family:'Orbitron',monospace;color:var(--tc);font-size:11px;letter-spacing:1px;font-weight:700;line-height:1.2;">${card.name}</div>
-
-
-        <div style="display:flex;align-items:center;gap:7px;">
-
-
-          <div style="width:36px;height:36px;border-radius:50%;border:2px solid var(--tc);display:flex;align-items:center;justify-content:center;box-shadow:0 0 8px var(--tc-glow);flex-shrink:0;">
-
-
-            <span style="font-size:17px;font-weight:bold;color:var(--tc);">${card.power}</span>
-
-
-          </div>
-
-
-          <div style="font-size:10px;color:#bbb;letter-spacing:1px;">VP</div>
-
-
+      <div style="flex:1;display:flex;flex-direction:column;justify-content:space-between;min-width:0;padding:2px 0;">
+        <!-- Name -->
+        <div style="font-family:'Orbitron',monospace;color:#fff;font-size:12px;letter-spacing:1px;font-weight:700;line-height:1.3;">${card.name}</div>
+        <!-- VP — hero number -->
+        <div style="display:flex;align-items:baseline;gap:5px;margin-top:4px;">
+          <span style="font-size:30px;font-weight:bold;color:var(--tc);line-height:1;text-shadow:0 0 10px var(--tc);">${card.power}</span>
+          <span style="font-size:11px;color:#bbb;letter-spacing:2px;">VP</span>
         </div>
-
-
-        <div style="display:flex;align-items:center;gap:3px;">
-
-
-          <span style="font-size:10px;color:#bbb;margin-right:2px;">T</span>
-
-
-          ${Array.from({length:tierNum},()=>`<div style="width:9px;height:9px;border-radius:50%;background:${tierCol};box-shadow:0 0 4px ${tierCol};"></div>`).join('')}
-
-
-          ${Array.from({length:4-tierNum},()=>`<div style="width:9px;height:9px;border-radius:50%;border:1px solid #2a2a3a;"></div>`).join('')}
-
-
+        <!-- Tier -->
+        <div style="display:flex;align-items:center;gap:4px;margin-top:6px;">
+          <span style="font-size:9px;color:#666;letter-spacing:2px;">TIER</span>
+          ${Array.from({length:tierNum},()=>`<div style="width:10px;height:10px;border-radius:50%;background:${tierCol};box-shadow:0 0 5px ${tierCol};"></div>`).join('')}
+          ${Array.from({length:4-tierNum},()=>`<div style="width:10px;height:10px;border-radius:50%;border:1px solid #222230;"></div>`).join('')}
         </div>
-
-
       </div>
 
 
@@ -610,27 +567,19 @@ function showTip(e, card) {
 
 
       ${abi ? `
-
-
-      <div style="border:1px solid #ffdd0044;border-radius:5px;padding:0;background:#ffdd0008;display:flex;flex-direction:row;gap:0;align-items:stretch;overflow:hidden;">
-
-
-        ${_iconSrc ? `<img src="${_iconSrc}" style="width:72px;flex-shrink:0;object-fit:cover;object-position:center;align-self:stretch;display:block;border-right:1px solid #ffdd0033;background:#050510;border-radius:4px 0 0 4px;" onerror="this.style.display='none'">` : ''}
-
-
-        <div style="flex:1;display:flex;flex-direction:column;gap:6px;padding:8px 10px;">
-
-
-          <div style="font-family:'Orbitron',monospace;font-size:10px;letter-spacing:1px;color:#ffdd00;font-weight:700;display:flex;align-items:center;gap:6px;"><span class="ability-star" style="font-size:14px;flex-shrink:0;">★</span>${card.abilityLabel || abi.label}</div>
-
-
-          <div style="font-size:10.5px;color:#ddd;line-height:1.5;margin-top:2px;">${card.abilityText}</div>
-            ${buildAbilityVisual(card.ability) ? `<div style="margin-top:8px;padding-top:8px;border-top:1px solid #ffdd0022;display:flex;justify-content:center;">${buildAbilityVisual(card.ability)}</div>` : ""}
+      <div style="border:1px solid #ffdd0033;border-radius:6px;padding:10px;background:#ffdd0008;">
+        <!-- Header: small icon + ability name on one line -->
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+          ${_iconSrc ? `<img src="${_iconSrc}" style="width:36px;height:36px;border-radius:4px;object-fit:cover;object-position:center;flex-shrink:0;border:1px solid #ffdd0033;background:#050510;" onerror="this.style.display='none'">` : `<div style="width:36px;height:36px;border-radius:4px;background:#ffdd0011;border:1px solid #ffdd0033;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">★</div>`}
+          <div style="font-family:'Orbitron',monospace;font-size:11px;letter-spacing:1px;color:#ffdd00;font-weight:700;line-height:1.2;">${card.abilityLabel || abi.label}</div>
+        </div>
+        <!-- Description + zone visual side by side -->
+        <div style="display:flex;gap:10px;align-items:flex-start;">
+          <div style="flex:1;font-size:10.5px;color:#ddd;line-height:1.55;">${card.abilityText}</div>
+          ${buildAbilityVisual(card.ability) ? `<div style="flex-shrink:0;">${buildAbilityVisual(card.ability)}</div>` : ''}
         </div>
       </div>` : `
-
-
-      <div style="font-size:10px;color:#333;letter-spacing:1px;font-style:italic;">No special ability</div>`}
+      <div style="font-size:10px;color:#444;letter-spacing:1px;font-style:italic;">No special ability</div>`}
 
 
     </div>
