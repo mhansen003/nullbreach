@@ -4665,6 +4665,106 @@ const GUIDE_PAGES = [
       <style>
 @keyframes g4fade{0%{opacity:0}100%{opacity:1}}
 @keyframes g4pulse{0%,100%{box-shadow:0 0 10px #ff440055,inset 0 0 6px #ff220022}50%{box-shadow:0 0 28px #ff660088,inset 0 0 16px #ff440033}}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   MOBILE LAYOUT ≤ 480px
+   Design: grid fills width, deck strip at bottom, no side badges, compact header
+   ══════════════════════════════════════════════════════════════════════════ */
+@media (max-width: 480px) {
+  body { overflow-x: hidden; touch-action: pan-y; }
+
+  /* ── Overall layout: header → main (grid) → col scores → hand ── */
+  #app {
+    display: flex; flex-direction: column;
+    height: 100dvh; overflow: hidden;
+  }
+
+  /* ── Header: compact score bar ── */
+  .header { padding: 4px 8px; gap: 0; flex-shrink: 0; }
+  .ai-area, .player-area {
+    padding: 2px 6px; gap: 6px; min-height: 0;
+    flex-direction: row; align-items: center;
+  }
+  .ai-avatar, .player-avatar { width: 36px; height: 36px; font-size: 16px; }
+  .ai-name, .player-name   { font-size: 9px; letter-spacing: 1px; }
+  .ai-sub, .player-sub     { display: none; }
+  .ai-quote, .player-quote { display: none; }
+  #sbAiNum, #sbPlayerNum   { font-size: 18px; }
+
+  /* ── Main area fills remaining space ── */
+  .main-area { flex: 1; overflow: hidden; padding: 4px; display: flex; flex-direction: column; }
+
+  /* ── Grid: fills full width, no side badges ── */
+  #rowScores { display: none !important; }   /* side badges hidden — no room */
+  #grid {
+    grid-template-columns: repeat(7, 1fr);
+    grid-template-rows: repeat(5, 1fr);
+    gap: 2px;
+    width: 100%;
+    flex: 1;
+  }
+  .cell { width: auto !important; height: auto !important; min-height: 0; border-radius: 2px; }
+  .edge   { font-size: 10px; min-width: 13px; padding: 1px 2px; }
+  .edge.n { top: 2px; }
+  .edge.s { bottom: 2px; }
+  .edge.w { left: 2px; }
+  .edge.e { right: 2px; }
+  .cell-power { font-size: 16px; }
+  .tier-dots  { top: 2px; left: 2px; gap: 2px; }
+  .tier-dot   { width: 5px; height: 5px; }
+  .ability-tag { font-size: 5px; bottom: 2px; }
+  .ability-star { font-size: 18px !important; }
+  .bti { width: 24px !important; height: 24px !important; }
+
+  /* ── Col score badges: tiny strip below grid ── */
+  .col-score-row { flex-shrink: 0; }
+  .col-score-badge { width: auto; flex: 1; height: 26px; font-size: 8px; padding: 2px; }
+  .col-score-badge img { width: 16px !important; height: 16px !important; }
+  .col-score-badge span { font-size: 11px !important; }
+
+  /* ── Player hand: compact fixed bottom strip ── */
+  .player-area {
+    flex-shrink: 0;
+    max-height: 130px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding: 4px 8px 6px;
+    border-top: 1px solid #1a1a28;
+    background: #06060edd;
+    backdrop-filter: blur(6px);
+  }
+  .player-area::-webkit-scrollbar { display: none; }
+  .player-portrait { display: none; }  /* hide portrait in hand area */
+
+  /* ── Hand cards: smaller on mobile ── */
+  .hand-card { width: 72px !important; height: 96px !important; }
+  .hc-e-n, .hc-e-s, .hc-e-w, .hc-e-e { font-size: 10px; min-width: 14px; }
+  .hc-power-center { font-size: 14px; }
+  .hc-tier-badge   { font-size: 7px; }
+
+  /* buildStack cards also smaller */
+  /* (handled by JS _activeTier system) */
+
+  /* ── No tooltips on mobile — too small ── */
+  #tooltip, #errorTip { display: none !important; }
+
+  /* ── User guide ── */
+  #guideModal { padding: 8px 0; }
+  #guideContent { padding: 12px 14px; font-size: 13px; }
+
+  /* ── Turn tag & other header elements ── */
+  .turn-tag { font-size: 9px; padding: 2px 6px; }
+  #logPanel { display: none; }  /* hide log on mobile, too cramped */
+
+  /* ── AI area top: minimal ── */
+  .ai-area { max-height: 50px; }
+  .ai-avatar { width: 34px; height: 34px; }
+  .ai-portrait { min-width: 0; padding: 2px 4px; }
+  #sbAiName { font-size: 8px; }
+}
+
 </style>
 
 <!-- Two real hazard cards side by side -->
