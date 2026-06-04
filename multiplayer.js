@@ -295,9 +295,12 @@ function mpStartPolling() {
     if (G.gameOver) { clearInterval(_mpPollInt); _mpPollInt = null; return; }
 
 
+    // Pause inactivity clock while guide is open
+    if (document.getElementById('guideModal')?.style.display !== 'none') {
+      _mpLastActivity = Date.now();
+    }
+
     // Stale warning: 4 minutes with no activity
-
-
     if (Date.now() - _mpLastActivity > 240000) {
 
 

@@ -476,13 +476,17 @@ const GUIDE_PAGES = [
 
   <div class="g2-scoring-text" style="max-width:460px;margin:14px auto 0;text-align:center;font-size:13px;color:#ddd;line-height:1.8;">
 
-
     Every row (left to right) and every column (top to bottom) is scored separately.
-
-
     For each line the winner earns the difference in total power as VP — so controlling both rows and columns matters.
 
+  </div>
 
+  <div style="max-width:460px;margin:12px auto 0;background:#0a0a18;border-left:3px solid #ffdd00;border-radius:6px;padding:12px 16px;">
+    <div style="font-size:11px;color:#ffdd00;font-family:'Orbitron',monospace;letter-spacing:2px;margin-bottom:6px;">🏆 WIN CONDITION</div>
+    <div style="font-size:13px;color:#e0d8f8;line-height:1.7;">
+      When all cards are played, the side with the <span style="color:#ffdd00;font-weight:bold;">highest total VP</span> wins.
+      First to control <span style="color:#ffdd00;font-weight:bold;">18+ cells</span> wins immediately.
+    </div>
   </div>
 
 
