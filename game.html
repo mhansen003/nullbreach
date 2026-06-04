@@ -4673,14 +4673,15 @@ const GUIDE_PAGES = [
 @media (max-width: 480px) {
   body { overflow-x: hidden; touch-action: pan-y; }
 
-  /* ── Overall layout: header → main (grid) → col scores → hand ── */
-  #app {
+  /* ── Overall layout: body is the flex column ── */
+  body {
     display: flex; flex-direction: column;
     height: 100dvh; overflow: hidden;
   }
+  .header, .ai-area { flex-shrink: 0; }
 
   /* ── Header: compact score bar ── */
-  .header { padding: 4px 8px; gap: 0; flex-shrink: 0; }
+  .header { padding: 4px 8px; gap: 0; }
   .ai-area, .player-area {
     padding: 2px 6px; gap: 6px; min-height: 0;
     flex-direction: row; align-items: center;
@@ -4692,7 +4693,7 @@ const GUIDE_PAGES = [
   #sbAiNum, #sbPlayerNum   { font-size: 18px; }
 
   /* ── Main area fills remaining space ── */
-  .main-area { flex: 1; overflow: hidden; padding: 4px; display: flex; flex-direction: column; }
+  .main-area { flex: 1; overflow: hidden; padding: 4px; display: flex; flex-direction: column; min-height: 0; }
 
   /* ── Grid: fills full width, no side badges ── */
   #rowScores { display: none !important; }   /* side badges hidden — no room */
