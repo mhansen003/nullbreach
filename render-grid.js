@@ -774,8 +774,13 @@ function renderGrid() {
           // Show lock icon — this cell cannot receive the selected card
           if (window.innerWidth > 480) {
             const lock = document.createElement('div');
-            lock.style.cssText = 'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:14px;color:#ffffff28;pointer-events:none;z-index:3;user-select:none;';
-            lock.textContent = '🔒';
+            lock.style.cssText = [
+              'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);',
+              'width:16px;height:16px;pointer-events:none;z-index:3;opacity:0.22;',
+              'border:2px solid #fff;border-radius:3px;border-top-left-radius:50%;border-top-right-radius:50%;',
+              'border-bottom-left-radius:2px;border-bottom-right-radius:2px;background:transparent;',
+              'box-shadow:inset 0 0 0 1.5px #fff'
+            ].join('');
             div.appendChild(lock);
           }
 

@@ -430,7 +430,7 @@ function showTip(e, card) {
 
 
     <!-- Header: card art + name/VP/tier -->
-    <div style="display:flex;gap:12px;padding:12px 14px 10px;border-bottom:1px solid var(--tc-dim);">
+    <div style="display:flex;gap:12px;padding:12px 14px 10px;border-bottom:1px solid #ffffff10;">
       ${card.art ? `
       <div style="position:relative;flex-shrink:0;width:80px;height:104px;">
         <img src="${card.art}" style="width:100%;height:100%;object-fit:cover;object-position:top;border-radius:6px;border:1px solid var(--tc-dim);">
@@ -461,7 +461,7 @@ function showTip(e, card) {
 
 
 
-    <div style="display:flex;padding:8px 12px;gap:8px;border-bottom:1px solid var(--tc-dim);">
+    <div style="display:flex;padding:8px 12px;gap:8px;border-bottom:1px solid #ffffff10;">
 
 
       <div style="flex:1;">
@@ -542,7 +542,7 @@ function showTip(e, card) {
       </div>
 
 
-      <div style="width:1px;background:var(--tc-dim);opacity:0.3;flex-shrink:0;"></div>
+      <div style="width:1px;background:#ffffff10;flex-shrink:0;"></div>
 
 
       <div style="flex:1;">
@@ -567,11 +567,12 @@ function showTip(e, card) {
 
 
       ${abi ? `
-      <div style="border:1px solid #ffdd0033;border-radius:6px;padding:10px;background:#ffdd0008;">
-        <!-- Header: small icon + ability name on one line -->
+      <div style="border:1px solid #ffffff14;border-radius:6px;padding:10px;background:#ffffff06;">
+        <!-- Header: small icon + pulsing star + ability name on one line -->
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
-          ${_iconSrc ? `<img src="${_iconSrc}" style="width:36px;height:36px;border-radius:4px;object-fit:cover;object-position:center;flex-shrink:0;border:1px solid #ffdd0033;background:#050510;" onerror="this.style.display='none'">` : `<div style="width:36px;height:36px;border-radius:4px;background:#ffdd0011;border:1px solid #ffdd0033;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">★</div>`}
-          <div style="font-family:'Orbitron',monospace;font-size:11px;letter-spacing:1px;color:#ffdd00;font-weight:700;line-height:1.2;">${card.abilityLabel || abi.label}</div>
+          ${_iconSrc ? `<img src="${_iconSrc}" style="width:36px;height:36px;border-radius:4px;object-fit:cover;object-position:center;flex-shrink:0;border:1px solid #ffffff22;background:#050510;" onerror="this.style.display='none'">` : `<div style="width:36px;height:36px;border-radius:4px;background:#ffffff08;border:1px solid #ffffff1a;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;color:#ffdd00;">★</div>`}
+          <span class="ability-star" style="font-size:16px;flex-shrink:0;">★</span>
+          <div style="font-family:'Orbitron',monospace;font-size:11px;letter-spacing:1px;color:#fff;font-weight:700;line-height:1.2;">${card.abilityLabel || abi.label}</div>
         </div>
         <!-- Description + zone visual side by side -->
         <div style="display:flex;gap:10px;align-items:flex-start;">
