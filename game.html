@@ -2489,7 +2489,7 @@ button, [onclick] { touch-action: manipulation; }
   .ai-quote, .player-quote { display: none; }
   #sbAiNum, #sbPlayerNum { font-size: 18px; }
   .main-area { flex: 1; overflow: hidden; padding: 34px 0 220px; display: flex; flex-direction: column; min-height: 0; }
-  .board-wrap { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 4px 2px; min-height: 0; }
+  .board-wrap { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 4px 2px; min-height: 0; overflow: hidden; }
   .board-and-scores { flex: 0 0 auto; align-items: flex-start; gap: 0; zoom: 1 !important; }
   .board-and-scores > div:first-child { flex: 0 0 auto; display: flex; flex-direction: column; }
   .board-dir-row { display: none; }
@@ -5836,6 +5836,12 @@ const CS_H = 158;  // cell height + gap = 152 + 6
 
 const CS = CS_W;   // legacy alias for horizontal calc
 
+// Returns mobile cell dimensions when on a narrow screen, null otherwise
+function _mobileDims() {
+  if (window.innerWidth > 480) return null;
+  return { cw:44, ch:52, gap:2, sw:46, sh:54 };
+}
+
 
 
 
@@ -5852,14 +5858,17 @@ const TIER_COLORS = { 'I':'#d0d0d0', 'II':'#44cc66', 'III':'#4488ff', 'IV':'#aa4
 
 // ── ABILITY ZONE PREVIEW ─────────────────────────────────────────────────────
 // When hovering an ability card in hand, highlights grid cells affected by it
-function showAbilityZone(ability) {
+function showAbilityZone(ability, _baseR, _baseC) {
   if (_zoneSuppressed) return;
   const abilCol = (ABILITY_ICONS[ability] || {color:'#888'}).color;
-  // Reference position: find nearest player card, or use home row center
-  let baseR = 4, baseC = 3;
-  outer: for (let r = 4; r >= 0; r--) {
-    for (let c = 0; c < 7; c++) {
-      if (G.grid[r][c].owner === 'player') { baseR = r; baseC = Math.min(Math.max(c,1),5); break outer; }
+  // Use explicit position from placed card, or guess from nearest player card
+  let baseR = (_baseR !== undefined) ? _baseR : 4;
+  let baseC = (_baseC !== undefined) ? _baseC : 3;
+  if (_baseR === undefined) {
+    outer: for (let r = 4; r >= 0; r--) {
+      for (let c = 0; c < 7; c++) {
+        if (G.grid[r][c].owner === 'player') { baseR = r; baseC = Math.min(Math.max(c,1),5); break outer; }
+      }
     }
   }
   const PATTERNS = {
@@ -6145,7 +6154,7 @@ function renderGrid() {
         };
 
 
-        div.onmouseleave = function() { hideTip(); clearAbilityZone(); };
+        div.onmouseleave = hideTip;
 
 
         // If user already interacted, upgrade img to video immediately
@@ -6382,7 +6391,7 @@ function renderGrid() {
 
 
             showTip(ev, cardWithBuf);
-
+            if (cell.card.ability) showAbilityZone(cell.card.ability, r, c);
 
           }
 
@@ -6430,13 +6439,16 @@ function renderGrid() {
 
 
           document.querySelectorAll('.cell[style*="dashed"]').forEach(el => el.style.outline = '');
-
-
           hideTip();
-
-
+          clearAbilityZone();
         };
 
+        div.onclick = function() {
+          if (window.innerWidth > 480) return;
+          showMobileCardPanel(cell.card);
+          const panel = document.getElementById('mobileCardPanel');
+          if (panel) { panel.style.display = 'block'; setTimeout(() => panel.classList.add('open'), 10); }
+        };
 
       } else {
 
@@ -6948,13 +6960,9 @@ function renderBattleIndicators(el) {
       label: (c) => `E → W`,
 
 
-      // center in horizontal gap: x = c*CS_W + 114 + 3, y = r*CS_H + 76
-
-
-      chipX: (r,c) => c*CS_W + 124 + 3 - CHIP/2,
-
-
-      chipY: (r,c) => r*CS_H + 76 - CHIP/2 },
+      // center in horizontal gap between col c and c+1
+      chipX: (r,c) => { const m=_mobileDims(); return m ? c*m.sw+m.cw+m.gap/2-12 : c*CS_W+124+3-CHIP/2; },
+      chipY: (r,c) => { const m=_mobileDims(); return m ? r*m.sh+m.ch/2-12 : r*CS_H+76-CHIP/2; } },
 
 
     { dr:1, dc:0, myE:'s', theirE:'n', axis:'v',
@@ -6963,13 +6971,9 @@ function renderBattleIndicators(el) {
       label: (c) => `S → N`,
 
 
-      // center in vertical gap: x = c*CS_W + 57, y = r*CS_H + 152 + 3
-
-
-      chipX: (r,c) => c*CS_W + 62 - CHIP/2,
-
-
-      chipY: (r,c) => r*CS_H + 152 + 3 - CHIP/2 },
+      // center in vertical gap between row r and r+1
+      chipX: (r,c) => { const m=_mobileDims(); return m ? c*m.sw+m.cw/2-12 : c*CS_W+62-CHIP/2; },
+      chipY: (r,c) => { const m=_mobileDims(); return m ? r*m.sh+m.ch+m.gap/2-12 : r*CS_H+152+3-CHIP/2; } },
 
 
   ];
@@ -7145,6 +7149,8 @@ function renderBattleIndicators(el) {
 
 
       chip.dataset.tip = tipData;
+      chip.dataset.cr = r; chip.dataset.cc = c;
+      chip.dataset.nr = r+d.dr; chip.dataset.nc = c+d.dc;
 
 
 
@@ -7174,10 +7180,24 @@ function renderBattleIndicators(el) {
 
 
 
-      chip.onmouseenter = (ev) => showBattleTip(ev, JSON.parse(chip.dataset.tip));
+      chip.onmouseenter = (ev) => {
+        const _d = JSON.parse(chip.dataset.tip);
+        showBattleTip(ev, _d);
+        if (!_d.isTie && _d.winnerOwner) {
+          const _cr=+chip.dataset.cr,_cc=+chip.dataset.cc,_nr=+chip.dataset.nr,_nc=+chip.dataset.nc;
+          const winOwner = _d.winnerOwner;
+          [[_cr,_cc,_d.cellOwner],[_nr,_nc,_d.nbOwner]].forEach(([rr,cc,own])=>{
+            const el=document.querySelector('.cell[data-r="'+rr+'"][data-c="'+cc+'"]');
+            if(el) el.style.filter = (own===winOwner)?'brightness(1.15)':'brightness(0.3) saturate(0.2)';
+          });
+        }
+      };
 
 
-      chip.onmouseleave = hideTip;
+      chip.onmouseleave = () => {
+        hideTip();
+        document.querySelectorAll('.cell').forEach(el=>{el.style.filter='';});
+      };
 
 
       el.appendChild(chip);
@@ -7400,6 +7420,7 @@ function showBattleTip(e, d) {
 
 
 const _prevBadgeRes = { rows: Array(5).fill(null), cols: Array(7).fill(null) };
+let _activeBadge = null; // tracks which score badge is toggled on mobile
 
 
 function renderScoreBadges(_precomputed) {
@@ -7639,81 +7660,43 @@ function renderScoreBadges(_precomputed) {
     const _rowHlCol = res==='p' ? pCol : res==='a' ? aCol : '#ffffff';
 
 
-    badge.addEventListener('mouseenter', () => {
-
-
+    const _showRowHl = () => {
       document.querySelectorAll('.cell').forEach(el => {
-
-
         const er = el.dataset.r;
-
-
         const ec = el.dataset.c;
-
-
         if (er == r) {
-
-
           const cell = G.grid[er][ec];
-
-
           const bat  = cell?.card ? (cell.battle || {h:'none',v:'none'}) : null;
-
-
           const cancelled = bat && (bat.h === 'tie' || bat.h === 'lose');
-
-
           const hazardHit = cell?.card && cell.owner !== 'hazard' && [{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}]
-
-
             .some(({dr,dc}) => { const rr=+er+dr,cc=+ec+dc; return rr>=0&&rr<5&&cc>=0&&cc<7&&G.grid[rr][cc].owner==='hazard'; });
-
-
           el.style.outline = cell?.owner === 'hazard' ? '2px solid #ff660099' : 'none';
-
-
           el.style.filter  = (cancelled || hazardHit) ? 'brightness(0.4) saturate(0.2)' : 'brightness(1.1)';
-
-
           el.style.opacity = '1';
-
-
         } else { el.style.filter='brightness(0.38)'; el.style.opacity='0.5'; }
-
-
       });
-
-
-      const gridEl = document.getElementById('grid');
-
-
-      const ov = document.createElement('div');
-
-
-      ov.className = 'score-hl';
-
-
-      const gw = GRID_COLS * 124 + (GRID_COLS-1) * 6;
-
-
-      ov.style.cssText = `position:absolute;pointer-events:none;z-index:8;top:${r*CS_H}px;left:0;width:${gw}px;height:152px;border:3px solid ${_rowHlCol}cc;border-radius:6px;box-shadow:0 0 22px ${_rowHlCol}55,inset 0 0 10px ${_rowHlCol}11;`;
-
-
-      gridEl.appendChild(ov);
-
-
-    });
-
-
-    badge.addEventListener('mouseleave', () => {
-
-
-      document.querySelectorAll('.cell').forEach(el => { el.style.outline=''; el.style.filter=''; el.style.opacity=''; });
-
-
       document.querySelectorAll('.score-hl').forEach(el=>el.remove());
+      const gridEl = document.getElementById('grid');
+      const ov = document.createElement('div');
+      ov.className = 'score-hl';
+      const m = _mobileDims();
+      const gw = m ? (GRID_COLS*m.cw+(GRID_COLS-1)*m.gap) : (GRID_COLS*124+(GRID_COLS-1)*6);
+      const ch_ = m ? m.ch : 152;
+      const topY = m ? r*m.sh : r*CS_H;
+      ov.style.cssText = `position:absolute;pointer-events:none;z-index:8;top:${topY}px;left:0;width:${gw}px;height:${ch_}px;border:3px solid ${_rowHlCol}cc;border-radius:6px;box-shadow:0 0 22px ${_rowHlCol}55,inset 0 0 10px ${_rowHlCol}11;`;
+      gridEl.appendChild(ov);
+    };
+    const _clearRowHl = () => {
+      document.querySelectorAll('.cell').forEach(el => { el.style.outline=''; el.style.filter=''; el.style.opacity=''; });
+      document.querySelectorAll('.score-hl').forEach(el=>el.remove());
+    };
 
-
+    badge.addEventListener('mouseenter', () => { if (window.innerWidth > 480) _showRowHl(); });
+    badge.addEventListener('mouseleave', () => { if (window.innerWidth > 480) _clearRowHl(); });
+    badge.addEventListener('click', () => {
+      if (window.innerWidth > 480) return;
+      if (_activeBadge === badge) { _activeBadge = null; _clearRowHl(); }
+      else { if (_activeBadge) _clearRowHl(); _activeBadge = badge; _showRowHl(); }
     });
 
 
@@ -7789,81 +7772,43 @@ function renderScoreBadges(_precomputed) {
     const _colHlCol = res==='p' ? pCol : res==='a' ? aCol : '#ffffff';
 
 
-    badge.addEventListener('mouseenter', () => {
-
-
+    const _showColHl = () => {
       document.querySelectorAll('.cell').forEach(el => {
-
-
         const er = el.dataset.r;
-
-
         const ec = el.dataset.c;
-
-
         if (ec == c) {
-
-
           const cell = G.grid[er][ec];
-
-
           const bat  = cell?.card ? (cell.battle || {h:'none',v:'none'}) : null;
-
-
           const cancelled = bat && (bat.v === 'tie' || bat.v === 'lose');
-
-
           const hazardHit = cell?.card && cell.owner !== 'hazard' && [{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}]
-
-
             .some(({dr,dc}) => { const rr=+er+dr,cc=+ec+dc; return rr>=0&&rr<5&&cc>=0&&cc<7&&G.grid[rr][cc].owner==='hazard'; });
-
-
           el.style.outline = cell?.owner === 'hazard' ? '2px solid #ff660099' : 'none';
-
-
           el.style.filter  = (cancelled || hazardHit) ? 'brightness(0.4) saturate(0.2)' : 'brightness(1.1)';
-
-
           el.style.opacity = '1';
-
-
         } else { el.style.filter='brightness(0.38)'; el.style.opacity='0.5'; }
-
-
       });
-
-
-      const gridEl = document.getElementById('grid');
-
-
-      const ov = document.createElement('div');
-
-
-      ov.className = 'score-hl';
-
-
-      const gh = GRID_ROWS * 152 + (GRID_ROWS-1) * 6;
-
-
-      ov.style.cssText = `position:absolute;pointer-events:none;z-index:8;top:0;left:${c*CS_W}px;width:124px;height:${gh}px;border:3px solid ${_colHlCol}cc;border-radius:6px;box-shadow:0 0 22px ${_colHlCol}55,inset 0 0 10px ${_colHlCol}11;`;
-
-
-      gridEl.appendChild(ov);
-
-
-    });
-
-
-    badge.addEventListener('mouseleave', () => {
-
-
-      document.querySelectorAll('.cell').forEach(el => { el.style.outline=''; el.style.filter=''; el.style.opacity=''; });
-
-
       document.querySelectorAll('.score-hl').forEach(el=>el.remove());
+      const gridEl = document.getElementById('grid');
+      const ov = document.createElement('div');
+      ov.className = 'score-hl';
+      const m = _mobileDims();
+      const gh = m ? (GRID_ROWS*m.ch+(GRID_ROWS-1)*m.gap) : (GRID_ROWS*152+(GRID_ROWS-1)*6);
+      const cw_ = m ? m.cw : 124;
+      const leftX = m ? c*m.sw : c*CS_W;
+      ov.style.cssText = `position:absolute;pointer-events:none;z-index:8;top:0;left:${leftX}px;width:${cw_}px;height:${gh}px;border:3px solid ${_colHlCol}cc;border-radius:6px;box-shadow:0 0 22px ${_colHlCol}55,inset 0 0 10px ${_colHlCol}11;`;
+      gridEl.appendChild(ov);
+    };
+    const _clearColHl = () => {
+      document.querySelectorAll('.cell').forEach(el => { el.style.outline=''; el.style.filter=''; el.style.opacity=''; });
+      document.querySelectorAll('.score-hl').forEach(el=>el.remove());
+    };
 
-
+    badge.addEventListener('mouseenter', () => { if (window.innerWidth > 480) _showColHl(); });
+    badge.addEventListener('mouseleave', () => { if (window.innerWidth > 480) _clearColHl(); });
+    badge.addEventListener('click', () => {
+      if (window.innerWidth > 480) return;
+      if (_activeBadge === badge) { _activeBadge = null; _clearColHl(); }
+      else { if (_activeBadge) { document.querySelectorAll('.cell').forEach(el=>{el.style.outline='';el.style.filter='';el.style.opacity='';}); document.querySelectorAll('.score-hl').forEach(el=>el.remove()); } _activeBadge = badge; _showColHl(); }
     });
 
 
@@ -8242,7 +8187,7 @@ function renderHand() {
     div.onclick      = function() { onCardSelect(card); };
 
 
-    div.onmouseenter = function(e) { playHoverSfx(); showTip(e, card); if (card.ability) showAbilityZone(card.ability); };
+    div.onmouseenter = function(e) { playHoverSfx(); showTip(e, card); };
 
 
     div.onmouseleave = hideTip;
@@ -8332,6 +8277,8 @@ function renderHand() {
             onCellClick(parseInt(cellEl.dataset.r), parseInt(cellEl.dataset.c));
           }
           e.preventDefault();
+        } else {
+          hideDragCard(); // clean up ghost even on simple tap
         }
         _tdStart = null; _tdDragging = false;
       }, { passive: false });
@@ -9220,27 +9167,20 @@ const ZONES = {
 function getValidPlacements(owner, card) {
 
 
-  // PHANTOM: free placement within OWN 2 home rows
-
-
+  // PHANTOM: free placement in own 2 home rows PLUS any other valid adjacency cells
   if (card.ability === 'phantom') {
-
-
     const [minR, maxR] = owner === 'player' ? [3,4] : [0,1];
-
-
+    const seen = new Set();
     const cells = [];
-
-
+    // Free home rows (2 rows)
     for (let r = minR; r <= maxR; r++)
-
-
       for (let c = 0; c < 7; c++)
-
-
-        if (!G.grid[r][c].card) cells.push({r,c});
-
-
+        if (!G.grid[r][c].card) { const k=r+','+c; if(!seen.has(k)){seen.add(k);cells.push({r,c});} }
+    // ALSO include normal adjacency placements anywhere on the board
+    // (temporarily clear phantom ability to avoid recursion)
+    const _ab = card.ability; card.ability = null;
+    getValidPlacements(owner, card).forEach(({r,c})=>{ const k=r+','+c; if(!seen.has(k)){seen.add(k);cells.push({r,c});} });
+    card.ability = _ab;
     return cells;
 
 
@@ -11103,6 +11043,7 @@ function onCardSelect(card) {
 
     showDragCard(card, -200, -200);
     showMobileCardPanel(card);
+    if (card.ability && window.innerWidth <= 480) setTimeout(() => showAbilityZone(card.ability), 320);
 
 
   }
