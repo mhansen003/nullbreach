@@ -125,19 +125,15 @@ function _showScoreTip(badge, axis, idx) {
   document.body.appendChild(tip);
   _scoreTipEl = tip;
 
-  // Position: row badge → to the left; col badge → above
+  // Position: always on the right side of screen (same region as card tooltips)
   const rect = badge.getBoundingClientRect();
-  if (axis === 'row') {
-    const left = Math.max(4, rect.left - 270);
-    const top  = Math.min(window.innerHeight - 20 - tip.offsetHeight, rect.top - 10);
-    tip.style.left = left + 'px';
-    tip.style.top  = Math.max(4, top) + 'px';
-  } else {
-    const left = Math.max(4, Math.min(window.innerWidth - 268, rect.left + rect.width/2 - 130));
-    const top  = Math.max(4, rect.top - tip.offsetHeight - 10);
-    tip.style.left = left + 'px';
-    tip.style.top  = top + 'px';
-  }
+  tip.style.right = '16px';
+  tip.style.left  = 'auto';
+  const tipTop = Math.min(
+    window.innerHeight - 20 - (tip.offsetHeight || 300),
+    Math.max(8, rect.top - 20)
+  );
+  tip.style.top = tipTop + 'px';
 }
 function _hideScoreTip() {
   if (_scoreTipEl) { _scoreTipEl.remove(); _scoreTipEl = null; }
@@ -207,14 +203,9 @@ function renderScoreBadges(_precomputed) {
 
 
     if (res === 'tie') return `
-
-
-      <div style="display:flex;flex-direction:column;align-items:center;gap:3px;pointer-events:none;">
-
-
-        <span style="font-size:9px;letter-spacing:2px;color:#aaaacc;">TIE</span>
-
-
+      <div style="display:flex;flex-direction:column;align-items:center;gap:2px;pointer-events:none;">
+        <span style="font-size:14px;font-weight:bold;color:#ffdd00;line-height:1;pointer-events:none;">${p}:${a}</span>
+        <span style="font-size:8px;letter-spacing:2px;color:#ffdd00aa;pointer-events:none;">TIE</span>
       </div>`;
 
 
@@ -267,9 +258,8 @@ function renderScoreBadges(_precomputed) {
 
 
     if (res === 'tie') return `<div style="pointer-events:none;text-align:center;">
-
-
-      <span style="font-size:9px;letter-spacing:2px;color:#bbbbcc;display:block;">TIE</span></div>`;
+      <span style="font-size:13px;font-weight:bold;color:#ffdd00;line-height:1;display:block;">${p}:${a}</span>
+      <span style="font-size:8px;letter-spacing:2px;color:#ffdd00aa;display:block;">TIE</span></div>`;
 
 
     const pWin = res === 'p';
@@ -335,7 +325,7 @@ function renderScoreBadges(_precomputed) {
     const badge = document.createElement('div');
 
 
-    badge.className = 'row-score-badge';
+    badge.className = 'row-score-badge'; badge.style.cursor = 'pointer';
 
 
     // WIN=player color border, LOSE=opponent color border, TIE=grey
@@ -411,7 +401,7 @@ function renderScoreBadges(_precomputed) {
       document.querySelectorAll('.score-hl').forEach(el=>el.remove());
     };
 
-    badge.addEventListener('mouseenter', () => { if (window.innerWidth > 480) { _showRowHl(); _showScoreTip(badge,'row',r); } });
+    badge.addEventListener('mouseenter', () => { if (window.innerWidth > 480) { document.body.style.cursor='default'; _showRowHl(); _showScoreTip(badge,'row',r); } });
     badge.addEventListener('mouseleave', () => { if (window.innerWidth > 480) { _clearRowHl(); _hideScoreTip(); } });
     badge.addEventListener('click', () => {
       if (window.innerWidth > 480) return;
@@ -450,7 +440,7 @@ function renderScoreBadges(_precomputed) {
     const badge = document.createElement('div');
 
 
-    badge.className = 'col-score-badge';
+    badge.className = 'col-score-badge'; badge.style.cursor = 'pointer';
 
 
     // WIN=player color top-border, LOSE=opponent color, TIE=grey
@@ -523,7 +513,7 @@ function renderScoreBadges(_precomputed) {
       document.querySelectorAll('.score-hl').forEach(el=>el.remove());
     };
 
-    badge.addEventListener('mouseenter', () => { if (window.innerWidth > 480) { _showColHl(); _showScoreTip(badge,'col',c); } });
+    badge.addEventListener('mouseenter', () => { if (window.innerWidth > 480) { document.body.style.cursor='default'; _showColHl(); _showScoreTip(badge,'col',c); } });
     badge.addEventListener('mouseleave', () => { if (window.innerWidth > 480) { _clearColHl(); _hideScoreTip(); } });
     badge.addEventListener('click', () => {
       if (window.innerWidth > 480) return;
