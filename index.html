@@ -482,7 +482,7 @@ button, [onclick] { touch-action: manipulation; }
   /* ── DECK SELECT: fixed header+conveyor, scrollable lore below ── */
   #deckselect {
     display: flex; flex-direction: column;
-    height: 100vh; overflow: hidden;
+    height: 100vh; overflow-x: clip; overflow-y: visible;
   }
 
   /* Header: compact, hide the cluttered "GALACTIC ZERO v0.1" version text */

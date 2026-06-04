@@ -216,7 +216,10 @@ function animateAiCard(card, r, c, noTurnFlip = false) {
 function animatePlayerCard(card, r, c, callback) {
   const grid   = document.getElementById('grid');
   const target = grid?.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`);
-  const srcEl  = document.getElementById('sbPlayerAvatar') || document.getElementById('fhPlayer');
+  // On mobile the player hand bar is at the bottom — use that as the launch point
+  const srcEl  = document.querySelector('.player-area') ||
+                 document.getElementById('sbPlayerAvatar') ||
+                 document.getElementById('fhPlayer');
   if (!target || !srcEl) { callback(); return; }
 
   const src  = srcEl.getBoundingClientRect();
