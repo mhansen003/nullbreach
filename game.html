@@ -2516,9 +2516,13 @@ button, [onclick] { touch-action: manipulation; }
   .mobile-deck-expanded { display: flex; flex-direction: row; gap: 5px; overflow-x: auto; overflow-y: visible; padding: 5px 8px 4px; -webkit-overflow-scrolling: touch; scrollbar-width: none; min-height: 0; }
   .mobile-deck-expanded:empty { display: none; }
   .mobile-deck-expanded::-webkit-scrollbar { display: none; }
-  .mobile-tier-tabs { display: flex; gap: 5px; padding: 4px 8px 6px; flex-shrink: 0; }
-  .mobile-tier-tab { flex: 1; min-height: 48px; border-radius: 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; cursor: pointer; user-select: none; transition: background 0.12s, border-color 0.12s; border: 1px solid transparent; }
-  .mobile-tier-tab.empty { opacity: 0.3; cursor: default; pointer-events: none; }
+  .mobile-deck-covers { display: flex; gap: 4px; padding: 6px 8px 8px; flex-shrink: 0; justify-content: space-around; }
+  .mobile-deck-cover { position: relative; width: 64px; height: 86px; border-radius: 6px; flex-shrink: 0; cursor: pointer; user-select: none; overflow: hidden; transition: transform 0.15s, box-shadow 0.15s; }
+  .mobile-deck-cover.empty { opacity: 0.25; cursor: default; pointer-events: none; }
+  .mobile-deck-cover.active { transform: translateY(-4px); }
+  #mobileCardPanel { display: none; position: fixed; right: -210px; top: 80px; width: 195px; background: #06060ef2; border: 1px solid #1a1a28; border-right: none; border-radius: 10px 0 0 10px; transition: right 0.25s ease; z-index: 500; padding: 8px 10px 8px 10px; backdrop-filter: blur(8px); }
+  #mobileCardPanel.open { right: 0; }
+  #mobileCardPanelTab { position: absolute; left: -30px; top: 50%; transform: translateY(-50%); width: 30px; height: 60px; background: #06060ef2; border: 1px solid #1a1a28; border-right: none; border-radius: 10px 0 0 10px; display: flex; align-items: center; justify-content: center; font-size: 14px; color: #888; cursor: pointer; }
   .hand-card { width: 64px !important; height: 86px !important; }
   .hc-e-n, .hc-e-s, .hc-e-w, .hc-e-e { font-size: 10px; min-width: 14px; }
   .hc-power-center { font-size: 14px; }
@@ -2544,6 +2548,12 @@ button, [onclick] { touch-action: manipulation; }
 
 
 
+
+<!-- Mobile card info panel (right-side slide-out) -->
+<div id="mobileCardPanel">
+  <div id="mobileCardPanelTab" onclick="toggleMobileCardPanel()">◀</div>
+  <div id="mobileCardPanelContent"></div>
+</div>
 
 <!-- AUDIO -->
 
@@ -5842,6 +5852,7 @@ const TIER_COLORS = { 'I':'#d0d0d0', 'II':'#44cc66', 'III':'#4488ff', 'IV':'#aa4
 // ── ABILITY ZONE PREVIEW ─────────────────────────────────────────────────────
 // When hovering an ability card in hand, highlights grid cells affected by it
 function showAbilityZone(ability) {
+  if (_zoneSuppressed) return;
   const abilCol = (ABILITY_ICONS[ability] || {color:'#888'}).color;
   // Reference position: find nearest player card, or use home row center
   let baseR = 4, baseC = 3;
@@ -5899,8 +5910,14 @@ function showAbilityZone(ability) {
   });
 }
 
+let _zoneSuppressed = false;
 function clearAbilityZone() {
   document.querySelectorAll('[data-abilityZone]').forEach(el => el.remove());
+}
+function suppressZone(ms) {
+  _zoneSuppressed = true;
+  clearTimeout(window._zoneTimer);
+  window._zoneTimer = setTimeout(() => { _zoneSuppressed = false; }, ms || 400);
 }
 
 
@@ -5916,7 +5933,7 @@ function buildAbilityVisual(ability) {
     if (badgeTxt) {
       badge = `<span style="position:absolute;top:-6px;right:-6px;width:13px;height:13px;border-radius:50%;background:#000;border:1px solid ${badgeCol};display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;color:${badgeCol};">${badgeTxt}</span>`;
     }
-    return `<div style="width:20px;height:16px;border-radius:2px;background:${bg};border:2px ${ds} ${border};${opacity}position:relative;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;color:${border};">${txt}${badge}</div>`;
+    return `<div style="width:26px;height:20px;border-radius:2px;background:${bg};border:2px ${ds} ${border};${opacity}position:relative;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;color:${border};">${txt}${badge}</div>`;
   }
   const e = (txt,op)       => cell(EC,EB,txt||'E',false,op||'');
   const y = (txt)           => cell(YOU,YB,txt||'★',false,'','','');
@@ -5926,8 +5943,8 @@ function buildAbilityVisual(ability) {
   const hit   = (txt)        => cell(EC,EB,txt||'E',true,'0.6');
   const bonus = (txt)        => cell(BON,BB,txt||'',false,'');
 
-  const G = (cells) => `<div style="display:grid;grid-template-columns:repeat(3,20px);gap:2px;">${cells.join('')}</div>`;
-  const G5= (cells) => `<div style="display:grid;grid-template-columns:repeat(5,18px);gap:2px;">${cells.join('')}</div>`;
+  const G = (cells) => `<div style="display:grid;grid-template-columns:repeat(3,26px);gap:2px;">${cells.join('')}</div>`;
+  const G5= (cells) => `<div style="display:grid;grid-template-columns:repeat(5,22px);gap:2px;">${cells.join('')}</div>`;
 
   const patterns = {
     shield:         G([empty(),e(),empty(), empty(),y('🛡'),empty(), empty(),empty(),empty()]),
@@ -8059,7 +8076,8 @@ function hasPlacedTier(tier) {
 
 
 function renderHand() {
-  clearAbilityZone(); // clear any stale zone before rebuilding hand
+  clearAbilityZone(); suppressZone(400); // prevent mouseenter on rebuilt divs
+  // rebuilding hand
   const el = document.getElementById('handCards');
   el.innerHTML = '';
 
@@ -8621,13 +8639,15 @@ function renderHand() {
 
 
 
-  // ── MOBILE DECK: tier tabs + expandable card tray ──────────────────────
+  // ── MOBILE DECK: card cover thumbnails + expandable card tray ────────────
   if (window.innerWidth <= 480) {
-    const tray    = document.createElement('div');
+    const _fc = factionC || '#00ffcc';
+
+    const tray = document.createElement('div');
     tray.className = 'mobile-deck-expanded';
 
-    const tabsRow = document.createElement('div');
-    tabsRow.className = 'mobile-tier-tabs';
+    const coversRow = document.createElement('div');
+    coversRow.className = 'mobile-deck-covers';
 
     ['I','II','III','IV'].forEach(function(t) {
       const cards  = byTier[t] || [];
@@ -8637,29 +8657,39 @@ function renderHand() {
       const tNum   = TIER_ORDER[t];
       const isAct  = window._activeTier === t;
 
-      const tab = document.createElement('div');
-      tab.className = 'mobile-tier-tab' + (isAct ? ' active' : '') + (total === 0 ? ' empty' : '');
-      tab.style.cssText = 'border-color:' + (total > 0 ? (isAct ? tCol : tCol + '55') : '#2a2a3a') + ';' +
-        'background:' + (isAct ? tCol + '22' : total > 0 ? tCol + '0d' : 'transparent') + ';' +
-        'color:' + (total > 0 ? (isAct ? tCol : tCol + 'aa') : '#3a3a4a') + ';';
+      const cover = document.createElement('div');
+      cover.className = 'mobile-deck-cover' + (isAct ? ' active' : '') + (total === 0 ? ' empty' : '');
+      cover.style.cssText =
+        'background-color:#0c0c1e;background-size:cover;background-position:center top;' +
+        'border:2px solid ' + (total > 0 ? (isAct ? _fc + 'cc' : _fc + '44') : '#1a1a28') + ';' +
+        'box-shadow:' + (isAct ? '0 0 14px ' + _fc + '88' : total > 0 ? '0 0 6px ' + _fc + '22' : 'none') + ';';
+
+      if (cards[0] && cards[0].art) {
+        cover.style.backgroundImage = "url('" + cards[0].art + "')";
+        cover.style.filter = isAct ? 'brightness(1)' : 'brightness(0.75)';
+      }
 
       const dots = Array.from({length: tNum}, function() {
-        return '<span style="width:4px;height:4px;border-radius:50%;background:' + (total > 0 ? tCol : '#333') + ';display:inline-block;"></span>';
+        return '<span style="width:4px;height:4px;border-radius:50%;background:' + tCol + ';box-shadow:0 0 3px ' + tCol + ';display:inline-block;"></span>';
       }).join('');
 
-      tab.innerHTML =
-        '<div style="display:flex;gap:2px;">' + dots + '</div>' +
-        '<div style="font-size:8px;font-family:\'Courier New\',monospace;letter-spacing:1px;">T' + tNum + '</div>' +
-        '<div style="font-size:11px;font-weight:bold;font-family:\'Courier New\',monospace;">' + cards.length +
-          (locked > 0 ? '<span style="font-size:8px;opacity:0.45">+' + locked + '</span>' : '') + '</div>';
+      const countHtml = total > 0
+        ? '<div style="position:absolute;bottom:3px;right:3px;background:#0a0a1acc;border:1px solid ' + _fc + '66;border-radius:8px;padding:1px 5px;font-size:9px;font-weight:bold;color:' + _fc + ';font-family:\'Courier New\',monospace;">' +
+            cards.length + (locked > 0 ? '<span style="opacity:0.45;font-size:7px;">+' + locked + '</span>' : '') +
+          '</div>'
+        : '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:8px;color:#444;font-family:\'Courier New\',monospace;">NONE</div>';
+
+      cover.innerHTML =
+        '<div style="position:absolute;top:3px;left:3px;display:flex;gap:2px;z-index:2;">' + dots + '</div>' +
+        countHtml;
 
       if (total > 0) {
-        tab.onclick = function() {
+        cover.onclick = function() {
           window._activeTier = (window._activeTier === t) ? null : t;
           renderHand();
         };
       }
-      tabsRow.appendChild(tab);
+      coversRow.appendChild(cover);
 
       if (isAct && cards.length > 0) {
         cards.forEach(function(card, idx) { tray.appendChild(buildCard(card, idx)); });
@@ -8667,7 +8697,7 @@ function renderHand() {
     });
 
     el.appendChild(tray);
-    el.appendChild(tabsRow);
+    el.appendChild(coversRow);
     return;
   }
 
@@ -10918,7 +10948,7 @@ function playCardPopSfx() {
 
 
 function onCardSelect(card) {
-  clearAbilityZone(); // always clear zone when a card is clicked
+  clearAbilityZone(); suppressZone(300); // always clear zone when a card is clicked
   if (G.turn !== 'player' || G.gameOver) return;
 
 
@@ -11960,7 +11990,7 @@ function showTip(e, card) {
           </div>
 
 
-          <div style="font-size:8px;color:#555;letter-spacing:1px;">VP</div>
+          <div style="font-size:10px;color:#888;letter-spacing:1px;">VP</div>
 
 
         </div>
@@ -11969,7 +11999,7 @@ function showTip(e, card) {
         <div style="display:flex;align-items:center;gap:3px;">
 
 
-          <span style="font-size:8px;color:#555;margin-right:2px;">T</span>
+          <span style="font-size:10px;color:#888;margin-right:2px;">T</span>
 
 
           ${Array.from({length:tierNum},()=>`<div style="width:9px;height:9px;border-radius:50%;background:${tierCol};box-shadow:0 0 4px ${tierCol};"></div>`).join('')}
@@ -11996,7 +12026,7 @@ function showTip(e, card) {
       <div style="flex:1;">
 
 
-        <div style="font-size:8px;letter-spacing:2px;color:#555;margin-bottom:4px;">ATTACK POWER</div>
+        <div style="font-size:9px;letter-spacing:2px;color:#888;margin-bottom:4px;">ATTACK POWER</div>
 
 
         <div style="position:relative;width:96px;height:96px;border:1px solid var(--tc-dim);border-radius:5px;background:#030310;">
@@ -12005,7 +12035,7 @@ function showTip(e, card) {
           <div style="position:absolute;top:3px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;">
 
 
-            <div style="font-size:7px;color:#444;">N</div>
+            <div style="font-size:9px;color:#888;">N</div>
 
 
             <div style="font-size:18px;font-weight:bold;${nGlow}color:${nCol};line-height:1;">${n}</div>
@@ -12026,7 +12056,7 @@ function showTip(e, card) {
             <div style="font-size:18px;font-weight:bold;color:${sCol};line-height:1;">${s}</div>
 
 
-            <div style="font-size:7px;color:#444;">S</div>
+            <div style="font-size:9px;color:#888;">S</div>
 
 
           </div>
@@ -12035,7 +12065,7 @@ function showTip(e, card) {
           <div style="position:absolute;left:3px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;align-items:center;min-width:22px;">
 
 
-            <div style="font-size:7px;color:#444;">W</div>
+            <div style="font-size:9px;color:#888;">W</div>
 
 
             <div style="font-size:18px;font-weight:bold;${wGlow}color:${wCol};line-height:1;">${w}</div>
@@ -12050,7 +12080,7 @@ function showTip(e, card) {
           <div style="position:absolute;right:3px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;align-items:center;min-width:22px;">
 
 
-            <div style="font-size:7px;color:#444;">E</div>
+            <div style="font-size:9px;color:#888;">E</div>
 
 
             <div style="font-size:18px;font-weight:bold;${wGlow}color:${eCol};line-height:1;">${e_}</div>
@@ -12104,7 +12134,7 @@ function showTip(e, card) {
         ${_iconSrc ? `<img src="${_iconSrc}" style="width:88px;flex-shrink:0;object-fit:cover;object-position:center;align-self:stretch;display:block;border-right:1px solid #ffdd0033;" onerror="this.style.display='none'">` : ''}
 
 
-        <div style="flex:1;display:flex;flex-direction:column;gap:4px;justify-content:center;padding:8px 10px;">
+        <div style="flex:1;display:flex;flex-direction:column;gap:6px;padding:8px 10px;">
 
 
           <div style="font-family:'Orbitron',monospace;font-size:10px;letter-spacing:1px;color:#ffdd00;font-weight:700;">${card.abilityLabel || abi.label}</div>
@@ -12425,7 +12455,15 @@ function playNextTrack() {
   if (musicMuted) return;
 
 
-  if (trackIdx >= playlistOrder.length) shufflePlaylist();
+  if (trackIdx >= playlistOrder.length) {
+    const lastTrack = playlistOrder[playlistOrder.length - 1];
+    shufflePlaylist();
+    // prevent same song repeating at boundary
+    if (playlistOrder[0] === lastTrack && playlistOrder.length > 1) {
+      const swap = Math.floor(Math.random() * (playlistOrder.length - 1)) + 1;
+      [playlistOrder[0], playlistOrder[swap]] = [playlistOrder[swap], playlistOrder[0]];
+    }
+  }
 
 
   const audio = document.getElementById('bgTrack');
