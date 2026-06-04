@@ -213,6 +213,45 @@ function animateAiCard(card, r, c, noTurnFlip = false) {
 
 }
 
+function animatePlayerCard(card, r, c, callback) {
+  const grid   = document.getElementById('grid');
+  const target = grid?.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`);
+  const srcEl  = document.getElementById('sbPlayerAvatar') || document.getElementById('fhPlayer');
+  if (!target || !srcEl) { callback(); return; }
+
+  const src  = srcEl.getBoundingClientRect();
+  const tgt  = target.getBoundingClientRect();
+  const pCol = window.playerFactionColor || '#00ffcc';
+
+  const startL = src.left + src.width  / 2 - tgt.width  / 2;
+  const startT = src.top  + src.height / 2 - tgt.height / 2;
+
+  const floater = document.createElement('div');
+  floater.style.cssText = `
+    position:fixed; z-index:9200; pointer-events:none;
+    width:${tgt.width}px; height:${tgt.height}px;
+    left:${startL}px; top:${startT}px;
+    border-radius:6px;
+    background:#050510 center/cover no-repeat;
+    ${card.art ? `background-image:url('${card.art}');` : ''}
+    border:2px solid ${pCol}99;
+    box-shadow: 0 0 28px ${pCol}66, 0 8px 32px #000000cc;
+    opacity:1;
+    transition: left 0.38s cubic-bezier(0.4,0,0.2,1),
+                top  0.38s cubic-bezier(0.4,0,0.2,1),
+                opacity 0.16s ease;
+  `;
+  document.body.appendChild(floater);
+
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    floater.style.left = tgt.left + 'px';
+    floater.style.top  = tgt.top  + 'px';
+  }));
+
+  setTimeout(() => { floater.style.opacity = '0'; }, 320);
+  setTimeout(() => { floater.remove(); callback(); }, 520);
+}
+
 function aiTurn() {
 
 

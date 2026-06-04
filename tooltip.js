@@ -121,7 +121,7 @@ function buildAbilityVisual(ability) {
     surge:          `<div style="display:flex;align-items:center;gap:8px;"><div style="color:#ff4466;font-size:11px;">Losing</div><span style="color:#00ffcc;font-size:14px;">→</span>${y('+3')}</div>`,
     overwhelm:      G([empty(),cell(ALLY,YB,'E↑',false,'','✓',YB),empty(), e('E←'),y('★'),empty(), empty(),empty(),empty()]),
     echo:           G([a('—','0.4'),cell(ALLY,AB,'↕',false,''),a('—','0.4'), cell(ALLY,AB,'↔',false,''),cell(YOU,YB,'×2',false,'','✓',YB),cell(ALLY,AB,'↔',false,''), a('—','0.4'),cell(ALLY,AB,'↕',false,''),a('—','0.4')]),
-    density:        `<div style="display:flex;align-items:center;gap:8px;">${y('4')}<span style="color:#00ffcc;font-size:14px;">→</span><div style="font-size:18px;font-weight:700;color:#00ffcc;">6 <span style="font-size:9px;color:#555;">VP</span></div></div>`,
+    density:        `<div style="display:flex;align-items:center;gap:8px;">${y('4')}<span style="color:#00ffcc;font-size:14px;">→</span><div style="font-size:18px;font-weight:700;color:#00ffcc;">6 <span style="font-size:9px;color:#bbb;">VP</span></div></div>`,
     cloak:          G([empty(),empty(),empty(), e(),cell(YOU,YB,'????',false,''),empty(), empty(),empty(),empty()]),
     phantom:        G([empty(),empty(),empty(), cell(YOU,YB,'★?',true,'0.7'),cell(YOU,YB,'★?',true,'0.7'),cell(YOU,YB,'★?',true,'0.7'), a('','0.3'),a('','0.3'),a('','0.3')]),
     pierce:         `<div style="display:flex;align-items:center;gap:8px;"><div style="color:#fff;font-size:14px;font-weight:700;">6 vs 6</div><span style="color:#00ffcc;font-size:14px;">→</span><div style="color:#00ffcc;font-size:12px;font-weight:700;">WIN</div></div>`,
@@ -228,10 +228,10 @@ function buildZoneGrid(card) {
     <div style="display:flex;gap:10px;margin-top:5px;">
 
 
-      <span style="font-size:9px;color:#999;">■ <span style="color:${tierCol}">this card</span></span>
+      <span style="font-size:9px;color:#ccc;">■ <span style="color:${tierCol}">this card</span></span>
 
 
-      <span style="font-size:9px;color:#999;">■ <span style="color:#ffdd00">opens for next card</span></span>
+      <span style="font-size:9px;color:#ccc;">■ <span style="color:#ffdd00">opens for next card</span></span>
 
 
     </div>
@@ -589,7 +589,7 @@ function showTip(e, card) {
       <div style="flex:1;">
 
 
-        <div style="font-size:8px;letter-spacing:2px;color:#555;margin-bottom:4px;">ZONE</div>
+        <div style="font-size:8px;letter-spacing:2px;color:#ccc;margin-bottom:4px;">ZONE</div>
 
 
         ${card.zone ? buildZoneGrid(card) : `<div style="font-size:9px;color:#2a2a3a;">&#x2014;</div>`}
@@ -613,7 +613,7 @@ function showTip(e, card) {
       <div style="border:1px solid #ffdd0044;border-radius:5px;padding:0;background:#ffdd0008;display:flex;flex-direction:row;gap:0;align-items:stretch;overflow:hidden;">
 
 
-        ${_iconSrc ? `<img src="${_iconSrc}" style="width:72px;flex-shrink:0;object-fit:cover;object-position:center;align-self:stretch;display:block;border-right:1px solid #ffdd0033;" onerror="this.style.display='none'">` : ''}
+        ${_iconSrc ? `<img src="${_iconSrc}" style="width:72px;flex-shrink:0;object-fit:cover;object-position:center;align-self:stretch;display:block;border-right:1px solid #ffdd0033;background:#050510;border-radius:4px 0 0 4px;" onerror="this.style.display='none'">` : ''}
 
 
         <div style="flex:1;display:flex;flex-direction:column;gap:6px;padding:8px 10px;">

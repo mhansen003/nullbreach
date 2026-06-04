@@ -141,13 +141,9 @@ function renderHand() {
       '<span class="hc-e-e" style="color:#ffffff">'+card.edges.e+'</span>' +
 
 
-      '<div style="position:absolute;top:4px;left:4px;display:flex;gap:2px;z-index:2;">' +
-
-
-        Array.from({length:tdNum},function(){return '<span style="width:5px;height:5px;border-radius:50%;background:'+tCol+';box-shadow:0 0 3px '+tCol+';display:inline-block;"></span>';}).join('') +
-
-
-      '</div>' +
+      (window.innerWidth <= 480
+        ? '<div style="position:absolute;top:3px;left:3px;z-index:2;font-family:\'Orbitron\',monospace;font-size:7px;font-weight:700;letter-spacing:1px;color:'+tCol+';text-shadow:0 0 4px '+tCol+'99;">T'+tdNum+'</div>'
+        : '<div style="position:absolute;top:4px;left:4px;display:flex;gap:2px;z-index:2;">'+Array.from({length:tdNum},function(){return '<span style="width:5px;height:5px;border-radius:50%;background:'+tCol+';box-shadow:0 0 3px '+tCol+';display:inline-block;"></span>';}).join('')+'</div>') +
 
 
       (card.ability ? '<span class="ability-star" style="position:absolute;top:-4px;right:0px;font-size:28px;z-index:6;pointer-events:none;" title="'+ab(card.ability)+'">★</span>' : '') +

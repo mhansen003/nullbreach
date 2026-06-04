@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>GALACTIC ZERO</title>
+<link rel="icon" type="image/png" href="assets/avatars/terran.png">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap');
 
@@ -258,7 +259,14 @@ body {
 }
 /* Hover goes DOWN a little so it doesn't clip on top */
 .race-tile:hover { transform: translateY(-28px) scale(1.12); z-index: 20; }
-.race-tile.selected { transform: translateY(-14px) scale(1.07); }
+.race-tile.selected { transform: translateY(-14px) scale(1.07); z-index: 20; }
+.race-tile.selected::before {
+  content: '✓'; position: absolute; top: 10px; right: 10px; z-index: 21;
+  width: 26px; height: 26px; border-radius: 50%;
+  background: #ffdd00; color: #000; font-size: 13px; font-weight: 900;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 0 12px #ffdd0099;
+}
 .rt-text-group {
   position: absolute; bottom: 0; left: 0; right: 0;
   padding: 16px 14px 14px; z-index: 2;
@@ -487,12 +495,19 @@ button, [onclick] { touch-action: manipulation; }
   #selectedDeckPanel { display: none !important; }
 
   /* Conveyor: compact, flex-shrink so it doesn't eat viewport */
-  .conveyor-section { flex-shrink: 0; }
-  .conveyor-wrap { padding: 22px 0 10px; }
+  .conveyor-section { flex-shrink: 0; overflow: visible; }
+  .conveyor-wrap { padding: 28px 0 10px; overflow-x: hidden; overflow-y: visible; }
   .conveyor-arrow { width: 30px; height: 46px; font-size: 15px; }
   .race-tile { width: 140px; height: 186px; border-radius: 12px; }
   .race-tile:hover  { transform: translateY(-10px) scale(1.06); }
-  .race-tile.selected { transform: translateY(-6px) scale(1.04); }
+  .race-tile.selected { transform: translateY(-8px) scale(1.05); z-index: 30; }
+  .race-tile.selected::before {
+    content: '✓'; position: absolute; top: 8px; right: 8px; z-index: 31;
+    width: 22px; height: 22px; border-radius: 50%;
+    background: #ffdd00; color: #000; font-size: 12px; font-weight: 900;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 10px #ffdd0099;
+  }
   .rt-name { font-size: 12px; }
   .rt-sub  { font-size: 10px; }
 
@@ -1118,23 +1133,63 @@ function initConveyorWheel() {
   if (!screen) return;
   screen.addEventListener('wheel', (e) => {
     e.preventDefault();
-    // Wheel scrolls in both directions, overrides hover pause
     cvWheeling = true;
-    // Speed proportional to deltaY magnitude for more responsive scroll
     const magnitude = Math.min(Math.abs(e.deltaY) * 0.08, 12.0);
     cvSpeed = e.deltaY > 0 ? magnitude : -magnitude;
     clearTimeout(cvWheelTimer);
     cvWheelTimer = setTimeout(() => {
       cvWheeling = false;
-      cvSpeed = AUTO_SPEED; // revert to auto
+      cvSpeed = AUTO_SPEED;
     }, 600);
   }, { passive: false });
 
   const wrap = document.getElementById('conveyorWrap');
-  if (wrap) {
+  if (!wrap) return;
+
+  // Mouse hover pause — desktop only (touch devices: mouseenter fires but mouseleave never does)
+  const _isTouch = navigator.maxTouchPoints > 0;
+  if (!_isTouch) {
     wrap.addEventListener('mouseenter', () => { cvHoverPaused = true; });
     wrap.addEventListener('mouseleave', () => { cvHoverPaused = false; });
   }
+
+  // Touch drag to pan conveyor
+  let _touchX = null;
+  let _lastDragDelta = 0;
+  wrap.addEventListener('touchstart', (e) => {
+    _touchX = e.touches[0].clientX;
+    _lastDragDelta = 0;
+    cvHoverPaused = true;
+  }, { passive: true });
+
+  wrap.addEventListener('touchmove', (e) => {
+    if (_touchX === null) return;
+    const dx = _touchX - e.touches[0].clientX;
+    _lastDragDelta = dx;
+    cvPos += dx;
+    if (CV_LOOP_PX > 0) {
+      if (cvPos >= CV_LOOP_PX) cvPos -= CV_LOOP_PX;
+      if (cvPos < 0)           cvPos += CV_LOOP_PX;
+    }
+    const track = document.getElementById('conveyorTrack');
+    if (track) track.style.transform = `translateX(${-Math.round(cvPos)}px)`;
+    _touchX = e.touches[0].clientX;
+  }, { passive: true });
+
+  wrap.addEventListener('touchend', () => {
+    _touchX = null;
+    // Brief momentum from last drag delta, then resume auto-scroll
+    if (Math.abs(_lastDragDelta) > 1) {
+      cvSpeed = Math.sign(_lastDragDelta) * Math.min(Math.abs(_lastDragDelta) * 0.5, 8);
+      cvWheeling = true;
+    }
+    clearTimeout(cvWheelTimer);
+    cvWheelTimer = setTimeout(() => {
+      cvWheeling = false;
+      cvHoverPaused = false;
+      cvSpeed = AUTO_SPEED;
+    }, 700);
+  }, { passive: true });
 }
 
 function resetConveyorHalf() {

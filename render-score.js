@@ -127,7 +127,7 @@ function renderScoreBadges(_precomputed) {
     if (res === 'tie') return `<div style="pointer-events:none;text-align:center;">
 
 
-      <span style="font-size:9px;letter-spacing:2px;color:#9999aa;display:block;">TIE</span></div>`;
+      <span style="font-size:9px;letter-spacing:2px;color:#bbbbcc;display:block;">TIE</span></div>`;
 
 
     const pWin = res === 'p';

@@ -258,19 +258,12 @@ function renderGrid() {
           <span class="edge e" style="color:${_cloaked?'#8888ff':col+hAlpha};${_cloaked?'':''+hGlow}">${_cloaked?'?':cell.card.edges.e+(cell.card.edgeMod?.e||0)}</span>
 
 
-          <!-- Tier dots: top-left, color = tier, count = tier number -->
+          <!-- Tier indicator: text label on mobile, dots on desktop -->
 
 
-          <div class="tier-dots">
-
-
-            ${Array.from({length: tierNum}, () =>
-
-
-              `<span class="tier-dot" style="background:${tierDotCol};color:${tierDotCol};"></span>`
-
-
-            ).join('')}
+          ${window.innerWidth <= 480
+            ? `<div style="position:absolute;top:2px;left:2px;z-index:2;font-family:'Orbitron',monospace;font-size:6px;font-weight:700;letter-spacing:1px;color:${tierDotCol};text-shadow:0 0 4px ${tierDotCol}99;">T${tierNum}</div>`
+            : `<div class="tier-dots">${Array.from({length: tierNum}, () => `<span class="tier-dot" style="background:${tierDotCol};color:${tierDotCol};"></span>`).join('')}</div>`}
 
 
           </div>
@@ -380,35 +373,19 @@ function renderGrid() {
           }
 
 
-          // Yellow dotted lines on adjacent cells showing influence range
-
-
+          // Yellow dotted lines on adjacent EMPTY cells — shows influence range for next placement
           [{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}].forEach(({dr,dc}) => {
-
-
             const nr2 = r+dr, nc2 = c+dc;
-
-
             if (nr2<0||nr2>=5||nc2<0||nc2>=7) return;
-
-
             const adjEl = document.querySelector(`.cell[data-r="${nr2}"][data-c="${nc2}"]`);
-
-
-            if (adjEl) {
-
-
-              const g = G.grid[nr2][nc2];
-
-
-              const _isEnemy = g.card && g.owner !== cell.owner;
-              adjEl.style.outline = _isEnemy ? '2px dashed #ff555588' : '2px dashed #ffdd0066';
-              adjEl.style.outlineOffset = '-2px';
-
-
-            }
-
-
+            if (!adjEl) return;
+            const g = G.grid[nr2][nc2];
+            if (g.owner === 'hazard') return;
+            if (g.card && g.owner === cell.owner) return; // skip friendly occupied
+            // Enemy card: red dashed. Empty or neutral: yellow dashed.
+            const _isEnemy = g.card && g.owner !== cell.owner;
+            adjEl.style.outline = _isEnemy ? '2px dashed #ff555588' : '2px dashed #ffdd0088';
+            adjEl.style.outlineOffset = '0px'; // outer edge of cell, not inset
           });
 
 
@@ -418,7 +395,7 @@ function renderGrid() {
         div.onmouseleave = () => {
 
 
-          document.querySelectorAll('.cell[style*="dashed"]').forEach(el => { el.style.outline=''; el.style.outlineOffset=''; });
+          document.querySelectorAll('.cell[style*="dashed"]').forEach(el => { el.style.outline=''; el.style.outlineOffset=''; el.style.boxShadow=''; });
           hideTip();
           clearAbilityZone();
         };

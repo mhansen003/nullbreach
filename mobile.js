@@ -130,6 +130,8 @@ function toggleMobileCardPanel() {
   const panel = document.getElementById('mobileCardPanel');
   if (!panel) return;
   const tab = document.getElementById('mobileCardPanelTab');
+  const sfx = document.getElementById('swishSfx');
+  if (sfx) { sfx.currentTime = 0; sfx.play().catch(() => {}); }
   if (panel.classList.contains('open')) {
     hideMobileCardPanel();
   } else {

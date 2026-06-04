@@ -271,7 +271,7 @@ function initGame() {
     })();
 
 
-    const _count = _hzRng() < 0.5 ? 1 : 2;
+    const _count = 1; // one hazard per game
 
 
     // Deterministic Fisher-Yates shuffle
