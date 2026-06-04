@@ -1973,10 +1973,9 @@ function renderGrid() {
 
       } else if (cell.card) {
         div.classList.add(cell.owner);
-        div.style.backgroundImage = `url('${cell.card.art || ''}')`;
-        div.style.backgroundSize = 'cover';
-        div.style.backgroundPosition = 'center';
-        div.style.filter = 'brightness(1.28)';
+        // Art lives in a separate inner layer so AI cards can rotate 180° without flipping edge labels
+        const _artRot = cell.owner === 'ai' ? 'transform:rotate(180deg);' : '';
+        div.dataset.artUrl = cell.card.art || '';
         // Border = faction color (whose card), dots = tier indicator
         const factionCol = cell.owner === 'player'
           ? (window.playerFactionColor || '#00ffcc')
@@ -2003,6 +2002,7 @@ function renderGrid() {
         const pwrColor = bothLost ? col + '44' : col;
 
         div.innerHTML = `
+          <div style="position:absolute;inset:0;background:url('${cell.card.art||''}') center/cover;${_artRot}filter:brightness(1.28);border-radius:4px;pointer-events:none;z-index:0;"></div>
           <span class="edge n" style="color:${_cloaked?'#8888ff':col+vAlpha};${_cloaked?'':''+vGlow}">${_cloaked?'?':cell.card.edges.n+(cell.card.edgeMod?.n||0)}</span>
           <span class="edge s" style="color:${_cloaked?'#8888ff':col+vAlpha};${_cloaked?'':''+vGlow}">${_cloaked?'?':cell.card.edges.s+(cell.card.edgeMod?.s||0)}</span>
           <span class="edge w" style="color:${_cloaked?'#8888ff':col+hAlpha};${_cloaked?'':''+hGlow}">${_cloaked?'?':cell.card.edges.w+(cell.card.edgeMod?.w||0)}</span>
@@ -3731,27 +3731,37 @@ function assignRandomAbilities(hand, raceId) {
   hand.forEach(c => { c.ability = null; c.abilityText = 'No special ability'; c.isSpecial = false; });
   const pool = FACTION_ABILITY_POOLS[raceId] || FACTION_ABILITY_POOLS._default;
 
-  // Max 1 ability on T1 — they sit in the home row and rarely fight
-  const t1Cards    = hand.filter(c => c.tier === 'I').sort(() => Math.random() - 0.5);
+  // In multiplayer seed from room+faction so both clients assign identical abilities
+  const _arng = (() => {
+    if (typeof _mpRoom === 'undefined' || !_mpRoom) return () => Math.random();
+    let s = 0;
+    for (const ch of _mpRoom + raceId) s = (s * 31 + ch.charCodeAt(0)) & 0x7fffffff;
+    return seededRand(s);
+  })();
+  const _fy = arr => {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(_arng() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+    return a;
+  };
+
+  const t1Cards    = _fy(hand.filter(c => c.tier === 'I'));
   const higherCards = hand.filter(c => c.tier !== 'I');
-  // Weight T2/T3/T4 by tier
   const weighted = [];
   higherCards.forEach(c => {
     const w = {II:2, III:3, IV:5}[c.tier] || 2;
     for (let i = 0; i < w; i++) weighted.push(c);
   });
-  weighted.sort(() => Math.random() - 0.5);
+  const shuffledW = _fy(weighted);
 
   const chosen = new Set();
-  for (const card of weighted) {
-    if (chosen.size >= 4) break;   // fill 4 slots from T2+
+  for (const card of shuffledW) {
+    if (chosen.size >= 4) break;
     chosen.add(card);
   }
-  // Allow 1 T1 if we still have a slot (or fewer than 5 higher cards exist)
   if (chosen.size < 5 && t1Cards.length > 0) chosen.add(t1Cards[0]);
 
   chosen.forEach(card => {
-    const ab = pool[Math.floor(Math.random() * pool.length)];
+    const ab = pool[Math.floor(_arng() * pool.length)];
     card.ability = ab;
     card.abilityText = (typeof ABILITY_TEXT !== 'undefined' && ABILITY_TEXT[ab]) || ab.toUpperCase();
     const _raceNames = RACE_ABILITY_NAMES[raceId] || {};
@@ -4305,6 +4315,17 @@ function mpApplyMove(move) {
     setTimeout(() => { if (!G.gameOver) { G.turn = 'ai'; mpStartPolling(); } }, 620);
   } else {
     _mpMyTurn = true;
+    // Flash "YOUR TURN" in the wait banner after the animation settles
+    setTimeout(() => {
+      const _ov = document.getElementById('mpWaitOverlay');
+      if (!_ov || G.gameOver) return;
+      const _orig = _ov.innerHTML;
+      const _origBorder = _ov.style.borderColor;
+      _ov.innerHTML = `<div style="font-family:'Orbitron',monospace;font-size:12px;letter-spacing:3px;color:#00ffcc;">▶ YOUR TURN</div>`;
+      _ov.style.borderColor = '#00ffcc88';
+      _ov.style.display = 'flex';
+      setTimeout(() => { _ov.style.display = 'none'; _ov.innerHTML = _orig; _ov.style.borderColor = _origBorder; }, 1400);
+    }, 620);
   }
 }
 
