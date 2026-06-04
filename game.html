@@ -2491,9 +2491,9 @@ button, [onclick] { touch-action: manipulation; }
   .row-score-badge span { font-size: 12px !important; }
   #grid { grid-template-columns: repeat(7, 44px); grid-template-rows: repeat(5, 52px); gap: 2px; width: auto; flex: 0 0 auto; }
   .cell { width: 44px !important; height: 52px !important; min-height: 0; border-radius: 2px; }
-  .edge { font-size: 10px; min-width: 13px; padding: 1px 2px; }
+  .edge { font-size: 9px; min-width: 12px; padding: 1px 2px; }
   .edge.n { top: 2px; } .edge.s { bottom: 2px; } .edge.w { left: 2px; } .edge.e { right: 2px; }
-  .cell-power { font-size: 16px; }
+  .cell-power { font-size: 12px; }
   .tier-dots { top: 2px; left: 2px; gap: 2px; }
   .tier-dot { width: 5px; height: 5px; }
   .ability-tag { font-size: 5px; bottom: 2px; }
@@ -2510,13 +2510,13 @@ button, [onclick] { touch-action: manipulation; }
   .mobile-deck-expanded { display: flex; flex-direction: row; gap: 5px; overflow-x: auto; overflow-y: hidden; padding: 5px 8px 4px; -webkit-overflow-scrolling: touch; scrollbar-width: none; height: 96px; flex-shrink: 0; touch-action: pan-x; justify-content: center; }
   .mobile-deck-expanded:empty { display: none; }
   .mobile-deck-expanded::-webkit-scrollbar { display: none; }
-  .mobile-deck-covers { display: flex; gap: 4px; padding: 6px 8px 8px; flex-shrink: 0; justify-content: space-around; }
+  .mobile-deck-covers { display: flex; gap: 10px; padding: 6px 8px 8px; flex-shrink: 0; justify-content: center; }
   .mobile-deck-cover { position: relative; width: 64px; height: 86px; border-radius: 6px; flex-shrink: 0; cursor: pointer; user-select: none; overflow: hidden; transition: transform 0.15s, box-shadow 0.15s; }
   .mobile-deck-cover.empty { opacity: 0.25; cursor: default; pointer-events: none; }
   .mobile-deck-cover.active { transform: translateY(-4px); }
   #mobileCardPanel { display: block; position: fixed; right: -195px; top: 80px; bottom: 220px; width: 195px; background: #06060ef2; border: 1px solid #1a1a28; border-right: none; border-radius: 10px 0 0 10px; transition: right 0.25s ease; z-index: 500; padding: 8px 10px 8px 10px; backdrop-filter: blur(8px); overflow-y: auto; overflow-x: hidden; }
   #mobileCardPanel.open { right: 0; }
-  #mobileCardPanelTab { position: fixed; right: 0; bottom: 230px; top: auto; transform: none; width: 36px; height: 76px; background: #0c0c1e; border: 1px solid #2a2a44; border-right: none; border-radius: 10px 0 0 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; color: #aaa; cursor: pointer; transition: right 0.25s ease, background 0.2s, box-shadow 0.2s; z-index: 501; }
+  #mobileCardPanelTab { position: fixed; right: 0; bottom: 6px; top: auto; transform: none; width: 36px; height: 52px; background: #0c0c1e; border: 1px solid #2a2a44; border-right: none; border-radius: 8px 0 0 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; color: #aaa; cursor: pointer; transition: right 0.25s ease, background 0.2s, box-shadow 0.2s; z-index: 501; }
   body { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
   .hand-card { width: 64px !important; height: 86px !important; }
   .hc-e-n, .hc-e-s, .hc-e-w, .hc-e-e { font-size: 10px; min-width: 14px; }
@@ -8681,19 +8681,6 @@ function renderHand() {
       }
     });
 
-    // Mute button in deck bar
-    const _muteBtn = document.createElement('div');
-    _muteBtn.id = 'deckMuteBtn';
-    _muteBtn.title = 'Toggle music';
-    _muteBtn.style.cssText = 'width:38px;height:38px;border-radius:6px;background:#0c0c1e;border:1px solid #1a1a2866;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;flex-shrink:0;align-self:center;';
-    const _bgTrack = document.getElementById('bgTrack');
-    _muteBtn.textContent = (_bgTrack && _bgTrack.muted) ? '🔇' : '🔊';
-    _muteBtn.onclick = function() {
-      toggleGameMusic();
-      const _t = document.getElementById('bgTrack');
-      _muteBtn.textContent = (_t && _t.muted) ? '🔇' : '🔊';
-    };
-    coversRow.appendChild(_muteBtn);
     el.appendChild(tray);
     el.appendChild(coversRow);
     return;
@@ -11146,8 +11133,8 @@ function onCellClick(r, c) {
       // First tap on this cell — show preview
       G._previewCell = {r, c};
       clearAbilityZone();
-      if (G.selectedCard.ability) showAbilityZone(G.selectedCard.ability, r, c);
       renderGrid();
+      if (G.selectedCard.ability) showAbilityZone(G.selectedCard.ability, r, c);
       return;
     }
     // Second tap on same cell — confirm: fall through to placement
