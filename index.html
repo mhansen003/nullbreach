@@ -540,8 +540,14 @@ button, [onclick] { touch-action: manipulation; }
   .ds-race-quote { font-size: 12px; padding-left: 10px; }
   .ability-pill  { font-size: 10px; padding: 4px 10px; letter-spacing: 1px; }
 
-  /* Hide tier card previews */
-  #tierCardPreview { display: none !important; }
+  /* Hide fleet section entirely on mobile (460px width causes overflow) */
+  #tierCardPreview, #tierCardSection { display: none !important; }
+  /* Abilities take full width when fleet is hidden */
+  #loreRow2 { display: block !important; }
+  #loreRow2 > div:last-child { width: 100% !important; }
+
+  /* Hide duplicate fixed launch button — mobileLaunchBar handles it */
+  #fixedLaunchBtn { display: none !important; }
 
   /* Ability showcase: stack vertically */
   .ability-cards-row { flex-direction: column !important; gap: 8px !important; }
@@ -790,9 +796,9 @@ button, [onclick] { touch-action: manipulation; }
         </div>
       </div>
       <!-- ROW 2: Fleet 2x2 | Abilities 2x2 -->
-      <div style="display:flex;gap:18px;margin-top:16px;align-items:flex-start;">
+      <div id="loreRow2" style="display:flex;gap:18px;margin-top:16px;align-items:flex-start;">
         <!-- Fleet below avatar -->
-        <div style="flex-shrink:0;width:460px;">
+        <div id="tierCardSection" style="flex-shrink:0;width:460px;">
           <div style="font-size:9px;letter-spacing:3px;color:#fff;margin-bottom:8px;font-family:'Orbitron',monospace;">FLEET</div>
           <div id="tierCardPreview" style="display:none;grid-template-columns:repeat(4,1fr);gap:6px;width:460px;"></div>
         </div>
