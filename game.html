@@ -6097,9 +6097,6 @@ function renderGrid() {
         const pwrColor = bothLost ? col + '44' : col;
         const _hzNear = [{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}].filter(({dr,dc})=>{const rr=r+dr,cc=c+dc;return rr>=0&&rr<5&&cc>=0&&cc<7&&G.grid[rr][cc].owner==='hazard';}).length;
         const _hzPen = _hzNear*2;
-        const _hzNear = [{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}]
-          .filter(({dr,dc})=>{const rr=r+dr,cc=c+dc;return rr>=0&&rr<5&&cc>=0&&cc<7&&G.grid[rr][cc].owner==='hazard';}).length;
-        const _hzPen = _hzNear * 2;
 
 
 
@@ -10706,7 +10703,7 @@ function playDeckExpandSfx() {
   if (!sfx || _sfxMuted) return;
 
 
-  sfx.currentTime = 0; sfx.volume = 0.5 * _sfxVol;
+  sfx.currentTime = 0; sfx.volume = 0.8 * _sfxVol;
 
 
   sfx.play().catch(() => {});
