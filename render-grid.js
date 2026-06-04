@@ -16,12 +16,13 @@ function renderGrid() {
 
 
 
-  const _rows = (typeof _mpPlayer !== 'undefined' && _mpPlayer === 2)
-    ? [4,3,2,1,0] : [0,1,2,3,4];
+  const _p2view = typeof _mpPlayer !== 'undefined' && _mpPlayer === 2;
+  const _rows = _p2view ? [4,3,2,1,0] : [0,1,2,3,4];
+  const _cols = _p2view ? [6,5,4,3,2,1,0] : [0,1,2,3,4,5,6];
   for (const r of _rows) {
 
 
-    for (let c = 0; c < 7; c++) {
+    for (const c of _cols) {
 
 
       const cell = G.grid[r][c];
