@@ -6113,12 +6113,9 @@ function renderGrid() {
 
 
           if (!tt) return;
-
-
-          tt.style.right='16px'; tt.style.left='auto';
-
-
-          tt.style.top    = 'auto';
+          tt.style.width  = '220px';
+          tt.style.right  = '16px'; tt.style.left = 'auto';
+          tt.style.bottom = '16px'; tt.style.top  = 'auto';
 
 
           tt.style.setProperty('--tc','#ff6600');
@@ -8520,10 +8517,10 @@ function renderHand() {
         if (tt) {
 
 
-          tt.style.right = '16px'; tt.style.left = 'auto';
-
-
-          tt.style.top = Math.max(8, Math.round((window.innerHeight-120)/2)) + 'px';
+          tt.style.width  = '160px'; // stack tips are compact
+          tt.style.right  = '16px'; tt.style.left = 'auto';
+          tt.style.bottom = 'auto'; // MUST clear bottom or it stretches
+          tt.style.top    = Math.max(8, Math.round((window.innerHeight-120)/2)) + 'px';
 
 
           tt.style.setProperty('--tc', tCol);
