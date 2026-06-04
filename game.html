@@ -4692,8 +4692,13 @@ const GUIDE_PAGES = [
   .ai-quote, .player-quote { display: none; }
   #sbAiNum, #sbPlayerNum   { font-size: 18px; }
 
-  /* ── Main area fills remaining space ── */
-  .main-area { flex: 1; overflow: hidden; padding: 4px; display: flex; flex-direction: column; min-height: 0; }
+  /* ── Main area + grid chain: each wrapper must flex:1 ── */
+  .main-area { flex: 1; overflow: hidden; padding: 0; display: flex; flex-direction: column; min-height: 0; }
+  .board-wrap { flex:1; justify-content:flex-start; align-items:stretch; padding:2px; min-height:0; }
+  .board-and-scores { flex:1; align-items:stretch; gap:0; min-height:0; zoom:1 !important; }
+  .board-and-scores > div:first-child { flex:1; display:flex; flex-direction:column; min-height:0; }
+  .board-dir-row { display:none; }
+  .log-panel { display:none; }
 
   /* ── Grid: fills full width, no side badges ── */
   #rowScores { display: none !important; }   /* side badges hidden — no room */
