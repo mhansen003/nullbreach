@@ -624,8 +624,8 @@ button, [onclick] { touch-action: manipulation; }
 <!-- STARFIELD -->
 <canvas id="starfield"></canvas>
 
-<!-- GALAXY VIDEO — plays once, freezes on last frame -->
-<video id="galaxyVideo" autoplay muted playsinline>
+<!-- GALAXY VIDEO — plays once, freezes on last frame (desktop only) -->
+<video id="galaxyVideo" muted playsinline preload="none">
   <source src="assets/galaxy-splash.mp4" type="video/mp4">
 </video>
 
@@ -1361,18 +1361,37 @@ function toggleVoiceMute() {
   }
 }
 
-// ── GALAXY VIDEO — play once, freeze on last frame ───────────────────
+// ── GALAXY VIDEO — desktop: play once + freeze; mobile: still image ──
 const gv = document.getElementById('galaxyVideo');
-gv.addEventListener('loadeddata', () => {
-  gv.style.display = 'block';
-  document.getElementById('splashBg').style.opacity = '0';
-});
-gv.addEventListener('ended', () => {
-  // Freeze: seek back a tiny bit so the last frame is visible
-  gv.currentTime = gv.duration - 0.05;
-  gv.pause();
-});
-gv.addEventListener('error', () => { /* fallback to static image */ });
+const _isMobile = window.matchMedia('(max-width: 768px)').matches || navigator.maxTouchPoints > 1;
+const _splashBg = document.getElementById('splashBg');
+
+if (_isMobile) {
+  // Mobile: skip video entirely, show still galaxy image immediately
+  gv.style.display = 'none';
+  _splashBg.style.backgroundImage = "url('assets/splash.png')";
+  _splashBg.style.backgroundSize = 'cover';
+  _splashBg.style.backgroundPosition = 'center top';
+  _splashBg.style.opacity = '0.92';
+} else {
+  // Desktop: load and play video once, freeze on last frame
+  gv.addEventListener('loadeddata', () => {
+    gv.style.display = 'block';
+    _splashBg.style.opacity = '0';
+  });
+  gv.addEventListener('ended', () => {
+    gv.currentTime = gv.duration - 0.05;
+    gv.pause();
+  });
+  gv.addEventListener('error', () => {
+    _splashBg.style.backgroundImage = "url('assets/splash.png')";
+    _splashBg.style.backgroundSize = 'cover';
+    _splashBg.style.backgroundPosition = 'center top';
+    _splashBg.style.opacity = '0.92';
+  });
+  gv.load();
+  gv.play().catch(() => {});
+}
 
 // ── MUSIC ──────────────────────────────────────────
 let musicStarted = false;
