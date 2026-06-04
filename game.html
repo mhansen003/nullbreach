@@ -2063,14 +2063,19 @@ function renderGrid() {
           : `<div class="tri-dots"><span class="tri-d green"></span><span class="tri-d green"></span><span class="tri-plus">+</span></div>`;
         div.innerHTML = _triHtml;
         // Orange hazard blast bleeds into adjacent empty cells
-        [{dr:-1,dc:0,de:'n'},{dr:1,dc:0,de:'s'},{dr:0,dc:-1,de:'w'},{dr:0,dc:1,de:'e'}].forEach(({dr,dc,de}) => {
-          const hr=r+dr, hc=c+dc;
-          if (hr<0||hr>=5||hc<0||hc>=7||G.grid[hr][hc].owner!=='hazard') return;
+        const _emptyHzDirs = [{dr:-1,dc:0,de:'n'},{dr:1,dc:0,de:'s'},{dr:0,dc:-1,de:'w'},{dr:0,dc:1,de:'e'}]
+          .filter(({dr,dc})=>{const hr=r+dr,hc=c+dc;return hr>=0&&hr<5&&hc>=0&&hc<7&&G.grid[hr][hc].owner==='hazard';});
+        _emptyHzDirs.forEach(({de}) => {
           const gradDir = {n:'to bottom',s:'to top',w:'to right',e:'to left'}[de];
           const blast = document.createElement('div');
           blast.style.cssText = `position:absolute;inset:0;pointer-events:none;z-index:2;border-radius:3px;background:linear-gradient(${gradDir},#ff660055 0%,#ff440022 42%,transparent 62%);`;
           div.appendChild(blast);
         });
+        if (_emptyHzDirs.length > 0) {
+          div.style.cursor = 'help';
+          div.onmouseenter = ev => showErrorTip(ev, `⚠ HAZARD ZONE — placing here costs ${_emptyHzDirs.length * 2} VP`);
+          div.onmouseleave = hideTip;
+        }
         if (valid.some(v => v.r===r && v.c===c)) {
           div.classList.add('valid');
           // Persistent hazard warning icon on valid cells bordering a hazard
