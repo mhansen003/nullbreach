@@ -1913,10 +1913,11 @@ const CS = CS_W;   // legacy alias for horizontal calc
 const TIER_COLORS = { 'I':'#d0d0d0', 'II':'#44cc66', 'III':'#4488ff', 'IV':'#aa44ff' };
 
 function renderAll() {
+  const _s = computeScores();
   renderGrid();
   renderHand();
-  renderScoreBadges();
-  renderScoreHeader();
+  renderScoreBadges(_s);
+  renderScoreHeader(_s);
   renderAiHand();
 }
 
