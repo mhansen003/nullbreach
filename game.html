@@ -4260,24 +4260,31 @@ function mpShowWaiting(show) {
   if (ov) ov.style.display = show ? 'flex' : 'none';
 }
 
-// Submit player's move to Supabase
-// isFlank: true when this card triggered a FLANK extra turn
+// Submit player's move to Supabase — retries up to 3 times on failure
 async function mpSubmitMove(cardId, r, c, seed, isFlank = false) {
   const move = { player:_mpPlayer, turn:_mpTurnNum, cardId, r, c, seed };
   if (isFlank) move.flank = true;
-  try {
-    const res = await fetch(`${_SB_URL}/rest/v1/gz_rooms?id=eq.${_mpRoom}&select=moves`, { headers:_SB_H });
-    const data = await res.json();
-    const moves = (data[0]?.moves || []);
-    moves.push(move);
-    const patch = await fetch(`${_SB_URL}/rest/v1/gz_rooms?id=eq.${_mpRoom}`, {
-      method:'PATCH', headers:_SB_H,
-      body: JSON.stringify({ moves, updated_at: new Date().toISOString() })
-    });
-    if (!patch.ok) throw new Error('PATCH ' + patch.status);
-    _mpTurnNum++; // only advance on confirmed write
-  } catch(e) {
-    console.error('MP: move submit failed', e);
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      const res = await fetch(`${_SB_URL}/rest/v1/gz_rooms?id=eq.${_mpRoom}&select=moves`, { headers:_SB_H });
+      const data = await res.json();
+      const moves = (data[0]?.moves || []);
+      // Idempotency: don't double-write if a retry already succeeded
+      if (!moves.find(m => m.player === _mpPlayer && m.turn === _mpTurnNum)) {
+        moves.push(move);
+        const patch = await fetch(`${_SB_URL}/rest/v1/gz_rooms?id=eq.${_mpRoom}`, {
+          method:'PATCH', headers:_SB_H,
+          body: JSON.stringify({ moves, updated_at: new Date().toISOString() })
+        });
+        if (!patch.ok) throw new Error('PATCH ' + patch.status);
+      }
+      _mpTurnNum++;
+      return; // success
+    } catch(e) {
+      console.error(`MP: submit attempt ${attempt+1} failed`, e);
+      if (attempt < 2) await new Promise(r => setTimeout(r, 800 * (attempt + 1)));
+      else showToast('Move may not have saved — check connection', '#ff4422');
+    }
   }
 }
 
@@ -4333,23 +4340,41 @@ function mpApplyMove(move) {
 function mpStartPolling() {
   if (_mpPollInt) clearInterval(_mpPollInt);
   mpShowWaiting(true);
+  let _mpPollErrors = 0, _mpLastActivity = Date.now();
   _mpPollInt = setInterval(async () => {
     if (G.gameOver) { clearInterval(_mpPollInt); _mpPollInt = null; return; }
+    // Stale warning: 4 minutes with no activity
+    if (Date.now() - _mpLastActivity > 240000) {
+      addLog('system', '⚠ No opponent activity for 4 min — they may have disconnected');
+      _mpLastActivity = Date.now();
+    }
     try {
       const res = await fetch(`${_SB_URL}/rest/v1/gz_rooms?id=eq.${_mpRoom}&select=moves,status`, { headers:_SB_H });
       const data = await res.json();
+      _mpPollErrors = 0; // reset on successful fetch
       if (!data[0]) return;
-      if (data[0].status === 'done') { clearInterval(_mpPollInt); _mpPollInt = null; return; }
+      if (data[0].status === 'done') { clearInterval(_mpPollInt); _mpPollInt = null; mpShowWaiting(false); return; }
       const moves = data[0].moves || [];
       if (moves.length > _mpTurnNum) {
         const nextMove = moves[_mpTurnNum];
-        if (nextMove.player !== _mpPlayer) { // it's opponent's move
+        // Validate: must be opponent's move AND correct turn index
+        if (nextMove.player !== _mpPlayer && nextMove.turn === _mpTurnNum) {
           clearInterval(_mpPollInt); _mpPollInt = null;
+          _mpLastActivity = Date.now();
           mpShowWaiting(false);
           setTimeout(() => mpApplyMove(nextMove), 300);
         }
       }
-    } catch(e) { console.warn('MP poll error', e); }
+    } catch(e) {
+      _mpPollErrors++;
+      console.warn(`MP poll error #${_mpPollErrors}`, e);
+      if (_mpPollErrors === 5)  showToast('Connection unstable — retrying...', '#ffaa22');
+      if (_mpPollErrors >= 15) { // ~30s of failures
+        clearInterval(_mpPollInt); _mpPollInt = null;
+        addLog('system', 'Lost connection to server. Please refresh to reconnect.');
+        showToast('Connection lost — please refresh', '#ff4422');
+      }
+    }
   }, 2000);
 }
 
