@@ -2808,10 +2808,12 @@ function renderHand() {
           'border:1px solid ' + tCol + '33;' +
           'box-shadow:0 0 12px ' + tCol + '11;' +
           'position:relative;';
-        // Tiny tier label at top-left of group
+        // Tier label — click to collapse back to stack
         var lbl = document.createElement('div');
-        lbl.style.cssText = 'position:absolute;top:-8px;left:10px;background:#080810;padding:0 6px;font-size:7px;letter-spacing:2px;color:'+tCol+';font-family:\'Courier New\',monospace;border:1px solid '+tCol+'44;border-radius:3px;';
-        lbl.textContent = 'TIER ' + tier;
+        lbl.style.cssText = 'position:absolute;top:-8px;left:10px;background:#080810;padding:0 6px;font-size:7px;letter-spacing:2px;color:'+tCol+';font-family:\'Courier New\',monospace;border:1px solid '+tCol+'44;border-radius:3px;cursor:pointer;user-select:none;';
+        lbl.textContent = 'TIER ' + tier + '  ✕';
+        lbl.title = 'Click to collapse';
+        lbl.onclick = function(e) { e.stopPropagation(); window._activeTier = null; renderHand(); };
         group.appendChild(lbl);
 
         cards.forEach(function(card, idx) {
