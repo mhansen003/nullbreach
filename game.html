@@ -1555,7 +1555,7 @@ body {
   font-family: Inter, system-ui, -apple-system, sans-serif;
 
 
-  z-index:9500; pointer-events:none; width:310px; max-height:70vh;
+  z-index:9500; pointer-events:none; width:250px; max-height:65vh;
 
 
   animation: tipGlow 2.5s ease-in-out infinite;
@@ -5857,7 +5857,7 @@ function buildAbilityVisual(ability) {
     if (badgeTxt) {
       badge = `<span style="position:absolute;top:-6px;right:-6px;width:13px;height:13px;border-radius:50%;background:#000;border:1px solid ${badgeCol};display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;color:${badgeCol};">${badgeTxt}</span>`;
     }
-    return `<div style="width:24px;height:20px;border-radius:2px;background:${bg};border:2px ${ds} ${border};${opacity}position:relative;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;color:${border};">${txt}${badge}</div>`;
+    return `<div style="width:20px;height:16px;border-radius:2px;background:${bg};border:2px ${ds} ${border};${opacity}position:relative;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;color:${border};">${txt}${badge}</div>`;
   }
   const e = (txt,op)       => cell(EC,EB,txt||'E',false,op||'');
   const y = (txt)           => cell(YOU,YB,txt||'★',false,'','','');
@@ -5867,8 +5867,8 @@ function buildAbilityVisual(ability) {
   const hit   = (txt)        => cell(EC,EB,txt||'E',true,'0.6');
   const bonus = (txt)        => cell(BON,BB,txt||'',false,'');
 
-  const G = (cells) => `<div style="display:grid;grid-template-columns:repeat(3,24px);gap:2px;">${cells.join('')}</div>`;
-  const G5= (cells) => `<div style="display:grid;grid-template-columns:repeat(5,22px);gap:2px;">${cells.join('')}</div>`;
+  const G = (cells) => `<div style="display:grid;grid-template-columns:repeat(3,20px);gap:2px;">${cells.join('')}</div>`;
+  const G5= (cells) => `<div style="display:grid;grid-template-columns:repeat(5,18px);gap:2px;">${cells.join('')}</div>`;
 
   const patterns = {
     shield:         G([empty(),e(),empty(), empty(),y('🛡'),empty(), empty(),empty(),empty()]),
@@ -7183,7 +7183,7 @@ function showBattleTip(e, d) {
     <!-- Comparison rows -->
 
 
-    <div style="padding:10px 14px;display:flex;flex-direction:column;gap:6px;">
+    <div style="padding:6px 10px;display:flex;flex-direction:column;gap:4px;">
 
 
       <!-- Cell side -->
@@ -7243,7 +7243,7 @@ function showBattleTip(e, d) {
     <div style="height:1px;background:linear-gradient(90deg,transparent,var(--tc-dim),transparent);margin:0 12px;"></div>
 
 
-    <div style="padding:8px 14px 10px;">
+    <div style="padding:6px 10px 8px;">
 
 
       ${d.isTie
