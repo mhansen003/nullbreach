@@ -594,9 +594,10 @@ button, [onclick] { touch-action: manipulation; }
   #wizStep2 > div:last-child { width: min(300px, 88vw); justify-content: space-between !important; }
 
   /* Step 3: flex column so grid scrolls and buttons stay at bottom */
+  /* NOTE: no display !important here — JS controls display:none/flex for step visibility */
   #wizStep3 {
     flex: 1 !important; min-height: 0 !important; overflow: hidden !important;
-    display: flex !important; flex-direction: column !important;
+    flex-direction: column !important;
     gap: 0 !important; width: 100% !important; padding: 0 !important;
   }
   #wizStep3 > div:first-child { flex-shrink: 0 !important; padding: 0 0 8px !important; }
