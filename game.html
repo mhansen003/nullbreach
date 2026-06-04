@@ -1973,9 +1973,10 @@ function renderGrid() {
 
       } else if (cell.card) {
         div.classList.add(cell.owner);
-        // Art lives in a separate inner layer so AI cards can rotate 180° without flipping edge labels
-        const _artRot = cell.owner === 'ai' ? 'transform:rotate(180deg);' : '';
-        div.dataset.artUrl = cell.card.art || '';
+        div.style.backgroundImage = `url('${cell.card.art || ''}')`;
+        div.style.backgroundSize = 'cover';
+        div.style.backgroundPosition = 'center';
+        div.style.filter = 'brightness(1.28)';
         // Border = faction color (whose card), dots = tier indicator
         const factionCol = cell.owner === 'player'
           ? (window.playerFactionColor || '#00ffcc')
@@ -2002,7 +2003,6 @@ function renderGrid() {
         const pwrColor = bothLost ? col + '44' : col;
 
         div.innerHTML = `
-          <div style="position:absolute;inset:0;background:url('${cell.card.art||''}') center/cover;${_artRot}filter:brightness(1.28);border-radius:4px;pointer-events:none;z-index:0;"></div>
           <span class="edge n" style="color:${_cloaked?'#8888ff':col+vAlpha};${_cloaked?'':''+vGlow}">${_cloaked?'?':cell.card.edges.n+(cell.card.edgeMod?.n||0)}</span>
           <span class="edge s" style="color:${_cloaked?'#8888ff':col+vAlpha};${_cloaked?'':''+vGlow}">${_cloaked?'?':cell.card.edges.s+(cell.card.edgeMod?.s||0)}</span>
           <span class="edge w" style="color:${_cloaked?'#8888ff':col+hAlpha};${_cloaked?'':''+hGlow}">${_cloaked?'?':cell.card.edges.w+(cell.card.edgeMod?.w||0)}</span>
