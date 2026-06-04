@@ -196,7 +196,7 @@ const GUIDE_PAGES = [
 </div>
 
 
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:460px;margin:0 auto;">
+<div style="display:grid;grid-template-columns:1fr;gap:10px;max-width:460px;margin:0 auto;">
 
 
   <div style="background:#0a0a18;border-left:3px solid #00ffcc;border-radius:6px;padding:12px;">
@@ -413,145 +413,65 @@ const GUIDE_PAGES = [
 
 
 
-<!-- SECTION 2: Row and Column scoring with in-game badge style -->
+<!-- SECTION 2: Row and Column scoring — single combined grid -->
 
 
-<div class="g2-scoring" style="animation:g2fade 0.5s ease 2s both;display:flex;gap:16px;justify-content:center;align-items:flex-start;">
+<div class="g2-scoring" style="animation:g2fade 0.5s ease 2s both;display:flex;gap:20px;justify-content:center;align-items:flex-start;flex-wrap:wrap;">
 
 
 
 
 
-  <!-- ROW example -->
+  <!-- Combined rows + columns grid -->
+  <div style="display:flex;flex-direction:column;align-items:center;gap:12px;">
 
+    <div style="display:flex;gap:2px;flex-direction:column;">
 
-  <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
-
-
-    <div style="font-size:9px;letter-spacing:2px;color:#aaa;font-family:'Orbitron',monospace;">ROWS  ↔</div>
-
-
-    <!-- 4-cell horizontal row -->
-
-
-    <div style="display:flex;gap:2px;align-items:center;">
-
-
-      <div style="width:38px;height:50px;border-radius:3px;background:#1c0a0a;border:1px solid #ff008055;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:bold;color:#ffdd00;">2</div>
-
-
-      <div style="width:38px;height:50px;border-radius:3px;background:#080810;border:1px dashed #1a1a28;"></div>
-
-
-      <div style="width:38px;height:50px;border-radius:3px;background:#0a1c16;border:1px solid #00ffcc55;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:bold;color:#fff;">5</div>
-
-
-      <div style="width:38px;height:50px;border-radius:3px;background:#080810;border:1px dashed #1a1a28;"></div>
-
-
-      <!-- Row badge — vertical, matches in-game -->
-
-
-      <div style="width:2px;height:50px;background:#1a1a28;margin:0 3px;"></div>
-
-
-      <div style="display:flex;flex-direction:column;align-items:center;gap:3px;background:#00ffcc08;border:1px solid #00ffcc44;border-left:3px solid #00ffcc;border-radius:4px;padding:6px 8px;">
-
-
-        <img src="assets/avatars/terran.png" style="width:22px;height:22px;border-radius:50%;object-fit:cover;object-position:top;border:2px solid #00ffcc;box-shadow:0 0 8px #00ffcc66;">
-
-
-        <span style="font-size:16px;font-weight:bold;color:#00ffcc;line-height:1;text-shadow:0 0 8px #00ffcc;">+3</span>
-
-
+      <!-- Row 0: row scoring (enemy 2 vs player 5) + row badge on right -->
+      <div style="display:flex;gap:2px;align-items:center;">
+        <div style="width:36px;height:44px;border-radius:3px;background:#1c0a0a;border:2px solid #ff008066;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:bold;color:#ffdd00;">2</div>
+        <div style="width:36px;height:44px;border-radius:3px;background:#080810;border:1px dashed #1a1a28;"></div>
+        <div style="width:36px;height:44px;border-radius:3px;background:#0a1c16;border:2px solid #00ffcc55;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:bold;color:#fff;">5</div>
+        <div style="width:36px;height:44px;border-radius:3px;background:#080810;border:1px dashed #1a1a28;"></div>
+        <div style="margin-left:6px;display:flex;flex-direction:column;align-items:center;gap:2px;background:#00ffcc08;border:1px solid #00ffcc44;border-left:3px solid #00ffcc;border-radius:4px;padding:5px 8px;">
+          <img src="assets/avatars/terran.png" style="width:20px;height:20px;border-radius:50%;object-fit:cover;object-position:top;border:2px solid #00ffcc;">
+          <span style="font-size:14px;font-weight:bold;color:#00ffcc;line-height:1;text-shadow:0 0 8px #00ffcc;">+3</span>
+          <span style="font-size:8px;color:#00ffcc88;letter-spacing:1px;font-family:'Orbitron',monospace;">ROW</span>
+        </div>
       </div>
 
+      <!-- Row 1: column cell (enemy 3) -->
+      <div style="display:flex;gap:2px;">
+        <div style="width:36px;height:44px;border-radius:3px;background:#1c0a0a;border:2px solid #ff008066;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:bold;color:#ffdd00;">3</div>
+        <div style="width:36px;height:44px;border-radius:3px;background:#080810;border:1px dashed #1a1a28;"></div>
+        <div style="width:36px;height:44px;border-radius:3px;background:#080810;border:1px dashed #1a1a28;"></div>
+        <div style="width:36px;height:44px;border-radius:3px;background:#080810;border:1px dashed #1a1a28;"></div>
+      </div>
+
+      <!-- Row 2: column cell (player 6) -->
+      <div style="display:flex;gap:2px;">
+        <div style="width:36px;height:44px;border-radius:3px;background:#0a1c16;border:2px solid #00ffcc55;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:bold;color:#fff;">6</div>
+        <div style="width:36px;height:44px;border-radius:3px;background:#080810;border:1px dashed #1a1a28;"></div>
+        <div style="width:36px;height:44px;border-radius:3px;background:#080810;border:1px dashed #1a1a28;"></div>
+        <div style="width:36px;height:44px;border-radius:3px;background:#080810;border:1px dashed #1a1a28;"></div>
+      </div>
 
     </div>
 
-
-    <div style="font-size:10px;color:#ccc;text-align:center;">5 vs 2 = +3 VP</div>
-
+    <!-- Col badge below first column + labels -->
+    <div style="display:flex;gap:12px;align-items:center;">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:2px;background:#00ffcc08;border:1px solid #00ffcc44;border-top:3px solid #00ffcc;border-radius:4px;padding:5px 8px;width:36px;">
+        <img src="assets/avatars/terran.png" style="width:20px;height:20px;border-radius:50%;object-fit:cover;object-position:top;border:2px solid #00ffcc;">
+        <span style="font-size:14px;font-weight:bold;color:#00ffcc;text-shadow:0 0 8px #00ffcc;">+3</span>
+        <span style="font-size:8px;color:#00ffcc88;letter-spacing:1px;font-family:'Orbitron',monospace;">COL</span>
+      </div>
+      <div style="font-size:12px;color:#ccc;line-height:1.8;">
+        Row: 5 vs 2 = <span style="color:#00ffcc;font-weight:bold;">+3 VP</span><br>
+        Col: 6 vs 3 = <span style="color:#00ffcc;font-weight:bold;">+3 VP</span>
+      </div>
+    </div>
 
   </div>
-
-
-
-
-
-  <!-- Divider -->
-
-
-  <div class="g2-scoring-sep" style="width:1px;background:#1a1a28;align-self:stretch;margin:0 4px;"></div>
-
-
-
-
-
-  <!-- COL example -->
-
-
-  <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
-
-
-    <div style="font-size:9px;letter-spacing:2px;color:#aaa;font-family:'Orbitron',monospace;">COLUMNS  ↕</div>
-
-
-    <div style="display:flex;gap:6px;align-items:flex-end;">
-
-
-      <!-- 3-cell vertical column -->
-
-
-      <div style="display:flex;flex-direction:column;gap:2px;">
-
-
-        <div style="width:38px;height:50px;border-radius:3px;background:#1c0a0a;border:1px solid #ff008055;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:bold;color:#ffdd00;">3</div>
-
-
-        <div style="width:38px;height:50px;border-radius:3px;background:#080810;border:1px dashed #1a1a28;"></div>
-
-
-        <div style="width:38px;height:50px;border-radius:3px;background:#0a1c16;border:1px solid #00ffcc55;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:bold;color:#fff;">6</div>
-
-
-      </div>
-
-
-    </div>
-
-
-    <!-- Col badge BELOW the column -->
-
-
-    <div style="margin-top:4px;">
-
-
-      <div style="height:2px;background:#1a1a28;margin-bottom:4px;"></div>
-
-
-      <div style="display:flex;align-items:center;justify-content:center;gap:5px;background:#00ffcc08;border:1px solid #00ffcc44;border-top:3px solid #00ffcc;border-radius:4px;padding:6px 10px;">
-
-
-        <img src="assets/avatars/terran.png" style="width:22px;height:22px;border-radius:50%;object-fit:cover;object-position:top;border:2px solid #00ffcc;box-shadow:0 0 8px #00ffcc66;">
-
-
-        <span style="font-size:16px;font-weight:bold;color:#00ffcc;text-shadow:0 0 8px #00ffcc;">+3</span>
-
-
-      </div>
-
-
-    </div>
-
-
-    <div style="font-size:10px;color:#ccc;text-align:center;">6 vs 3 = +3 VP</div>
-
-
-  </div>
-
-
-
 
 
   <div class="g2-scoring-text" style="max-width:460px;margin:14px auto 0;text-align:center;font-size:13px;color:#ddd;line-height:1.8;">
