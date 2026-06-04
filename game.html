@@ -5844,6 +5844,62 @@ function clearAbilityZone() {
   document.querySelectorAll('[data-abilityZone]').forEach(el => el.remove());
 }
 
+
+// ── ABILITY VISUAL MINI-GRID for tooltip ─────────────────────────────────────
+function buildAbilityVisual(ability) {
+  const YOU  = '#0a1c16', YB = '#00ffcc', EC = '#1c0808', EB = '#ff4466';
+  const ALLY = '#071510', AB = '#00ffcc44', EMP = '#080812', DB = '#1a1a28';
+  const ZER  = '#111', ZB = '#444', BON = '#0a0a1c', BB = '#ffffff';
+  function cell(bg, border, txt, dashed, op, badgeTxt, badgeCol) {
+    const ds = dashed ? 'dashed' : 'solid';
+    const opacity = op ? 'opacity:'+op+';' : '';
+    let badge = '';
+    if (badgeTxt) {
+      badge = `<span style="position:absolute;top:-6px;right:-6px;width:13px;height:13px;border-radius:50%;background:#000;border:1px solid ${badgeCol};display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;color:${badgeCol};">${badgeTxt}</span>`;
+    }
+    return `<div style="width:24px;height:20px;border-radius:2px;background:${bg};border:2px ${ds} ${border};${opacity}position:relative;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;color:${border};">${txt}${badge}</div>`;
+  }
+  const e = (txt,op)       => cell(EC,EB,txt||'E',false,op||'');
+  const y = (txt)           => cell(YOU,YB,txt||'★',false,'','','');
+  const a = (txt,op)        => cell(ALLY,AB,txt||'A',false,op||'');
+  const empty = ()           => cell(EMP,DB,'',true,'');
+  const zero  = (txt)        => cell(ZER,ZB,txt||'0',true,'');
+  const hit   = (txt)        => cell(EC,EB,txt||'E',true,'0.6');
+  const bonus = (txt)        => cell(BON,BB,txt||'',false,'');
+
+  const G = (cells) => `<div style="display:grid;grid-template-columns:repeat(3,24px);gap:2px;">${cells.join('')}</div>`;
+  const G5= (cells) => `<div style="display:grid;grid-template-columns:repeat(5,22px);gap:2px;">${cells.join('')}</div>`;
+
+  const patterns = {
+    shield:         G([empty(),e(),empty(), empty(),y('🛡'),empty(), empty(),empty(),empty()]),
+    double_strike:  G([empty(),hit('E2'),empty(), empty(),e('E1'),empty(), empty(),y(),empty()]),
+    flank:          `<div style="display:flex;align-items:center;gap:8px;">${y('★')}<span style="color:#00ffcc;font-size:14px;">→</span><div style="font-size:10px;color:#00ffcc;font-weight:600;">EXTRA TURN</div></div>`,
+    rush:           G([empty(),e(),empty(), cell(YOU,YB,'★?',true,'0.7'),empty(),e(), empty(),empty(),cell(YOU,YB,'★?',true,'0.7')]),
+    sniper:         G([zero('0'),empty(),empty(), empty(),empty(),empty(), y('★'),empty(),empty()]),
+    ambush:         G([empty(),cell(EC,EB,'E',false,'','-1',EB),empty(), cell(EC,EB,'E',false,'','-1',EB),y('★'),e(), empty(),e(),empty()]),
+    stonewall:      G([empty(),`<div style="width:24px;height:20px;border-radius:2px;background:#220000;border:2px solid ${EB};display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:${EB};">0</div>`,empty(),
+                       `<div style="width:24px;height:20px;border-radius:2px;background:#220000;border:2px solid ${EB};display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:${EB};">0</div>`,
+                       `<div style="width:24px;height:20px;border-radius:2px;background:#ffffff18;border:3px solid #fff;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#fff;">0</div>`,
+                       `<div style="width:24px;height:20px;border-radius:2px;background:#220000;border:2px solid ${EB};display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:${EB};">0</div>`,
+                       empty(),`<div style="width:24px;height:20px;border-radius:2px;background:#220000;border:2px solid ${EB};display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:${EB};">0</div>`,empty()]),
+    mirror:         G([empty(),empty(),empty(), hit('3↔8'),y('★'),hit('8↔3'), empty(),empty(),empty()]),
+    deciding_factor:`<div style="display:flex;align-items:center;gap:8px;"><div style="color:#aaa;font-size:13px;font-weight:600;">3=3</div><span style="color:#00ffcc;font-size:14px;">→</span><div style="color:#00ffcc;font-size:12px;font-weight:700;">WIN</div></div>`,
+    hat_trick:      G([empty(),cell(ALLY,AB,'A',false,'','+',YB),empty(), empty(),y('★'),empty(), empty(),cell(ALLY,AB,'A',false,'','+',YB),empty()]),
+    edge_play:      G5([y('★'),empty(),empty(),empty(),e()]),
+    birthright:     `<div style="display:flex;align-items:center;gap:6px;">${a('T1')}${a('T2')}${a('T3')}<span style="color:#00ffcc;">+</span>${bonus('T2')}</div>`,
+    boost:          G([empty(),cell(ALLY,AB,'A',false,'','+',YB),empty(), cell(ALLY,AB,'A',false,'','+',YB),y('★'),cell(ALLY,AB,'A',false,'','+',YB), empty(),cell(ALLY,AB,'A',false,'','+',YB),empty()]),
+    commander:      G([empty(),cell(ALLY,AB,'T2',false,'','+2',YB),empty(), a('T1','0.3'),y('★'),cell(ALLY,AB,'T2',false,'','+2',YB), empty(),empty(),empty()]),
+    surge:          `<div style="display:flex;align-items:center;gap:8px;"><div style="color:#ff4466;font-size:11px;">Losing</div><span style="color:#00ffcc;font-size:14px;">→</span>${y('+3')}</div>`,
+    overwhelm:      G([empty(),cell(ALLY,YB,'E↑',false,'','✓',YB),empty(), e('E←'),y('★'),empty(), empty(),empty(),empty()]),
+    echo:           G([a('—','0.4'),cell(ALLY,AB,'↕',false,''),a('—','0.4'), cell(ALLY,AB,'↔',false,''),cell(YOU,YB,'×2',false,'','✓',YB),cell(ALLY,AB,'↔',false,''), a('—','0.4'),cell(ALLY,AB,'↕',false,''),a('—','0.4')]),
+    density:        `<div style="display:flex;align-items:center;gap:8px;">${y('4')}<span style="color:#00ffcc;font-size:14px;">→</span><div style="font-size:18px;font-weight:700;color:#00ffcc;">6 <span style="font-size:9px;color:#555;">VP</span></div></div>`,
+    cloak:          G([empty(),empty(),empty(), e(),cell(YOU,YB,'????',false,''),empty(), empty(),empty(),empty()]),
+    phantom:        G([empty(),empty(),empty(), cell(YOU,YB,'★?',true,'0.7'),cell(YOU,YB,'★?',true,'0.7'),cell(YOU,YB,'★?',true,'0.7'), a('','0.3'),a('','0.3'),a('','0.3')]),
+    pierce:         `<div style="display:flex;align-items:center;gap:8px;"><div style="color:#fff;font-size:14px;font-weight:700;">6 vs 6</div><span style="color:#00ffcc;font-size:14px;">→</span><div style="color:#00ffcc;font-size:12px;font-weight:700;">WIN</div></div>`,
+  };
+  return patterns[ability] || '';
+}
+
 function renderAll() {
 
 
@@ -7942,11 +7998,8 @@ function hasPlacedTier(tier) {
 
 
 function renderHand() {
-
-
+  clearAbilityZone(); // clear any stale zone before rebuilding hand
   const el = document.getElementById('handCards');
-
-
   el.innerHTML = '';
 
 
@@ -10804,8 +10857,7 @@ function playCardPopSfx() {
 
 
 function onCardSelect(card) {
-
-
+  clearAbilityZone(); // always clear zone when a card is clicked
   if (G.turn !== 'player' || G.gameOver) return;
 
 
