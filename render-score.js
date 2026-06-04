@@ -284,7 +284,9 @@ function renderScoreBadges(_precomputed) {
   rowEl.innerHTML = '';
 
 
-  for (let r = 0; r < 5; r++) {
+  const _rowOrder = (typeof _mpPlayer !== 'undefined' && _mpPlayer === 2)
+    ? [4,3,2,1,0] : [0,1,2,3,4];
+  for (const r of _rowOrder) {
 
 
     const {p,a} = s.rows[r];

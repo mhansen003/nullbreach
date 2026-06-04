@@ -294,7 +294,7 @@ function checkWin() {
       <div style="font-size:10px;color:#444;letter-spacing:2px;">
 
 
-        ${s.pWins} rows/cols to you &nbsp;·&nbsp; ${s.aWins} to AI
+        ${s.pWins} ${s.pWins===1?"sector":"sectors"} won &nbsp;·&nbsp; ${s.aWins} to opponent
 
 
       </div>
@@ -303,19 +303,9 @@ function checkWin() {
       <div style="display:flex;gap:14px;margin-top:4px;">
 
 
-        <button onclick="initGame()" style="background:#0a1a14;border:1px solid #226644;color:#00ffcc;
-
-
-          font-family:inherit;font-size:11px;letter-spacing:3px;padding:12px 28px;
-
-
-          cursor:pointer;border-radius:5px;transition:all 0.2s;"
-
-
-          onmouseenter="this.style.background='#0e2a1e'"
-
-
-          onmouseleave="this.style.background='#0a1a14'">↺ REMATCH</button>
+        ${_mpRoom
+          ? `<button onclick="window.location.href=window.location.href" style="background:#0a1a14;border:1px solid #226644;color:#00ffcc;font-family:inherit;font-size:11px;letter-spacing:3px;padding:12px 28px;cursor:pointer;border-radius:5px;transition:all 0.2s;" onmouseenter="this.style.background='#0e2a1e'" onmouseleave="this.style.background='#0a1a14'">↺ NEW GAME</button>`
+          : `<button onclick="initGame()" style="background:#0a1a14;border:1px solid #226644;color:#00ffcc;font-family:inherit;font-size:11px;letter-spacing:3px;padding:12px 28px;cursor:pointer;border-radius:5px;transition:all 0.2s;" onmouseenter="this.style.background='#0e2a1e'" onmouseleave="this.style.background='#0a1a14'">↺ REMATCH</button>`}
 
 
         <button onclick="goToMenu()" style="background:#1a0a2e;border:1px solid #6644aa;color:#aa88ff;
