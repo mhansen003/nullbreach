@@ -1853,11 +1853,24 @@ function startGame() {
 
     let _joinRace = null;
 
-    // Fetch room to find P1's faction — P2 cannot pick the same one
+    // Fetch room — check status + P1 faction
     let _p1FactionId = null;
     try {
-      const _rr = await sbGet(`/rest/v1/gz_rooms?id=eq.${_roomId}&select=p1_faction,p1_name`);
+      const _rr = await sbGet(`/rest/v1/gz_rooms?id=eq.${_roomId}&select=p1_faction,p1_name,status,p2_faction`);
       const _rd = await _rr.json();
+
+      // Game already started — lock out the 3rd+ person
+      if (_rd[0]?.status === 'playing' || _rd[0]?.p2_faction) {
+        ov.innerHTML = `
+          <div style="font-family:'Orbitron',monospace;font-size:22px;letter-spacing:5px;color:#ff4466;text-shadow:0 0 20px #ff446688;">GAME IN PROGRESS</div>
+          <div style="font-size:14px;color:#888;letter-spacing:2px;text-align:center;max-width:400px;line-height:1.8;">
+            This match has already started with two players.<br>
+            The invite link can only be used once.
+          </div>
+          <div style="font-size:11px;color:#444;letter-spacing:1px;margin-top:8px;">← Close this tab</div>`;
+        return;
+      }
+
       _p1FactionId = _rd[0]?.p1_faction || null;
       if (_p1FactionId) {
         const _p1Name = _rd[0]?.p1_name || _p1FactionId;
@@ -1920,9 +1933,14 @@ async function joinRoom(roomId) {
   const btn = document.getElementById('joinBtn');
   btn.textContent = 'JOINING...'; btn.disabled = true;
 
-  // Fetch room to get P1's faction so we can load the correct AI deck
-  const roomResp = await sbGet(`/rest/v1/gz_rooms?id=eq.${roomId}&select=p1_faction,p1_color`);
+  // Double-check: re-fetch room status before patching to prevent race conditions
+  const roomResp = await sbGet(`/rest/v1/gz_rooms?id=eq.${roomId}&select=p1_faction,p1_color,status,p2_faction`);
   const roomData = await roomResp.json();
+  if (roomData[0]?.status === 'playing' || roomData[0]?.p2_faction) {
+    btn.textContent = 'GAME ALREADY STARTED';
+    btn.style.borderColor = '#ff4466'; btn.style.color = '#ff4466';
+    return;
+  }
   const p1Faction = roomData[0]?.p1_faction || 'terran';
 
   // Set P1's faction as AI in sessionStorage before game loads
