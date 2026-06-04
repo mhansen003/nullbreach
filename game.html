@@ -3217,225 +3217,85 @@ initGame();
 
 
 <div id="gameMenu" style="
-
-
   display:none;position:fixed;top:44px;right:16px;z-index:100000;
   max-height:calc(100vh - 60px);overflow-y:auto;
-
-  background:#0a0a18;border:1px solid #8855ffaa;border-radius:8px;
-
-
-  padding:16px;min-width:240px;font-family:'Courier New',monospace;
-
-
-  box-shadow:0 12px 48px #000000ee, 0 0 28px #8855ff33, 0 0 0 1px #8855ff22;
-
-
+  background:#0c0c18;border:1px solid #ffffff18;border-radius:10px;
+  padding:14px 16px;min-width:220px;
+  font-family:'Orbitron',system-ui,sans-serif;
+  box-shadow:0 12px 48px #000000cc,0 0 0 1px #ffffff06;
 ">
 
+  <div style="font-size:9px;letter-spacing:3px;color:#888;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid #ffffff0a;">MENU</div>
 
-  <div style="font-size:10px;letter-spacing:3px;color:#aa88ff;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid #2a1a44;">⚙ MENU</div>
-
-
-
-
-
-  <!-- MUSIC section -->
-
-
-  <div style="font-size:9px;letter-spacing:2px;color:#ccc;margin-bottom:6px;">MUSIC</div>
-
-
-  <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
-
-
-    <span style="font-size:11px;color:#bbb;">🎵</span>
-
-
-    <input id="volSlider2" type="range" min="0" max="100" value="40"
-
-
-      oninput="setVolume(this.value)"
-
-
-      style="flex:1;accent-color:#8855ff;cursor:pointer;">
-
-
-  </div>
-
-
+  <!-- MUSIC -->
+  <div style="font-size:8px;letter-spacing:2px;color:#555;margin-bottom:6px;">MUSIC</div>
+  <input id="volSlider2" type="range" min="0" max="100" value="40"
+    oninput="setVolume(this.value)"
+    style="width:100%;accent-color:#ffffff66;cursor:pointer;margin-bottom:6px;display:block;">
   <button onclick="toggleGameMusic();updateMuteLabel()" id="muteMenuBtn" style="
-
-
-    background:transparent;border:1px solid #2a1a44;color:#bbb;
-
-
-    font-family:inherit;font-size:11px;letter-spacing:2px;padding:6px 14px;
-
-
-    cursor:pointer;border-radius:4px;text-align:left;width:100%;transition:all 0.2s;margin-bottom:10px;
-
-
-  " onmouseenter="this.style.borderColor='#6644aa';this.style.color='#cc99ff'"
-
-
-     onmouseleave="this.style.borderColor='#2a1a44';this.style.color='#888'">
-
-
-    🔊 MUTE MUSIC
-
-
+    background:transparent;border:1px solid #ffffff14;color:#888;
+    font-family:'Orbitron',system-ui,sans-serif;font-size:10px;letter-spacing:2px;padding:7px 12px;
+    cursor:pointer;border-radius:5px;text-align:left;width:100%;transition:all 0.15s;margin-bottom:14px;
+  " onmouseenter="this.style.background='#ffffff0a';this.style.color='#fff';this.style.borderColor='#ffffff33'"
+     onmouseleave="this.style.background='transparent';this.style.color='#888';this.style.borderColor='#ffffff14'">
+    MUTE MUSIC
   </button>
 
-
-
-
-
-  <!-- SFX section -->
-
-
-  <div style="font-size:9px;letter-spacing:2px;color:#ccc;margin-bottom:6px;">SOUND EFFECTS</div>
-
-
-  <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
-
-
-    <span style="font-size:11px;color:#bbb;">🔔</span>
-
-
-    <input id="sfxSlider" type="range" min="0" max="100" value="100"
-
-
-      oninput="setSfxVolume(this.value)"
-
-
-      style="flex:1;accent-color:#00ffcc;cursor:pointer;">
-
-
-  </div>
-
-
+  <!-- SFX -->
+  <div style="font-size:8px;letter-spacing:2px;color:#555;margin-bottom:6px;">SOUND EFFECTS</div>
+  <input id="sfxSlider" type="range" min="0" max="100" value="100"
+    oninput="setSfxVolume(this.value)"
+    style="width:100%;accent-color:#ffffff66;cursor:pointer;margin-bottom:6px;display:block;">
   <button onclick="toggleSfxMute()" id="sfxMuteBtn" style="
-
-
-    background:transparent;border:1px solid #1a2a2a;color:#bbb;
-
-
-    font-family:inherit;font-size:11px;letter-spacing:2px;padding:6px 14px;
-
-
-    cursor:pointer;border-radius:4px;text-align:left;width:100%;transition:all 0.2s;margin-bottom:14px;
-
-
-  " onmouseenter="this.style.borderColor='#00ffcc55';this.style.color='#00ffcc'"
-
-
-     onmouseleave="this.style.borderColor='#1a2a2a';this.style.color='#888'">
-
-
-    🔊 MUTE SFX
-
-
+    background:transparent;border:1px solid #ffffff14;color:#888;
+    font-family:'Orbitron',system-ui,sans-serif;font-size:10px;letter-spacing:2px;padding:7px 12px;
+    cursor:pointer;border-radius:5px;text-align:left;width:100%;transition:all 0.15s;margin-bottom:14px;
+  " onmouseenter="this.style.background='#ffffff0a';this.style.color='#fff';this.style.borderColor='#ffffff33'"
+     onmouseleave="this.style.background='transparent';this.style.color='#888';this.style.borderColor='#ffffff14'">
+    MUTE SFX
   </button>
 
-
-
-
-
-  <!-- GAME section -->
-
-
-  <div style="font-size:9px;letter-spacing:2px;color:#ccc;margin-bottom:8px;padding-top:8px;border-top:1px solid #1a1a28;">GAME</div>
-
-
-  <div style="display:flex;flex-direction:column;gap:8px;">
-
+  <!-- GAME actions -->
+  <div style="font-size:8px;letter-spacing:2px;color:#555;margin-bottom:8px;padding-top:8px;border-top:1px solid #ffffff0a;">GAME</div>
+  <div style="display:flex;flex-direction:column;gap:6px;">
 
     <button onclick="showGuide();closeMenu()" style="
-
-
-      background:transparent;border:1px solid #ffdd0055;color:#ffdd00;
-
-
-      font-family:inherit;font-size:11px;letter-spacing:2px;padding:9px 14px;
-
-
-      cursor:pointer;border-radius:4px;text-align:left;width:100%;transition:all 0.2s;
-
-
-    " onmouseenter="this.style.background='#1a1500';this.style.borderColor='#ffdd00'"
-
-
-       onmouseleave="this.style.background='transparent';this.style.borderColor='#ffdd0055'">
-
-
-      ? USER GUIDE
-
-
-    </button>
-
-
-    <button onclick="confirmRestart()" style="
-
-
-      background:transparent;border:1px solid #226644;color:#ffffff;
-
-
-      font-family:inherit;font-size:11px;letter-spacing:2px;padding:9px 14px;
-
-
-      cursor:pointer;border-radius:4px;text-align:left;width:100%;transition:all 0.2s;
-
-
-    " onmouseenter="this.style.background='#0e2a1e';this.style.borderColor='#00ffcc'"
-
-
-       onmouseleave="this.style.background='transparent';this.style.borderColor='#226644'">
-
-
-      ↺ RESTART GAME
-
-
-    </button>
-
-
-    <button onclick="confirmDeckNav()" style="
-
-
-      background:transparent;border:1px solid #443355;color:#aa88cc;
-
-
-      font-family:inherit;font-size:11px;letter-spacing:2px;padding:9px 14px;
-
-
-      cursor:pointer;border-radius:4px;text-align:left;width:100%;transition:all 0.2s;
-
-
-    " onmouseenter="this.style.background='#1a0a2e';this.style.borderColor='#8855ff'"
-
-
-       onmouseleave="this.style.background='transparent';this.style.borderColor='#443355'">
-
-
-      ← BACK TO DECK SELECT
-
-
+      background:transparent;border:1px solid #ffffff14;color:#ccc;
+      font-family:'Orbitron',system-ui,sans-serif;font-size:10px;letter-spacing:2px;padding:9px 12px;
+      cursor:pointer;border-radius:5px;text-align:left;width:100%;transition:all 0.15s;
+    " onmouseenter="this.style.background='#ffffff0a';this.style.color='#fff';this.style.borderColor='#ffffff33'"
+       onmouseleave="this.style.background='transparent';this.style.color='#ccc';this.style.borderColor='#ffffff14'">
+      USER GUIDE
     </button>
 
     <button onclick="showLeaderboard();closeMenu()" style="
-      background:transparent;border:1px solid #ffdd0055;color:#ffdd00;
-      font-family:inherit;font-size:11px;letter-spacing:2px;padding:9px 14px;
-      cursor:pointer;border-radius:4px;text-align:left;width:100%;transition:all 0.2s;
-      box-shadow:0 0 8px #ffdd0011;
-    " onmouseenter="this.style.background='#1a1200';this.style.borderColor='#ffdd00';this.style.boxShadow='0 0 14px #ffdd0033'"
-       onmouseleave="this.style.background='transparent';this.style.borderColor='#ffdd0055';this.style.boxShadow='0 0 8px #ffdd0011'">
-      🏆 LEADERBOARD
+      background:transparent;border:1px solid #ffffff14;color:#ccc;
+      font-family:'Orbitron',system-ui,sans-serif;font-size:10px;letter-spacing:2px;padding:9px 12px;
+      cursor:pointer;border-radius:5px;text-align:left;width:100%;transition:all 0.15s;
+    " onmouseenter="this.style.background='#ffffff0a';this.style.color='#fff';this.style.borderColor='#ffffff33'"
+       onmouseleave="this.style.background='transparent';this.style.color='#ccc';this.style.borderColor='#ffffff14'">
+      LEADERBOARD
     </button>
 
+    <button onclick="confirmRestart()" style="
+      background:transparent;border:1px solid #ffffff14;color:#ccc;
+      font-family:'Orbitron',system-ui,sans-serif;font-size:10px;letter-spacing:2px;padding:9px 12px;
+      cursor:pointer;border-radius:5px;text-align:left;width:100%;transition:all 0.15s;
+    " onmouseenter="this.style.background='#ffffff0a';this.style.color='#fff';this.style.borderColor='#ffffff33'"
+       onmouseleave="this.style.background='transparent';this.style.color='#ccc';this.style.borderColor='#ffffff14'">
+      RESTART GAME
+    </button>
+
+    <button onclick="confirmDeckNav()" style="
+      background:transparent;border:1px solid #ffffff0a;color:#555;
+      font-family:'Orbitron',system-ui,sans-serif;font-size:10px;letter-spacing:2px;padding:9px 12px;
+      cursor:pointer;border-radius:5px;text-align:left;width:100%;transition:all 0.15s;
+    " onmouseenter="this.style.background='#ffffff0a';this.style.color='#999';this.style.borderColor='#ffffff1a'"
+       onmouseleave="this.style.background='transparent';this.style.color='#555';this.style.borderColor='#ffffff0a'">
+      BACK TO DECK SELECT
+    </button>
 
   </div>
-
-
 </div>
 
 
