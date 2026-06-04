@@ -1,9 +1,15 @@
 function getValidPlacements(owner, card) {
 
 
+  // P2 in multiplayer has home row 0 (mirrored), P1 and single-player = row 4
+  const _p2mp = typeof _mpPlayer !== 'undefined' && _mpPlayer === 2;
+  const playerHomeRow = _p2mp ? 0 : 4;
+
   // PHANTOM: free placement in own 2 home rows PLUS any other valid adjacency cells
   if (card.ability === 'phantom') {
-    const [minR, maxR] = owner === 'player' ? [3,4] : [0,1];
+    const [minR, maxR] = owner === 'player'
+      ? (_p2mp ? [0,1] : [3,4])
+      : (_p2mp ? [3,4] : [0,1]);
     const seen = new Set();
     const cells = [];
     // Free home rows (2 rows)
@@ -24,10 +30,15 @@ function getValidPlacements(owner, card) {
 
 
 
-  const homeRow = owner === 'player' ? 4 : 0;
+  // P2 plays as 'player' but home is row 0; AI from P2's view (P1) has home row 4
+  const homeRow = owner === 'player'
+    ? (_p2mp ? 0 : 4)
+    : (_p2mp ? 4 : 0);
 
-
-  const fwd     = owner === 'player' ? 1 : -1; // zone dr=-1 means "forward toward enemy" for player, so multiply by 1; AI flips
+  // fwd: zone dr=-1 means "toward enemy". P1 player: fwd=1 (no flip). P2 player: fwd=-1 (flip to expand toward row 4)
+  const fwd     = owner === 'player'
+    ? (_p2mp ? -1 : 1)
+    : (_p2mp ? 1 : -1);
 
 
   const set     = new Set();

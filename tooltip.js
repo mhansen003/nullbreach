@@ -56,7 +56,8 @@ function showAbilityZone(ability, _baseR, _baseC, _owner) {
   const pattern = PATTERNS[ability];
   if (!pattern) return;
   pattern.forEach(({dr,dc}) => {
-    const fwd = (_owner==='ai') ? -1 : 1;
+    const _p2 = typeof _mpPlayer !== 'undefined' && _mpPlayer === 2;
+    const fwd = (_owner==='ai') ? (_p2 ? 1 : -1) : (_p2 ? -1 : 1);
     const r = baseR+(dr*fwd), c = baseC+dc;
     if (r<0||r>=5||c<0||c>=7) return;
     const el = document.querySelector('.cell[data-r="'+r+'"][data-c="'+c+'"]');
@@ -140,13 +141,15 @@ function buildZoneGrid(card) {
   const ROWS = 5, COLS = 7;
 
 
-  const cardR = ROWS - 1; // player home row (bottom)
+  // For P2: home is row 0 (appears at visual bottom), zone expands toward row 4
+  const _p2zone = typeof _mpPlayer !== 'undefined' && _mpPlayer === 2;
+  const cardR = _p2zone ? 0 : ROWS - 1; // P2 home = row 0, P1 home = row 4
 
 
   const cardC = Math.floor(COLS / 2); // place in middle column for illustration
 
 
-  const fwd = 1; // dr=-1 means "one row up/forward" for player, multiply by 1 to preserve direction
+  const fwd = _p2zone ? -1 : 1; // P2: dr=-1 flips to +1 (expand toward row 4)
 
 
 

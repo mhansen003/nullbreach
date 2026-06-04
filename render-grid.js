@@ -1014,7 +1014,8 @@ function renderPassiveAbilityGlows(el) {
         if (!zone) continue;
         const GRAD_DIR = {'-1,0':'to bottom','1,0':'to top','0,-1':'to right','0,1':'to left'};
         zone.dirs.forEach(({dr,dc}) => {
-          const _fwd = (cell.owner==='ai') ? -1 : 1;
+          const _p2g = typeof _mpPlayer !== 'undefined' && _mpPlayer === 2;
+          const _fwd = (cell.owner==='ai') ? (_p2g ? 1 : -1) : (_p2g ? -1 : 1);
           const nr=r+(dr*_fwd), nc=c+dc;
           if (nr<0||nr>=5||nc<0||nc>=7) return;
           const tgt = G.grid[nr][nc];
