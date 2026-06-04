@@ -210,7 +210,7 @@ function checkWin() {
       <div style="font-family:'Orbitron',monospace;font-size:20px;letter-spacing:5px;
 
 
-        color:${winCol2};text-shadow:0 0 28px ${winCol2}88;">
+        color:${pWon?'#00ffcc':draw?'#888':'#ff3344'};text-shadow:0 0 20px ${pWon?'#00ffcc33':draw?'#88888833':'#ff334433'};">
 
 
         ${pWon?'BREACH COMPLETE':draw?'STALEMATE':'BREACH FAILED'}
