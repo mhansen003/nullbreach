@@ -8013,7 +8013,8 @@ function renderHand() {
   // Auto-select lowest eligible tier; respect selected card's tier
 
 
-  if (!window._activeTier || !byTier[window._activeTier]?.length) {
+  // undefined = first load (auto-select); null = user explicitly collapsed; string = tier open
+  if (window._activeTier === undefined || (window._activeTier && !byTier[window._activeTier]?.length)) {
 
 
     window._activeTier = ['I','II','III','IV'].find(t=>byTier[t]?.length>0) || 'I';
@@ -8505,6 +8506,58 @@ function renderHand() {
 
 
 
+
+  // ── MOBILE DECK: tier tabs + expandable card tray ──────────────────────
+  if (window.innerWidth <= 480) {
+    const tray    = document.createElement('div');
+    tray.className = 'mobile-deck-expanded';
+
+    const tabsRow = document.createElement('div');
+    tabsRow.className = 'mobile-tier-tabs';
+
+    ['I','II','III','IV'].forEach(function(t) {
+      const cards  = byTier[t] || [];
+      const locked = inelByTier[t] || 0;
+      const total  = cards.length + locked;
+      const tCol   = TIER_COLORS[t] || '#888';
+      const tNum   = TIER_ORDER[t];
+      const isAct  = window._activeTier === t;
+
+      const tab = document.createElement('div');
+      tab.className = 'mobile-tier-tab' + (isAct ? ' active' : '') + (total === 0 ? ' empty' : '');
+      tab.style.cssText = 'border-color:' + (total > 0 ? (isAct ? tCol : tCol + '55') : '#2a2a3a') + ';' +
+        'background:' + (isAct ? tCol + '22' : total > 0 ? tCol + '0d' : 'transparent') + ';' +
+        'color:' + (total > 0 ? (isAct ? tCol : tCol + 'aa') : '#3a3a4a') + ';';
+
+      const dots = Array.from({length: tNum}, function() {
+        return '<span style="width:4px;height:4px;border-radius:50%;background:' + (total > 0 ? tCol : '#333') + ';display:inline-block;"></span>';
+      }).join('');
+
+      tab.innerHTML =
+        '<div style="display:flex;gap:2px;">' + dots + '</div>' +
+        '<div style="font-size:8px;font-family:\'Courier New\',monospace;letter-spacing:1px;">T' + tNum + '</div>' +
+        '<div style="font-size:11px;font-weight:bold;font-family:\'Courier New\',monospace;">' + cards.length +
+          (locked > 0 ? '<span style="font-size:8px;opacity:0.45">+' + locked + '</span>' : '') + '</div>';
+
+      if (total > 0) {
+        tab.onclick = function() {
+          window._activeTier = (window._activeTier === t) ? null : t;
+          renderHand();
+        };
+      }
+      tabsRow.appendChild(tab);
+
+      if (isAct && cards.length > 0) {
+        cards.forEach(function(card, idx) { tray.appendChild(buildCard(card, idx)); });
+      }
+    });
+
+    el.appendChild(tray);
+    el.appendChild(tabsRow);
+    return;
+  }
+
+  // ── DESKTOP DECK ────────────────────────────────────────────────────────
 
   // Auto-expand when only 1 tier has eligible cards (no need for stacks)
 
@@ -14346,7 +14399,7 @@ const GUIDE_PAGES = [
 
 
 
-  /* ── Player hand: compact fixed bottom strip ── */
+  /* ── Player hand: tier-tab accordion ── */
 
 
   .player-area {
@@ -14355,22 +14408,18 @@ const GUIDE_PAGES = [
     flex-shrink: 0;
 
 
-    max-height: 130px;
+    max-height: 175px;
 
 
-    overflow-x: auto;
+    overflow: visible;
 
 
-    overflow-y: hidden;
+    overflow-x: hidden;
 
 
-    -webkit-overflow-scrolling: touch;
 
 
-    scrollbar-width: none;
-
-
-    padding: 4px 8px 6px;
+    padding: 0;
 
 
     border-top: 1px solid #1a1a28;
@@ -14388,7 +14437,16 @@ const GUIDE_PAGES = [
   .player-area::-webkit-scrollbar { display: none; }
 
 
-  .player-portrait { display: none; }  /* hide portrait in hand area */
+  .player-portrait { display: none; }
+
+  /* ── Mobile tier accordion ── */
+  #handCards { display:flex !important; flex-direction:column !important; overflow:visible !important; flex-wrap:nowrap !important; gap:0 !important; width:100%; }
+  .mobile-deck-expanded { display:flex; flex-direction:row; gap:5px; overflow-x:auto; overflow-y:visible; padding:5px 8px 4px; -webkit-overflow-scrolling:touch; scrollbar-width:none; min-height:0; }
+  .mobile-deck-expanded:empty { display:none; }
+  .mobile-deck-expanded::-webkit-scrollbar { display:none; }
+  .mobile-tier-tabs { display:flex; gap:5px; padding:4px 8px 6px; flex-shrink:0; }
+  .mobile-tier-tab { flex:1; min-height:48px; border-radius:6px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; cursor:pointer; user-select:none; transition:background 0.12s,border-color 0.12s; border:1px solid transparent; }
+  .mobile-tier-tab.empty { opacity:0.3; cursor:default; pointer-events:none; }
 
 
 
@@ -14397,7 +14455,7 @@ const GUIDE_PAGES = [
   /* ── Hand cards: smaller on mobile ── */
 
 
-  .hand-card { width: 72px !important; height: 96px !important; }
+  .hand-card { width: 64px !important; height: 86px !important; }
 
 
   .hc-e-n, .hc-e-s, .hc-e-w, .hc-e-e { font-size: 10px; min-width: 14px; }
