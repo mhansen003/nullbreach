@@ -55,7 +55,7 @@ function showMobileCardPanel(card) {
     '<div style="display:flex;gap:8px;margin-bottom:8px;align-items:flex-start;">' +
       (card.art ? '<img src="' + card.art + '" style="width:56px;height:72px;object-fit:cover;object-position:top center;border-radius:5px;border:1px solid ' + tierCol + '55;flex-shrink:0;">' : '') +
       '<div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px;">' +
-        '<div style="font-size:9px;font-family:\'Orbitron\',monospace;color:#ccc;line-height:1.3;font-weight:700;">' + (card.name || '') + '</div>' +
+        '<div style="font-size:9px;font-family:\'Orbitron\',monospace;color:#ccc;line-height:1.3;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + (card.name || '') + '</div>' +
         '<div style="display:flex;align-items:center;gap:4px;">' +
           '<div style="display:flex;gap:2px;">' + dots + emptyDots + '</div>' +
           '<span style="font-size:7px;font-family:\'Courier New\',monospace;color:' + tierCol + ';">T' + card.tier + '</span>' +

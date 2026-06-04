@@ -92,13 +92,20 @@ function showInitialsEntry(playerFaction, aiFaction, delta) {
   [0,1,2].forEach(i => {
     const inp = document.getElementById('lbInit'+i);
     if (!inp) return;
-    if (i===0) setTimeout(()=>inp.focus(),50);
+    if (i===0) setTimeout(()=>{ inp.focus(); inp.select(); },50);
     inp.addEventListener('input', function(){
       this.value = this.value.toUpperCase().replace(/[^A-Z]/g,'');
-      if (this.value.length===1 && i<2) document.getElementById('lbInit'+(i+1))?.focus();
+      if (this.value.length===1 && i<2) {
+        setTimeout(()=>{
+          var next = document.getElementById('lbInit'+(i+1));
+          if (next) { next.focus(); next.select(); }
+        }, 0);
+      }
     });
     inp.addEventListener('keydown', function(e){
-      if (e.key==='Backspace' && !this.value && i>0) document.getElementById('lbInit'+(i-1))?.focus();
+      if (e.key==='Backspace' && !this.value && i>0) {
+        setTimeout(()=>{ var prev=document.getElementById('lbInit'+(i-1)); if(prev){prev.focus();prev.select();} },0);
+      }
     });
     inp.addEventListener('focus',  function(){ this.style.borderColor='#ffdd00'; this.style.boxShadow='0 0 14px #ffdd0055'; });
     inp.addEventListener('blur',   function(){ this.style.borderColor='#ffdd0044'; this.style.boxShadow='none'; });
@@ -106,13 +113,17 @@ function showInitialsEntry(playerFaction, aiFaction, delta) {
 }
 function _lbSkipInitials() { document.getElementById('lbInitialsOverlay')?.remove(); }
 function _lbSubmitInitials(pFac, aFac, delta) {
-  const a=document.getElementById('lbInit0')?.value||'-';
-  const b=document.getElementById('lbInit1')?.value||'-';
-  const c=document.getElementById('lbInit2')?.value||'-';
-  const initials=(a+b+c).toUpperCase().padEnd(3,'-');
-  saveLeaderboardEntry(pFac, aFac, initials, delta);
-  document.getElementById('lbInitialsOverlay')?.remove();
-  const flash=document.createElement('div');
+  try {
+    var a=(document.getElementById('lbInit0')||{}).value||'-';
+    var b=(document.getElementById('lbInit1')||{}).value||'-';
+    var c=(document.getElementById('lbInit2')||{}).value||'-';
+    var initials=(a+b+c).toUpperCase().padEnd(3,'-');
+    saveLeaderboardEntry(pFac, aFac, initials, delta);
+  } catch(e) {}
+  // Remove overlay first — always, even if save failed
+  var ov = document.getElementById('lbInitialsOverlay');
+  if (ov) ov.parentNode.removeChild(ov);
+  var flash=document.createElement('div');
   flash.style.cssText='position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:100000;font-family:"Orbitron",monospace;font-size:20px;letter-spacing:4px;color:#ffdd00;text-shadow:0 0 20px #ffdd00;pointer-events:none;';
   flash.textContent=initials+' · RECORDED';
   document.body.appendChild(flash);
@@ -160,12 +171,9 @@ function _lbRenderModal() {
 
         <!-- Opponent -->
         <div style="display:flex;align-items:center;gap:12px;flex:1;min-width:0;">
-          <div style="font-size:9px;letter-spacing:2px;color:#444466;font-family:'Courier New',monospace;flex-shrink:0;width:16px;text-align:right;">vs</div>
-          <img src="${aF.img}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;object-position:top;border:2px solid ${aF.color}${has?'cc':'44'};flex-shrink:0;${has?`box-shadow:0 0 12px ${aF.color}44;`:''}">
-          <div>
-            <div style="font-family:'Orbitron',monospace;font-size:10px;letter-spacing:1px;color:${has?aF.color:aF.color+'66'};font-weight:700;">${aF.short}</div>
-            <div style="font-family:'Courier New',monospace;font-size:8px;letter-spacing:1px;color:#556677;margin-top:1px;">${aF.name}</div>
-          </div>
+          <div style="font-size:10px;letter-spacing:2px;color:#778899;font-family:'Courier New',monospace;flex-shrink:0;width:20px;text-align:right;">vs</div>
+          <img src="${aF.img}" style="width:38px;height:38px;border-radius:50%;object-fit:cover;object-position:top;border:2px solid ${aF.color}${has?'cc':'55'};flex-shrink:0;${has?`box-shadow:0 0 12px ${aF.color}44;`:''}">
+          <div style="font-family:'Orbitron',monospace;font-size:11px;letter-spacing:1px;color:${has?aF.color:'#aabbcc'};font-weight:700;">${aF.short}</div>
         </div>
 
         <!-- Initials -->
@@ -208,7 +216,7 @@ function _lbRenderModal() {
       onmouseleave="if(this.dataset.id!=='${pId}')this.style.background='transparent'"
       data-id="${id}">
         <img src="${f.img}" style="width:${active?'38px':'30px'};height:${active?'38px':'30px'};border-radius:50%;object-fit:cover;object-position:top;border:2px solid ${active?f.color:f.color+'44'};transition:all 0.15s;${active?`box-shadow:0 0 14px ${f.color}55;`:''}">
-        ${recs > 0 ? `<div style="font-size:7px;color:${active?f.color:'#444466'};font-family:'Courier New',monospace;letter-spacing:1px;">${recs}/10</div>` : `<div style="font-size:7px;color:#222232;font-family:'Courier New',monospace;">—</div>`}
+        ${recs > 0 ? `<div style="font-size:8px;color:${active?f.color:'#aabbcc'};font-family:'Courier New',monospace;letter-spacing:1px;">${recs}/10</div>` : `<div style="font-size:8px;color:#445566;font-family:'Courier New',monospace;">—</div>`}
       </div>`;
   }).join('');
 
@@ -233,9 +241,9 @@ function _lbRenderModal() {
         <div style="font-family:'Orbitron',monospace;font-size:clamp(18px,3vw,34px);font-weight:900;letter-spacing:6px;color:#fff;text-shadow:0 0 40px #ffdd0077,0 2px 12px #000;">HALL OF CHAMPIONS</div>
         <div style="font-family:'Courier New',monospace;font-size:9px;letter-spacing:5px;color:#ffdd0088;margin-top:4px;">GALACTIC ZERO · FACTION RECORDS</div>
       </div>
-      <button onclick="hideLeaderboard()" style="position:absolute;top:10px;right:12px;background:#000000aa;border:1px solid #ffffff22;border-radius:50%;width:34px;height:34px;cursor:pointer;color:#888;font-size:15px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;line-height:1;"
-        onmouseenter="this.style.background='#ffffff18';this.style.color='#fff'"
-        onmouseleave="this.style.background='#000000aa';this.style.color='#888'">✕</button>
+      <button onclick="hideLeaderboard()" style="position:absolute;top:10px;right:12px;background:#000000bb;border:1px solid #ffffff44;border-radius:50%;width:34px;height:34px;cursor:pointer;color:#fff;font-size:15px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;line-height:1;"
+        onmouseenter="this.style.background='#ffffff22'"
+        onmouseleave="this.style.background='#000000bb'">✕</button>
     </div>
 
     <!-- Faction tabs -->
@@ -250,22 +258,22 @@ function _lbRenderModal() {
       <img src="${pF.img}" style="width:52px;height:52px;border-radius:50%;object-fit:cover;object-position:top;border:2px solid ${pF.color};box-shadow:0 0 20px ${pF.color}55;flex-shrink:0;">
       <div>
         <div style="font-family:'Orbitron',monospace;font-size:14px;font-weight:900;letter-spacing:3px;color:${pF.color};text-shadow:0 0 16px ${pF.color}55;">${pF.name}</div>
-        <div style="font-family:'Courier New',monospace;font-size:9px;letter-spacing:2px;color:#444466;margin-top:3px;">
+        <div style="font-family:'Courier New',monospace;font-size:10px;letter-spacing:2px;color:#8899bb;margin-top:3px;">
           PLAYING AS THIS FACTION · ${facRecords} / 10 RECORDS SET
         </div>
       </div>
       <div style="margin-left:auto;text-align:right;">
-        <div style="font-family:'Courier New',monospace;font-size:8px;letter-spacing:2px;color:#222238;">TOTAL</div>
-        <div style="font-family:'Orbitron',monospace;font-size:18px;font-weight:700;color:${total>0?'#ffdd00':'#222238'};${total>0?'text-shadow:0 0 10px #ffdd0044;':''}">${total}<span style="font-size:10px;color:#222238;"> /110</span></div>
+        <div style="font-family:'Courier New',monospace;font-size:9px;letter-spacing:2px;color:#778899;">TOTAL</div>
+        <div style="font-family:'Orbitron',monospace;font-size:18px;font-weight:700;color:${total>0?'#ffdd00':'#aabbcc'};${total>0?'text-shadow:0 0 10px #ffdd0044;':''}">${total}<span style="font-size:10px;color:#778899;"> /110</span></div>
       </div>
     </div>
 
     <!-- Column labels -->
     <div style="flex-shrink:0;display:flex;align-items:center;gap:0;padding:6px 24px;background:#020208;border-bottom:1px solid #0a0a16;">
-      <div style="flex:1;font-size:8px;letter-spacing:3px;color:#556677;font-family:'Courier New',monospace;">OPPONENT</div>
-      <div style="width:70px;text-align:center;font-size:8px;letter-spacing:2px;color:#556677;font-family:'Courier New',monospace;">INITIALS</div>
+      <div style="flex:1;font-size:10px;letter-spacing:3px;color:#aabbcc;font-family:'Courier New',monospace;">OPPONENT</div>
+      <div style="width:70px;text-align:center;font-size:10px;letter-spacing:2px;color:#aabbcc;font-family:'Courier New',monospace;">INITIALS</div>
       <div style="width:7px;"></div>
-      <div style="width:72px;text-align:right;font-size:8px;letter-spacing:2px;color:#556677;font-family:'Courier New',monospace;">WIN BY</div>
+      <div style="width:72px;text-align:right;font-size:10px;letter-spacing:2px;color:#aabbcc;font-family:'Courier New',monospace;">WIN BY</div>
     </div>
 
     <!-- Opponent rows -->
@@ -275,9 +283,9 @@ function _lbRenderModal() {
 
     <!-- Footer -->
     <div style="flex-shrink:0;padding:10px 20px;border-top:1px solid #0a0a14;background:#020208;display:flex;align-items:center;justify-content:flex-end;">
-      <button onclick="hideLeaderboard()" style="padding:8px 24px;border-radius:5px;cursor:pointer;background:transparent;border:1px solid #1a1a33;color:#444466;font-family:'Courier New',monospace;font-size:10px;letter-spacing:2px;transition:all 0.2s;"
-        onmouseenter="this.style.borderColor='#8855ff';this.style.color='#aa88ff'"
-        onmouseleave="this.style.borderColor='#1a1a33';this.style.color='#444466'">CLOSE</button>
+      <button onclick="hideLeaderboard()" style="padding:10px 28px;border-radius:6px;cursor:pointer;background:transparent;border:1px solid #334466;color:#aabbdd;font-family:'Orbitron',monospace;font-size:11px;letter-spacing:2px;transition:all 0.2s;"
+        onmouseenter="this.style.borderColor='#8855ff';this.style.color='#fff';this.style.background='#8855ff22'"
+        onmouseleave="this.style.borderColor='#334466';this.style.color='#aabbdd';this.style.background='transparent'">✕ CLOSE</button>
     </div>
   </div>`;
 

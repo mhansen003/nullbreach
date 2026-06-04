@@ -637,8 +637,10 @@ button, [onclick] { touch-action: manipulation; }
     justify-content: space-between !important;
   }
 
-  /* Audio controls: hide on mobile (BACK button occupies top-right) */
-  #audioControls { display: none !important; }
+  /* Audio controls: icon-only on mobile */
+  #audioControls { gap: 4px !important; top: 6px !important; right: 6px !important; }
+  #audioControls > div { padding: 5px 8px !important; font-size: 16px !important; letter-spacing: 0 !important; }
+  #audioControls .lb-label, #audioControls span { display: none !important; }
   /* Show mobile-only leaderboard button */
   #lbMobileBtn { display: flex !important; }
 
@@ -701,7 +703,7 @@ button, [onclick] { touch-action: manipulation; }
   "
   onmouseenter="this.style.borderColor='#ffdd00';this.style.boxShadow='0 0 20px #ffdd0055'"
   onmouseleave="this.style.borderColor='#ffdd0055';this.style.boxShadow='0 0 12px #ffdd0022'"
-  title="Hall of Champions">🏆 LEADERBOARD</div>
+  title="Hall of Champions">🏆 <span class="lb-label">LEADERBOARD</span></div>
   <!-- Music mute -->
   <div id="muteBtn" onclick="toggleMute()" style="
     padding:5px 12px;border-radius:4px;
