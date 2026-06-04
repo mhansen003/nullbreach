@@ -3028,124 +3028,41 @@ button, [onclick] { touch-action: manipulation; }
 <!-- ═══════════════ HOW TO PLAY MODAL ═══════════════ -->
 
 
-<div id="guideModal" onclick="if(event.target===this)closeGuide()" style="display:none;position:fixed;inset:0;z-index:99000;
+<div id="guideModal" onclick="if(event.target===this)closeGuide()" style="display:none;position:fixed;inset:0;z-index:99000;background:#000000dd;backdrop-filter:blur(14px);cursor:pointer;align-items:center;justify-content:center;font-family:'Inter',system-ui,sans-serif;">
 
-
-  background:#000000ee;backdrop-filter:blur(8px);cursor:pointer;
-
-
-  align-items:center;justify-content:center;font-family:'Share Tech Mono','Courier New',monospace;">
-
-
-  <div style="background:#06060e;border:1px solid #8855ff66;border-radius:14px;
-
-
-    max-width:720px;width:94%;max-height:88vh;overflow:hidden;display:flex;flex-direction:column;
-
-
-    box-shadow:0 0 80px #8855ff22;">
-
-
-
-
+  <div style="background:linear-gradient(160deg,#0d0d1e 0%,#080810 100%);border:1px solid #8855ff44;border-radius:16px;max-width:740px;width:96%;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 0 60px #8855ff18,0 24px 64px #00000099;cursor:default;">
 
     <!-- Header -->
-
-
-    <div style="display:flex;align-items:center;justify-content:space-between;
-
-
-      padding:16px 24px;border-bottom:1px solid #1a1a28;flex-shrink:0;">
-
-
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 28px 18px;border-bottom:1px solid #ffffff0a;flex-shrink:0;background:linear-gradient(90deg,#8855ff0d 0%,transparent 70%);">
       <div>
-
-
-        <div style="font-family:'Orbitron',monospace;font-size:16px;letter-spacing:4px;color:#8855ff;" id="guideTitle">HOW TO PLAY</div>
-
-
-        <div id="guidePageNum" style="font-size:11px;color:#bbb;letter-spacing:2px;margin-top:2px;">PAGE 1 OF 8</div>
-
-
+        <div style="font-family:'Orbitron',monospace;font-size:18px;letter-spacing:5px;color:#fff;text-shadow:0 0 20px #8855ff55;" id="guideTitle">HOW TO PLAY</div>
+        <div id="guidePageNum" style="font-size:11px;color:#9988bb;letter-spacing:3px;margin-top:4px;">PAGE 1 OF 4</div>
       </div>
-
-
-      <button onclick="closeGuide()" style="background:transparent;border:1px solid #332244;color:#554466;
-
-
-        font-family:inherit;font-size:12px;letter-spacing:1px;padding:6px 14px;cursor:pointer;border-radius:4px;
-
-
-        transition:all 0.2s;" onmouseenter="this.style.color='#cc99ff'" onmouseleave="this.style.color='#554466'">✕ CLOSE</button>
-
-
+      <button onclick="closeGuide()" style="background:#ffffff0a;border:1px solid #ffffff22;color:#ccbbee;font-family:'Orbitron',monospace;font-size:11px;letter-spacing:2px;padding:8px 16px;cursor:pointer;border-radius:6px;transition:all 0.2s;"
+        onmouseenter="this.style.background='#ffffff1a';this.style.borderColor='#cc99ff55';this.style.color='#fff'"
+        onmouseleave="this.style.background='#ffffff0a';this.style.borderColor='#ffffff22';this.style.color='#ccbbee'">&#x2715; CLOSE</button>
     </div>
-
-
-
-
 
     <!-- Page content -->
-
-
-    <div id="guideContent" style="flex:1;overflow-y:auto;padding:24px 28px;line-height:1.8;font-size:16px;color:#ddd;"></div>
-
-
-
-
+    <div id="guideContent" style="flex:1;overflow-y:auto;padding:28px 32px;line-height:1.8;font-size:15px;color:#d4ccee;font-family:'Inter',system-ui,sans-serif;"></div>
 
     <!-- Footer nav -->
-
-
-    <div style="display:flex;align-items:center;justify-content:space-between;
-
-
-      padding:14px 24px;border-top:1px solid #1a1a28;flex-shrink:0;">
-
-
-      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;color:#ccc;">
-
-
-        <input type="checkbox" id="guideDontShow" style="accent-color:#8855ff;">
-
-
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 28px;border-top:1px solid #ffffff0a;flex-shrink:0;background:linear-gradient(90deg,transparent 30%,#8855ff06 100%);">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:11px;color:#9988bb;font-family:'Orbitron',monospace;letter-spacing:1px;">
+        <input type="checkbox" id="guideDontShow" style="accent-color:#8855ff;width:14px;height:14px;">
         Don't show again
-
-
       </label>
-
-
-      <div style="display:flex;gap:10px;">
-
-
-        <button id="guidePrev" onclick="guidePage(-1)" style="background:transparent;border:1px solid #332244;
-
-
-          color:#aaaacc;font-family:'Orbitron',monospace;font-size:11px;letter-spacing:2px;
-
-
-          padding:9px 18px;cursor:pointer;border-radius:5px;transition:all 0.2s;">← PREV</button>
-
-
-        <button id="guideNext" onclick="guidePage(1)" style="background:#1a0a2e;border:1px solid #8855ff88;
-
-
-          color:#cc99ff;font-family:'Orbitron',monospace;font-size:11px;letter-spacing:2px;
-
-
-          padding:9px 20px;cursor:pointer;border-radius:5px;transition:all 0.2s;">NEXT →</button>
-
-
+      <div style="display:flex;gap:10px;align-items:center;">
+        <button id="guidePrev" onclick="guidePage(-1)" style="background:#ffffff08;border:1px solid #ffffff18;color:#ccbbee;font-family:'Orbitron',monospace;font-size:11px;letter-spacing:2px;padding:10px 22px;cursor:pointer;border-radius:6px;transition:all 0.2s;"
+          onmouseenter="this.style.background='#ffffff14';this.style.color='#fff'"
+          onmouseleave="this.style.background='#ffffff08';this.style.color='#ccbbee'">&#8592; PREV</button>
+        <button id="guideNext" onclick="guidePage(1)" style="background:linear-gradient(135deg,#7733ee,#4422bb);border:1px solid #9966ff77;color:#fff;font-family:'Orbitron',monospace;font-size:11px;letter-spacing:2px;padding:10px 26px;cursor:pointer;border-radius:6px;transition:all 0.2s;box-shadow:0 0 18px #8855ff33;"
+          onmouseenter="this.style.boxShadow='0 0 28px #8855ff66';this.style.transform='translateY(-1px)'"
+          onmouseleave="this.style.boxShadow='0 0 18px #8855ff33';this.style.transform=''">NEXT &#8594;</button>
       </div>
-
-
     </div>
 
-
-  </div>
-
-
-</div>
+  </div>iv>
 
 
 

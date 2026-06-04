@@ -202,10 +202,10 @@ const GUIDE_PAGES = [
   <div style="background:#0a0a18;border-left:3px solid #00ffcc;border-radius:6px;padding:12px;">
 
 
-    <div style="font-size:10px;color:#00ffcc;font-family:'Orbitron',monospace;letter-spacing:2px;margin-bottom:5px;">STEP 1</div>
+    <div style="font-size:11px;color:#00ffcc;font-family:'Orbitron',monospace;letter-spacing:3px;margin-bottom:6px;">① STEP 1</div>
 
 
-    <div style="font-size:13px;color:#ddd;">Place a Tier I card on your home row to open the battle zone. The opponent does the same from the top.</div>
+    <div style="font-size:14px;color:#e0d8f8;line-height:1.7;">Place a Tier I card on your home row to open the battle zone. The opponent does the same from the top.</div>
 
 
   </div>
@@ -214,10 +214,10 @@ const GUIDE_PAGES = [
   <div style="background:#0a0a18;border-left:3px solid #ffdd00;border-radius:6px;padding:12px;">
 
 
-    <div style="font-size:10px;color:#ffdd00;font-family:'Orbitron',monospace;letter-spacing:2px;margin-bottom:5px;">STEP 2</div>
+    <div style="font-size:11px;color:#ffdd00;font-family:'Orbitron',monospace;letter-spacing:3px;margin-bottom:6px;">② STEP 2</div>
 
 
-    <div style="font-size:13px;color:#ddd;"><span style="color:#ffdd00;">Yellow cells</span> unlock around each placed card. Your next card must go in one of those cells.</div>
+    <div style="font-size:14px;color:#e0d8f8;line-height:1.7;"><span style="color:#ffdd00;">Yellow cells</span> unlock around each placed card. Your next card must go in one of those cells.</div>
 
 
   </div>
@@ -686,7 +686,7 @@ const GUIDE_PAGES = [
     <!-- Tooltip -->
 
 
-    <div style="background:#0a0a14;border:1px solid #aaaaff55;border-radius:6px;padding:10px;width:160px;min-height:100px;box-sizing:border-box;animation:g3tip 0.4s ease 0.7s both;">
+    <div style="background:#0d0d1c;border:1px solid #aaaaff44;border-radius:8px;padding:12px;width:180px;height:120px;box-sizing:border-box;animation:g3tip 0.4s ease 0.7s both;">
 
 
       <div style="display:flex;gap:8px;align-items:stretch;">
@@ -755,7 +755,7 @@ const GUIDE_PAGES = [
     <!-- Tooltip -->
 
 
-    <div style="background:#0a0a14;border:1px solid #ffdd0044;border-radius:6px;padding:10px;width:160px;min-height:100px;box-sizing:border-box;animation:g3tip 0.4s ease 0.9s both;">
+    <div style="background:#0d0d1c;border:1px solid #ffdd0044;border-radius:8px;padding:12px;width:180px;height:120px;box-sizing:border-box;animation:g3tip 0.4s ease 0.9s both;">
 
 
       <div style="display:flex;gap:8px;align-items:stretch;">
