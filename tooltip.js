@@ -21,7 +21,7 @@ function showAbilityZone(ability, _baseR, _baseC, _owner) {
     intimidate:     [{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}],
     fortify:        [{dr:0,dc:0},{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}],
     revenge:        [{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}],
-    laser_focus:    [{dr:-1,dc:0},{dr:-2,dc:0}],
+    laser_focus:    [{dr:-1,dc:0}],
     double_strike:  [{dr:-1,dc:0},{dr:-2,dc:0}],
     sniper:         [{dr:-1,dc:0},{dr:-2,dc:0},{dr:-3,dc:0},{dr:-4,dc:0}],
     lamb:           [{dr:0,dc:0}],

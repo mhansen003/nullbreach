@@ -611,7 +611,10 @@ function computeScores() {
       const cell = G.grid[r][c];
 
 
-      if (!cell.card) continue;
+      if (!cell.card || cell.owner === 'hazard') continue;
+
+
+      if (cell.card.stonewalled || cell.card.stonewall_victim) continue;
 
 
       // SNIPER: sniped card contributes 0 VP
