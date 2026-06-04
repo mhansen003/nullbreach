@@ -2002,25 +2002,17 @@ button, [onclick] { touch-action: manipulation; }
 
 
 
-  /* Grid cells — tight fit for 7-column layout */
-
+  /* Grid cells: 7×44 + 6×3 = 326px + 3px gap + 44px row badges = 373px → fits 390px */
+  .board-and-scores { gap: 3px !important; }
+  .col-score-row    { gap: 3px !important; }
 
   .grid {
-
-
-    grid-template-columns: repeat(7, 52px);
-
-
-    grid-template-rows:    repeat(5, 70px);
-
-
+    grid-template-columns: repeat(7, 44px);
+    grid-template-rows:    repeat(5, 66px);
     gap: 3px;
-
-
   }
 
-
-  .cell { width: 52px; height: 70px; border-radius: 3px; }
+  .cell { width: 44px; height: 66px; border-radius: 3px; }
 
 
 
@@ -2452,6 +2444,13 @@ button, [onclick] { touch-action: manipulation; }
 .cell.hazard { animation: hazardPulse 2.5s ease-in-out infinite; }
 
 
+
+  /* Score panel: avatar+number only */
+  #sbAiName, #sbPlayerName { display:none !important; }
+  #sbAiAvatar, #sbPlayerAvatar { width:44px !important; height:44px !important; cursor:help; }
+  #sbAiNum, #sbPlayerNum { font-size:20px !important; }
+  #fhAi, #fhPlayer { gap:8px !important; padding:3px 6px !important; }
+  #fhGuideBtn { display:none !important; }
 </style>
 
 
@@ -3265,10 +3264,10 @@ function initRaceTheme() {
   const botBg = document.getElementById('game-bottom-bg');
 
 
-  if (topBg) { topBg.style.backgroundImage = `url('${ai.loreBg}')`; topBg.style.opacity = '0.75'; }
+  if (topBg) { topBg.style.backgroundImage = `url('${ai.loreBg}')`; topBg.style.opacity = '0.95'; }
 
 
-  if (botBg) { botBg.style.backgroundImage = `url('${player.loreBg}')`; botBg.style.opacity = '0.75'; }
+  if (botBg) { botBg.style.backgroundImage = `url('${player.loreBg}')`; botBg.style.opacity = '0.95'; }
 
 
   // Remove background from ai-area and player-area
