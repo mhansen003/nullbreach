@@ -2512,7 +2512,7 @@ button, [onclick] { touch-action: manipulation; }
   .mobile-deck-expanded { display: flex; flex-direction: row; gap: 5px; overflow-x: auto; overflow-y: hidden; padding: 5px 12px 4px; -webkit-overflow-scrolling: touch; scrollbar-width: none; height: 96px; flex-shrink: 0; touch-action: pan-x; }
   .mobile-deck-expanded:empty { display: none; }
   .mobile-deck-expanded::-webkit-scrollbar { display: none; }
-  .mobile-deck-covers { display: flex; gap: 10px; padding: 6px 8px 8px; flex-shrink: 0; justify-content: center; }
+  .mobile-deck-covers { display: flex; gap: 10px; padding: 6px 8px 8px; flex-shrink: 0; justify-content: flex-start; align-items: center; }
   .mobile-deck-cover { position: relative; width: 64px; height: 86px; border-radius: 6px; flex-shrink: 0; cursor: pointer; user-select: none; overflow: hidden; transition: transform 0.15s, box-shadow 0.15s; }
   .mobile-deck-cover.empty { opacity: 0.25; cursor: default; pointer-events: none; }
   .mobile-deck-cover.active { transform: translateY(-4px); }

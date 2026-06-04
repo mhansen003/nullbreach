@@ -235,6 +235,15 @@ function renderHand() {
         if (_tdDragging) {
           updateDragCard(t.clientX, t.clientY);
           e.preventDefault();
+          // Preview the cell the finger is hovering over
+          const _el = document.elementFromPoint(t.clientX, t.clientY);
+          const _cell = _el && (_el.classList.contains('cell') ? _el : _el.closest && _el.closest('.cell'));
+          if (_cell && _cell.classList.contains('valid') && _cell.dataset.r !== undefined) {
+            const _hr = parseInt(_cell.dataset.r), _hc = parseInt(_cell.dataset.c);
+            if (!G._previewCell || G._previewCell.r !== _hr || G._previewCell.c !== _hc) {
+              applyMobileCellPreview(_hr, _hc, card);
+            }
+          }
         }
       }, { passive: false });
 
@@ -245,7 +254,13 @@ function renderHand() {
           const el = document.elementFromPoint(t.clientX, t.clientY);
           const cellEl = el && (el.classList.contains('cell') ? el : el.closest && el.closest('.cell'));
           if (cellEl && cellEl.dataset.r !== undefined) {
-            onCellClick(parseInt(cellEl.dataset.r), parseInt(cellEl.dataset.c));
+            const _dr = parseInt(cellEl.dataset.r), _dc = parseInt(cellEl.dataset.c);
+            // If we already previewed this cell, one call confirms; otherwise preview first
+            if (G._previewCell && G._previewCell.r === _dr && G._previewCell.c === _dc) {
+              onCellClick(_dr, _dc); // confirms placement
+            } else {
+              onCellClick(_dr, _dc); // sets preview (drop missed the previewed cell)
+            }
           }
           e.preventDefault();
         } else {
@@ -625,6 +640,35 @@ function renderHand() {
         cards.forEach(function(card, idx) { tray.appendChild(buildCard(card, idx)); });
       }
     });
+
+    // Zone indicator — right of covers, shows selected card's placement pattern
+    if (G.selectedCard && G.selectedCard.zone) {
+      const _card = G.selectedCard;
+      const _tCol = TIER_COLORS[_card.tier] || '#888';
+      const ROWS = 5, COLS = 7;
+      const cardR = ROWS - 1, cardC = Math.floor(COLS / 2);
+      const _zoneOffsets = (typeof ZONES !== 'undefined' && ZONES[_card.zone]) ? ZONES[_card.zone] : [];
+      const _zoneCells = new Set();
+      _zoneOffsets.forEach(function({dr, dc}) {
+        const nr = cardR + dr, nc = cardC + dc;
+        if (nr >= 0 && nr < ROWS && nc >= 0 && nc < COLS) _zoneCells.add(nr + ',' + nc);
+      });
+      let _gridHtml = '<div style="display:grid;grid-template-columns:repeat(7,9px);gap:1px;">';
+      for (let _r = 0; _r < ROWS; _r++) {
+        for (let _c = 0; _c < COLS; _c++) {
+          const _isCard = _r === cardR && _c === cardC;
+          const _isZone = _zoneCells.has(_r + ',' + _c);
+          const _bg  = _isCard ? _tCol : _isZone ? '#ffdd0055' : '#0e0c18';
+          const _bdr = _isCard ? 'none' : _isZone ? '1px solid #ffdd0099' : '1px solid #1a1428';
+          _gridHtml += '<div style="width:9px;height:9px;border-radius:1px;background:' + _bg + ';border:' + _bdr + ';"></div>';
+        }
+      }
+      _gridHtml += '</div>';
+      const _zoneDiv = document.createElement('div');
+      _zoneDiv.style.cssText = 'flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 8px 0 6px;gap:3px;border-left:1px solid #1a1a38;';
+      _zoneDiv.innerHTML = '<div style="font-size:6px;letter-spacing:1px;color:#555;font-family:\'Courier New\',monospace;margin-bottom:1px;">ZONE</div>' + _gridHtml;
+      coversRow.appendChild(_zoneDiv);
+    }
 
     el.appendChild(tray);
     el.appendChild(coversRow);

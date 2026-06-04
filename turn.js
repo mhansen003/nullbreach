@@ -405,6 +405,47 @@ function onCardSelect(card) {
 
 }
 
+function applyMobileCellPreview(r, c, card) {
+  G._previewCell = {r, c};
+  clearAbilityZone();
+  renderGrid();
+  if (card.ability) showAbilityZone(card.ability, r, c);
+
+  // Yellow future-valid zone cells
+  getZonePreview(r, c, card, 'player').forEach(({r: pr, c: pc}) => {
+    const el = document.querySelector(`.cell[data-r="${pr}"][data-c="${pc}"]`);
+    if (el && !el.classList.contains('valid')) el.classList.add('future-valid');
+  });
+
+  // Battle outcome badges on adjacent enemy cells
+  const _surgeB = (card.ability === 'surge' && G.surgeTrigger?.player) ? 3 : 0;
+  const _sweepB = (card.ability === 'sweep') ? 2 : 0;
+  [{dr:-1,dc:0,myE:'n',theirE:'s'},{dr:1,dc:0,myE:'s',theirE:'n'},{dr:0,dc:-1,myE:'w',theirE:'e'},{dr:0,dc:1,myE:'e',theirE:'w'}].forEach(({dr,dc,myE,theirE}) => {
+    const nr=r+dr, nc=c+dc;
+    if (nr<0||nr>=5||nc<0||nc>=7) return;
+    const adj = G.grid[nr][nc];
+    if (!adj.card || adj.owner === 'player') return;
+    const myVal   = card.edges[myE] + (card.edgeMod?.[myE]||0) + _surgeB + _sweepB;
+    const theirVal= adj.card.edges[theirE] + (adj.card.edgeMod?.[theirE]||0);
+    const pierceTie = card.ability === 'pierce' && myVal === theirVal;
+    const result  = (myVal > theirVal || pierceTie) ? 'win' : myVal < theirVal ? 'lose' : 'tie';
+    const adjEl   = document.querySelector(`.cell[data-r="${nr}"][data-c="${nc}"]`);
+    if (!adjEl) return;
+    adjEl.classList.add(`bpv-${result}`);
+    const badge = document.createElement('div');
+    badge.dataset.bpv = '1';
+    const col = result==='win'?'#00ff88':result==='lose'?'#ff3333':'#ffdd00';
+    badge.style.cssText = `position:absolute;z-index:12;pointer-events:none;background:#000000ee;border:1px solid ${col}88;border-radius:4px;padding:3px 6px;display:flex;flex-direction:column;align-items:center;gap:1px;font-family:'Courier New',monospace;`;
+    if (dr===1)       badge.style.cssText += `top:4px;left:50%;transform:translateX(-50%);`;
+    else if (dr===-1) badge.style.cssText += `bottom:4px;left:50%;transform:translateX(-50%);`;
+    else if (dc===1)  badge.style.cssText += `left:4px;top:50%;transform:translateY(-50%);`;
+    else              badge.style.cssText += `right:4px;top:50%;transform:translateY(-50%);`;
+    const labelCol = result==='tie'?'#ffee44':col;
+    badge.innerHTML = `<span style="font-size:10px;font-weight:bold;color:${labelCol};letter-spacing:1px;">${result.toUpperCase()}</span><span style="font-size:8px;color:${col}bb;">${myVal}v${theirVal}</span>`;
+    adjEl.appendChild(badge);
+  });
+}
+
 function onCellClick(r, c) {
 
 
@@ -414,55 +455,14 @@ function onCellClick(r, c) {
   if (!getValidPlacements('player', G.selectedCard).some(v=>v.r===r&&v.c===c)) return;
 
 
-  // Mobile 3-tap: first tap previews location, second tap confirms placement
+  // Mobile 3-tap / drag: first tap (or drag hover) previews; second tap (or drop) confirms
   if (window.innerWidth <= 480) {
     const prev = G._previewCell;
     if (!prev || prev.r !== r || prev.c !== c) {
-      // First tap on this cell — show preview
-      G._previewCell = {r, c};
-      clearAbilityZone();
-      renderGrid();
-      if (G.selectedCard.ability) showAbilityZone(G.selectedCard.ability, r, c);
-
-      // Yellow future-valid zone cells
-      const _zp = getZonePreview(r, c, G.selectedCard, 'player');
-      _zp.forEach(({r: pr, c: pc}) => {
-        const el = document.querySelector(`.cell[data-r="${pr}"][data-c="${pc}"]`);
-        if (el && !el.classList.contains('valid')) el.classList.add('future-valid');
-      });
-
-      // Battle outcome badges on adjacent enemy cells
-      const _pc = G.selectedCard;
-      const _surgeB = (_pc.ability === 'surge' && G.surgeTrigger?.player) ? 3 : 0;
-      const _sweepB = (_pc.ability === 'sweep') ? 2 : 0;
-      [{dr:-1,dc:0,myE:'n',theirE:'s'},{dr:1,dc:0,myE:'s',theirE:'n'},{dr:0,dc:-1,myE:'w',theirE:'e'},{dr:0,dc:1,myE:'e',theirE:'w'}].forEach(({dr,dc,myE,theirE}) => {
-        const nr=r+dr, nc=c+dc;
-        if (nr<0||nr>=5||nc<0||nc>=7) return;
-        const adj = G.grid[nr][nc];
-        if (!adj.card || adj.owner === 'player') return;
-        const myVal   = _pc.edges[myE] + (_pc.edgeMod?.[myE]||0) + _surgeB + _sweepB;
-        const theirVal= adj.card.edges[theirE] + (adj.card.edgeMod?.[theirE]||0);
-        const pierceTie = _pc.ability === 'pierce' && myVal === theirVal;
-        const result  = (myVal > theirVal || pierceTie) ? 'win' : myVal < theirVal ? 'lose' : 'tie';
-        const adjEl   = document.querySelector(`.cell[data-r="${nr}"][data-c="${nc}"]`);
-        if (!adjEl) return;
-        adjEl.classList.add(`bpv-${result}`);
-        const badge = document.createElement('div');
-        badge.dataset.bpv = '1';
-        const col = result==='win'?'#00ff88':result==='lose'?'#ff3333':'#ffdd00';
-        badge.style.cssText = `position:absolute;z-index:12;pointer-events:none;background:#000000ee;border:1px solid ${col}88;border-radius:4px;padding:3px 6px;display:flex;flex-direction:column;align-items:center;gap:1px;font-family:'Courier New',monospace;`;
-        if (dr===1)       badge.style.cssText += `top:4px;left:50%;transform:translateX(-50%);`;
-        else if (dr===-1) badge.style.cssText += `bottom:4px;left:50%;transform:translateX(-50%);`;
-        else if (dc===1)  badge.style.cssText += `left:4px;top:50%;transform:translateY(-50%);`;
-        else              badge.style.cssText += `right:4px;top:50%;transform:translateY(-50%);`;
-        const labelCol = result==='tie'?'#ffee44':col;
-        badge.innerHTML = `<span style="font-size:10px;font-weight:bold;color:${labelCol};letter-spacing:1px;">${result.toUpperCase()}</span><span style="font-size:8px;color:${col}bb;">${myVal}v${theirVal}</span>`;
-        adjEl.appendChild(badge);
-      });
-
+      applyMobileCellPreview(r, c, G.selectedCard);
       return;
     }
-    // Second tap on same cell — confirm: fall through to placement
+    // Second tap on same cell (or drop) — confirm: fall through to placement
     G._previewCell = null;
   }
 

@@ -30,7 +30,6 @@ function showMobileCardPanel(card) {
     return '<span style="width:5px;height:5px;border-radius:50%;border:1px solid #2a2a3a;display:inline-block;"></span>';
   }).join('');
 
-  const zoneHtml = card.zone ? buildZoneGrid(card) : '';
 
   // Compact compass HTML (3×3 grid, smaller cells)
   const compassHtml =
@@ -64,13 +63,6 @@ function showMobileCardPanel(card) {
         compassHtml +
       '</div>' +
     '</div>' +
-    // Zone / placement grid
-    (zoneHtml ?
-      '<div style="border-top:1px solid #1a1a2888;padding-top:7px;margin-bottom:8px;">' +
-        '<div style="font-size:7px;letter-spacing:2px;color:#555;font-family:\'Courier New\',monospace;margin-bottom:5px;">PLACEMENT ZONE</div>' +
-        '<div style="overflow-x:auto;">' + zoneHtml + '</div>' +
-      '</div>'
-    : '') +
     // Ability section
     '<div style="border-top:1px solid #1a1a2888;padding-top:7px;">' +
     (abiInfo ?

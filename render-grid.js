@@ -124,7 +124,7 @@ function renderGrid() {
             <div style="font-size:12px;color:#bbb;line-height:1.6;">Any card adjacent to this hazard loses <span style="color:#ff6600;font-weight:bold;">-2 VP</span> from its scoring contribution.</div>
 
 
-            <div style="font-size:11px;color:#555;margin-top:8px;letter-spacing:1px;">Cannot be destroyed. Affects both sides.</div>
+            <div style="font-size:11px;color:#bbb;margin-top:8px;letter-spacing:1px;">Cannot be destroyed. Affects both sides.</div>
 
 
           </div>`;
@@ -291,7 +291,7 @@ function renderGrid() {
           ${cell.card.stonewalled ? `<div style="position:absolute;inset:0;z-index:4;pointer-events:none;border-radius:4px;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;"><span style="font-size:9px;letter-spacing:1px;color:#bbb;font-family:'Orbitron',monospace;background:#0a0a14;padding:2px 5px;border-radius:3px;border:1px solid #333;opacity:0.9;">0 VP</span></div>` : ''}
 
 
-          ${cell.card.stonewall_victim ? `<div style="position:absolute;inset:0;z-index:4;pointer-events:none;border-radius:4px;background:rgba(0,0,0,0.35);display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px;"><span style="font-size:8px;letter-spacing:1px;color:#aaa;font-family:'Courier New',monospace;background:#0a0a14;padding:2px 4px;border-radius:3px;border:1px solid #2a2a2a;opacity:0.9;">BLOCKED</span></div>` : ''}
+          ${cell.card.stonewall_victim ? `<div style="position:absolute;inset:0;z-index:4;pointer-events:none;border-radius:4px;background:rgba(0,0,0,0.35);display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px;"><span style="font-size:8px;letter-spacing:1px;color:#fff;font-family:'Courier New',monospace;background:#0a0a14;padding:2px 4px;border-radius:3px;border:1px solid #4488ff44;opacity:0.9;">BLOCKED</span></div>` : ''}
           ${(()=>{ const m=cell.card.edgeMod; const pen=(m?.n||0); return pen<0?`<div style="position:absolute;top:3px;left:3px;z-index:5;pointer-events:none;background:#880000cc;border:1px solid #ff444488;border-radius:3px;padding:1px 4px;font-size:9px;font-weight:bold;color:#ff8888;font-family:'Courier New',monospace;">${pen} edges</div>`:''; })()}
 
 
@@ -1367,10 +1367,10 @@ function showBattleTip(e, d) {
         <span style="font-size:10px;color:${cCol};letter-spacing:1px;flex:1;">${d.cellName}</span>
 
 
-        <span style="font-size:9px;color:#555;letter-spacing:1px;">${edgeLabels[0]}:</span>
+        <span style="font-size:9px;color:#bbb;letter-spacing:1px;">${edgeLabels[0]}:</span>
 
 
-        <span style="font-size:18px;font-weight:bold;color:${d.cellOwner===d.winnerOwner?cCol:'#444455'};
+        <span style="font-size:18px;font-weight:bold;color:${d.cellOwner===d.winnerOwner?cCol:'#778899'};
 
 
           ${d.cellOwner===d.winnerOwner?`text-shadow:0 0 8px ${cCol};`:''}">${d.mv}</span>
@@ -1391,10 +1391,10 @@ function showBattleTip(e, d) {
         <span style="font-size:10px;color:${nCol};letter-spacing:1px;flex:1;">${d.nbName}</span>
 
 
-        <span style="font-size:9px;color:#555;letter-spacing:1px;">${edgeLabels[1]}:</span>
+        <span style="font-size:9px;color:#bbb;letter-spacing:1px;">${edgeLabels[1]}:</span>
 
 
-        <span style="font-size:18px;font-weight:bold;color:${d.nbOwner===d.winnerOwner?nCol:'#444455'};
+        <span style="font-size:18px;font-weight:bold;color:${d.nbOwner===d.winnerOwner?nCol:'#778899'};
 
 
           ${d.nbOwner===d.winnerOwner?`text-shadow:0 0 8px ${nCol};`:''}">${d.tv}</span>
@@ -1418,7 +1418,7 @@ function showBattleTip(e, d) {
       ${d.isTie
 
 
-        ? `<div style="font-size:11px;color:#555;letter-spacing:2px;text-align:center;">TIE — no edge advantage</div>`
+        ? `<div style="font-size:11px;color:#bbb;letter-spacing:2px;text-align:center;">TIE — no edge advantage</div>`
 
 
         : `<div style="display:flex;align-items:center;gap:8px;">
@@ -1430,7 +1430,7 @@ function showBattleTip(e, d) {
             <span style="font-size:12px;font-weight:bold;color:${d.winCol};letter-spacing:1px;">${d.winName} WINS</span>
 
 
-            <span style="font-size:10px;color:#555;margin-left:auto;">+${diff}</span>
+            <span style="font-size:10px;color:#bbb;margin-left:auto;">+${diff}</span>
 
 
           </div>`}
