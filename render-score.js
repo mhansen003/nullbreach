@@ -401,7 +401,9 @@ function renderScoreBadges(_precomputed) {
   colEl.innerHTML = '';
 
 
-  for (let c = 0; c < 7; c++) {
+  const _colOrder = (typeof _mpPlayer !== 'undefined' && _mpPlayer === 2)
+    ? [6,5,4,3,2,1,0] : [0,1,2,3,4,5,6];
+  for (const c of _colOrder) {
 
 
     const {p,a} = s.cols[c];

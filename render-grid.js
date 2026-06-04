@@ -320,7 +320,11 @@ function renderGrid() {
             if (hr<0||hr>=5||hc<0||hc>=7||G.grid[hr][hc].owner!=='hazard') return;
 
 
-            const gradDir = {n:'to bottom',s:'to top',w:'to right',e:'to left'}[de];
+            // P2's board is 180 rotated: gradient directions all invert
+          const _gradMap = _p2view
+            ? {n:'to top',s:'to bottom',w:'to left',e:'to right'}
+            : {n:'to bottom',s:'to top',w:'to right',e:'to left'};
+          const gradDir = _gradMap[de];
 
 
             const blast = document.createElement('div');
