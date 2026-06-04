@@ -469,7 +469,7 @@ function showTip(e, card) {
       <div style="flex:1;">
 
 
-        <div style="font-size:9px;letter-spacing:2px;color:#bbb;margin-bottom:4px;">ATTACK POWER</div>
+        <div style="font-size:9px;letter-spacing:2px;color:#bbb;margin-bottom:4px;">BATTLE POWER</div>
 
 
         <div style="position:relative;width:96px;height:96px;border:1px solid var(--tc-dim);border-radius:5px;background:#030310;">

@@ -39,16 +39,16 @@ const RACE_ABILITY_NAMES = {
 const ABILITY_TEXT = {
 
 
-  shield: 'Absorbs the first edge loss: activates once per game.',
+  shield: 'Absorbs the first battle loss: activates once per game.',
 
 
-  double_strike: 'When you win an edge comparison, the card one step further also takes half-damage.',
+  double_strike: 'Win a battle, and the card one step beyond also takes half-damage.',
 
 
-  commander: 'All adjacent same-tier friendly cards gain +2 to every edge when placed.',
+  commander: 'All adjacent friendly cards gain +2 to every battle value when placed.',
 
 
-  boost: 'All adjacent friendly cards gain +1 to every edge when placed.',
+  boost: 'All adjacent friendly cards gain +1 to every battle value when placed.',
 
 
   fortify: 'Claims all adjacent empty cells: opponents cannot place there.',
@@ -57,7 +57,7 @@ const ABILITY_TEXT = {
   flank: 'After placing this card, take one extra turn immediately.',
 
 
-  spawn: 'Adjacent Brood cards of the same tier gain +2 to every edge (hive sync).',
+  spawn: 'Adjacent Brood cards gain +2 to every battle value (hive sync).',
 
 
   rush: 'Can be placed next to any enemy card anywhere on the board.',
@@ -72,16 +72,16 @@ const ABILITY_TEXT = {
   phantom: 'Can be freely placed in your home row or the row above it.',
 
 
-  intimidate: 'Adjacent enemies lose 1 from their highest edge on placement.',
+  intimidate: 'Adjacent enemies lose 1 from their highest battle value on placement.',
 
 
   revenge: 'When defeated in battle, the winning card permanently loses 1 VP.',
 
 
-  ambush: '2 random adjacent enemies each lose 1 from every edge on placement.',
+  ambush: '2 random adjacent enemies each lose 1 from every battle value on placement.',
 
 
-  laser_focus: 'Combines all four edges into the North facing. Zero on all other sides.',
+  laser_focus: 'Combines all four battle values into the North facing. Zero on all other sides.',
 
 
   sniper: 'Cancels the opposing home-row card in this column: it scores 0 VP.',
@@ -96,7 +96,7 @@ const ABILITY_TEXT = {
   lamb: '5 VP but zero edges. Scores full value uncontested, nothing if attacked.',
 
 
-  overwhelm: 'Win an edge comparison by 3 or more: and you also win the opposing axis.',
+  overwhelm: 'Win a battle by 3 or more and you also win the opposing axis.',
 
 
   density: 'This card contributes 1.5× its power to the row/column score.',

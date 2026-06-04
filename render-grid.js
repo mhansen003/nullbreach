@@ -284,7 +284,7 @@ function renderGrid() {
           ${cell.card.shieldExpended ? `<span style="position:absolute;top:3px;right:3px;z-index:5;font-size:11px;filter:drop-shadow(0 0 4px #aaaaff);pointer-events:none;">\uD83D\uDEE1</span>` : ''}
 
 
-          ${cell.card._sniped||cell.card._sniperLocked ? `<div style='position:absolute;top:3px;right:3px;z-index:7;font-size:8px;color:#ff8800;text-shadow:0 0 6px #ff8800;pointer-events:none;' title='Sniper debuff -2 all edges'>🎯</div>` : ''}
+          ${cell.card._sniped||cell.card._sniperLocked ? `<div style='position:absolute;top:3px;right:3px;z-index:7;font-size:8px;color:#ff8800;text-shadow:0 0 6px #ff8800;pointer-events:none;' title='Sniper: -2 all battle values'>🎯</div>` : ''}
           ${cell.card._revengePenalty > 0 ? `<div style='position:absolute;top:${cell.card._sniped?'14':'3'}px;right:3px;z-index:7;font-size:8px;color:#ff4488;text-shadow:0 0 6px #ff4488;pointer-events:none;' title='Revenge penalty -${cell.card._revengePenalty} VP'>↩-${cell.card._revengePenalty}</div>` : ''}
           <img src="${cell.owner==='player'?(window.playerAvatarImg||''):(window.aiAvatarImg||'')}" style="position:absolute;bottom:3px;right:3px;width:18px;height:18px;border-radius:50%;object-fit:cover;object-position:top;border:1px solid ${factionCol}55;opacity:0.6;z-index:2;pointer-events:none;" onerror="this.style.display='none'">
 
@@ -1471,7 +1471,7 @@ function showBattleTip(e, d) {
       ${d.isTie
 
 
-        ? `<div style="font-size:11px;color:#bbb;letter-spacing:2px;text-align:center;">TIE: no edge advantage</div>`
+        ? `<div style="font-size:11px;color:#bbb;letter-spacing:2px;text-align:center;">TIE: equal battle values</div>`
 
 
         : `<div style="display:flex;align-items:center;gap:8px;">

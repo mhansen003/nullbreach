@@ -398,10 +398,10 @@ const GUIDE_PAGES = [
   <div class="g2-desc" style="margin:10px auto 0;max-width:360px;text-align:center;font-size:13px;color:#ddd;line-height:1.7;">
 
 
-    Each card has four edges: when cards are placed next to an enemy, the touching edges compete.
+    Each card has four battle values (N/S/E/W). When placed next to an enemy, the touching values compete.
 
 
-    The higher edge wins that direction, and the winning side earns the <strong>power difference</strong> as VP.
+    The higher battle value wins that direction, and the winning side earns the <strong>power difference</strong> as VP.
 
 
   </div>
