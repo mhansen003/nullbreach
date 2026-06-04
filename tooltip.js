@@ -438,19 +438,21 @@ function showTip(e, card) {
           <div style="position:absolute;width:100%;height:35%;background:linear-gradient(transparent,var(--tc-glow),transparent);animation:tipScan 3.5s ease-in-out infinite;"></div>
         </div>
       </div>` : ''}
-      <div style="flex:1;display:flex;flex-direction:column;justify-content:space-between;min-width:0;padding:2px 0;">
+      <div style="flex:1;display:flex;flex-direction:column;justify-content:center;min-width:0;padding:2px 0;gap:6px;">
         <!-- Name -->
         <div style="font-family:'Orbitron',monospace;color:#fff;font-size:12px;letter-spacing:1px;font-weight:700;line-height:1.3;">${card.name}</div>
-        <!-- VP — hero number -->
-        <div style="display:flex;align-items:baseline;gap:5px;margin-top:4px;">
-          <span style="font-size:30px;font-weight:bold;color:var(--tc);line-height:1;text-shadow:0 0 10px var(--tc);">${card.power}</span>
-          <span style="font-size:11px;color:#bbb;letter-spacing:2px;">VP</span>
-        </div>
-        <!-- Tier -->
-        <div style="display:flex;align-items:center;gap:4px;margin-top:6px;">
-          <span style="font-size:9px;color:#666;letter-spacing:2px;">TIER</span>
-          ${Array.from({length:tierNum},()=>`<div style="width:10px;height:10px;border-radius:50%;background:${tierCol};box-shadow:0 0 5px ${tierCol};"></div>`).join('')}
-          ${Array.from({length:4-tierNum},()=>`<div style="width:10px;height:10px;border-radius:50%;border:1px solid #222230;"></div>`).join('')}
+        <!-- VP + Tier on same row -->
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="display:flex;align-items:baseline;gap:4px;">
+            <span style="font-size:28px;font-weight:bold;color:var(--tc);line-height:1;text-shadow:0 0 10px var(--tc);">${card.power}</span>
+            <span style="font-size:10px;color:#bbb;letter-spacing:2px;">VP</span>
+          </div>
+          <div style="width:1px;height:18px;background:#ffffff14;flex-shrink:0;"></div>
+          <div style="display:flex;align-items:center;gap:3px;">
+            <span style="font-size:8px;color:#555;letter-spacing:2px;">T</span>
+            ${Array.from({length:tierNum},()=>`<div style="width:9px;height:9px;border-radius:50%;background:${tierCol};box-shadow:0 0 4px ${tierCol};"></div>`).join('')}
+            ${Array.from({length:4-tierNum},()=>`<div style="width:9px;height:9px;border-radius:50%;border:1px solid #222230;"></div>`).join('')}
+          </div>
         </div>
       </div>
 
@@ -548,7 +550,7 @@ function showTip(e, card) {
       <div style="flex:1;">
 
 
-        <div style="font-size:8px;letter-spacing:2px;color:#ccc;margin-bottom:4px;">ZONE</div>
+        <div style="font-size:8px;letter-spacing:2px;color:#ccc;margin-bottom:4px;"> INFLUENCE </div>
 
 
         ${card.zone ? buildZoneGrid(card) : `<div style="font-size:9px;color:#2a2a3a;">&#x2014;</div>`}
