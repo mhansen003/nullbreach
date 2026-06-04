@@ -1418,7 +1418,10 @@ document.addEventListener('click', e => {
     t.closest('#muteBtn') ||
     t.closest('#modeComputer') ||
     t.closest('#modeFriend') ||
-    t.closest('.opp-tile')
+    t.closest('.opp-tile') ||
+    t.closest('#diff-passive') ||
+    t.closest('#diff-balanced') ||
+    t.closest('#diff-aggressive')
   ) playClick();
 });
 

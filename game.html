@@ -1559,13 +1559,25 @@ function initGame() {
   // Place cosmic hazard cards for balanced and aggressive games (1-2 random hazards)
   const _hazardDiff = window.aiDifficulty || 'balanced';
   if (_hazardDiff === 'balanced' || _hazardDiff === 'aggressive') {
-    const _count = Math.random() < 0.5 ? 1 : 2; // 50% chance of 1 vs 2 hazards
-    const _shuffledH = [...HAZARD_CARDS].sort(() => Math.random() - 0.5);
+    // In multiplayer use room ID as seed so both clients get identical hazards
+    const _hzRng = (() => {
+      if (!_mpRoom) return () => Math.random();
+      let s = 0;
+      for (const ch of _mpRoom) s = (s * 31 + ch.charCodeAt(0)) & 0x7fffffff;
+      return seededRand(s);
+    })();
+    const _count = _hzRng() < 0.5 ? 1 : 2;
+    // Deterministic Fisher-Yates shuffle
+    const _shuffledH = [...HAZARD_CARDS];
+    for (let _i = _shuffledH.length - 1; _i > 0; _i--) {
+      const _j = Math.floor(_hzRng() * (_i + 1));
+      [_shuffledH[_i], _shuffledH[_j]] = [_shuffledH[_j], _shuffledH[_i]];
+    }
     let _placed = 0;
     const _tried = new Set();
     while (_placed < _count && _tried.size < 21) { // rows 1-3, cols 0-6 = 21 cells
-      const _hr = 1 + Math.floor(Math.random() * 3); // rows 1,2,3 (not home rows)
-      const _hc = Math.floor(Math.random() * 7);
+      const _hr = 1 + Math.floor(_hzRng() * 3); // rows 1,2,3 (not home rows)
+      const _hc = Math.floor(_hzRng() * 7);
       const _key = `${_hr},${_hc}`;
       if (_tried.has(_key)) continue;
       _tried.add(_key);
@@ -4282,8 +4294,11 @@ function mpApplyMove(move) {
   // Use seeded random for AMBUSH/STONEWALL so both clients get same sides
   if (move.seed) window._mpSeed = seededRand(move.seed);
   const isFlank = move.flank === true;
+  // Mirror row: opponent's home row (4) = our AI home row (0), battle zone rows invert
+  const applyR = 4 - move.r;
+  const applyC = move.c;
   // noTurnFlip=true: opponent has an extra FLANK turn, don't give control to this player yet
-  animateAiCard(handCard, move.r, move.c, isFlank);
+  animateAiCard(handCard, applyR, applyC, isFlank);
   _mpTurnNum++;
   if (isFlank) {
     // Keep G.turn as 'ai' and poll for opponent's extra-turn card
