@@ -1415,7 +1415,10 @@ document.addEventListener('click', e => {
     t.closest('button') ||
     t.closest('.race-tile') ||
     t.closest('.conveyor-arrow') ||
-    t.closest('#muteBtn')
+    t.closest('#muteBtn') ||
+    t.closest('#modeComputer') ||
+    t.closest('#modeFriend') ||
+    t.closest('.opp-tile')
   ) playClick();
 });
 
