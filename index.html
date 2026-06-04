@@ -1352,7 +1352,7 @@ function selectRace(race, tileEl) {
       tcp.style.display = 'grid';
     }
 
-    const btn = document.getElementById('deployBtn'); if (!btn) return; // removed from DOM
+    const btn = document.getElementById('deployBtn'); // may be null - handled below
     btn.style.cssText = `
       font-family:'Orbitron',monospace;font-size:12px;letter-spacing:4px;
       padding:12px 0;cursor:pointer;text-transform:uppercase;border-radius:4px;
