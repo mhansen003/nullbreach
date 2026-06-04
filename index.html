@@ -599,10 +599,36 @@ button, [onclick] { touch-action: manipulation; }
     gap: 8px !important; width: 92vw !important; padding: 8px !important;
   }
 
-  /* Audio controls */
+  /* Audio controls: move to top-right so they don't collide with bottom launch bar */
+  #audioControls { bottom: auto !important; top: 8px !important; right: 8px !important; }
   #muteBtn, #voiceMuteBtn {
-    font-size: 9px !important; padding: 4px 8px !important;
+    font-size: 9px !important; padding: 3px 7px !important;
     letter-spacing: 1px !important;
+  }
+
+  /* ── WIZARD: mode tile labels — white text + strong shadow for contrast ── */
+  #modeComputer > div:last-child > div,
+  #modeFriend   > div:last-child > div {
+    color: #fff !important;
+    font-size: 17px !important;
+    text-shadow: 0 0 16px #000, 0 2px 8px #000, 0 0 40px #000 !important;
+  }
+  /* Extra spacing between PvE/PvP tiles */
+  #wizStep1 > div:nth-child(2) { gap: 16px !important; }
+
+  /* Difficulty tiles: 3-column row on mobile (less height, more context visible) */
+  #wizStep2 > div:nth-child(2) {
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    gap: 8px !important;
+    width: 92vw !important;
+    justify-content: center !important;
+  }
+  #diff-passive, #diff-balanced, #diff-aggressive {
+    width: calc(30vw - 4px) !important;
+    max-width: none !important;
+    height: 96px !important;
+    flex-shrink: 1 !important;
   }
 }
 
@@ -634,7 +660,7 @@ button, [onclick] { touch-action: manipulation; }
 <audio id="civVoice" preload="none"></audio>
 
 <!-- AUDIO CONTROLS — bottom right, stacked vertically -->
-<div style="position:fixed;bottom:20px;right:20px;z-index:200;display:flex;flex-direction:column;gap:6px;align-items:flex-end;">
+<div id="audioControls" style="position:fixed;bottom:20px;right:20px;z-index:200;display:flex;flex-direction:column;gap:6px;align-items:flex-end;">
   <!-- Music mute -->
   <div id="muteBtn" onclick="toggleMute()" style="
     padding:5px 12px;border-radius:4px;
