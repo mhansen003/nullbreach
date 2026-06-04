@@ -212,66 +212,95 @@ function renderHand() {
     });
 
 
-    // Touch drag-and-drop (iOS Safari: HTML5 drag API unsupported)
+    // Touch drag-and-drop: document-level listeners so renderHand() re-renders never break the gesture
     if (navigator.maxTouchPoints > 0) {
-      let _tdStart = null, _tdDragging = false;
-
       div.addEventListener('touchstart', function(e) {
         if (G.turn !== 'player' || card.used) return;
+        if (e.touches.length !== 1) return;
         const t = e.touches[0];
-        _tdStart = { x: t.clientX, y: t.clientY };
-        _tdDragging = false;
-        onCardSelect(card);
-      }, { passive: true });
+        const _id = t.identifier;
+        const _sx = t.clientX, _sy = t.clientY;
+        let _dragging = false, _done = false;
 
-      div.addEventListener('touchmove', function(e) {
-        if (!_tdStart) return;
-        const t = e.touches[0];
-        const dx = t.clientX - _tdStart.x, dy = t.clientY - _tdStart.y;
-        if (!_tdDragging && (Math.abs(dx) > 8 || Math.abs(dy) > 8)) {
-          _tdDragging = true;
-          showDragCard(card, t.clientX, t.clientY);
-        }
-        if (_tdDragging) {
-          updateDragCard(t.clientX, t.clientY);
-          e.preventDefault();
-          // Preview the cell the finger is hovering over
-          const _el = document.elementFromPoint(t.clientX, t.clientY);
-          const _cell = _el && (_el.classList.contains('cell') ? _el : _el.closest && _el.closest('.cell'));
-          if (_cell && _cell.classList.contains('valid') && _cell.dataset.r !== undefined) {
-            const _hr = parseInt(_cell.dataset.r), _hc = parseInt(_cell.dataset.c);
-            if (!G._previewCell || G._previewCell.r !== _hr || G._previewCell.c !== _hc) {
-              applyMobileCellPreview(_hr, _hc, card);
+        function _move(e) {
+          if (_done) return;
+          const touch = Array.from(e.touches).find(tt => tt.identifier === _id);
+          if (!touch) return;
+          const dx = touch.clientX - _sx, dy = touch.clientY - _sy;
+          const ax = Math.abs(dx), ay = Math.abs(dy);
+
+          if (!_dragging) {
+            if (ax > ay && ax > 8) { _done = true; _cleanup(); return; } // horizontal = deck scroll
+            if (ay > 8) {
+              _dragging = true;
+              G.selectedCard = card; G._previewCell = null;
+              document.body.style.cursor = 'none';
+              playSelectSfx();
+              showDragCard(card, touch.clientX, touch.clientY);
+              showMobileCardPanel(card);
+              renderGrid();
+              setTimeout(function() { renderHand(); }, 0);
+            }
+          }
+          if (_dragging) {
+            updateDragCard(touch.clientX, touch.clientY);
+            e.preventDefault();
+            const _el = document.elementFromPoint(touch.clientX, touch.clientY);
+            const _cell = _el && (_el.classList.contains('cell') ? _el : _el.closest && _el.closest('.cell'));
+            if (_cell && _cell.classList.contains('valid') && _cell.dataset.r !== undefined) {
+              const _hr = parseInt(_cell.dataset.r), _hc = parseInt(_cell.dataset.c);
+              if (!G._previewCell || G._previewCell.r !== _hr || G._previewCell.c !== _hc) {
+                applyMobileCellPreview(_hr, _hc, card);
+              }
             }
           }
         }
-      }, { passive: false });
 
-      div.addEventListener('touchend', function(e) {
-        if (_tdDragging) {
-          hideDragCard();
-          const t = e.changedTouches[0];
-          const el = document.elementFromPoint(t.clientX, t.clientY);
-          const cellEl = el && (el.classList.contains('cell') ? el : el.closest && el.closest('.cell'));
-          if (cellEl && cellEl.dataset.r !== undefined) {
-            const _dr = parseInt(cellEl.dataset.r), _dc = parseInt(cellEl.dataset.c);
-            // If we already previewed this cell, one call confirms; otherwise preview first
-            if (G._previewCell && G._previewCell.r === _dr && G._previewCell.c === _dc) {
-              onCellClick(_dr, _dc); // confirms placement
+        function _end(e) {
+          if (_done && !_dragging) { _cleanup(); return; }
+          const touch = Array.from(e.changedTouches).find(tt => tt.identifier === _id);
+          if (!touch) return;
+          if (_dragging) {
+            hideDragCard();
+            const el = document.elementFromPoint(touch.clientX, touch.clientY);
+            const cellEl = el && (el.classList.contains('cell') ? el : el.closest && el.closest('.cell'));
+            if (cellEl && cellEl.dataset.r !== undefined) {
+              onCellClick(parseInt(cellEl.dataset.r), parseInt(cellEl.dataset.c));
             } else {
-              onCellClick(_dr, _dc); // sets preview (drop missed the previewed cell)
+              G.selectedCard = null; G._previewCell = null;
+              document.body.style.cursor = 'default';
+              renderGrid(); renderHand();
+            }
+            e.preventDefault();
+          } else {
+            const dx = Math.abs(touch.clientX - _sx), dy = Math.abs(touch.clientY - _sy);
+            if (dx < 12 && dy < 12) { onCardSelect(card); e.preventDefault(); }
+          }
+          _cleanup();
+        }
+
+        function _cancel() {
+          if (_dragging) {
+            hideDragCard();
+            if (G.selectedCard === card) {
+              G.selectedCard = null; G._previewCell = null;
+              document.body.style.cursor = 'default';
+              renderGrid(); renderHand();
             }
           }
-          e.preventDefault();
-        } else {
-          hideDragCard(); // clean up ghost even on simple tap
-          e.preventDefault(); // prevent synthetic click from double-firing onCardSelect
+          _cleanup();
         }
-        _tdStart = null; _tdDragging = false;
-      }, { passive: false });
 
-      div.addEventListener('touchcancel', function() {
-        hideDragCard(); _tdStart = null; _tdDragging = false;
+        function _cleanup() {
+          _done = true;
+          document.removeEventListener('touchmove', _move);
+          document.removeEventListener('touchend', _end);
+          document.removeEventListener('touchcancel', _cancel);
+        }
+
+        document.addEventListener('touchmove', _move, { passive: false });
+        document.addEventListener('touchend', _end, { passive: false });
+        document.addEventListener('touchcancel', _cancel, { passive: true });
       }, { passive: true });
     }
 
@@ -630,6 +659,7 @@ function renderHand() {
 
       if (cards.length > 0) {
         cover.onclick = function() {
+          playDeckExpandSfx();
           window._activeTier = (window._activeTier === t) ? null : t;
           renderHand();
         };

@@ -1071,8 +1071,8 @@ function renderBattleIndicators(el) {
 
 
       // center in horizontal gap between col c and c+1
-      chipX: (r,c) => { const m=_mobileDims(); return m ? c*m.sw+m.cw+m.gap/2-9 : c*CS_W+124+3-CHIP/2; },
-      chipY: (r,c) => { const m=_mobileDims(); return m ? r*m.sh+m.ch/2-9 : r*CS_H+76-CHIP/2; } },
+      chipX: (r,c) => { const m=_mobileDims(); return m ? c*m.sw+m.cw+m.gap/2-12 : c*CS_W+124+3-CHIP/2; },
+      chipY: (r,c) => { const m=_mobileDims(); return m ? r*m.sh+m.ch/2-12 : r*CS_H+76-CHIP/2; } },
 
 
     { dr:1, dc:0, myE:'s', theirE:'n', axis:'v',
@@ -1082,8 +1082,8 @@ function renderBattleIndicators(el) {
 
 
       // center in vertical gap between row r and r+1
-      chipX: (r,c) => { const m=_mobileDims(); return m ? c*m.sw+m.cw/2-9 : c*CS_W+62-CHIP/2; },
-      chipY: (r,c) => { const m=_mobileDims(); return m ? r*m.sh+m.ch+m.gap/2-9 : r*CS_H+152+3-CHIP/2; } },
+      chipX: (r,c) => { const m=_mobileDims(); return m ? c*m.sw+m.cw/2-12 : c*CS_W+62-CHIP/2; },
+      chipY: (r,c) => { const m=_mobileDims(); return m ? r*m.sh+m.ch+m.gap/2-12 : r*CS_H+152+3-CHIP/2; } },
 
 
   ];
@@ -1269,7 +1269,7 @@ function renderBattleIndicators(el) {
       const _mDims = _mobileDims();
       if (_mDims) {
         // Mobile: compact W/L/T text chips
-        const mChipSz = 18;
+        const mChipSz = 24;
         if (isTie) {
           chip.style.cssText = `position:absolute;left:${x}px;top:${y}px;width:${mChipSz}px;height:${mChipSz}px;z-index:6;background:#1a1a2a;border:1px solid #555;cursor:pointer;`;
           chip.innerHTML = `<span style="pointer-events:none;font-size:8px;font-weight:bold;font-family:'Courier New',monospace;color:#fff;">T</span>`;
@@ -1277,7 +1277,7 @@ function renderBattleIndicators(el) {
           const isPlayerWin = winnerOwner === 'player';
           const mCol = isPlayerWin ? '#00dd66' : '#ff3355';
           const mLbl = isPlayerWin ? 'W' : 'L';
-          chip.style.cssText = `position:absolute;left:${x}px;top:${y}px;width:${mChipSz}px;height:${mChipSz}px;border:2px solid ${mCol};--wc:${mCol};background:${mCol}22;z-index:6;cursor:pointer;`;
+          chip.style.cssText = `position:absolute;left:${x}px;top:${y}px;width:${mChipSz}px;height:${mChipSz}px;border:1.5px solid ${mCol};--wc:${mCol};background:${mCol}22;z-index:6;cursor:pointer;`;
           chip.innerHTML = `<span style="pointer-events:none;font-size:9px;font-weight:bold;font-family:'Courier New',monospace;color:${mCol};">${mLbl}</span>`;
         }
         chip.onclick = (ev) => {
