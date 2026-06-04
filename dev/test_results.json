@@ -1,0 +1,203 @@
+{
+  "pass": 49,
+  "fail": 0,
+  "results": [
+    {
+      "status": "PASS",
+      "name": "ABILITY_ICONS has fortify"
+    },
+    {
+      "status": "PASS",
+      "name": "ABILITY_TEXT has fortify"
+    },
+    {
+      "status": "PASS",
+      "name": "pool includes fortify"
+    },
+    {
+      "status": "PASS",
+      "name": "ABILITY_ICONS has laser_focus"
+    },
+    {
+      "status": "PASS",
+      "name": "ABILITY_TEXT has laser_focus"
+    },
+    {
+      "status": "PASS",
+      "name": "pool includes laser_focus"
+    },
+    {
+      "status": "PASS",
+      "name": "ABILITY_ICONS has home_invader"
+    },
+    {
+      "status": "PASS",
+      "name": "ABILITY_TEXT has home_invader"
+    },
+    {
+      "status": "PASS",
+      "name": "pool includes home_invader"
+    },
+    {
+      "status": "PASS",
+      "name": "ABILITY_ICONS has lamb"
+    },
+    {
+      "status": "PASS",
+      "name": "ABILITY_TEXT has lamb"
+    },
+    {
+      "status": "PASS",
+      "name": "pool includes lamb"
+    },
+    {
+      "status": "PASS",
+      "name": "ABILITY_ICONS has revenge"
+    },
+    {
+      "status": "PASS",
+      "name": "ABILITY_TEXT has revenge"
+    },
+    {
+      "status": "PASS",
+      "name": "pool includes revenge"
+    },
+    {
+      "status": "PASS",
+      "name": "ABILITY_ICONS removed stonewall"
+    },
+    {
+      "status": "PASS",
+      "name": "pool removed stonewall"
+    },
+    {
+      "status": "PASS",
+      "name": "ABILITY_ICONS removed sweep"
+    },
+    {
+      "status": "PASS",
+      "name": "pool removed sweep"
+    },
+    {
+      "status": "PASS",
+      "name": "ABILITY_ICONS removed hat_trick"
+    },
+    {
+      "status": "PASS",
+      "name": "pool removed hat_trick"
+    },
+    {
+      "status": "PASS",
+      "name": "ABILITY_ICONS removed echo"
+    },
+    {
+      "status": "PASS",
+      "name": "pool removed echo"
+    },
+    {
+      "status": "PASS",
+      "name": "ABILITY_ICONS removed mirror"
+    },
+    {
+      "status": "PASS",
+      "name": "pool removed mirror"
+    },
+    {
+      "status": "PASS",
+      "name": "FORTIFY: north cell fortifiedBy player"
+    },
+    {
+      "status": "PASS",
+      "name": "FORTIFY: south cell fortifiedBy player"
+    },
+    {
+      "status": "PASS",
+      "name": "FORTIFY: west cell fortifiedBy player"
+    },
+    {
+      "status": "PASS",
+      "name": "FORTIFY: east cell fortifiedBy player"
+    },
+    {
+      "status": "PASS",
+      "name": "FORTIFY: AI cannot place on player-fortified cell"
+    },
+    {
+      "status": "PASS",
+      "name": "FORTIFY: player CAN place on own fortified cell"
+    },
+    {
+      "status": "PASS",
+      "name": "LASER FOCUS: N edge = sum of all (14)"
+    },
+    {
+      "status": "PASS",
+      "name": "LASER FOCUS: S edge = 0"
+    },
+    {
+      "status": "PASS",
+      "name": "LASER FOCUS: E edge = 0"
+    },
+    {
+      "status": "PASS",
+      "name": "LASER FOCUS: W edge = 0"
+    },
+    {
+      "status": "PASS",
+      "name": "HOME INVADER: enemy home row (r=0) in valid placements"
+    },
+    {
+      "status": "PASS",
+      "name": "Normal T2 card: cannot go to enemy home row"
+    },
+    {
+      "status": "PASS",
+      "name": "LAMB: no adjacent enemy => bat.h = none"
+    },
+    {
+      "status": "PASS",
+      "name": "LAMB: no adjacent enemy => bat.v = none"
+    },
+    {
+      "status": "PASS",
+      "name": "LAMB: no enemy adjacent => counts VP (row)"
+    },
+    {
+      "status": "PASS",
+      "name": "LAMB: enemy adjacent => bat.h = lose"
+    },
+    {
+      "status": "PASS",
+      "name": "REVENGE: H-loss triggers penalty on winner (+1)"
+    },
+    {
+      "status": "PASS",
+      "name": "REVENGE: revenge penalty >=0 and power floored at 1"
+    },
+    {
+      "status": "PASS",
+      "name": "BIRTHRIGHT: placement adds card to hand"
+    },
+    {
+      "status": "PASS",
+      "name": "BIRTHRIGHT: added card has birthright ID suffix"
+    },
+    {
+      "status": "PASS",
+      "name": "DECIDING FACTOR: tie in DF row tips to player"
+    },
+    {
+      "status": "PASS",
+      "name": "LAMB via assignRandomAbilities: edges all 0"
+    },
+    {
+      "status": "PASS",
+      "name": "LAMB via assignRandomAbilities: power = 5"
+    },
+    {
+      "status": "PASS",
+      "name": "LAMB via assignRandomAbilities: _lambOriginalEdges set"
+    }
+  ],
+  "ts": "2026-06-04T18:07:52.745Z"
+}

@@ -693,9 +693,10 @@ function computeScores() {
         rowResults[r] = 'p';
         addLog('compare', 'DECIDING FACTOR — tie broken in row ' + (r+1) + ' for player');
         setTimeout(function() {
+          if (!G || !G.grid || !G.grid[r]) return;
           for (let _dc=0; _dc<7; _dc++) {
             const _dfcell = G.grid[r][_dc];
-            if (_dfcell.card && _dfcell.card.ability === 'deciding_factor' && _dfcell.owner === 'player') {
+            if (_dfcell && _dfcell.card && _dfcell.card.ability === 'deciding_factor' && _dfcell.owner === 'player') {
               const _dfel = document.querySelector('.cell[data-r="'+r+'"][data-c="'+_dc+'"]');
               if (_dfel) { _dfel.classList.add('just-placed'); setTimeout(function(){_dfel.classList.remove('just-placed');},600); }
             }
