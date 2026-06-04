@@ -771,9 +771,13 @@ function renderGrid() {
 
         } else if (G.selectedCard) {
 
-
-          // Show red tooltip explaining WHY this cell is invalid
-
+          // Show lock icon — this cell cannot receive the selected card
+          if (window.innerWidth > 480) {
+            const lock = document.createElement('div');
+            lock.style.cssText = 'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:14px;color:#ffffff28;pointer-events:none;z-index:3;user-select:none;';
+            lock.textContent = '🔒';
+            div.appendChild(lock);
+          }
 
           div.style.cursor = 'not-allowed';
 
