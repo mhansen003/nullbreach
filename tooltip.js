@@ -570,7 +570,7 @@ function showTip(e, card) {
       <div style="border:1px solid #ffffff14;border-radius:6px;padding:10px;background:#ffffff06;">
         <!-- Header: small icon + pulsing star + ability name on one line -->
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
-          ${_iconSrc ? `<img src="${_iconSrc}" style="width:36px;height:36px;border-radius:4px;object-fit:cover;object-position:center;flex-shrink:0;border:1px solid #ffffff22;background:#050510;" onerror="this.style.display='none'">` : `<div style="width:36px;height:36px;border-radius:4px;background:#ffffff08;border:1px solid #ffffff1a;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;color:#ffdd00;">★</div>`}
+          ${_iconSrc ? `<img src="${_iconSrc}" style="width:44px;height:44px;border-radius:5px;object-fit:cover;object-position:center;flex-shrink:0;border:1px solid #ffffff22;background:#050510;" onerror="this.style.display='none'">` : `<div style="width:44px;height:44px;border-radius:5px;background:#ffffff08;border:1px solid #ffffff1a;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;color:#ffdd00;">★</div>`}
           <span class="ability-star" style="font-size:16px;flex-shrink:0;">★</span>
           <div style="font-family:'Orbitron',monospace;font-size:11px;letter-spacing:1px;color:#fff;font-weight:700;line-height:1.2;">${card.abilityLabel || abi.label}</div>
         </div>
