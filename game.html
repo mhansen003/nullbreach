@@ -2480,7 +2480,7 @@ button, [onclick] { touch-action: manipulation; }
    ═══════════════════════════════════════════════════════════════════ */
 @media (max-width: 480px) {
   body { display: flex; flex-direction: column; height: 100dvh; overflow: hidden; touch-action: none; }
-  .header, .ai-area { flex-shrink: 0; }
+  .header { flex-shrink: 0; }
   .header { padding: 4px 8px; gap: 0; }
   .ai-area, .player-area { padding: 2px 6px; gap: 6px; min-height: 0; flex-direction: row; align-items: center; }
   .ai-avatar, .player-avatar { width: 36px; height: 36px; font-size: 16px; }
@@ -2488,8 +2488,8 @@ button, [onclick] { touch-action: manipulation; }
   .ai-sub, .player-sub { display: none; }
   .ai-quote, .player-quote { display: none; }
   #sbAiNum, #sbPlayerNum { font-size: 18px; }
-  .main-area { flex: 1; overflow: hidden; padding: 0; display: flex; flex-direction: column; min-height: 0; }
-  .board-wrap { flex: 1; display: flex; flex-direction: column; justify-content: flex-start; align-items: center; padding: 4px 2px; min-height: 0; }
+  .main-area { flex: 1; overflow: hidden; padding: 34px 0 106px; display: flex; flex-direction: column; min-height: 0; }
+  .board-wrap { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 4px 2px; min-height: 0; }
   .board-and-scores { flex: 0 0 auto; align-items: flex-start; gap: 0; zoom: 1 !important; }
   .board-and-scores > div:first-child { flex: 0 0 auto; display: flex; flex-direction: column; }
   .board-dir-row { display: none; }
@@ -2509,7 +2509,7 @@ button, [onclick] { touch-action: manipulation; }
   .col-score-badge { width: 44px !important; flex: 0 0 44px; height: 26px; font-size: 7px; padding: 2px; }
   .col-score-badge img { width: 16px !important; height: 16px !important; }
   .col-score-badge span { font-size: 11px !important; }
-  .player-area { flex-shrink: 0; max-height: 175px; overflow: visible; overflow-x: hidden; padding: 0; border-top: 1px solid #1a1a28; background: #06060edd; backdrop-filter: blur(6px); }
+  .player-area { position: fixed !important; bottom: 0 !important; left: 0 !important; right: 0 !important; z-index: 200; max-height: 120px; padding: 0; border-top: 1px solid #1a1a28; background: #06060edd; backdrop-filter: blur(6px); }
   .player-area::-webkit-scrollbar { display: none; }
   .player-portrait { display: none; }
   #handCards { display: flex !important; flex-direction: column !important; overflow: visible !important; flex-wrap: nowrap !important; gap: 0 !important; width: 100%; }
@@ -2532,7 +2532,7 @@ button, [onclick] { touch-action: manipulation; }
   #guideContent { padding: 12px 14px; font-size: 13px; }
   .turn-tag { font-size: 9px; padding: 2px 6px; }
   #logPanel { display: none; }
-  .ai-area { max-height: 50px; }
+  .ai-area { display: none !important; }
   .ai-avatar { width: 34px; height: 34px; }
   .ai-portrait { min-width: 0; padding: 2px 4px; }
   #sbAiName { font-size: 8px; }
@@ -4861,7 +4861,8 @@ function initGame() {
         const _hz = _shuffledH[_placed];
 
 
-        G.grid[_hr][_hc] = { card: { ..._hz, power:0, tier:'I', edges:{n:0,s:0,e:0,w:0}, edgeMod:{n:0,s:0,e:0,w:0}, used:false, isHazard:true }, owner:'hazard' };
+        const _hzR = (_mpPlayer === 2) ? (4 - _hr) : _hr;
+        G.grid[_hzR][_hc] = { card: { ..._hz, power:0, tier:'I', edges:{n:0,s:0,e:0,w:0}, edgeMod:{n:0,s:0,e:0,w:0}, used:false, isHazard:true }, owner:'hazard' };
 
 
         addLog('system', `⚠ ${_hz.name} emerged at [${_hr},${_hc}] — adjacent cards lose 2 VP`);
@@ -8696,6 +8697,19 @@ function renderHand() {
       }
     });
 
+    // Mute button in deck bar
+    const _muteBtn = document.createElement('div');
+    _muteBtn.id = 'deckMuteBtn';
+    _muteBtn.title = 'Toggle music';
+    _muteBtn.style.cssText = 'width:38px;height:38px;border-radius:6px;background:#0c0c1e;border:1px solid #1a1a2866;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;flex-shrink:0;align-self:center;';
+    const _bgTrack = document.getElementById('bgTrack');
+    _muteBtn.textContent = (_bgTrack && _bgTrack.muted) ? '🔇' : '🔊';
+    _muteBtn.onclick = function() {
+      toggleGameMusic();
+      const _t = document.getElementById('bgTrack');
+      _muteBtn.textContent = (_t && _t.muted) ? '🔇' : '🔊';
+    };
+    coversRow.appendChild(_muteBtn);
     el.appendChild(tray);
     el.appendChild(coversRow);
     return;
@@ -8903,19 +8917,27 @@ function showMobileCardPanel(card) {
       '<div style="font-size:8px;font-family:\'Courier New\',monospace;letter-spacing:1px;color:' + tierCol + ';">T' + card.tier + '</div>' +
     '</div>' +
     '<div style="font-size:10px;font-family:\'Orbitron\',monospace;color:#ccc;margin-bottom:8px;line-height:1.3;">' + (card.name || '') + '</div>' +
-    '<div style="position:relative;width:80px;height:80px;margin:0 auto 8px;">' +
-      '<div style="position:absolute;top:0;left:50%;transform:translateX(-50%);background:#111;border:1px solid ' + tierCol + '55;border-radius:4px;padding:1px 6px;font-size:13px;font-weight:bold;font-family:\'Courier New\',monospace;color:#fff;">' + n + '</div>' +
-      '<div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);background:#111;border:1px solid ' + tierCol + '55;border-radius:4px;padding:1px 6px;font-size:13px;font-weight:bold;font-family:\'Courier New\',monospace;color:#fff;">' + s + '</div>' +
-      '<div style="position:absolute;left:0;top:50%;transform:translateY(-50%);background:#111;border:1px solid ' + tierCol + '55;border-radius:4px;padding:1px 6px;font-size:13px;font-weight:bold;font-family:\'Courier New\',monospace;color:#fff;">' + w + '</div>' +
-      '<div style="position:absolute;right:0;top:50%;transform:translateY(-50%);background:#111;border:1px solid ' + tierCol + '55;border-radius:4px;padding:1px 6px;font-size:13px;font-weight:bold;font-family:\'Courier New\',monospace;color:#fff;">' + e + '</div>' +
-      '<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:18px;font-weight:bold;font-family:\'Courier New\',monospace;color:' + _fc + ';">' + card.power + '</div>' +
+    '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;grid-template-rows:1fr 1fr 1fr;gap:3px;width:100%;margin-bottom:8px;">' +
+      '<div></div>' +
+      '<div style="text-align:center;background:#111;border:1px solid ' + tierCol + '44;border-radius:4px;padding:3px 4px;font-size:14px;font-weight:bold;font-family:\'Courier New\',monospace;color:#ddd;">' + n + '</div>' +
+      '<div></div>' +
+      '<div style="text-align:center;background:#111;border:1px solid ' + tierCol + '44;border-radius:4px;padding:3px 4px;font-size:14px;font-weight:bold;font-family:\'Courier New\',monospace;color:#ddd;">' + w + '</div>' +
+      '<div style="text-align:center;background:#0a0a18;border:2px solid ' + _fc + '88;border-radius:6px;padding:3px 4px;font-size:18px;font-weight:bold;font-family:\'Courier New\',monospace;color:' + _fc + ';">' + card.power + '</div>' +
+      '<div style="text-align:center;background:#111;border:1px solid ' + tierCol + '44;border-radius:4px;padding:3px 4px;font-size:14px;font-weight:bold;font-family:\'Courier New\',monospace;color:#ddd;">' + e + '</div>' +
+      '<div></div>' +
+      '<div style="text-align:center;background:#111;border:1px solid ' + tierCol + '44;border-radius:4px;padding:3px 4px;font-size:14px;font-weight:bold;font-family:\'Courier New\',monospace;color:#ddd;">' + s + '</div>' +
+      '<div></div>' +
     '</div>' +
     (card.ability ? '<div style="font-size:8px;letter-spacing:1px;color:' + tierCol + ';font-family:\'Courier New\',monospace;text-align:center;border-top:1px solid #1a1a28;padding-top:5px;margin-top:2px;">' + card.ability.toUpperCase() + '</div>' : '');
 
   panel.style.borderColor = tierCol + '88';
   const tab = document.getElementById('mobileCardPanelTab');
-  if (tab) { tab.textContent = '▶'; tab.style.borderColor = tierCol + '88'; }
-  setTimeout(function() { panel.classList.add('open'); }, 10);
+  if (tab) {
+    tab.textContent = '◀';
+    tab.style.borderColor = tierCol + '88';
+    tab.style.background = tierCol + '22';
+    tab.style.color = tierCol;
+  }
 }
 
 function hideMobileCardPanel() {
@@ -14300,7 +14322,7 @@ const GUIDE_PAGES = [
     <!-- Tooltip -->
 
 
-    <div style="background:#0a0a14;border:1px solid #aaaaff55;border-radius:6px;padding:10px;width:160px;animation:g3tip 0.4s ease 0.7s both;">
+    <div style="background:#0a0a14;border:1px solid #aaaaff55;border-radius:6px;padding:10px;width:160px;min-height:100px;box-sizing:border-box;animation:g3tip 0.4s ease 0.7s both;">
 
 
       <div style="display:flex;gap:8px;align-items:stretch;">
@@ -14369,7 +14391,7 @@ const GUIDE_PAGES = [
     <!-- Tooltip -->
 
 
-    <div style="background:#0a0a14;border:1px solid #ffdd0044;border-radius:6px;padding:10px;width:160px;animation:g3tip 0.4s ease 0.9s both;">
+    <div style="background:#0a0a14;border:1px solid #ffdd0044;border-radius:6px;padding:10px;width:160px;min-height:100px;box-sizing:border-box;animation:g3tip 0.4s ease 0.9s both;">
 
 
       <div style="display:flex;gap:8px;align-items:stretch;">

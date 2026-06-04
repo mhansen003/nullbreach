@@ -873,7 +873,7 @@ const RACES = [
   {
     id: 'crystallis', cover: 'assets/deck_crystallis.png', loreBg: 'assets/lore_crystallis.png',
     name: 'THE CRYSTALLIS', sub: 'SILICON LATTICE CIVILIZATION',
-    color: '#a8d8ff', avatar: '💎',
+    color: '#00ccff', avatar: '💎',
     quote: '"You will fracture against us."',
     abilities: ['CRYSTAL FORTRESS', 'REFRACTION', 'LATTICE WARD', 'CRYSTAL DENSITY'],
     playstyle: 'Defensive anchor',
@@ -895,7 +895,7 @@ const RACES = [
   {
     id: 'veil', cover: 'assets/deck_veil.png', loreBg: 'assets/lore_veil.png',
     name: 'THE VEIL', sub: 'COHERENT LIGHT ENTITIES',
-    color: '#fff5a0', avatar: '✦',
+    color: '#ffee33', avatar: '✦',
     quote: '"You cannot strike what you cannot see."',
     abilities: ['PHASE SHIFT', 'AFTERIMAGE', 'LIGHT BEND', 'PHOTON LANCE'],
     playstyle: 'Deception and displacement',
@@ -917,7 +917,7 @@ const RACES = [
   {
     id: 'brood', cover: 'assets/deck_brood.png', loreBg: 'assets/lore_brood.png',
     name: 'THE BROOD SOVEREIGN', sub: 'INSECTOID HIVE-MIND',
-    color: '#88cc44', avatar: '🪲',
+    color: '#ff7700', avatar: '🪲',
     quote: '"The Sovereign sees through ten thousand eyes."',
     abilities: ['HIVE PULSE', 'MANDIBLE LEVEL', 'ACID CHARGE', "QUEEN'S FAVOR"],
     playstyle: 'Cluster formation',
@@ -939,7 +939,7 @@ const RACES = [
   {
     id: 'gas', cover: 'assets/deck_gas.png', loreBg: 'assets/lore_gas.png',
     name: 'THE GAS NOMADS', sub: 'PLASMA STORM BEINGS',
-    color: '#ffd700', avatar: '⚡',
+    color: '#ffaa00', avatar: '⚡',
     quote: '"You have angered the storm."',
     abilities: ['STORM WRAP', 'PLASMA SURGE', 'STORM BIRTH', 'TWIN PLASMA'],
     playstyle: 'Volatile comeback',
@@ -972,7 +972,7 @@ const RACES = [
   {
     id: 'choir', cover: 'assets/deck_choir.png', loreBg: 'assets/lore_choir.png',
     name: 'THE CHOIR', sub: 'RESONANT FREQUENCY ENTITIES',
-    color: '#c8c8ff', avatar: '〜',
+    color: '#dd88ff', avatar: '〜',
     quote: '"The note that breaks everything."',
     abilities: ['RESONANT CHORD', 'SONIC BOOM', 'HARMONIC PULSE', 'SONIC RUSH'],
     playstyle: 'Area resonance',
@@ -1833,12 +1833,12 @@ function startGame() {
     const ov = document.createElement('div');
     ov.style.cssText = `position:fixed;inset:0;z-index:99998;background:#000000dd;backdrop-filter:blur(6px);
       display:flex;align-items:center;justify-content:center;
-      font-family:'Share Tech Mono','Courier New',monospace;flex-direction:column;gap:20px;overflow-y:auto;padding:24px 0;`;
+      font-family:'Share Tech Mono','Courier New',monospace;flex-direction:column;gap:16px;overflow-y:auto;padding:24px 12px;box-sizing:border-box;`;
     ov.innerHTML = `
-      <div style="font-family:'Orbitron',monospace;font-size:20px;letter-spacing:5px;color:#fff;text-shadow:0 0 20px #8855ffaa;">YOU'VE BEEN CHALLENGED</div>
-      <div style="font-size:13px;color:#555;letter-spacing:2px;margin-bottom:4px;">SELECT YOUR CIVILIZATION</div>
-      <div id="joinRaceGrid" style="display:grid;grid-template-columns:repeat(4,200px);gap:12px;max-width:860px;overflow:visible;padding:4px 4px 12px;"></div>
-      <div style="display:flex;justify-content:flex-end;max-width:860px;width:100%;margin-top:4px;">
+      <div style="font-family:'Orbitron',monospace;font-size:clamp(14px,4vw,20px);letter-spacing:clamp(2px,1vw,5px);color:#fff;text-shadow:0 0 20px #8855ffaa;text-align:center;padding:0 12px;">YOU'VE BEEN CHALLENGED</div>
+      <div style="font-size:clamp(10px,3vw,13px);color:#555;letter-spacing:clamp(1px,0.5vw,2px);margin-bottom:4px;text-align:center;">SELECT YOUR CIVILIZATION</div>
+      <div id="joinRaceGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,200px));gap:10px;width:min(860px,92vw);overflow:visible;padding:4px 4px 12px;justify-content:center;"></div>
+      <div style="display:flex;justify-content:center;width:min(860px,92vw);margin-top:4px;padding:0 8px;box-sizing:border-box;">
         <button id="joinBtn" disabled onclick="joinRoom('${_roomId}')" style="
           background:#0a0a14;border:2px solid #2a2a3a;color:#444;
           font-family:'Orbitron',monospace;font-size:13px;letter-spacing:4px;
@@ -1884,7 +1884,7 @@ function startGame() {
       const tile = document.createElement('div');
       tile.className = 'opp-tile';
       tile.dataset.rid = r.id;
-      tile.style.cssText = `height:130px;border-radius:8px;overflow:hidden;
+      tile.style.cssText = `height:clamp(100px,20vw,130px);border-radius:8px;overflow:hidden;
         background:url('${r.cover}') center/cover;
         border:2px solid ${isTaken ? '#1a1a28' : r.color+'33'};position:relative;
         transition:transform 0.2s,border-color 0.2s,box-shadow 0.2s;
@@ -1892,7 +1892,7 @@ function startGame() {
         filter:${isTaken ? 'brightness(0.3) saturate(0.2)' : 'none'};`;
       tile.innerHTML = `
         <div style="position:absolute;bottom:0;left:0;right:0;background:#000000cc;padding:7px 10px;">
-          <div style="font-family:'Orbitron',monospace;font-size:13px;letter-spacing:1px;color:${isTaken ? '#333' : r.color};line-height:1.3;">${r.name.replace('THE ','')}</div>
+          <div style="font-family:'Orbitron',monospace;font-size:clamp(10px,2.5vw,13px);letter-spacing:1px;color:${isTaken ? '#333' : r.color};line-height:1.3;">${r.name.replace('THE ','')}</div>
           ${isTaken ? '<div style="font-size:10px;color:#442233;letter-spacing:1px;margin-top:2px;">TAKEN</div>' : ''}
         </div>`;
       if (!isTaken) {
