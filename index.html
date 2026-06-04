@@ -548,6 +548,7 @@ button, [onclick] { touch-action: manipulation; }
 
   /* Hide duplicate fixed launch button — mobileLaunchBar handles it */
   #fixedLaunchBtn { display: none !important; }
+  #quickStartBtn  { display: none !important; }
 
   /* Ability showcase: stack vertically */
   .ability-cards-row { flex-direction: column !important; gap: 8px !important; }
@@ -1378,6 +1379,8 @@ function selectRace(race, tileEl) {
     const _dw = document.getElementById('deployWrap'); if (_dw) _dw.style.display = 'block';
     const _flb = document.getElementById('fixedLaunchBtn');
     if (_flb) { _flb.style.display='block'; _flb.style.borderColor=race.color; _flb.style.color=race.color; _flb.style.background=race.color+'11'; _flb.style.boxShadow='0 0 24px '+race.color+'44'; }
+    const _qsb = document.getElementById('quickStartBtn');
+    if (_qsb) _qsb.style.display='block';
     lc.classList.add('visible');
     // Mobile launch bar: update colour and show
     const _mbar = document.getElementById('mobileLaunchBar');
@@ -1862,7 +1865,7 @@ function startGame() {
       if (_rd[0]?.status === 'playing' || _rd[0]?.p2_faction) {
         ov.innerHTML = `
           <div style="font-family:'Orbitron',monospace;font-size:22px;letter-spacing:5px;color:#ff4466;text-shadow:0 0 20px #ff446688;">GAME IN PROGRESS</div>
-          <div style="font-size:14px;color:#888;letter-spacing:2px;text-align:center;max-width:400px;line-height:1.8;">
+          <div style="font-size:14px;color:#bbb;letter-spacing:2px;text-align:center;max-width:400px;line-height:1.8;">
             This match has already started with two players.<br>
             The invite link can only be used once.
           </div>
@@ -1995,6 +1998,25 @@ Promise.all(
     }, 150);
   }
 });
+
+function quickStartGame() {
+  const races = Object.keys(RACES);
+  const rIdx = Math.floor(Math.random() * races.length);
+  const raceId = races[rIdx];
+  const race = RACES[raceId];
+  // Pick random AI opponent (different race)
+  const aiRaces = races.filter(r => r !== raceId);
+  const aiId = aiRaces[Math.floor(Math.random() * aiRaces.length)];
+  const aiRace = RACES[aiId];
+  const params = new URLSearchParams({
+    race: raceId,
+    color: encodeURIComponent(race.color || '#888'),
+    name: encodeURIComponent(race.name || raceId),
+    difficulty: 'balanced',
+    aiRace: aiId
+  });
+  window.location.href = 'game.html?' + params.toString();
+}
 </script>
 <div id="opponentModal" style="
   display:none;position:fixed;inset:0;z-index:99999;
@@ -2065,7 +2087,7 @@ Promise.all(
         <div class="diff-check" style="display:none;position:absolute;top:8px;right:8px;width:24px;height:24px;border-radius:50%;background:#4488cc;align-items:center;justify-content:center;font-size:13px;color:#fff;font-weight:bold;">✓</div>
         <div style="position:absolute;bottom:10px;left:0;right:0;text-align:center;">
           <div class="diff-label" style="font-family:'Orbitron',monospace;font-size:13px;letter-spacing:2px;color:#ccc;transition:color 0.2s;">PASSIVE</div>
-          <div style="font-size:11px;color:#888;letter-spacing:1px;margin-top:2px;">LOW AI</div>
+          <div style="font-size:11px;color:#bbb;letter-spacing:1px;margin-top:2px;">LOW AI</div>
         </div>
       </div>
       <div id="diff-balanced" onclick="setDiff('balanced')" style="position:relative;width:218px;height:144px;border-radius:10px;overflow:hidden;cursor:pointer;border:2px solid #1a1a28;transition:all 0.2s;flex-shrink:0;">
@@ -2074,7 +2096,7 @@ Promise.all(
         <div class="diff-check" style="display:none;position:absolute;top:8px;right:8px;width:24px;height:24px;border-radius:50%;background:#00ffcc;align-items:center;justify-content:center;font-size:13px;color:#000;font-weight:bold;">✓</div>
         <div style="position:absolute;bottom:10px;left:0;right:0;text-align:center;">
           <div class="diff-label" style="font-family:'Orbitron',monospace;font-size:13px;letter-spacing:2px;color:#ccc;transition:color 0.2s;">BALANCED</div>
-          <div style="font-size:11px;color:#888;letter-spacing:1px;margin-top:2px;">FAIR MATCH</div>
+          <div style="font-size:11px;color:#bbb;letter-spacing:1px;margin-top:2px;">FAIR MATCH</div>
         </div>
       </div>
       <div id="diff-aggressive" onclick="setDiff('aggressive')" style="position:relative;width:218px;height:144px;border-radius:10px;overflow:hidden;cursor:pointer;border:2px solid #1a1a28;transition:all 0.2s;flex-shrink:0;">
@@ -2083,7 +2105,7 @@ Promise.all(
         <div class="diff-check" style="display:none;position:absolute;top:8px;right:8px;width:24px;height:24px;border-radius:50%;background:#ff4422;align-items:center;justify-content:center;font-size:13px;color:#fff;font-weight:bold;">✓</div>
         <div style="position:absolute;bottom:10px;left:0;right:0;text-align:center;">
           <div class="diff-label" style="font-family:'Orbitron',monospace;font-size:13px;letter-spacing:2px;color:#ccc;transition:color 0.2s;">AGGRESSIVE</div>
-          <div style="font-size:11px;color:#888;letter-spacing:1px;margin-top:2px;">HIGH AI</div>
+          <div style="font-size:11px;color:#bbb;letter-spacing:1px;margin-top:2px;">HIGH AI</div>
         </div>
       </div>
     </div>
@@ -2128,6 +2150,17 @@ Promise.all(
   </div>
 </div>
 
+<!-- Quick Start: random deck, random opponent, balanced -->
+<button id="quickStartBtn" onclick="quickStartGame()" style="
+  display:none; position:fixed; bottom:44px; left:50%; transform:translateX(calc(-50% - 120px)); z-index:99900;
+  font-family:'Orbitron',monospace; font-size:11px; letter-spacing:2px;
+  padding:14px 18px; border-radius:6px; cursor:pointer;
+  border:2px solid #ff9900; color:#ff9900; background:#ff990011;
+  box-shadow:0 0 16px #ff990033; transition:all 0.3s; white-space:nowrap;
+" onmouseenter="this.style.background='#ff990022';this.style.boxShadow='0 0 30px #ff990066'"
+   onmouseleave="this.style.background='#ff990011';this.style.boxShadow='0 0 16px #ff990033'">
+  ⚡ QUICK START
+</button>
 <!-- Fixed bottom-right Launch Deck button — always visible on lore screen -->
 <button id="fixedLaunchBtn" onclick="showOpponentPicker()" style="
   display:none; position:fixed; bottom:44px; left:50%; transform:translateX(-50%); z-index:99900;

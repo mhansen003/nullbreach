@@ -1079,7 +1079,7 @@ body {
 .log-entry { font-size: 9px; color:#555; letter-spacing:0.5px; line-height:1.4; padding:3px 5px; border-left:2px solid #1a1a2e; }
 
 
-.log-entry.system  { color:#666; border-left-color:#333; }
+.log-entry.system  { color:#999; border-left-color:#333; }
 
 
 .log-entry.player  { color:#00ffcc99; border-left-color:#00ffcc44; }
@@ -1424,10 +1424,10 @@ body {
 .overlay-title.lose { color:#ff0080; text-shadow:0 0 30px #ff0080; }
 
 
-.overlay-title.draw { color:#888; }
+.overlay-title.draw { color:#bbb; }
 
 
-.overlay-sub  { color:#888; font-size:13px; letter-spacing:3px; }
+.overlay-sub  { color:#bbb; font-size:13px; letter-spacing:3px; }
 
 
 .overlay-breakdown { display:flex; gap:30px; margin-top:8px; }
@@ -2664,7 +2664,7 @@ button, [onclick] { touch-action: manipulation; }
       <div style="display:flex;align-items:baseline;gap:4px;margin-top:2px;">
 
 
-        <span id="sbAiNum" style="font-size:24px;font-weight:bold;color:#666;line-height:1;transition:all 0.3s;">0</span>
+        <span id="sbAiNum" style="font-size:24px;font-weight:bold;color:#999;line-height:1;transition:all 0.3s;">0</span>
 
 
         <span style="font-size:10px;color:#555;letter-spacing:1px;">VP</span>
@@ -2703,7 +2703,7 @@ button, [onclick] { touch-action: manipulation; }
       <div style="display:flex;align-items:baseline;gap:4px;margin-top:2px;">
 
 
-        <span id="sbPlayerNum" style="font-size:24px;font-weight:bold;color:#666;line-height:1;transition:all 0.3s;">0</span>
+        <span id="sbPlayerNum" style="font-size:24px;font-weight:bold;color:#999;line-height:1;transition:all 0.3s;">0</span>
 
 
         <span style="font-size:10px;color:#555;letter-spacing:1px;">VP</span>
@@ -3093,7 +3093,7 @@ button, [onclick] { touch-action: manipulation; }
         <div style="font-family:'Orbitron',monospace;font-size:16px;letter-spacing:4px;color:#8855ff;" id="guideTitle">HOW TO PLAY</div>
 
 
-        <div id="guidePageNum" style="font-size:11px;color:#888;letter-spacing:2px;margin-top:2px;">PAGE 1 OF 8</div>
+        <div id="guidePageNum" style="font-size:11px;color:#bbb;letter-spacing:2px;margin-top:2px;">PAGE 1 OF 8</div>
 
 
       </div>
@@ -3150,7 +3150,7 @@ button, [onclick] { touch-action: manipulation; }
         <button id="guidePrev" onclick="guidePage(-1)" style="background:transparent;border:1px solid #332244;
 
 
-          color:#8888aa;font-family:'Orbitron',monospace;font-size:11px;letter-spacing:2px;
+          color:#aaaacc;font-family:'Orbitron',monospace;font-size:11px;letter-spacing:2px;
 
 
           padding:9px 18px;cursor:pointer;border-radius:5px;transition:all 0.2s;">← PREV</button>
@@ -5015,7 +5015,8 @@ function computeBattleResults() {
               east.card.shieldExpended = true;
 
 
-              east.card.shieldBlockH = true; // permanently block H losses
+              east.card.shieldBlockH = true;
+              east.card.shieldBlockV = true;
 
 
             }
@@ -5069,7 +5070,8 @@ function computeBattleResults() {
               cell.card.shieldExpended = true;
 
 
-              cell.card.shieldBlockH = true; // permanently block H losses
+              cell.card.shieldBlockH = true;
+              cell.card.shieldBlockV = true;
 
 
             }
@@ -5165,6 +5167,7 @@ function computeBattleResults() {
               south.card.shieldExpended = true;
 
 
+              south.card.shieldBlockH = true;
               south.card.shieldBlockV = true;
 
 
@@ -5222,6 +5225,7 @@ function computeBattleResults() {
               cell.card.shieldExpended = true;
 
 
+              cell.card.shieldBlockH = true;
               cell.card.shieldBlockV = true;
 
 
@@ -5857,8 +5861,9 @@ const TIER_COLORS = { 'I':'#d0d0d0', 'II':'#44cc66', 'III':'#4488ff', 'IV':'#aa4
 // When hovering an ability card in hand, highlights grid cells affected by it
 function showAbilityZone(ability, _baseR, _baseC, _owner) {
   if (_zoneSuppressed) return;
-  // Red for ability zones (distinct from yellow placement adjacents)
-  const abilCol = _owner === 'ai' ? '#ff2244' : '#ff5533'; // enemy=bright red, player=orange-red
+  // Zone color: green=passive/buff, red=offensive
+  const _passiveAbils = new Set(['shield','boost','commander','phantom','cloak','spawn','mirror','stonewall','birthright','deciding_factor','echo','density']);
+  const abilCol = _passiveAbils.has(ability) ? '#44ff88' : (_owner==='ai' ? '#ff2244' : '#ff5533');
   // Use explicit position from placed card, or guess from nearest player card
   let baseR = (_baseR !== undefined) ? _baseR : 4;
   let baseC = (_baseC !== undefined) ? _baseC : 3;
@@ -6135,7 +6140,7 @@ function renderGrid() {
             <div style="font-size:12px;color:#cc4400;margin-bottom:6px;">COSMIC HAZARD</div>
 
 
-            <div style="font-size:12px;color:#888;line-height:1.6;">Any card adjacent to this hazard loses <span style="color:#ff6600;font-weight:bold;">-2 VP</span> from its scoring contribution.</div>
+            <div style="font-size:12px;color:#bbb;line-height:1.6;">Any card adjacent to this hazard loses <span style="color:#ff6600;font-weight:bold;">-2 VP</span> from its scoring contribution.</div>
 
 
             <div style="font-size:11px;color:#555;margin-top:8px;letter-spacing:1px;">Cannot be destroyed. Affects both sides.</div>
@@ -6308,10 +6313,10 @@ function renderGrid() {
           <img src="${cell.owner==='player'?(window.playerAvatarImg||''):(window.aiAvatarImg||'')}" style="position:absolute;bottom:3px;right:3px;width:18px;height:18px;border-radius:50%;object-fit:cover;object-position:top;border:1px solid ${factionCol}55;opacity:0.6;z-index:2;pointer-events:none;" onerror="this.style.display='none'">
 
 
-          ${cell.card.stonewalled ? `<div style="position:absolute;inset:0;z-index:4;pointer-events:none;border-radius:4px;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;"><span style="font-size:9px;letter-spacing:1px;color:#888;font-family:'Orbitron',monospace;background:#0a0a14;padding:2px 5px;border-radius:3px;border:1px solid #333;opacity:0.9;">0 VP</span></div>` : ''}
+          ${cell.card.stonewalled ? `<div style="position:absolute;inset:0;z-index:4;pointer-events:none;border-radius:4px;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;"><span style="font-size:9px;letter-spacing:1px;color:#bbb;font-family:'Orbitron',monospace;background:#0a0a14;padding:2px 5px;border-radius:3px;border:1px solid #333;opacity:0.9;">0 VP</span></div>` : ''}
 
 
-          ${cell.card.stonewall_victim ? `<div style="position:absolute;inset:0;z-index:4;pointer-events:none;border-radius:4px;background:rgba(0,0,0,0.35);display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px;"><span style="font-size:8px;letter-spacing:1px;color:#777;font-family:'Courier New',monospace;background:#0a0a14;padding:2px 4px;border-radius:3px;border:1px solid #2a2a2a;opacity:0.9;">BLOCKED</span></div>` : ''}
+          ${cell.card.stonewall_victim ? `<div style="position:absolute;inset:0;z-index:4;pointer-events:none;border-radius:4px;background:rgba(0,0,0,0.35);display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px;"><span style="font-size:8px;letter-spacing:1px;color:#aaa;font-family:'Courier New',monospace;background:#0a0a14;padding:2px 4px;border-radius:3px;border:1px solid #2a2a2a;opacity:0.9;">BLOCKED</span></div>` : ''}
           ${(()=>{ const m=cell.card.edgeMod; const pen=(m?.n||0); return pen<0?`<div style="position:absolute;top:3px;left:3px;z-index:5;pointer-events:none;background:#880000cc;border:1px solid #ff444488;border-radius:3px;padding:1px 4px;font-size:9px;font-weight:bold;color:#ff8888;font-family:'Courier New',monospace;">${pen} edges</div>`:''; })()}
 
 
@@ -6414,13 +6419,9 @@ function renderGrid() {
               const g = G.grid[nr2][nc2];
 
 
-              adjEl.style.outline = (g.card && g.owner !== cell.owner)
-
-
-                ? '2px dashed #ff555588'   // enemy — red dashed
-
-
-                : '2px dashed #ffdd0066';  // empty or friendly — yellow dashed
+              const _isEnemy = g.card && g.owner !== cell.owner;
+              adjEl.style.outline = _isEnemy ? '2px dashed #ff555588' : '2px dashed #ffdd0066';
+              adjEl.style.outlineOffset = '-2px';
 
 
             }
@@ -6435,7 +6436,7 @@ function renderGrid() {
         div.onmouseleave = () => {
 
 
-          document.querySelectorAll('.cell[style*="dashed"]').forEach(el => el.style.outline = '');
+          document.querySelectorAll('.cell[style*="dashed"]').forEach(el => { el.style.outline=''; el.style.outlineOffset=''; });
           hideTip();
           clearAbilityZone();
         };
@@ -6588,7 +6589,9 @@ function renderGrid() {
             const _pRow = r, _pCol = c;
 
 
-            div.onmouseenter = () => {
+            div.onmouseenter = (ev) => {
+              // Show selected card tooltip while looking for placement
+              if (G.selectedCard) showTip(ev, G.selectedCard);
 
 
               // Zone expansion — yellow dots for future valid cells
@@ -6778,6 +6781,7 @@ function renderGrid() {
 
 
             div.onmouseleave = () => {
+              hideTip();
 
 
               document.querySelectorAll('.cell.future-valid').forEach(el => el.classList.remove('future-valid'));
@@ -7628,7 +7632,7 @@ function renderScoreBadges(_precomputed) {
     if (res === 'tie') return `<div style="pointer-events:none;text-align:center;">
 
 
-      <span style="font-size:9px;letter-spacing:2px;color:#666677;display:block;">TIE</span></div>`;
+      <span style="font-size:9px;letter-spacing:2px;color:#9999aa;display:block;">TIE</span></div>`;
 
 
     const pWin = res === 'p';
@@ -8624,7 +8628,7 @@ function renderHand() {
             <div style="font-size:11px;color:#aaa;">${cards.length} card${cards.length!==1?'s':''} available</div>
 
 
-            <div style="font-size:10px;color:#666;margin-top:4px;letter-spacing:1px;">Click to expand</div>
+            <div style="font-size:10px;color:#999;margin-top:4px;letter-spacing:1px;">Click to expand</div>
 
 
           </div>`;
@@ -8952,7 +8956,7 @@ function showMobileCardPanel(card) {
     '<div style="display:flex;align-items:center;justify-content:space-between;gap:5px;margin-bottom:3px;">' +
       '<div style="display:flex;gap:2px;align-items:center;">' + dots + emptyDots + '</div>' +
       '<div style="font-size:8px;font-family:\'Courier New\',monospace;letter-spacing:1px;color:' + tierCol + ';">T' + card.tier + '</div>' +
-      '<div style="font-size:8px;font-family:\'Courier New\',monospace;color:#666;letter-spacing:1px;">PWR <span style="color:' + _fc + ';font-size:10px;font-weight:bold;">' + card.power + '</span></div>' +
+      '<div style="font-size:8px;font-family:\'Courier New\',monospace;color:#999;letter-spacing:1px;">PWR <span style="color:' + _fc + ';font-size:10px;font-weight:bold;">' + card.power + '</span></div>' +
     '</div>' +
     '<div style="font-size:10px;font-family:\'Orbitron\',monospace;color:#ccc;margin-bottom:7px;line-height:1.3;font-weight:700;">' + (card.name || '') + '</div>' +
     '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;grid-template-rows:1fr 1fr 1fr;gap:3px;width:100%;margin-bottom:7px;">' +
@@ -9768,9 +9772,6 @@ function applyPlacementAbility(card, r, c, owner) {
     const bonus = (card.ability === 'commander' || card.ability === 'spawn') ? 2 : 1;
 
 
-    const requireSameTier = card.ability === 'commander' || card.ability === 'spawn';
-
-
     dirs.forEach(({dr,dc}) => {
 
 
@@ -9784,9 +9785,6 @@ function applyPlacementAbility(card, r, c, owner) {
 
 
       if (nb.card && nb.owner === owner) {
-
-
-        if (requireSameTier && nb.card.tier !== card.tier) return;
 
 
         nb.card.edgeMod = nb.card.edgeMod || {n:0,s:0,e:0,w:0};
@@ -9805,6 +9803,28 @@ function applyPlacementAbility(card, r, c, owner) {
 
 
     if (card.ability === 'spawn') addLog('compare', `SPAWN: ${card.name} coordinates the hive — adjacent same-tier allies +2`);
+
+  }
+
+  // RETROACTIVE BUFF: if an adjacent friendly card is a commander/boost/spawn, buff this card
+  dirs.forEach(({dr,dc}) => {
+    const nr=r+dr, nc=c+dc;
+    if (nr<0||nr>=5||nc<0||nc>=7) return;
+    const nb = G.grid[nr][nc];
+    if (!nb.card || nb.owner !== owner) return;
+    if (nb.card.ability === 'commander' || nb.card.ability === 'spawn') {
+      const bonus = 2;
+      card.edgeMod = card.edgeMod || {n:0,s:0,e:0,w:0};
+      card.edgeMod.n += bonus; card.edgeMod.s += bonus;
+      card.edgeMod.e += bonus; card.edgeMod.w += bonus;
+    } else if (nb.card.ability === 'boost') {
+      card.edgeMod = card.edgeMod || {n:0,s:0,e:0,w:0};
+      card.edgeMod.n += 1; card.edgeMod.s += 1;
+      card.edgeMod.e += 1; card.edgeMod.w += 1;
+    }
+  });
+
+  if (false) {
 
 
   }
@@ -10980,7 +11000,7 @@ function checkWin() {
           <span style="font-size:26px;font-weight:bold;color:#7777aa;">${loseVP2}</span>
 
 
-          <span style="font-size:9px;letter-spacing:2px;color:#666677;">VP</span>
+          <span style="font-size:9px;letter-spacing:2px;color:#9999aa;">VP</span>
 
 
         </div>
@@ -11458,10 +11478,10 @@ function buildZoneGrid(card) {
     <div style="display:flex;gap:10px;margin-top:5px;">
 
 
-      <span style="font-size:9px;color:#666;">■ <span style="color:${tierCol}">this card</span></span>
+      <span style="font-size:9px;color:#999;">■ <span style="color:${tierCol}">this card</span></span>
 
 
-      <span style="font-size:9px;color:#666;">■ <span style="color:#ffdd00">opens for next card</span></span>
+      <span style="font-size:9px;color:#999;">■ <span style="color:#ffdd00">opens for next card</span></span>
 
 
     </div>
@@ -12162,7 +12182,7 @@ function showTip(e, card) {
           </div>
 
 
-          <div style="font-size:10px;color:#888;letter-spacing:1px;">VP</div>
+          <div style="font-size:10px;color:#bbb;letter-spacing:1px;">VP</div>
 
 
         </div>
@@ -12171,7 +12191,7 @@ function showTip(e, card) {
         <div style="display:flex;align-items:center;gap:3px;">
 
 
-          <span style="font-size:10px;color:#888;margin-right:2px;">T</span>
+          <span style="font-size:10px;color:#bbb;margin-right:2px;">T</span>
 
 
           ${Array.from({length:tierNum},()=>`<div style="width:9px;height:9px;border-radius:50%;background:${tierCol};box-shadow:0 0 4px ${tierCol};"></div>`).join('')}
@@ -12198,7 +12218,7 @@ function showTip(e, card) {
       <div style="flex:1;">
 
 
-        <div style="font-size:9px;letter-spacing:2px;color:#888;margin-bottom:4px;">ATTACK POWER</div>
+        <div style="font-size:9px;letter-spacing:2px;color:#bbb;margin-bottom:4px;">ATTACK POWER</div>
 
 
         <div style="position:relative;width:96px;height:96px;border:1px solid var(--tc-dim);border-radius:5px;background:#030310;">
@@ -12207,7 +12227,7 @@ function showTip(e, card) {
           <div style="position:absolute;top:3px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;">
 
 
-            <div style="font-size:9px;color:#888;">N</div>
+            
 
 
             <div style="font-size:18px;font-weight:bold;${nGlow}color:${nCol};line-height:1;">${n}</div>
@@ -12228,7 +12248,7 @@ function showTip(e, card) {
             <div style="font-size:18px;font-weight:bold;color:${sCol};line-height:1;">${s}</div>
 
 
-            <div style="font-size:9px;color:#888;">S</div>
+            
 
 
           </div>
@@ -12237,7 +12257,7 @@ function showTip(e, card) {
           <div style="position:absolute;left:3px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;align-items:center;min-width:22px;">
 
 
-            <div style="font-size:9px;color:#888;">W</div>
+            
 
 
             <div style="font-size:18px;font-weight:bold;${wGlow}color:${wCol};line-height:1;">${w}</div>
@@ -12252,7 +12272,7 @@ function showTip(e, card) {
           <div style="position:absolute;right:3px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;align-items:center;min-width:22px;">
 
 
-            <div style="font-size:9px;color:#888;">E</div>
+            
 
 
             <div style="font-size:18px;font-weight:bold;${wGlow}color:${eCol};line-height:1;">${e_}</div>
@@ -14041,7 +14061,7 @@ const GUIDE_PAGES = [
         <span style="font-size:15px;font-weight:bold;color:#fff;">4</span>
 
 
-        <span style="font-size:9px;color:#888;">vs</span>
+        <span style="font-size:9px;color:#bbb;">vs</span>
 
 
         <span style="font-size:15px;font-weight:bold;color:#ffdd00;">3</span>
@@ -15085,7 +15105,7 @@ document.addEventListener('keydown', e => {
   <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
 
 
-    <span style="font-size:11px;color:#888;">🎵</span>
+    <span style="font-size:11px;color:#bbb;">🎵</span>
 
 
     <input id="volSlider2" type="range" min="0" max="100" value="40"
@@ -15103,7 +15123,7 @@ document.addEventListener('keydown', e => {
   <button onclick="toggleGameMusic();updateMuteLabel()" id="muteMenuBtn" style="
 
 
-    background:transparent;border:1px solid #2a1a44;color:#888;
+    background:transparent;border:1px solid #2a1a44;color:#bbb;
 
 
     font-family:inherit;font-size:11px;letter-spacing:2px;padding:6px 14px;
@@ -15136,7 +15156,7 @@ document.addEventListener('keydown', e => {
   <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
 
 
-    <span style="font-size:11px;color:#888;">🔔</span>
+    <span style="font-size:11px;color:#bbb;">🔔</span>
 
 
     <input id="sfxSlider" type="range" min="0" max="100" value="100"
@@ -15154,7 +15174,7 @@ document.addEventListener('keydown', e => {
   <button onclick="toggleSfxMute()" id="sfxMuteBtn" style="
 
 
-    background:transparent;border:1px solid #1a2a2a;color:#888;
+    background:transparent;border:1px solid #1a2a2a;color:#bbb;
 
 
     font-family:inherit;font-size:11px;letter-spacing:2px;padding:6px 14px;
