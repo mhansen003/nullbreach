@@ -516,7 +516,10 @@ function renderScoreHeader(_precomputed) {
   if (tag) {
 
 
-    tag.textContent = G.turn==='player' ? 'YOUR TURN' : 'AI THINKING...';
+    const _isMp = typeof _mpRoom !== 'undefined' && _mpRoom;
+    tag.textContent = G.turn==='player' ? 'YOUR TURN'
+      : _isMp ? 'WAITING FOR OPPONENT...'
+      : 'AI THINKING...';
 
 
     tag.className   = 'turn-tag ' + G.turn;

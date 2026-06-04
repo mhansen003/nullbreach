@@ -16,7 +16,9 @@ function renderGrid() {
 
 
 
-  for (let r = 0; r < 5; r++) {
+  const _rows = (typeof _mpPlayer !== 'undefined' && _mpPlayer === 2)
+    ? [4,3,2,1,0] : [0,1,2,3,4];
+  for (const r of _rows) {
 
 
     for (let c = 0; c < 7; c++) {

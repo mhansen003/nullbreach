@@ -97,6 +97,25 @@ document.addEventListener('click', e => {
 
 }, true);
 
+
+function forfeitGame() {
+  if (!_mpRoom) return;
+  G.gameOver = true;
+  // Mark in DB that this player forfeited
+  fetch(`${_SB_URL}/rest/v1/gz_rooms?id=eq.${_mpRoom}`, {
+    method: 'PATCH',
+    headers: _SB_H,
+    body: JSON.stringify({ status: 'forfeited' })
+  }).catch(() => {});
+  // Show overlay with opponent winning
+  checkWin();
+}
+
+function showForfeitBtn(show) {
+  const btn = document.getElementById('forfeitBtn');
+  if (btn) btn.style.display = show ? 'block' : 'none';
+}
+
 function toggleMenu() {
 
 

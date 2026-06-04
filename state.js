@@ -297,6 +297,8 @@ function initGame() {
 
 
   addLog('system', 'GAME START -- place from your home row');
+  // Show forfeit button in MP mode
+  if (typeof showForfeitBtn === 'function') showForfeitBtn(!!(_mpRoom));
 
 
   document.addEventListener('click', function _hzv() { document.querySelectorAll('.cell.hazard video').forEach(v=>v.play().catch(()=>{})); document.removeEventListener('click',_hzv); }, {once:true});
