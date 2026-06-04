@@ -12050,11 +12050,8 @@ function showTip(e, card) {
 
 
           <div style="font-size:11px;color:#ddd;line-height:1.5;">${card.abilityText}</div>
-
-
+          ${buildAbilityVisual(card.ability) ? `<div style="margin-top:10px;padding-top:10px;border-top:1px solid #ffdd0022;display:flex;justify-content:center;">${buildAbilityVisual(card.ability)}</div>` : ''}
         </div>
-
-
       </div>` : `
 
 
