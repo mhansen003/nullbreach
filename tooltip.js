@@ -247,7 +247,7 @@ function buildZoneGrid(card) {
 
 }
 
-// Delayed tooltip for hand cards (2.5s) — instant for board
+// Delayed tooltip for hand cards (2.5s): instant for board
 
 
 let _tipTimer = null;
@@ -315,7 +315,7 @@ function showTip(e, card) {
 
 
 
-  // Per-direction battle result — scan grid to find this card's position
+  // Per-direction battle result: scan grid to find this card's position
 
 
   let _cardPos = null;

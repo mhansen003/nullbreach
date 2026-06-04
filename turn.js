@@ -171,7 +171,7 @@ function checkWin() {
 
   const pWon = s.pVP > s.aVP, draw = s.pVP === s.aVP;
 
-  // Leaderboard record check — only on player win, not AI/multiplayer
+  // Leaderboard record check: only on player win, not AI/multiplayer
   if (pWon && !_mpRoom && typeof checkLeaderboardRecord === 'function') {
     checkLeaderboardRecord(window.playerRaceId, window.aiRaceId, s.pVP, s.aVP);
   }
@@ -261,7 +261,7 @@ function checkWin() {
         </div>
 
 
-        <!-- Loser — visible but clearly secondary -->
+        <!-- Loser: visible but clearly secondary -->
 
 
         <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
@@ -467,7 +467,7 @@ function onCellClick(r, c) {
       applyMobileCellPreview(r, c, G.selectedCard);
       return;
     }
-    // Second tap on same cell (or drop) — confirm: fall through to placement
+    // Second tap on same cell (or drop): confirm: fall through to placement
     G._previewCell = null;
   }
 
@@ -489,7 +489,7 @@ function onCellClick(r, c) {
         window._mpSeed = seededRand(_fSeed);
         mpSubmitMove(_placedCardId || 'unknown', r, c, _fSeed, true);
       }
-      showToast('↺ FLANK — EXTRA TURN!', '#ff9900');
+      showToast('↺ FLANK: EXTRA TURN!', '#ff9900');
       renderAll();
       return;
     }

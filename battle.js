@@ -1,7 +1,7 @@
 function computeBattleResults() {
 
 
-  // Use win/loss COUNTERS per axis — handles sandwiched cards correctly.
+  // Use win/loss COUNTERS per axis: handles sandwiched cards correctly.
 
 
   // A card winning one V but losing another gets net=0 → no contribution (floor(½)).
@@ -99,7 +99,7 @@ function computeBattleResults() {
 
 
             if (!east.card.shieldBlockH) b[r][c+1].hL++;
-            // REVENGE: east card loses H — penalize the cell card
+            // REVENGE: east card loses H: penalize the cell card
             if (east.card.ability === 'revenge') {
               cell.card._revengePenalty = Math.min((cell.card._revengePenalty || 0) + 1, 9);
             }
@@ -158,7 +158,7 @@ function computeBattleResults() {
 
 
             if (!cell.card.shieldBlockH) b[r][c].hL++;
-            // REVENGE: cell loses H — penalize the east card
+            // REVENGE: cell loses H: penalize the east card
             if (cell.card.ability === 'revenge') {
               east.card._revengePenalty = Math.min((east.card._revengePenalty || 0) + 1, 9);
             }
@@ -242,7 +242,7 @@ function computeBattleResults() {
             if (cell.card.ability === 'overwhelm' && margin >= 3) b[r][c].hW++;
 
 
-            // SHIELD V: south card blocks first V loss — permanently
+            // SHIELD V: south card blocks first V loss: permanently
 
 
             if (south.card.ability === 'shield' && !south.card.shieldExpended) {
@@ -259,7 +259,7 @@ function computeBattleResults() {
 
 
             if (!south.card.shieldBlockV) b[r+1][c].vL++;
-            // REVENGE: south card loses V — penalize the cell card
+            // REVENGE: south card loses V: penalize the cell card
             if (south.card.ability === 'revenge') {
               cell.card._revengePenalty = Math.min((cell.card._revengePenalty || 0) + 1, 9);
             }
@@ -304,7 +304,7 @@ function computeBattleResults() {
             if (south.card.ability === 'overwhelm' && margin >= 3) b[r+1][c].hW++;
 
 
-            // SHIELD V: cell (north card) blocks first V loss — permanently
+            // SHIELD V: cell (north card) blocks first V loss: permanently
 
 
             if (cell.card.ability === 'shield' && !cell.card.shieldExpended) {
@@ -321,7 +321,7 @@ function computeBattleResults() {
 
 
             if (!cell.card.shieldBlockV) b[r][c].vL++;
-            // REVENGE: cell loses V — penalize the south card
+            // REVENGE: cell loses V: penalize the south card
             if (cell.card.ability === 'revenge') {
               south.card._revengePenalty = Math.min((south.card._revengePenalty || 0) + 1, 9);
             }
@@ -390,7 +390,7 @@ function computeBattleResults() {
       // West border: wrap fight with col 6
 
 
-      // Far card gets no hL — the battle is invisible to it (non-local VP rule)
+      // Far card gets no hL: the battle is invisible to it (non-local VP rule)
 
 
       if (c === 0) {
@@ -693,7 +693,7 @@ function computeScores() {
 
       if (hasDf) {
         rowResults[r] = 'p';
-        addLog('compare', 'DECIDING FACTOR — tie broken in row ' + (r+1) + ' for player');
+        addLog('compare', 'DECIDING FACTOR: tie broken in row ' + (r+1) + ' for player');
         setTimeout(function() {
           if (!G || !G.grid || !G.grid[r]) return;
           for (let _dc=0; _dc<7; _dc++) {
@@ -828,7 +828,7 @@ function computeScores() {
 
 
 
-  // Snapshot results before DECIDING_FACTOR mutates them — ECHO must use raw wins
+  // Snapshot results before DECIDING_FACTOR mutates them: ECHO must use raw wins
 
 
   const rawRowResults = rowResults.slice();
@@ -840,7 +840,7 @@ function computeScores() {
 
 
 
-  // ECHO ability removed — replaced by LAMB (handled via 0-edge scoring)
+  // ECHO ability removed: replaced by LAMB (handled via 0-edge scoring)
 
 
 

@@ -77,7 +77,7 @@ function initGame() {
       const tierPow = {'I':1,'II':2,'III':3,'IV':4}[c.tier] || c.power;
 
 
-      // Flip N↔S on faction decks used as AI — they attack downward (S faces player)
+      // Flip N↔S on faction decks used as AI: they attack downward (S faces player)
 
 
       const useFlip = ['terran','brood','crystallis','mycos','veil','entropy','void','gas','lithos','quantum','choir'].includes(window.aiRaceId);
@@ -266,7 +266,7 @@ function initGame() {
         G.grid[_hzR][_hc] = { card: { ..._hz, power:0, tier:'I', edges:{n:0,s:0,e:0,w:0}, edgeMod:{n:0,s:0,e:0,w:0}, used:false, isHazard:true }, owner:'hazard' };
 
 
-        addLog('system', `⚠ ${_hz.name} emerged at [${_hr},${_hc}] — adjacent cards lose 2 VP`);
+        addLog('system', `⚠ ${_hz.name} emerged at [${_hr},${_hc}]: adjacent cards lose 2 VP`);
 
 
         _placed++;
@@ -313,7 +313,7 @@ function initRaceTheme() {
   const allRaces = Object.keys(RACE_DATA);
 
 
-  // Persist AI race across refreshes — only randomize on first visit or change deck
+  // Persist AI race across refreshes: only randomize on first visit or change deck
 
 
   let aiRaceId = sessionStorage.getItem('gz_ai_race');
@@ -376,7 +376,7 @@ function initRaceTheme() {
 
 
 
-  // Panels removed — portraits live in ai-area/player-area headers
+  // Panels removed: portraits live in ai-area/player-area headers
 
 
 
@@ -394,7 +394,7 @@ function initRaceTheme() {
 
 
 
-  // Update player portrait — avatar image + labels
+  // Update player portrait: avatar image + labels
 
 
   const pAvEl = document.querySelector('.player-avatar');
@@ -508,7 +508,7 @@ function initRaceTheme() {
 
 
 
-  // Safe zone bar colors — CSS custom properties on :root
+  // Safe zone bar colors: CSS custom properties on :root
 
 
   document.documentElement.style.setProperty('--player-safe-col', player.color + 'bb');

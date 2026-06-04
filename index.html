@@ -33,10 +33,10 @@ body {
 
 .splash-bg-img {
   position: fixed; inset: 0; z-index: 1;
-  /* No static screenshot — video plays instead; this is a fallback only */
+  /* No static screenshot: video plays instead; this is a fallback only */
   opacity: 0;
 }
-/* Galaxy video loop — replaces static image once generated */
+/* Galaxy video loop: replaces static image once generated */
 #galaxyVideo {
   position: fixed; inset: 0; z-index: 1;
   width: 100%; height: 100%; object-fit: cover;
@@ -47,7 +47,7 @@ body {
   background: radial-gradient(ellipse at 50% 100%, #020208cc 0%, transparent 60%);
 }
 
-/* Race background — fades in when a deck is selected */
+/* Race background: fades in when a deck is selected */
 #race-bg {
   position: fixed; inset: 0; z-index: 1;
   background-size: cover; background-position: center;
@@ -79,7 +79,7 @@ body {
 }
 
 /* ══════════════════════════════════════
-   SCREEN 1 — SPLASH
+   SCREEN 1: SPLASH
 ══════════════════════════════════════ */
 #splash { gap: 0; text-align: center; }
 
@@ -188,7 +188,7 @@ body {
 .splash-version { font-size: 8px; color: #ffffff88; letter-spacing: 2px; text-shadow: 0 0 8px #000000; }
 
 /* ══════════════════════════════════════
-   SCREEN 2 — DECK SELECT
+   SCREEN 2: DECK SELECT
 ══════════════════════════════════════ */
 #deckselect { justify-content:flex-start; padding:0; overflow:hidden; }
 
@@ -216,7 +216,7 @@ body {
 /* ── CONVEYOR BELT ── */
 .conveyor-section {
   position: relative; flex-shrink: 0; z-index: 20;
-  /* No hard bottom border — let the lore bg bleed through */
+  /* No hard bottom border: let the lore bg bleed through */
   background: linear-gradient(to bottom, #020208cc 0%, transparent 35%, transparent 100%);
 }
 .conveyor-wrap {
@@ -287,7 +287,7 @@ body {
   font-size: 8px; letter-spacing: 2px; padding: 4px 8px; border-radius: 2px;
 }
 
-/* ── LORE PANEL (below conveyor) — scrollable so full content is reachable */
+/* ── LORE PANEL (below conveyor): scrollable so full content is reachable */
 .ds-lore-panel {
   flex: 1; display: flex; padding: 16px 40px 14px;
   overflow-y: auto; position: relative; z-index: 10;
@@ -329,7 +329,7 @@ body {
   border: 1px solid currentColor; opacity: 0.85;
 }
 
-/* Ability showcase cards — full-width below avatar, bigger text */
+/* Ability showcase cards: full-width below avatar, bigger text */
 .ability-cards-row { display: flex; gap: 12px; flex-shrink: 0; margin: 10px 0 6px; }
 .ability-showcase {
   flex: 1; min-width: 0;
@@ -345,7 +345,7 @@ body {
 .lore-text { font-size: 14px; letter-spacing: 0.2px; color: #ffffff; line-height: 1.85; }
 .lore-weakness { font-size: 13px; letter-spacing: 0.2px; color: #ffffffcc; line-height: 1.8; font-style: italic; }
 
-/* Glowing launch button — pulsing with race color */
+/* Glowing launch button: pulsing with race color */
 .ds-deploy-wrap { display: none; }
 @keyframes launchGlow {
   0%,100% { box-shadow: 0 0 14px currentColor, 0 0 28px currentColor; opacity:0.9; }
@@ -432,7 +432,7 @@ body {
 /* ── ANIMATIONS ── */
 @keyframes fadeIn { from{opacity:0} to{opacity:1} }
 
-/* Avatar deploy pulse — always visible, pulses to signal clickability */
+/* Avatar deploy pulse: always visible, pulses to signal clickability */
 @keyframes deployPulse {
   0%, 55%  { opacity: 0; }
   70%, 90% { opacity: 0.95; }
@@ -451,7 +451,7 @@ body {
 html { -webkit-text-size-adjust: 100%; }
 button, [onclick] { touch-action: manipulation; }
 
-/* ── TABLET (768px – 1024px) ── */
+/* ── TABLET (768px: 1024px) ── */
 @media (max-width: 1024px) {
   /* Race tiles */
   .race-tile { width: 190px; height: 253px; }
@@ -521,7 +521,7 @@ button, [onclick] { touch-action: manipulation; }
     flex-direction: column;
   }
 
-  /* ROW 1: avatar (small, round) beside name+quote — horizontal */
+  /* ROW 1: avatar (small, round) beside name+quote: horizontal */
   .ds-lore-content > div:first-child {
     flex-direction: row !important;
     align-items: flex-start !important;
@@ -563,7 +563,7 @@ button, [onclick] { touch-action: manipulation; }
   #loreRow2 { display: block !important; }
   #loreRow2 > div:last-child { width: 100% !important; }
 
-  /* Hide duplicate fixed launch button — mobileLaunchBar handles it */
+  /* Hide duplicate fixed launch button: mobileLaunchBar handles it */
   #desktopLaunchBar { display: none !important; }
 
   /* Ability showcase: image on top, text below */
@@ -589,7 +589,7 @@ button, [onclick] { touch-action: manipulation; }
   /* Footer: hide on mobile (no room) */
   .ds-footer { display: none; }
 
-  /* Hide original deploy wrap — replaced by body-level #mobileLaunchBar */
+  /* Hide original deploy wrap: replaced by body-level #mobileLaunchBar */
   #deployWrap { display: none !important; }
 
   /* ── WIZARD MODAL ── */
@@ -621,7 +621,7 @@ button, [onclick] { touch-action: manipulation; }
   #wizStep2 > div:last-child { width: min(300px, 88vw); justify-content: space-between !important; }
 
   /* Step 3: flex column so grid scrolls and buttons stay at bottom */
-  /* NOTE: no display !important here — JS controls display:none/flex for step visibility */
+  /* NOTE: no display !important here: JS controls display:none/flex for step visibility */
   #wizStep3 {
     flex: 1 !important; min-height: 0 !important; overflow: hidden !important;
     flex-direction: column !important;
@@ -670,7 +670,7 @@ button, [onclick] { touch-action: manipulation; }
   .btn-enter { padding: 12px 20px; font-size: 9px; letter-spacing: 3px; }
 }
 
-/* Fleet card hover — matches ability showcase style */
+/* Fleet card hover: matches ability showcase style */
 #tierCardPreview > div {
   transition: transform 0.2s, box-shadow 0.2s;
   cursor: pointer;
@@ -693,10 +693,10 @@ button, [onclick] { touch-action: manipulation; }
 <audio id="deploySfx" preload="auto">
   <source src="assets/deploy-click.mp3" type="audio/mpeg">
 </audio>
-<!-- Civilization voice intro — plays on deck selection -->
+<!-- Civilization voice intro: plays on deck selection -->
 <audio id="civVoice" preload="none"></audio>
 
-<!-- AUDIO CONTROLS — top right, next to header -->
+<!-- AUDIO CONTROLS: top right, next to header -->
 <div id="audioControls" style="position:fixed;top:10px;right:10px;z-index:200;display:flex;flex-direction:row;gap:6px;align-items:center;">
   <!-- Leaderboard -->
   <div onclick="showLeaderboard()" style="
@@ -731,7 +731,7 @@ button, [onclick] { touch-action: manipulation; }
 <!-- STARFIELD -->
 <canvas id="starfield"></canvas>
 
-<!-- GALAXY VIDEO — plays once, freezes on last frame (desktop only) -->
+<!-- GALAXY VIDEO: plays once, freezes on last frame (desktop only) -->
 <video id="galaxyVideo" muted playsinline preload="none">
   <source src="assets/galaxy-splash.mp4" type="video/mp4">
 </video>
@@ -769,7 +769,7 @@ button, [onclick] { touch-action: manipulation; }
         GALACTIC ZERO<br>
         <span style="color:#332255;font-size:8px;">v0.1 PROTOTYPE</span>
       </div>
-      <!-- BACK button removed — audio controls are top-right -->
+      <!-- BACK button removed: audio controls are top-right -->
     </div>
   </div>
 
@@ -783,7 +783,7 @@ button, [onclick] { touch-action: manipulation; }
       </div>
       <div class="conveyor-arrow right" onclick="shiftSpeed(1)">&#x276F;</div>
     </div>
-    <!-- Selected deck panel — right side, blends into lore below -->
+    <!-- Selected deck panel: right side, blends into lore below -->
     <div id="selectedDeckPanel" style="
       width:220px;min-height:300px;flex-shrink:0;position:relative;overflow:hidden;
       background:#020208;cursor:pointer;
@@ -812,7 +812,7 @@ button, [onclick] { touch-action: manipulation; }
   <div class="ds-lore-panel">
     <div class="ds-empty" id="dsEmpty">
       <div class="ds-empty-icon">✦</div>
-      <div class="ds-empty-text" id="dsEmptyText">HOVER TO BROWSE — CLICK TO SELECT</div>
+      <div class="ds-empty-text" id="dsEmptyText">HOVER TO BROWSE: CLICK TO SELECT</div>
     </div>
     <div class="ds-lore-content" id="loreContent">
 
@@ -825,10 +825,10 @@ button, [onclick] { touch-action: manipulation; }
         </div>
         <!-- CENTER/RIGHT: Name/Sub/Quote + Lore paragraph -->
         <div style="flex:1;display:flex;flex-direction:column;gap:8px;min-width:0;">
-          <div class="ds-race-name" id="loreName">—</div>
-          <div class="ds-race-sub" id="loreSub">—</div>
-          <div class="ds-race-quote" id="loreQuote">—</div>
-          <div id="loreText1" style="font-size:14px;color:#ccc;line-height:1.75;margin-top:8px;">—</div>
+          <div class="ds-race-name" id="loreName">-</div>
+          <div class="ds-race-sub" id="loreSub">-</div>
+          <div class="ds-race-quote" id="loreQuote">-</div>
+          <div id="loreText1" style="font-size:14px;color:#ccc;line-height:1.75;margin-top:8px;">-</div>
           <div style="display:none;"><div id="loreLabel1"></div><div id="loreLabel2"></div><div id="loreText2"></div><div id="loreLabel3"></div><div id="loreText3"></div><div class="lore-weakness" id="loreText3b"></div><div id="loreDivider"></div></div>
         </div>
       </div>
@@ -901,7 +901,7 @@ const RACES = [
     quote: '"We are many worlds, one purpose."',
     abilities: ['COLONIAL BULWARK', 'ACCORD BARRAGE', 'FLEET ADMIRAL', 'PINCER MANEUVER'],
     playstyle: 'Balanced generalist',
-    lore: "Humanity's unified colonial federation — 40 colony worlds, one military doctrine. No alien mystique, no ancient wisdom. They fight with discipline, numbers, and the one advantage no alien race shares: they understand each other.",
+    lore: "Humanity's unified colonial federation: 40 colony worlds, one military doctrine. No alien mystique, no ancient wisdom. They fight with discipline, numbers, and the one advantage no alien race shares: they understand each other.",
     history: "The Accord emerged from centuries of intercolonial conflict, unified under the Colonial Defense Treaty after the Proxima Wars. They were the last major civilization to push toward the galactic core, and the first to realize all expansion routes led to the same impossible convergence.",
     counter: 'Lithos high-edge walls absorb their standard attacks. Veil phase abilities bypass formation tactics.'
   },
@@ -912,8 +912,8 @@ const RACES = [
     quote: '"You will fracture against us."',
     abilities: ['CRYSTAL FORTRESS', 'REFRACTION', 'LATTICE WARD', 'CRYSTAL DENSITY'],
     playstyle: 'Defensive anchor',
-    lore: "Silicon-lattice beings grown from asteroid fields — not manufactured but crystallized over geological time. What appears to be a ship is a mobile extension of their homeworld lattice, indistinguishable from the structure it grew from.",
-    history: "The Crystallis did not travel to Galactic Zero. They grew toward it — their expansion network extending one node at a time across millennia. When other civilizations arrived, the Crystallis had already been present for ten thousand years, waiting in silence.",
+    lore: "Silicon-lattice beings grown from asteroid fields: not manufactured but crystallized over geological time. What appears to be a ship is a mobile extension of their homeworld lattice, indistinguishable from the structure it grew from.",
+    history: "The Crystallis did not travel to Galactic Zero. They grew toward it: their expansion network extending one node at a time across millennia. When other civilizations arrived, the Crystallis had already been present for ten thousand years, waiting in silence.",
     counter: 'Corrosive Strike and Myco Toxin weaken Crystallis edges. Entropy Reversal turns their lattice defenses against themselves.'
   },
   {
@@ -923,7 +923,7 @@ const RACES = [
     quote: '"We have already begun."',
     abilities: ['MYCELIUM LINK', 'SPORE BURST', 'MYCELIAL NETWORK', 'MYCO SURGE'],
     playstyle: 'Attrition spreader',
-    lore: "A distributed mycorrhizal intelligence spanning solar systems — no central mind, only network. The Drift does not make decisions. It grows. Every spore carries the full consciousness of the whole. Ships are enormous fruiting bodies deployed from an organism larger than most star systems.",
+    lore: "A distributed mycorrhizal intelligence spanning solar systems: no central mind, only network. The Drift does not make decisions. It grows. Every spore carries the full consciousness of the whole. Ships are enormous fruiting bodies deployed from an organism larger than most star systems.",
     history: "The Mycos Drift arrived at Galactic Zero not as an expedition but as an infection. The sector's unusual gravitational profile carried their spores from a system they had already consumed. By the time other races identified them as a civilization, the Drift had established roots in seventeen transit corridors.",
     counter: 'Acid Charge (Rush) can strike before Mycelium Link sets up. Phase Shift cards bypass fungal zone control.'
   },
@@ -934,8 +934,8 @@ const RACES = [
     quote: '"You cannot strike what you cannot see."',
     abilities: ['PHASE SHIFT', 'AFTERIMAGE', 'LIGHT BEND', 'PHOTON LANCE'],
     playstyle: 'Deception and displacement',
-    lore: "Beings of coherent light who never fully solidify. Visible only when two waveforms cross — and only for a moment. What other races perceive as a Veil ship is a briefly-stable interference pattern. Strike it and it becomes somewhere else.",
-    history: "The Veil's presence at Galactic Zero was detected only after they had placed three nodes in contested corridors. No one saw them arrive. Diplomatic contact has been limited to interference patterns in communication arrays — messages left as standing waves in empty space.",
+    lore: "Beings of coherent light who never fully solidify. Visible only when two waveforms cross: and only for a moment. What other races perceive as a Veil ship is a briefly-stable interference pattern. Strike it and it becomes somewhere else.",
+    history: "The Veil's presence at Galactic Zero was detected only after they had placed three nodes in contested corridors. No one saw them arrive. Diplomatic contact has been limited to interference patterns in communication arrays: messages left as standing waves in empty space.",
     counter: 'Crystal Fortress and Tectonic Hold block Veil scoring. Void Lance targets their home row anchor before it can support.'
   },
   {
@@ -945,8 +945,8 @@ const RACES = [
     quote: '"Everything ends. We simply hasten it."',
     abilities: ['ENTROPY REVERSAL', 'RUST EQUALIZE', 'SECOND ROT', 'CORROSIVE STRIKE'],
     playstyle: 'Board degrader',
-    lore: "Ancient beings who reached the inevitable philosophical conclusion long ago: heat death is not a tragedy but a destination. Their technology is designed not to preserve but to accelerate — every weapon is entropy made purposeful, every ship a slow-motion collapse.",
-    history: "The Entropy Cult has fought at seventeen convergence points across galactic history. They lose most of them — deliberately. Each defeat weakens the victor. At Galactic Zero they arrive as they always do: with beautiful corroded ships, genuine smiles, and no fear of the outcome.",
+    lore: "Ancient beings who reached the inevitable philosophical conclusion long ago: heat death is not a tragedy but a destination. Their technology is designed not to preserve but to accelerate: every weapon is entropy made purposeful, every ship a slow-motion collapse.",
+    history: "The Entropy Cult has fought at seventeen convergence points across galactic history. They lose most of them: deliberately. Each defeat weakens the victor. At Galactic Zero they arrive as they always do: with beautiful corroded ships, genuine smiles, and no fear of the outcome.",
     counter: 'Crystal Fortress blocks entropy spread. Quantum Entanglement and Wave Collapse outscore the slow decay strategy.'
   },
   {
@@ -956,7 +956,7 @@ const RACES = [
     quote: '"The Sovereign sees through ten thousand eyes."',
     abilities: ['HIVE PULSE', 'MANDIBLE LEVEL', 'ACID CHARGE', "QUEEN'S FAVOR"],
     playstyle: 'Cluster formation',
-    lore: "Insectoid hive-mind where the Sovereign — always singular, always enormous — is the central consciousness. Ships are colonies of living bodies fused into hull-shapes. The Sovereign herself is the Dreadnaught: a mobile throne that makes everything around her lethal.",
+    lore: "Insectoid hive-mind where the Sovereign: always singular, always enormous: is the central consciousness. Ships are colonies of living bodies fused into hull-shapes. The Sovereign herself is the Dreadnaught: a mobile throne that makes everything around her lethal.",
     history: "The Brood arrived at Galactic Zero as a colony fleet that had consumed three neighboring systems. The Sovereign tasted the gravitational anomaly of the sector from parsecs away and redirected her entire expansion drive toward it. She has never retreated in recorded history.",
     counter: "Isolate their clusters before they mass. The Sovereign's COMMANDER bonuses require adjacency."
   },
@@ -967,8 +967,8 @@ const RACES = [
     quote: '"We come from the dark between stars."',
     abilities: ['VOID LANCE', 'DARK SURGE', 'DARK LUNGE', 'EVENT HORIZON'],
     playstyle: 'Aggressive assassin',
-    lore: "From the intergalactic void — the true dark between galaxy clusters where no star has ever formed. Defined entirely by absence. Void Hunter ships absorb light; visible only by what they occlude. Their technology is predatory at the fundamental level: find the strongest thing, destroy its strength first.",
-    history: "No one knows how old the Void Hunters are. Their recorded interactions with other civilizations go back to the galactic formation period. They have no territory, no homeworld, no resources — only prey. Galactic Zero attracts them for the same reason it attracts everyone else: concentration of opponents.",
+    lore: "From the intergalactic void: the true dark between galaxy clusters where no star has ever formed. Defined entirely by absence. Void Hunter ships absorb light; visible only by what they occlude. Their technology is predatory at the fundamental level: find the strongest thing, destroy its strength first.",
+    history: "No one knows how old the Void Hunters are. Their recorded interactions with other civilizations go back to the galactic formation period. They have no territory, no homeworld, no resources: only prey. Galactic Zero attracts them for the same reason it attracts everyone else: concentration of opponents.",
     counter: 'High defensive edge values (Lithos, Crystallis) absorb their strikes. Shield abilities block their critical first comparisons.'
   },
   {
@@ -978,7 +978,7 @@ const RACES = [
     quote: '"You have angered the storm."',
     abilities: ['STORM WRAP', 'PLASMA SURGE', 'STORM BIRTH', 'TWIN PLASMA'],
     playstyle: 'Volatile comeback',
-    lore: "Evolved in the upper atmospheres of gas giants — beings of ionized plasma held together by magnetic will. Ships are literally contained storms: self-sustaining atmospheric systems directed by a collective plasma consciousness. The Dreadnaught is a weaponized planetary hurricane.",
+    lore: "Evolved in the upper atmospheres of gas giants: beings of ionized plasma held together by magnetic will. Ships are literally contained storms: self-sustaining atmospheric systems directed by a collective plasma consciousness. The Dreadnaught is a weaponized planetary hurricane.",
     history: "The Gas Nomads arrived at Galactic Zero because the sector's gravitational anomaly was generating exotic plasma conditions they had never encountered. What began as curiosity became conflict when other races claimed resource streams the Nomads considered natural feeding grounds.",
     counter: "Strike early before Berserk stacks accumulate. Spread cards to avoid triggering Last Stand bonuses."
   },
@@ -989,8 +989,8 @@ const RACES = [
     quote: '"We were here before your stars ignited."',
     abilities: ['TECTONIC HOLD', 'FAULT LINE', 'TECTONIC ARRAY', 'STONE SKIN'],
     playstyle: 'Denial control',
-    lore: "Near-immortal beings thinking in geological time — a 'fast decision' takes a decade. Ships are asteroids shaped over millions of years by forces the Lithos will into specific geometries. They do not build. They wait for matter to become what they already decided it would be.",
-    history: "The Lithos have existed since before the current star generation. Their reason for fighting at Galactic Zero is not expansion — it is memory. The sector contains a gravitational record of the previous galactic configuration, and the Lithos will not allow it to be disturbed.",
+    lore: "Near-immortal beings thinking in geological time: a 'fast decision' takes a decade. Ships are asteroids shaped over millions of years by forces the Lithos will into specific geometries. They do not build. They wait for matter to become what they already decided it would be.",
+    history: "The Lithos have existed since before the current star generation. Their reason for fighting at Galactic Zero is not expansion: it is memory. The sector contains a gravitational record of the previous galactic configuration, and the Lithos will not allow it to be disturbed.",
     counter: 'Corrosive Strike and Myco Toxin erode even the deepest geological edges. Mycelial Network outscores slow stone accumulation.'
   },
   {
@@ -1000,7 +1000,7 @@ const RACES = [
     quote: '"We are all possibilities at once."',
     abilities: ['PROBABILITY CASCADE', 'WAVE COLLAPSE', 'SUPERPOSITION', 'OBSERVER EFFECT'],
     playstyle: 'Reactive uncertainty',
-    lore: "Beings that exist in superposition — multiple states simultaneously until observed. Their ships are probability clouds: when you look directly at a Quantum Thread vessel, you have already changed what it was. They operate on the principle that the unobserved state contains more power than the resolved one.",
+    lore: "Beings that exist in superposition: multiple states simultaneously until observed. Their ships are probability clouds: when you look directly at a Quantum Thread vessel, you have already changed what it was. They operate on the principle that the unobserved state contains more power than the resolved one.",
     history: "The Quantum Thread's presence at Galactic Zero is, according to their own cosmology, both certain and impossible. Multiple branches of their probability-consciousness are fighting here simultaneously, in parallel timelines with different outcomes. They do not know which branch they are in.",
     counter: 'Consistent, predictable decks make Adaptive weaker. Fortress cards resist their phase and displacement attacks.'
   },
@@ -1011,9 +1011,9 @@ const RACES = [
     quote: '"The note that breaks everything."',
     abilities: ['RESONANT CHORD', 'SONIC BOOM', 'HARMONIC PULSE', 'SONIC RUSH'],
     playstyle: 'Area resonance',
-    lore: "No visible form. No detectable mass. The Choir is pure resonant frequency — sound traveling through space at impossible scales. They perceive through vibration, communicate through harmonic modulation, and attack by finding the resonant frequency of whatever they want destroyed.",
-    history: "The Choir was detected at Galactic Zero as an anomalous resonance signature in the sector's background radiation. By the time other civilizations understood what they were hearing, The Choir had been present for three centuries — listening, mapping resonant vulnerabilities, calculating the frequency that will shatter each civilization's Dreadnaught.",
-    counter: 'Spread your cards — do not cluster. Side Swipe and Sweep abilities are devastating against dense formations.'
+    lore: "No visible form. No detectable mass. The Choir is pure resonant frequency: sound traveling through space at impossible scales. They perceive through vibration, communicate through harmonic modulation, and attack by finding the resonant frequency of whatever they want destroyed.",
+    history: "The Choir was detected at Galactic Zero as an anomalous resonance signature in the sector's background radiation. By the time other civilizations understood what they were hearing, The Choir had been present for three centuries: listening, mapping resonant vulnerabilities, calculating the frequency that will shatter each civilization's Dreadnaught.",
+    counter: 'Spread your cards: do not cluster. Side Swipe and Sweep abilities are devastating against dense formations.'
   },
 ];
 
@@ -1021,19 +1021,19 @@ const RACES = [
 const ABILITY_DESC = {
   // TERRAN
   'COLONIAL BULWARK':      'The first edge comparison loss is permanently blocked in that direction',
-  'ACCORD BARRAGE':        'Winning an edge fires a second hit at half strength — discipline strikes twice',
+  'ACCORD BARRAGE':        'Winning an edge fires a second hit at half strength: discipline strikes twice',
   'FLEET ADMIRAL':         'Adjacent same-tier friendly cards gain +2 to all edges on placement',
   'PINCER MANEUVER':       'After placing, take an immediate extra turn before the opponent responds',
   // BROOD
-  'HIVE PULSE':            'Adjacent same-tier Brood cards gain +2 to all edges — hive coordination',
-  'MANDIBLE LEVEL':        'All 4 edges normalize to the 2nd-highest value on placement — even spread',
+  'HIVE PULSE':            'Adjacent same-tier Brood cards gain +2 to all edges: hive coordination',
+  'MANDIBLE LEVEL':        'All 4 edges normalize to the 2nd-highest value on placement: even spread',
   'ACID CHARGE':           'Can be placed adjacent to any enemy card anywhere, bypassing zone rules',
   "QUEEN'S FAVOR":         'Adjacent friendly cards of any tier gain +1 to all edges on placement',
   // CRYSTALLIS
   'CRYSTAL FORTRESS':      'This card = 0 VP. Two random adjacent enemies also contribute 0 VP',
   'REFRACTION':            'When 2+ enemies are adjacent, strongest and weakest facing edges swap',
-  'LATTICE WARD':          'The first edge comparison loss is permanently blocked — crystal holds',
-  'CRYSTAL DENSITY':       'This card counts as 1.5x power in VP — lattice mass wins lines',
+  'LATTICE WARD':          'The first edge comparison loss is permanently blocked: crystal holds',
+  'CRYSTAL DENSITY':       'This card counts as 1.5x power in VP: lattice mass wins lines',
   // MYCOS
   'MYCELIUM LINK':         'Middle of a vertical 3-card line: N/S edges distribute to flankers',
   'SPORE BURST':           'A weak bonus T2 card spawns into your hand at game start',
@@ -1041,19 +1041,19 @@ const ABILITY_DESC = {
   'MYCO SURGE':            'Win by 3+ on one axis and both row and column are claimed simultaneously',
   // VEIL
   'PHASE SHIFT':           'Can be placed anywhere in own home 2 rows without zone restrictions',
-  'AFTERIMAGE':            'After placing, take an immediate extra turn — light outruns darkness',
+  'AFTERIMAGE':            'After placing, take an immediate extra turn: light outruns darkness',
   'LIGHT BEND':            'If on a border cell, also competes against the opposite board edge card',
-  'PHOTON LANCE':          'Tie results count as wins — light never draws, it passes through',
+  'PHOTON LANCE':          'Tie results count as wins: light never draws, it passes through',
   // ENTROPY
   'ENTROPY REVERSAL':      'With 2+ adjacent enemies, strongest and weakest facing edges swap',
-  'RUST EQUALIZE':         'All 4 edges normalize to the 2nd-highest value — corrosion levels all',
+  'RUST EQUALIZE':         'All 4 edges normalize to the 2nd-highest value: corrosion levels all',
   'SECOND ROT':            'After winning an edge, fires a second hit at half strength',
   'CORROSIVE STRIKE':      'Two random adjacent enemies each lose -1 to all 4 edges permanently',
   // VOID
-  'VOID LANCE':            'Silences the nearest enemy in this column — contributes 0 VP permanently',
+  'VOID LANCE':            'Silences the nearest enemy in this column: contributes 0 VP permanently',
   'DARK SURGE':            'Two random adjacent enemies each lose -1 to all 4 edges on placement',
   'DARK LUNGE':            'Can be placed adjacent to any enemy card anywhere, bypassing zone rules',
-  'EVENT HORIZON':         'Tie results count as wins — the void consumes all uncertainty',
+  'EVENT HORIZON':         'Tie results count as wins: the void consumes all uncertainty',
   // GAS
   'STORM WRAP':            'If on a border cell, also competes against the opposite board edge card',
   'PLASMA SURGE':          'Win by 3+ and both row AND column are claimed simultaneously',
@@ -1061,14 +1061,14 @@ const ABILITY_DESC = {
   'TWIN PLASMA':           'After winning an edge, fires a second hit at half strength',
   // LITHOS
   'TECTONIC HOLD':         'This card = 0 VP. Two random adjacent enemies also contribute 0 VP',
-  'FAULT LINE':            'Tied rows or columns tip +1 in your favor — pressure breaks deadlocks',
+  'FAULT LINE':            'Tied rows or columns tip +1 in your favor: pressure breaks deadlocks',
   'TECTONIC ARRAY':        'Adjacent same-tier friendly cards gain +2 to all edges on placement',
-  'STONE SKIN':            'This card counts as 1.5x power in VP — ancient mass wins lines',
+  'STONE SKIN':            'This card counts as 1.5x power in VP: ancient mass wins lines',
   // QUANTUM
-  'PROBABILITY CASCADE':   'After placing this card, take an immediate extra turn — probability collapses in your favor',
-  'WAVE COLLAPSE':         'Tied rows or columns tip +1 in your favor — state collapses for you',
+  'PROBABILITY CASCADE':   'After placing this card, take an immediate extra turn: probability collapses in your favor',
+  'WAVE COLLAPSE':         'Tied rows or columns tip +1 in your favor: state collapses for you',
   'SUPERPOSITION':         'Can be placed anywhere in own home 2 rows without zone restrictions',
-  'OBSERVER EFFECT':       'Silences the nearest enemy in this column — observation = 0 VP',
+  'OBSERVER EFFECT':       'Silences the nearest enemy in this column: observation = 0 VP',
   // CHOIR
   'RESONANT CHORD':        'Middle of a vertical 3-card line: N/S edges distribute to flankers',
   'SONIC BOOM':            'Win by 3+ and both row AND column are claimed simultaneously',
@@ -1092,7 +1092,7 @@ const RACE_ABILITY_KEYS = {
 
 let selectedRace = null;
 
-// ── CONVEYOR — JS-based infinite loop ─────────────────
+// ── CONVEYOR: JS-based infinite loop ─────────────────
 const TILE_COUNT   = 11;
 const AUTO_SPEED   = 1.4;
 
@@ -1102,7 +1102,7 @@ let cvHoverPaused  = false;
 let cvWheeling     = false;
 let cvLastTime     = null;  // for delta-time smooth animation
 let cvWheelTimer   = null;
-let CV_LOOP_PX     = 0; // measured from DOM after tiles render — avoids padding mismatch
+let CV_LOOP_PX     = 0; // measured from DOM after tiles render: avoids padding mismatch
 
 function measureLoopWidth() {
   const track = document.getElementById('conveyorTrack');
@@ -1121,7 +1121,7 @@ function runConveyor(timestamp) {
   if (!track) { requestAnimationFrame(runConveyor); return; }
   if (!CV_LOOP_PX) measureLoopWidth();
 
-  // Delta-time: move based on elapsed ms, not frames — prevents jumps on tab switch
+  // Delta-time: move based on elapsed ms, not frames: prevents jumps on tab switch
   if (cvLastTime === null) cvLastTime = timestamp;
   const delta = Math.min(timestamp - cvLastTime, 50); // cap at 50ms to prevent big jumps
   cvLastTime = timestamp;
@@ -1136,7 +1136,7 @@ function runConveyor(timestamp) {
   requestAnimationFrame(runConveyor);
 }
 
-// Reset last frame time when tab becomes visible — prevents position jump
+// Reset last frame time when tab becomes visible: prevents position jump
 document.addEventListener('visibilitychange', () => {
   if (!document.hidden) cvLastTime = null;
 });
@@ -1168,7 +1168,7 @@ function initConveyorWheel() {
   const wrap = document.getElementById('conveyorWrap');
   if (!wrap) return;
 
-  // Mouse hover pause — desktop only (touch devices: mouseenter fires but mouseleave never does)
+  // Mouse hover pause: desktop only (touch devices: mouseenter fires but mouseleave never does)
   const _isTouch = navigator.maxTouchPoints > 0;
   if (!_isTouch) {
     wrap.addEventListener('mouseenter', () => { cvHoverPaused = true; });
@@ -1223,7 +1223,7 @@ function resetConveyorHalf() {
 function buildRaceGrid() {
   const track = document.getElementById('conveyorTrack');
   track.innerHTML = '';
-  // 3 full sets — provides an extra buffer so seam is never visible
+  // 3 full sets: provides an extra buffer so seam is never visible
   [0, 1, 2].forEach(() => RACES.forEach(race => track.appendChild(createTile(race))));
   // CV_LOOP_PX = distance across exactly ONE set (measured after layout)
   requestAnimationFrame(() => requestAnimationFrame(measureLoopWidth));
@@ -1263,7 +1263,7 @@ function selectRace(race, tileEl) {
     if (r) {
       t.style.borderColor = r.color + '28';
       t.style.boxShadow = '';
-      // DO NOT clear background — it contains the deck cover backgroundImage
+      // DO NOT clear background: it contains the deck cover backgroundImage
     }
     t.classList.remove('selected');
   });
@@ -1285,7 +1285,7 @@ function selectRace(race, tileEl) {
     t.style.boxShadow = `0 0 24px #ffdd0066, 0 0 48px #ffdd0033, 0 12px 40px ${race.color}44`;
   });
 
-  // Use lore background — clip it to start at the bottom of the conveyor belt
+  // Use lore background: clip it to start at the bottom of the conveyor belt
   const bg = document.getElementById('race-bg');
   const ov = document.getElementById('race-bg-overlay');
   const cvSection = document.querySelector('.conveyor-section');
@@ -1306,7 +1306,7 @@ function selectRace(race, tileEl) {
   // Update lore panel
   document.getElementById('dsEmpty').classList.add('hidden');
   const lc = document.getElementById('loreContent');
-  // Don't remove visible — update content directly to avoid black flash on re-select
+  // Don't remove visible: update content directly to avoid black flash on re-select
   setTimeout(() => {
     // Avatar portrait
     const avEl = document.getElementById('loreAvatar');
@@ -1314,7 +1314,7 @@ function selectRace(race, tileEl) {
       avEl.style.borderColor = race.color;
       avEl.style.boxShadow  = `0 0 20px ${race.color}44`;
       // Avatar image + deploy overlay (visible on hover)
-      avEl.style.animation = ''; // no overlay — deploy button is separate below
+      avEl.style.animation = ''; // no overlay: deploy button is separate below
       avEl.innerHTML = `<img src="assets/avatars/${race.id}.png"
         style="width:100%;height:100%;object-fit:cover;display:block;"
         onerror="this.style.display='none'">`;
@@ -1333,7 +1333,7 @@ function selectRace(race, tileEl) {
     document.getElementById('loreDivider').style.background =
       `linear-gradient(90deg, ${race.color}, transparent)`;
 
-    // Ability showcase cards — show ALL abilities
+    // Ability showcase cards: show ALL abilities
     const ac = document.getElementById('abilityCards');
     const _abilityKeys = RACE_ABILITY_KEYS[race.id] || [];
     ac.innerHTML = race.abilities.map((a, i) => {
@@ -1344,13 +1344,13 @@ function selectRace(race, tileEl) {
         ${_iconSrc ? `<img src="${_iconSrc}" style="width:88px;flex-shrink:0;object-fit:cover;object-position:center;border-right:1px solid ${race.color}33;align-self:stretch;display:block;" onerror="this.style.display='none'">` : ''}
         <div style="flex:1;display:flex;flex-direction:column;gap:5px;justify-content:center;padding:12px 14px;">
           <div class="absc-title">${a}</div>
-          <div class="absc-desc">${ABILITY_DESC[a] || '—'}</div>
+          <div class="absc-desc">${ABILITY_DESC[a] || '-'}</div>
         </div>
       </div>`;
     }).join('');
 
-    // Tier card previews — show one card per tier for this race
-    // Tier card art — Terran + Brood have real art; others use deck cover as placeholder
+    // Tier card previews: show one card per tier for this race
+    // Tier card art: Terran + Brood have real art; others use deck cover as placeholder
     const TIER_CARD_ART = {
       terran: [
         { tier:'I',   art:'assets/cards/terran/colony-world-a.png', name:'COLONY WORLD' },
@@ -1502,7 +1502,7 @@ function toggleVoiceMute() {
   }
 }
 
-// ── GALAXY VIDEO — desktop: play once + freeze; mobile: still image ──
+// ── GALAXY VIDEO: desktop: play once + freeze; mobile: still image ──
 const gv = document.getElementById('galaxyVideo');
 const _isMobile = window.matchMedia('(max-width: 768px)').matches || navigator.maxTouchPoints > 1;
 const _splashBg = document.getElementById('splashBg');
@@ -1513,7 +1513,7 @@ if (_isMobile) {
   const _hint = document.getElementById('dsEmptyText');
   if (_hint) _hint.textContent = 'TAP A CIVILIZATION TO SELECT';
 
-  // Body-level launch bar — appended to <body> so overflow:hidden on ancestors can't clip it
+  // Body-level launch bar: appended to <body> so overflow:hidden on ancestors can't clip it
   const _mbar = document.createElement('div');
   _mbar.id = 'mobileLaunchBar';
   _mbar.style.cssText = 'display:none;position:fixed;bottom:0;left:0;right:0;z-index:99998;padding:10px 16px 20px;background:linear-gradient(transparent,#020208 30%);';
@@ -1565,7 +1565,7 @@ function toggleMute() {
   if (!musicStarted && !muted) startMusic();
 }
 
-// Click sound — plays on every button and card click
+// Click sound: plays on every button and card click
 function playClick() {
   const sfx = document.getElementById('clickSfx');
   if (!sfx) return;
@@ -1596,7 +1596,7 @@ document.addEventListener('click', e => {
 
 // ── SCREEN TRANSITIONS ─────────────────────────────
 function showDeckSelect() {
-  startMusic(); // First user interaction — safe to play
+  startMusic(); // First user interaction: safe to play
   const splash = document.getElementById('splash');
   const splashBg = document.getElementById('splashBg');
   const splashDim = document.getElementById('splashDim');
@@ -1679,7 +1679,7 @@ function showOpponentPicker() {
 
   _selectedOpponent = null;
 
-  // Build opponent tiles — click selects, doesn't launch
+  // Build opponent tiles: click selects, doesn't launch
   grid.innerHTML = RACES.filter(r => r.id !== selectedRace.id).map(r => `
     <div class="opp-tile" data-rid="${r.id}"
       onclick="selectOpponent('${r.id}', this)"
@@ -1687,7 +1687,7 @@ function showOpponentPicker() {
         background:url('${r.cover}') center/cover;
         border:2px solid ${r.color}33;position:relative;
         transition:transform 0.2s,border-color 0.2s,box-shadow 0.2s;">
-      <!-- Check badge — shown when selected -->
+      <!-- Check badge: shown when selected -->
       <div class="opp-check" style="display:none;position:absolute;top:7px;right:7px;
         width:26px;height:26px;border-radius:50%;background:#00ffcc;
         align-items:center;justify-content:center;font-size:14px;color:#000;font-weight:bold;">✓</div>
@@ -1804,7 +1804,7 @@ async function createRoom() {
   m.innerHTML = `
     <div style="background:#07070f;border:1px solid #8855ff88;border-radius:12px;padding:32px 40px;max-width:500px;width:92%;text-align:center;box-shadow:0 0 60px #8855ff22;">
       <div style="font-family:'Orbitron',monospace;font-size:18px;letter-spacing:4px;color:#8855ff;margin-bottom:6px;">INVITE A FRIEND</div>
-      <div style="font-size:13px;color:#555;letter-spacing:1px;margin-bottom:22px;">Send this link — the game begins when they select their deck</div>
+      <div style="font-size:13px;color:#555;letter-spacing:1px;margin-bottom:22px;">Send this link: the game begins when they select their deck</div>
       <div style="background:#0a0a18;border:1px solid #1a1a28;border-radius:6px;padding:14px;font-size:12px;color:#00ffcc;word-break:break-all;margin-bottom:20px;line-height:1.5;">${inviteUrl}</div>
       <div style="display:flex;gap:12px;justify-content:center;margin-bottom:24px;">
         <button onclick="navigator.clipboard.writeText('${inviteUrl}');this.textContent='COPIED ✓';this.style.borderColor='#00ffcc88';" style="background:#0a1a2e;border:1px solid #00ffcc66;color:#00ffcc;font-family:'Orbitron',inherit;font-size:13px;letter-spacing:2px;padding:12px 28px;cursor:pointer;border-radius:5px;transition:all 0.2s;">COPY LINK</button>
@@ -1872,7 +1872,7 @@ function setDiff(d) {
     const lbl = tile.querySelector('.diff-label');
     if (lbl) lbl.style.color = a ? cols[k] : '#aaa';
   });
-  // No auto-advance — user clicks NEXT to proceed after picking difficulty
+  // No auto-advance: user clicks NEXT to proceed after picking difficulty
 }
 setTimeout(() => setDiff('balanced'), 0);
 
@@ -1902,13 +1902,13 @@ function startGame() {
 
 // (startGame now routes through showOpponentPicker -> launchGame)
 
-// ── P2 JOIN DETECTION — fires if URL has ?room= param ────────────────────────
+// ── P2 JOIN DETECTION: fires if URL has ?room= param ────────────────────────
 (function() {
   const _rp = new URLSearchParams(window.location.search);
   const _roomId = _rp.get('room');
   if (!_roomId) return; // normal load, no room
 
-  // Show a JOIN overlay on top of the splash — P2 picks faction and joins
+  // Show a JOIN overlay on top of the splash: P2 picks faction and joins
   window.addEventListener('DOMContentLoaded', async () => {
     const ov = document.createElement('div');
     ov.style.cssText = `position:fixed;inset:0;z-index:99998;background:#000000dd;backdrop-filter:blur(6px);
@@ -1931,13 +1931,13 @@ function startGame() {
 
     let _joinRace = null;
 
-    // Fetch room — check status + P1 faction
+    // Fetch room: check status + P1 faction
     let _p1FactionId = null;
     try {
       const _rr = await sbGet(`/rest/v1/gz_rooms?id=eq.${_roomId}&select=p1_faction,p1_name,status,p2_faction`);
       const _rd = await _rr.json();
 
-      // Game already started — lock out the 3rd+ person
+      // Game already started: lock out the 3rd+ person
       if (_rd[0]?.status === 'playing' || _rd[0]?.p2_faction) {
         ov.innerHTML = `
           <div style="font-family:'Orbitron',monospace;font-size:22px;letter-spacing:5px;color:#ff4466;text-shadow:0 0 20px #ff446688;">GAME IN PROGRESS</div>
@@ -1953,7 +1953,7 @@ function startGame() {
       if (_p1FactionId) {
         const _p1Name = _rd[0]?.p1_name || _p1FactionId;
         document.querySelector('#joinRaceGrid')?.insertAdjacentHTML('beforebegin',
-          `<div style="font-size:12px;color:#554466;letter-spacing:1px;margin-bottom:4px;">Your opponent chose <span style="color:#8855ff;">${_p1Name.replace('THE ','')}</span> — pick a different faction</div>`
+          `<div style="font-size:12px;color:#554466;letter-spacing:1px;margin-bottom:4px;">Your opponent chose <span style="color:#8855ff;">${_p1Name.replace('THE ','')}</span>: pick a different faction</div>`
         );
       }
     } catch(e) { /* proceed without restriction */ }
@@ -2051,7 +2051,7 @@ if (_fromGame) {
 initConveyorWheel();
 
 // Preload ALL cover images first, then build tiles and start conveyor
-// This guarantees zero blank tiles — every image is cached before tiles render
+// This guarantees zero blank tiles: every image is cached before tiles render
 Promise.all(
   RACES.map(r => new Promise(res => {
     const img = new Image();
@@ -2248,7 +2248,7 @@ function quickStartGame() {
     LAUNCH DECK ▶
   </button>
 </div>
-<!-- Mobile leaderboard button — hidden on desktop, shown on mobile via CSS -->
+<!-- Mobile leaderboard button: hidden on desktop, shown on mobile via CSS -->
 <div id="lbMobileBtn" onclick="showLeaderboard()" style="
   display:none;position:fixed;bottom:76px;left:12px;z-index:300;
   width:44px;height:44px;border-radius:50%;

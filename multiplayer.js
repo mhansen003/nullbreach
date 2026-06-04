@@ -136,7 +136,7 @@ async function mpSubmitMove(cardId, r, c, seed, isFlank = false) {
       if (attempt < 2) await new Promise(r => setTimeout(r, 800 * (attempt + 1)));
 
 
-      else showToast('Move may not have saved — check connection', '#ff4422');
+      else showToast('Move may not have saved: check connection', '#ff4422');
 
 
     }
@@ -304,7 +304,7 @@ function mpStartPolling() {
     if (Date.now() - _mpLastActivity > 240000) {
 
 
-      addLog('system', '⚠ No opponent activity for 4 min — they may have disconnected');
+      addLog('system', '⚠ No opponent activity for 4 min: they may have disconnected');
 
 
       _mpLastActivity = Date.now();
@@ -373,7 +373,7 @@ function mpStartPolling() {
       console.warn(`MP poll error #${_mpPollErrors}`, e);
 
 
-      if (_mpPollErrors === 5)  showToast('Connection unstable — retrying...', '#ffaa22');
+      if (_mpPollErrors === 5)  showToast('Connection unstable: retrying...', '#ffaa22');
 
 
       if (_mpPollErrors >= 15) { // ~30s of failures
@@ -385,7 +385,7 @@ function mpStartPolling() {
         addLog('system', 'Lost connection to server. Please refresh to reconnect.');
 
 
-        showToast('Connection lost — please refresh', '#ff4422');
+        showToast('Connection lost: please refresh', '#ff4422');
 
 
       }

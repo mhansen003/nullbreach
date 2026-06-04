@@ -39,7 +39,7 @@ const RACE_ABILITY_NAMES = {
 const ABILITY_TEXT = {
 
 
-  shield: 'Absorbs the first edge loss — activates once per game.',
+  shield: 'Absorbs the first edge loss: activates once per game.',
 
 
   double_strike: 'When you win an edge comparison, the card one step further also takes half-damage.',
@@ -51,7 +51,7 @@ const ABILITY_TEXT = {
   boost: 'All adjacent friendly cards gain +1 to every edge when placed.',
 
 
-  fortify: 'Claims all adjacent empty cells — opponents cannot place there.',
+  fortify: 'Claims all adjacent empty cells: opponents cannot place there.',
 
 
   flank: 'After placing this card, take one extra turn immediately.',
@@ -84,7 +84,7 @@ const ABILITY_TEXT = {
   laser_focus: 'Combines all four edges into the North facing. Zero on all other sides.',
 
 
-  sniper: 'Cancels the opposing home-row card in this column — it scores 0 VP.',
+  sniper: 'Cancels the opposing home-row card in this column: it scores 0 VP.',
 
 
   birthright: 'On placement, a bonus Tier II card is added to your hand.',
@@ -96,7 +96,7 @@ const ABILITY_TEXT = {
   lamb: '5 VP but zero edges. Scores full value uncontested, nothing if attacked.',
 
 
-  overwhelm: 'Win an edge comparison by 3 or more — and you also win the opposing axis.',
+  overwhelm: 'Win an edge comparison by 3 or more: and you also win the opposing axis.',
 
 
   density: 'This card contributes 1.5× its power to the row/column score.',

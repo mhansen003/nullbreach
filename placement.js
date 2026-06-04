@@ -147,7 +147,7 @@ function getValidPlacements(owner, card) {
 
 
 
-  // Tier placement rules — symmetric, no side may enter the opponent's home row
+  // Tier placement rules: symmetric, no side may enter the opponent's home row
 
 
   let minAllowed, maxAllowed;
@@ -171,7 +171,7 @@ function getValidPlacements(owner, card) {
 
 
 
-  // RUSH bypasses tier zone restrictions — can go anywhere adjacent to an enemy
+  // RUSH bypasses tier zone restrictions: can go anywhere adjacent to an enemy
 
 
   // (still can't go into opponent home row)

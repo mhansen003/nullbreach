@@ -398,7 +398,7 @@ const GUIDE_PAGES = [
   <div class="g2-desc" style="margin-top:10px;max-width:360px;text-align:center;font-size:13px;color:#ddd;line-height:1.7;">
 
 
-    Each card has four edges — when cards are placed next to an enemy, the touching edges compete.
+    Each card has four edges: when cards are placed next to an enemy, the touching edges compete.
 
 
     The higher edge wins that direction, and the winning side earns the <strong>power difference</strong> as VP.
@@ -413,7 +413,7 @@ const GUIDE_PAGES = [
 
 
 
-<!-- SECTION 2: Row and Column scoring — single combined grid -->
+<!-- SECTION 2: Row and Column scoring: single combined grid -->
 
 
 <div class="g2-scoring" style="animation:g2fade 0.5s ease 2s both;display:flex;gap:20px;justify-content:center;align-items:flex-start;flex-wrap:wrap;">
@@ -477,15 +477,15 @@ const GUIDE_PAGES = [
   <div class="g2-scoring-text" style="max-width:460px;margin:14px auto 0;text-align:center;font-size:13px;color:#ddd;line-height:1.8;">
 
     Every row (left to right) and every column (top to bottom) is scored separately.
-    For each line the winner earns the difference in total power as VP — so controlling both rows and columns matters.
+    For each line the winner earns the difference in total power as VP: so controlling both rows and columns matters.
 
   </div>
 
-  <div style="max-width:460px;margin:12px auto 0;background:#0a0a18;border-left:3px solid #ffdd00;border-radius:6px;padding:12px 16px;">
-    <div style="font-size:11px;color:#ffdd00;font-family:'Orbitron',monospace;letter-spacing:2px;margin-bottom:6px;">🏆 WIN CONDITION</div>
-    <div style="font-size:13px;color:#e0d8f8;line-height:1.7;">
-      When all cards are played, the side with the <span style="color:#ffdd00;font-weight:bold;">highest total VP</span> wins.
-      First to control <span style="color:#ffdd00;font-weight:bold;">18+ cells</span> wins immediately.
+  <div style="max-width:460px;margin:10px auto 0;background:#0a0a18;border-left:3px solid #ffdd00;border-radius:6px;padding:9px 14px;display:flex;align-items:center;gap:12px;">
+    <div style="font-size:18px;flex-shrink:0;">🏆</div>
+    <div style="font-size:12px;color:#e0d8f8;line-height:1.6;">
+      All cards played → <span style="color:#ffdd00;font-weight:bold;">highest VP wins.</span>
+      Control <span style="color:#ffdd00;font-weight:bold;">18+ cells</span> → instant win.
     </div>
   </div>
 
@@ -547,10 +547,10 @@ const GUIDE_PAGES = [
   <div style="background:#0a0a18;border-left:3px solid #8855ff;border-radius:5px;padding:10px 12px;">
 
 
-    <div style="font-size:10px;color:#8855ff;font-family:'Orbitron',monospace;letter-spacing:2px;margin-bottom:4px;">TIER II–IV</div>
+    <div style="font-size:10px;color:#8855ff;font-family:'Orbitron',monospace;letter-spacing:2px;margin-bottom:4px;">TIER II-IV</div>
 
 
-    <div style="font-size:13px;color:#ddd;line-height:1.6;">Battle zone rows 1–3. Must be adjacent to a card you already played.</div>
+    <div style="font-size:13px;color:#ddd;line-height:1.6;">Battle zone rows 1-3. Must be adjacent to a card you already played.</div>
 
 
   </div>
@@ -563,7 +563,7 @@ const GUIDE_PAGES = [
 
 
 <!-- Two ability card examples -->
-<div style="font-size:10px;letter-spacing:3px;color:#ccc;text-align:center;margin-bottom:14px;font-family:&apos;Orbitron&apos;,monospace;">SPECIAL ABILITIES — cards marked ★ carry a unique power</div>
+<div style="font-size:10px;letter-spacing:3px;color:#ccc;text-align:center;margin-bottom:14px;font-family:&apos;Orbitron&apos;,monospace;">SPECIAL ABILITIES: cards marked ★ carry a unique power</div>
 <div style="display:flex;gap:24px;justify-content:center;align-items:flex-start;">
   <!-- Card 1: LAMB -->
   <div style="display:flex;flex-direction:column;align-items:center;gap:10px;width:180px;animation:g3fly 0.4s ease 0.3s both;">
@@ -737,7 +737,7 @@ const GUIDE_PAGES = [
     <div style="background:#080810;border:1px dashed #1a1a28;border-radius:3px;"></div>
 
 
-    <!-- N adjacent — orange blast from bottom -->
+    <!-- N adjacent: orange blast from bottom -->
 
 
     <div style="background:#080810;border:1px dashed #1a1a28;border-radius:3px;position:relative;">
@@ -758,7 +758,7 @@ const GUIDE_PAGES = [
 
 
 
-    <!-- Row 1 — W adjacent | HAZARD | E adjacent -->
+    <!-- Row 1: W adjacent | HAZARD | E adjacent -->
 
 
     <!-- W adjacent -->
@@ -824,7 +824,7 @@ const GUIDE_PAGES = [
     <div style="background:#080810;border:1px dashed #1a1a28;border-radius:3px;"></div>
 
 
-    <!-- S adjacent — orange blast from top -->
+    <!-- S adjacent: orange blast from top -->
 
 
     <div style="background:#080810;border:1px dashed #1a1a28;border-radius:3px;position:relative;">

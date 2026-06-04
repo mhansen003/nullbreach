@@ -12,7 +12,7 @@ function _applySnipe(card, r, c) {
   }
 }
 
-// _applyMirror removed — mirror ability replaced by revenge
+// _applyMirror removed: mirror ability replaced by revenge
 
 function applyPlacementAbility(card, r, c, owner) {
 
@@ -41,7 +41,7 @@ function applyPlacementAbility(card, r, c, owner) {
   // COMMANDER: adjacent same-tier friendly cards +2 all edges
 
 
-  // SPAWN (Brood): identical math to COMMANDER — Brood-unique name
+  // SPAWN (Brood): identical math to COMMANDER: Brood-unique name
 
 
   if (card.ability === 'boost' || card.ability === 'commander' || card.ability === 'spawn') {
@@ -80,7 +80,7 @@ function applyPlacementAbility(card, r, c, owner) {
     });
 
 
-    if (card.ability === 'spawn') addLog('compare', `SPAWN: ${card.name} coordinates the hive — adjacent same-tier allies +2`);
+    if (card.ability === 'spawn') addLog('compare', `SPAWN: ${card.name} coordinates the hive: adjacent same-tier allies +2`);
 
   }
 
@@ -135,7 +135,7 @@ function applyPlacementAbility(card, r, c, owner) {
     card.edgeMod.w = -card.edges.w;           // make W = 0
 
 
-    addLog('compare', `LASER FOCUS — ${card.name} concentrates all power forward: N=${total}`);
+    addLog('compare', `LASER FOCUS: ${card.name} concentrates all power forward: N=${total}`);
 
 
   }
@@ -198,7 +198,7 @@ function applyPlacementAbility(card, r, c, owner) {
       else { nb.card.edgeMod.w -= 1; edgeName = 'W'; }
 
 
-      addLog('compare', `INTIMIDATE — ${nb.card.name} loses 1 from ${edgeName}`);
+      addLog('compare', `INTIMIDATE: ${nb.card.name} loses 1 from ${edgeName}`);
 
 
     });
@@ -210,7 +210,7 @@ function applyPlacementAbility(card, r, c, owner) {
 
 
 
-  // FORTIFY: claims adjacent empty cells as reserved — opponents cannot place there
+  // FORTIFY: claims adjacent empty cells as reserved: opponents cannot place there
   if (card.ability === 'fortify') {
     dirs.forEach(({dr,dc}) => {
       const nr=r+dr, nc=c+dc;
@@ -220,7 +220,7 @@ function applyPlacementAbility(card, r, c, owner) {
         tgt.fortifiedBy = owner; // mark as reserved by this player
       }
     });
-    addLog('compare', `FORTIFY — ${card.name} claims adjacent territory`);
+    addLog('compare', `FORTIFY: ${card.name} claims adjacent territory`);
   }
 
 
@@ -304,10 +304,10 @@ function applyPlacementAbility(card, r, c, owner) {
     });
 
 
-    if (targets.length === 0) { addLog('compare','AMBUSH — no adjacent enemies to weaken'); return; }
+    if (targets.length === 0) { addLog('compare','AMBUSH: no adjacent enemies to weaken'); return; }
 
 
-    if (names.length) addLog('compare', `AMBUSH — ${names.join(', ')} weakened`);
+    if (names.length) addLog('compare', `AMBUSH: ${names.join(', ')} weakened`);
 
 
   }
@@ -316,7 +316,7 @@ function applyPlacementAbility(card, r, c, owner) {
 
 
 
-  // REVENGE: passive — triggers in battle scoring (see battle.js computeScores)
+  // REVENGE: passive: triggers in battle scoring (see battle.js computeScores)
 
 
 
@@ -332,7 +332,7 @@ function applyPlacementAbility(card, r, c, owner) {
       const tgt = G.grid[r][sc];
       if (tgt.card && tgt.owner !== owner && !tgt.card._sniped) {
         _applySnipe(tgt.card, r, sc);
-        addLog('compare', `SNIPER — ${card.name} locks onto ${tgt.card.name} at [${r},${sc}]`);
+        addLog('compare', `SNIPER: ${card.name} locks onto ${tgt.card.name} at [${r},${sc}]`);
       }
     }
   }
@@ -341,8 +341,8 @@ function applyPlacementAbility(card, r, c, owner) {
 
 
 
-  // HOME INVADER: placement rule handled in placement.js — no placement-time effect here
-  // LAMB: stats set during assignRandomAbilities — no placement-time effect here
+  // HOME INVADER: placement rule handled in placement.js: no placement-time effect here
+  // LAMB: stats set during assignRandomAbilities: no placement-time effect here
 
   // BIRTHRIGHT: on placement, add a bonus T2 card to hand
   if (card.ability === 'birthright') {
@@ -357,7 +357,7 @@ function applyPlacementAbility(card, r, c, owner) {
         bonus.used = false; bonus.shieldExpended = false;
         bonus.edgeMod = {n:0,s:0,e:0,w:0};
         G.playerHand.push(bonus);
-        addLog('player', `BIRTHRIGHT — ${card.name} grants a bonus card: ${bonus.name}`);
+        addLog('player', `BIRTHRIGHT: ${card.name} grants a bonus card: ${bonus.name}`);
         if (typeof showToast === 'function') showToast(`BIRTHRIGHT: ${bonus.name} added to your hand`);
       }
     } else {
@@ -370,7 +370,7 @@ function applyPlacementAbility(card, r, c, owner) {
         bonus.used = false; bonus.shieldExpended = false;
         bonus.edgeMod = {n:0,s:0,e:0,w:0};
         G.aiHand.push(bonus);
-        addLog('compare', `BIRTHRIGHT — AI ${card.name} grants a bonus card: ${bonus.name}`);
+        addLog('compare', `BIRTHRIGHT: AI ${card.name} grants a bonus card: ${bonus.name}`);
       }
     }
   }
@@ -414,7 +414,7 @@ function fireReactiveAbilities(newR, newC, newCard, newOwner) {
         case 'sniper':
           if (r === newR && !newCard._sniped) {
             _applySnipe(newCard, newR, newC);
-            addLog('compare', `SNIPER — ${aCard.name} locks onto ${newCard.name} entering row ${newR}`);
+            addLog('compare', `SNIPER: ${aCard.name} locks onto ${newCard.name} entering row ${newR}`);
             // Persistent visual: mark cell as sniper-locked
             newCard._sniperLocked = true;
           }
@@ -433,7 +433,7 @@ function fireReactiveAbilities(newR, newC, newCard, newOwner) {
             newCard.edgeMod[edgeName] -= 1;
             newCard._intimidatedBy = newCard._intimidatedBy || new Set();
             newCard._intimidatedBy.add(aCard);
-            addLog('compare', `INTIMIDATE — ${aCard.name} weakens ${newCard.name}'s ${edgeName.toUpperCase()}`);
+            addLog('compare', `INTIMIDATE: ${aCard.name} weakens ${newCard.name}'s ${edgeName.toUpperCase()}`);
           }
           break;
 
@@ -446,7 +446,7 @@ function fireReactiveAbilities(newR, newC, newCard, newOwner) {
             aCard._ambushHitsRemaining = (aCard._ambushHitsRemaining ?? 2) - 1;
             const cellEl = document.querySelector(`.cell[data-r="${newR}"][data-c="${newC}"]`);
             if (cellEl) { cellEl.classList.add('ambush-hit'); setTimeout(()=>cellEl.classList.remove('ambush-hit'),900); }
-            addLog('compare', `AMBUSH — ${aCard.name} strikes ${newCard.name} (${aCard._ambushHitsRemaining} charges left)`);
+            addLog('compare', `AMBUSH: ${aCard.name} strikes ${newCard.name} (${aCard._ambushHitsRemaining} charges left)`);
           }
           break;
 

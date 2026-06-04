@@ -461,7 +461,7 @@ function showRestartModal() {
 
 }
 
-// Global button click sound — plays for any button not already handled
+// Global button click sound: plays for any button not already handled
 
 
 document.addEventListener('click', ev => {

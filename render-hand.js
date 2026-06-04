@@ -74,7 +74,7 @@ function renderHand() {
     // Mobile auto-opens T1; desktop auto-selects lowest eligible tier
     window._activeTier = _isMobile ? 'I' : (['I','II','III','IV'].find(t=>byTier[t]?.length>0) || 'I');
   } else if (window._activeTier && !byTier[window._activeTier]?.length && !inelByTier[window._activeTier]?.length) {
-    // Active tier completely empty — collapse on mobile, pick next on desktop
+    // Active tier completely empty: collapse on mobile, pick next on desktop
     window._activeTier = _isMobile ? null : (['I','II','III','IV'].find(t=>byTier[t]?.length>0) || null);
   }
 
@@ -212,7 +212,7 @@ function renderHand() {
     });
 
 
-    // Touch drag-and-drop (iOS Safari — HTML5 drag API unsupported)
+    // Touch drag-and-drop (iOS Safari: HTML5 drag API unsupported)
     if (navigator.maxTouchPoints > 0) {
       let _tdStart = null, _tdDragging = false;
 
@@ -321,7 +321,7 @@ function renderHand() {
 
 
 
-    // Shadow cards peek out to the RIGHT — creates physical stack look
+    // Shadow cards peek out to the RIGHT: creates physical stack look
 
 
     for (var i = shadows; i >= 1; i--) {
@@ -342,7 +342,7 @@ function renderHand() {
 
 
 
-    // Front card — same format as real hand cards: art bg + tier dots top-left
+    // Front card: same format as real hand cards: art bg + tier dots top-left
 
 
     var front = document.createElement('div');
@@ -378,7 +378,7 @@ function renderHand() {
 
 
 
-    // Tier dots top-left — exact same format as hand cards
+    // Tier dots top-left: exact same format as hand cards
 
 
     var dots = Array.from({length:tNum}, function(){
@@ -486,7 +486,7 @@ function renderHand() {
       };
 
 
-      wrap.title = `TIER ${tier} — Click to expand (${cards.length} card${cards.length!==1?'s':''})`;
+      wrap.title = `TIER ${tier}: Click to expand (${cards.length} card${cards.length!==1?'s':''})`;
 
 
       wrap.onmouseenter = function(e) {
@@ -641,7 +641,7 @@ function renderHand() {
       }
     });
 
-    // Zone indicator — right of covers, shows selected card's placement pattern
+    // Zone indicator: right of covers, shows selected card's placement pattern
     if (G.selectedCard && G.selectedCard.zone) {
       const _card = G.selectedCard;
       const _tCol = TIER_COLORS[_card.tier] || '#888';
@@ -722,7 +722,7 @@ function renderHand() {
       if (false) {
 
 
-        // (removed: single-card flat display — now always uses group wrapper)
+        // (removed: single-card flat display: now always uses group wrapper)
 
 
       } else {
@@ -752,7 +752,7 @@ function renderHand() {
           'position:relative;';
 
 
-        // Tier label — click to collapse back to stack
+        // Tier label: click to collapse back to stack
 
 
         var lbl = document.createElement('div');
@@ -782,7 +782,7 @@ function renderHand() {
           var div = buildCard(card, idx);
 
 
-          // All hand cards use faction color — tier group gives context
+          // All hand cards use faction color: tier group gives context
 
 
           div.style.borderColor = factionC;
@@ -870,7 +870,7 @@ function showDragCard(card, x, y) {
   document.getElementById('dc-tier').textContent = card.tier;
 
 
-  // Show card art on the drag card — feels like physically picking it up
+  // Show card art on the drag card: feels like physically picking it up
 
 
   if (card.art) {

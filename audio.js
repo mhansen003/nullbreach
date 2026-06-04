@@ -1,4 +1,4 @@
-// ── GAMEPLAY MUSIC — random rotating playlist ─────────────
+// ── GAMEPLAY MUSIC: random rotating playlist ─────────────
 
 
 const PLAYLIST = [

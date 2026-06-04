@@ -73,7 +73,7 @@ body {
 
 
 
-/* Lore backgrounds — contained to AI bar and player hand bar only */
+/* Lore backgrounds: contained to AI bar and player hand bar only */
 
 
 .ai-area, .player-area {
@@ -145,7 +145,7 @@ body {
 
 
 
-/* Board card art overlay — gradient keeps edge values readable */
+/* Board card art overlay: gradient keeps edge values readable */
 
 
 .cell.player::after, .cell.ai::after {
@@ -163,7 +163,7 @@ body {
 }
 
 
-/* z-index only — do NOT override position (these are all position:absolute) */
+/* z-index only: do NOT override position (these are all position:absolute) */
 
 
 .cell.player .edge, .cell.ai .edge,
@@ -259,7 +259,7 @@ body {
 
 
 
-/* AI area — invisible spacer only, portrait moved to fixed HUD */
+/* AI area: invisible spacer only, portrait moved to fixed HUD */
 
 
 .ai-area {
@@ -319,7 +319,7 @@ body {
 .ai-quote { display: none; }
 
 
-.ai-hand-row { display: none; } /* hidden — opponent deck not shown */
+.ai-hand-row { display: none; } /* hidden: opponent deck not shown */
 
 
 .hand-lbl-v { font-size: 8px; color: #333; letter-spacing: 2px; writing-mode: vertical-lr; transform: rotate(180deg); }
@@ -463,7 +463,7 @@ body {
   transition: border-color 0.3s;
 
 
-  /* All col badges same fixed size — no flex-grow */
+  /* All col badges same fixed size: no flex-grow */
 
 
   box-sizing: border-box;
@@ -589,7 +589,7 @@ body {
 
 
 
-/* CELLS — 3:4 portrait ratio (114×152) matching hand card proportions */
+/* CELLS: 3:4 portrait ratio (114×152) matching hand card proportions */
 
 
 .cell {
@@ -625,7 +625,7 @@ body {
 .cell.valid:hover { background: #0e2214; border-color: #00ffcc; box-shadow: 0 0 16px #00ffcc22; }
 
 
-/* Yellow zone preview overrides green valid cells — zone is more important */
+/* Yellow zone preview overrides green valid cells: zone is more important */
 
 
 .cell.future-valid { border: 2px solid #ffdd00 !important; background: #ffdd0018 !important; box-shadow: 0 0 12px #ffdd0044 !important; }
@@ -643,7 +643,7 @@ body {
 @keyframes placePulse { 0%{transform:scale(0.8);opacity:0.4} 100%{transform:scale(1);opacity:1} }
 
 
-/* Battle outcome preview — shown on adjacent enemy cells when hovering a valid placement */
+/* Battle outcome preview: shown on adjacent enemy cells when hovering a valid placement */
 
 
 .bpv-win  { outline: 3px solid #00ff8888 !important; box-shadow: 0 0 18px #00ff8844, inset 0 0 14px #00ff8822 !important; }
@@ -655,7 +655,7 @@ body {
 .bpv-tie  { outline: 3px solid #ffdd0088 !important; box-shadow: 0 0 18px #ffdd0044, inset 0 0 14px #ffdd0022 !important; }
 
 
-/* Safe zone bars — player home (row 4) gets top bar, AI home (row 0) gets bottom bar */
+/* Safe zone bars: player home (row 4) gets top bar, AI home (row 0) gets bottom bar */
 
 
 .cell[data-r="4"]::before {
@@ -682,7 +682,7 @@ body {
 }
 
 
-/* Battle result chip — positioned in gap between battling cells */
+/* Battle result chip: positioned in gap between battling cells */
 
 
 .bti {
@@ -826,7 +826,7 @@ body {
 }
 
 
-.cell-name   { display: none; } /* name shown in tooltip only — too small on board */
+.cell-name   { display: none; } /* name shown in tooltip only: too small on board */
 
 
 .tier-badge  { position: absolute; top: 5px; right: 6px; font-size: 9px; font-weight: bold; opacity: 0.45; z-index: 2; }
@@ -835,7 +835,7 @@ body {
 .ability-tag { position: absolute; bottom: 5px; left: 6px; font-size: 7px; letter-spacing: 1px; opacity: 0.6; white-space: nowrap; z-index: 2; }
 
 
-/* Tier dot indicators — replace border color as tier signal */
+/* Tier dot indicators: replace border color as tier signal */
 
 
 .tier-dots { position: absolute; top: 6px; left: 6px; display: flex; gap: 3px; z-index: 2; }
@@ -1063,7 +1063,7 @@ body {
 
 
 
-/* LOG — hidden, board takes full width */
+/* LOG: hidden, board takes full width */
 
 
 .log-panel {
@@ -1102,7 +1102,7 @@ body {
 
 
 
-/* PLAYER AREA — column: portrait strip above, hand cards below */
+/* PLAYER AREA: column: portrait strip above, hand cards below */
 
 
 .player-area {
@@ -1168,7 +1168,7 @@ body {
 .player-sub   { color: #444; font-size: 8px; letter-spacing: 1px; margin-top: 2px; }
 
 
-/* HAND: column layout — card tray on top, tier nav below */
+/* HAND: column layout: card tray on top, tier nav below */
 
 
 .hand-cards {
@@ -1492,7 +1492,7 @@ body {
 
 
 
-/* TOOLTIP — shiny, tier-color-driven */
+/* TOOLTIP: shiny, tier-color-driven */
 
 
 @keyframes tipGlow {
@@ -1641,7 +1641,7 @@ body {
 
 
 
-/* Tooltip redesign — wide portrait card layout */
+/* Tooltip redesign: wide portrait card layout */
 
 
 .tooltip { width: 260px !important; max-width: min(260px,94vw) !important; }
@@ -1653,7 +1653,7 @@ body {
 }
 
 @media (max-width: 599px) {
-  /* Fully disable tooltips on mobile — use info panel instead */
+  /* Fully disable tooltips on mobile: use info panel instead */
   #tooltip, #errorTip { display: none !important; }
 }
 
@@ -1661,7 +1661,7 @@ body {
 
 
 
-/* Tier indicator dots — upper-left of each empty cell, always visible */
+/* Tier indicator dots: upper-left of each empty cell, always visible */
 
 
 .tri-dots {
@@ -1784,7 +1784,7 @@ button, [onclick] { touch-action: manipulation; }
 
 
 
-/* ── MEDIUM (900px – 1280px): scale board so it fits without scrolling ── */
+/* ── MEDIUM (900px: 1280px): scale board so it fits without scrolling ── */
 
 
 @media (max-width: 1280px) and (min-width: 901px) {
@@ -1820,7 +1820,7 @@ button, [onclick] { touch-action: manipulation; }
 
 
 
-/* ── TABLET (600px – 900px) ── */
+/* ── TABLET (600px: 900px) ── */
 
 
 @media (max-width: 900px) {
@@ -2268,7 +2268,7 @@ button, [onclick] { touch-action: manipulation; }
 
 
 
-  /* Score HUD — compact on mobile */
+  /* Score HUD: compact on mobile */
 
 
   #scoreHud {
@@ -2311,7 +2311,7 @@ button, [onclick] { touch-action: manipulation; }
 
 
 
-  /* Drag card — smaller on mobile */
+  /* Drag card: smaller on mobile */
 
 
   #dragCard { width: 70px; height: 90px; }
@@ -2365,7 +2365,7 @@ button, [onclick] { touch-action: manipulation; }
 }
 
 
-/* ── iPHONE 13+ (390px wide, 844px tall) — no-scroll game layout ── */
+/* ── iPHONE 13+ (390px wide, 844px tall): no-scroll game layout ── */
 @media (max-width: 430px) {
   body { overflow: hidden; height: 100vh; }
 
@@ -2637,7 +2637,7 @@ button, [onclick] { touch-action: manipulation; }
 
 
 
-<!-- FACTION HUD — fixed left side, below header, AI on top / player below -->
+<!-- FACTION HUD: fixed left side, below header, AI on top / player below -->
 
 
 <div id="factionHUD" style="
@@ -2821,7 +2821,7 @@ button, [onclick] { touch-action: manipulation; }
 
 
 
-<!-- AI area: minimal — no portrait, no score, just spacing -->
+<!-- AI area: minimal: no portrait, no score, just spacing -->
 
 
 <div class="ai-area" style="min-height:4px;padding:0;">
@@ -3010,7 +3010,7 @@ button, [onclick] { touch-action: manipulation; }
 
 
 
-<!-- Multiplayer waiting banner — slim top bar, doesn't cover board -->
+<!-- Multiplayer waiting banner: slim top bar, doesn't cover board -->
 
 
 <div id="mpWaitOverlay" style="display:none;position:fixed;top:42px;left:50%;transform:translateX(-50%);z-index:50000;
@@ -3065,9 +3065,9 @@ button, [onclick] { touch-action: manipulation; }
         Don't show again
       </label>
       <div style="display:flex;gap:10px;align-items:center;">
-        <button id="guidePrev" onclick="guidePage(-1)" style="background:#ffffff08;border:1px solid #ffffff18;color:#ccbbee;font-family:'Orbitron',monospace;font-size:11px;letter-spacing:2px;padding:10px 22px;cursor:pointer;border-radius:6px;transition:all 0.2s;"
-          onmouseenter="this.style.background='#ffffff14';this.style.color='#fff'"
-          onmouseleave="this.style.background='#ffffff08';this.style.color='#ccbbee'">&#8592; PREV</button>
+        <button id="guidePrev" onclick="guidePage(-1)" style="background:#ffffff0d;border:1px solid #ffffff33;color:#fff;font-family:'Orbitron',monospace;font-size:11px;letter-spacing:2px;padding:10px 22px;cursor:pointer;border-radius:6px;transition:all 0.2s;"
+          onmouseenter="this.style.background='#ffffff1a'"
+          onmouseleave="this.style.background='#ffffff0d'">&#8592; PREV</button>
         <button id="guideNext" onclick="guidePage(1)" style="background:linear-gradient(135deg,#7733ee,#4422bb);border:1px solid #9966ff77;color:#fff;font-family:'Orbitron',monospace;font-size:11px;letter-spacing:2px;padding:10px 26px;cursor:pointer;border-radius:6px;transition:all 0.2s;box-shadow:0 0 18px #8855ff33;"
           onmouseenter="this.style.boxShadow='0 0 28px #8855ff66';this.style.transform='translateY(-1px)'"
           onmouseleave="this.style.boxShadow='0 0 18px #8855ff33';this.style.transform=''">NEXT &#8594;</button>
@@ -3213,7 +3213,7 @@ initGame();
 
 
 
-<!-- GAME MENU — at body level so z-index always wins over everything -->
+<!-- GAME MENU: at body level so z-index always wins over everything -->
 
 
 <div id="gameMenu" style="
@@ -3442,7 +3442,7 @@ initGame();
 
 
 
-<!-- Menu backdrop — body level, just below the menu -->
+<!-- Menu backdrop: body level, just below the menu -->
 
 
 <div id="menuBackdrop" onclick="closeMenu()" style="
@@ -3457,13 +3457,13 @@ initGame();
 
 
 
-<!-- TOOLTIP — shiny, tier-colored -->
+<!-- TOOLTIP: shiny, tier-colored -->
 
 
 <div id="tooltip" class="tooltip"></div>
 
 
-<!-- ERROR TOOLTIP — red, invalid placement -->
+<!-- ERROR TOOLTIP: red, invalid placement -->
 
 
 <div id="errorTip" class="tip-error"></div>

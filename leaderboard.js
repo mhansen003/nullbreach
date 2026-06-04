@@ -1,4 +1,4 @@
-// ── LEADERBOARD — Hall of Champions ──────────────────────────────────────────
+// ── LEADERBOARD: Hall of Champions ──────────────────────────────────────────
 
 const _LB_KEY = 'gz_lb_v1';
 
@@ -120,7 +120,7 @@ function _lbSubmitInitials(pFac, aFac, delta) {
     var initials=(a+b+c).toUpperCase().padEnd(3,'-');
     saveLeaderboardEntry(pFac, aFac, initials, delta);
   } catch(e) {}
-  // Remove overlay first — always, even if save failed
+  // Remove overlay first: always, even if save failed
   var ov = document.getElementById('lbInitialsOverlay');
   if (ov) ov.parentNode.removeChild(ov);
   var flash=document.createElement('div');
@@ -216,7 +216,7 @@ function _lbRenderModal() {
       onmouseleave="if(this.dataset.id!=='${pId}')this.style.background='transparent'"
       data-id="${id}">
         <img src="${f.img}" style="width:${active?'38px':'30px'};height:${active?'38px':'30px'};border-radius:50%;object-fit:cover;object-position:top;border:2px solid ${active?f.color:f.color+'44'};transition:all 0.15s;${active?`box-shadow:0 0 14px ${f.color}55;`:''}">
-        ${recs > 0 ? `<div style="font-size:8px;color:${active?f.color:'#aabbcc'};font-family:'Courier New',monospace;letter-spacing:1px;">${recs}/10</div>` : `<div style="font-size:8px;color:#445566;font-family:'Courier New',monospace;">—</div>`}
+        ${recs > 0 ? `<div style="font-size:8px;color:${active?f.color:'#aabbcc'};font-family:'Courier New',monospace;letter-spacing:1px;">${recs}/10</div>` : `<div style="font-size:8px;color:#445566;font-family:'Courier New',monospace;">-</div>`}
       </div>`;
   }).join('');
 

@@ -374,7 +374,7 @@ function renderGrid() {
           }
 
 
-          // Show the card's zone expansion — same future-valid style as the tooltip zone diagram
+          // Show the card's zone expansion: same future-valid style as the tooltip zone diagram
           const _zonePreview = typeof getZonePreview === 'function'
             ? getZonePreview(r, c, cell.card, cell.owner)
             : [];
@@ -416,7 +416,7 @@ function renderGrid() {
           : r === 0
 
 
-          ? `` // AI home — no player indicator
+          ? `` // AI home: no player indicator
 
 
           : `<div class="tri-dots"><span class="tri-d green"></span><span class="tri-d green"></span><span class="tri-plus">+</span></div>`;
@@ -458,7 +458,7 @@ function renderGrid() {
           div.style.cursor = 'help';
 
 
-          div.onmouseenter = ev => showErrorTip(ev, `⚠ HAZARD ZONE — placing here costs ${_emptyHzDirs.length * 2} VP`);
+          div.onmouseenter = ev => showErrorTip(ev, `⚠ HAZARD ZONE: placing here costs ${_emptyHzDirs.length * 2} VP`);
 
 
           div.onmouseleave = hideTip;
@@ -546,7 +546,7 @@ function renderGrid() {
               if (G.selectedCard) showTip(ev, G.selectedCard);
 
 
-              // Zone expansion — yellow dots for future valid cells
+              // Zone expansion: yellow dots for future valid cells
 
 
               preview.forEach(({r: pr, c: pc}) => {
@@ -654,7 +654,7 @@ function renderGrid() {
                   font-family:'Courier New',monospace;`;
 
 
-                // Badge on the FACING edge — side of enemy nearest the placement cell
+                // Badge on the FACING edge: side of enemy nearest the placement cell
 
 
                 if (dr===1)       badge.style.cssText+=`top:4px;left:50%;transform:translateX(-50%);`;
@@ -787,7 +787,7 @@ function renderGrid() {
             const tier = _card.tier;
 
 
-            let reason = 'No friendly card adjacent — place next to your cards';
+            let reason = 'No friendly card adjacent: place next to your cards';
 
 
             if (G.grid[_r]?.[_c]?.owner) {
@@ -811,13 +811,13 @@ function renderGrid() {
             } else if (_r === 0) {
 
 
-              reason = 'Enemy home row — no placement allowed here';
+              reason = 'Enemy home row: no placement allowed here';
 
 
             } else if (tier !== 'I' && (_r === 4 || _r === 0)) {
 
 
-              reason = 'Tier II+: battle zone only (rows 1–3)';
+              reason = 'Tier II+: battle zone only (rows 1-3)';
 
 
             }
@@ -1462,7 +1462,7 @@ function showBattleTip(e, d) {
       ${d.isTie
 
 
-        ? `<div style="font-size:11px;color:#bbb;letter-spacing:2px;text-align:center;">TIE — no edge advantage</div>`
+        ? `<div style="font-size:11px;color:#bbb;letter-spacing:2px;text-align:center;">TIE: no edge advantage</div>`
 
 
         : `<div style="display:flex;align-items:center;gap:8px;">

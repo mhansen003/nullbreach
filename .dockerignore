@@ -1,0 +1,14 @@
+node_modules
+dist
+build
+.git
+*.md
+.vscode
+__pycache__
+*.pyc
+.env
+.env.*
+*.log
+.DS_Store
+dev/
+docs/
