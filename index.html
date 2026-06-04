@@ -547,8 +547,7 @@ button, [onclick] { touch-action: manipulation; }
   #loreRow2 > div:last-child { width: 100% !important; }
 
   /* Hide duplicate fixed launch button — mobileLaunchBar handles it */
-  #fixedLaunchBtn { display: none !important; }
-  #quickStartBtn  { display: none !important; }
+  #desktopLaunchBar { display: none !important; }
 
   /* Ability showcase: stack vertically */
   .ability-cards-row { flex-direction: column !important; gap: 8px !important; }
@@ -1378,9 +1377,9 @@ function selectRace(race, tileEl) {
     `;
     const _dw = document.getElementById('deployWrap'); if (_dw) _dw.style.display = 'block';
     const _flb = document.getElementById('fixedLaunchBtn');
-    if (_flb) { _flb.style.display='block'; _flb.style.borderColor=race.color; _flb.style.color=race.color; _flb.style.background=race.color+'11'; _flb.style.boxShadow='0 0 24px '+race.color+'44'; }
-    const _qsb = document.getElementById('quickStartBtn');
-    if (_qsb) _qsb.style.display='block';
+    if (_flb) { _flb.style.borderColor=race.color; _flb.style.color=race.color; _flb.style.background=race.color+'11'; _flb.style.boxShadow='0 0 24px '+race.color+'44'; }
+    const _dlb = document.getElementById('desktopLaunchBar');
+    if (_dlb) _dlb.style.display='flex';
     lc.classList.add('visible');
     // Mobile launch bar: update colour and show
     const _mbar = document.getElementById('mobileLaunchBar');
@@ -2150,28 +2149,27 @@ function quickStartGame() {
   </div>
 </div>
 
-<!-- Quick Start: random deck, random opponent, balanced -->
-<button id="quickStartBtn" onclick="quickStartGame()" style="
-  display:none; position:fixed; bottom:44px; left:50%; transform:translateX(-100%) translateX(-10px); z-index:99900;
-  font-family:'Orbitron',monospace; font-size:11px; letter-spacing:2px;
-  padding:14px 18px; border-radius:6px; cursor:pointer;
-  border:2px solid #ff9900; color:#ff9900; background:#ff990011;
-  box-shadow:0 0 16px #ff990033; transition:all 0.3s; white-space:nowrap;
-" onmouseenter="this.style.background='#ff990022';this.style.boxShadow='0 0 30px #ff990066'"
-   onmouseleave="this.style.background='#ff990011';this.style.boxShadow='0 0 16px #ff990033'">
-  ⚡ QUICK START
-</button>
-<!-- Fixed bottom-right Launch Deck button — always visible on lore screen -->
-<button id="fixedLaunchBtn" onclick="showOpponentPicker()" style="
-  display:none; position:fixed; bottom:44px; left:50%; transform:translateX(-50%); z-index:99900;
-  font-family:'Orbitron',monospace; font-size:12px; letter-spacing:4px;
-  padding:14px 28px; border-radius:6px; cursor:pointer;
-  border:2px solid #00ffcc; color:#00ffcc; background:#00ffcc11;
-  box-shadow:0 0 24px #00ffcc44; transition:all 0.3s;
-  animation:launchGlow 2s ease-in-out infinite;
-" onmouseenter="this.style.background='#00ffcc22';this.style.boxShadow='0 0 40px #00ffcc66'"
-   onmouseleave="this.style.background='#00ffcc11';this.style.boxShadow='0 0 24px #00ffcc44'">
-  LAUNCH DECK ▶
-</button>
+<!-- Bottom action bar: Quick Start + Launch Deck side-by-side -->
+<div id="desktopLaunchBar" style="display:none; position:fixed; bottom:44px; left:50%; transform:translateX(-50%); z-index:99900; gap:12px; align-items:center;">
+  <button id="quickStartBtn" onclick="quickStartGame()" style="
+    font-family:'Orbitron',monospace; font-size:11px; letter-spacing:2px;
+    padding:14px 18px; border-radius:6px; cursor:pointer;
+    border:2px solid #ff9900; color:#ff9900; background:#ff990011;
+    box-shadow:0 0 16px #ff990033; transition:all 0.3s; white-space:nowrap;
+  " onmouseenter="this.style.background='#ff990022';this.style.boxShadow='0 0 30px #ff990066'"
+     onmouseleave="this.style.background='#ff990011';this.style.boxShadow='0 0 16px #ff990033'">
+    ⚡ QUICK START
+  </button>
+  <button id="fixedLaunchBtn" onclick="showOpponentPicker()" style="
+    font-family:'Orbitron',monospace; font-size:12px; letter-spacing:4px;
+    padding:14px 28px; border-radius:6px; cursor:pointer;
+    border:2px solid #00ffcc; color:#00ffcc; background:#00ffcc11;
+    box-shadow:0 0 24px #00ffcc44; transition:all 0.3s;
+    animation:launchGlow 2s ease-in-out infinite;
+  " onmouseenter="this.style.background='#00ffcc22';this.style.boxShadow='0 0 40px #00ffcc66'"
+     onmouseleave="this.style.background='#00ffcc11';this.style.boxShadow='0 0 24px #00ffcc44'">
+    LAUNCH DECK ▶
+  </button>
+</div>
 </body>
 </html>
