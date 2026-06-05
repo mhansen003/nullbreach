@@ -429,10 +429,8 @@ function showTip(e, card) {
           <div style="font-family:'Orbitron',monospace;font-size:11px;letter-spacing:1px;color:#fff;font-weight:700;line-height:1.2;">${card.abilityLabel || abi.label}</div>
         </div>
         <!-- Description + zone visual side by side -->
-        <div style="display:flex;gap:10px;align-items:flex-start;">
-          <div style="flex:1;font-size:10.5px;color:#ddd;line-height:1.55;">${card.abilityText}</div>
-          ${buildAbilityVisual(card.ability) ? `<div style="flex-shrink:0;">${buildAbilityVisual(card.ability)}</div>` : ''}
-        </div>
+        <div style="font-size:11px;color:#ddd;line-height:1.6;margin-bottom:${buildAbilityVisual(card.ability)?'8px':'0'};">${card.abilityText}</div>
+        ${buildAbilityVisual(card.ability) ? `<div style="margin-top:2px;">${buildAbilityVisual(card.ability)}</div>` : ''}
       </div>` : `
       <div style="font-size:10px;color:#444;letter-spacing:1px;font-style:italic;">No special ability</div>`}
 
@@ -445,7 +443,7 @@ function showTip(e, card) {
   // Right side, vertically centered
 
   const ttH = tt.offsetHeight || 360;
-  tt.style.width  = '300px'; // reset from narrower battle tip
+  tt.style.width  = '320px';
   tt.style.right  = '16px';
   tt.style.left   = 'auto';
   tt.style.bottom = '16px';
