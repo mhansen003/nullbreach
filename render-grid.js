@@ -616,7 +616,7 @@ function renderGrid() {
                 const adj = G.grid[nr][nc];
 
 
-                if (!adj.card || adj.owner === 'player') return;
+                if (!adj.card || adj.owner === 'player' || adj.owner === 'hazard') return;
 
 
                 const myVal   = card.edges[myE] + (card.edgeMod?.[myE]||0) + surgeB + sweepB;
@@ -1290,9 +1290,18 @@ function renderBattleIndicators(el) {
         }
         chip.onclick = (ev) => {
           ev.stopPropagation();
+          if (chip._active) {
+            hideTip();
+            chip._active = false;
+            chip.classList.remove('bchip-active');
+            return;
+          }
+          document.querySelectorAll('.bchip-active').forEach(c => { c._active = false; c.classList.remove('bchip-active'); });
+          chip._active = true;
+          chip.classList.add('bchip-active');
           const _d = JSON.parse(chip.dataset.tip);
           showBattleTip(ev, _d);
-          setTimeout(hideTip, 2800);
+          setTimeout(() => { hideTip(); chip._active = false; chip.classList.remove('bchip-active'); }, 2800);
         };
       } else if (isTie) {
 
