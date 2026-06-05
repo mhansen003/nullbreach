@@ -185,6 +185,9 @@ function toggleAudioPanel() {
         ap.style.opacity = '1';
         ap.style.transform = 'translateX(0)';
       });
+    } else {
+      ap.style.opacity = '1';
+      ap.style.transform = 'none';
     }
     if (btn) btn.querySelector('span:last-child').textContent = '▶';
   }
