@@ -218,7 +218,7 @@ function renderGrid() {
 
           ${cell.card.ability ? `<span class="ability-tag" style="color:${factionCol}88">${ab(cell.card.ability)}</span>` : ''}
 
-          ${cell.card.ability ? `<div class="ability-badge" style="position:absolute;bottom:18px;left:50%;transform:translateX(-50%);z-index:6;width:26px;height:26px;border-radius:5px;display:flex;align-items:center;justify-content:center;pointer-events:none;${cell.card.shieldExpended?'opacity:0.28;filter:grayscale(1);':''}${cell.card.ability==='shield'&&!cell.card.shieldExpended?'box-shadow:0 0 8px #aaaaff88;':''}">${_getAbilitySvg(cell.card.ability)}</div>` : ''}
+          ${cell.card.ability ? `<div class="ability-badge" style="${cell.card.shieldExpended?'opacity:0.28;filter:grayscale(1);':''}${cell.card.ability==='shield'&&!cell.card.shieldExpended?'box-shadow:0 0 8px #aaaaff88;':''}">${_getAbilitySvg(cell.card.ability)}</div>` : ''}
 
           ${cell.card.shieldExpended ? `<span style="position:absolute;top:3px;right:3px;z-index:5;font-size:11px;filter:drop-shadow(0 0 4px #555577);opacity:0.45;pointer-events:none;">\uD83D\uDEE1</span>` : ''}
 
