@@ -222,7 +222,7 @@ function renderGrid() {
 
         div.style.backgroundPosition = 'center';
 
-        div.style.filter = 'brightness(1.28)';
+        div.style.filter = 'brightness(1.6)';
 
         // Border = faction color (whose card), dots = tier indicator
 
