@@ -289,7 +289,7 @@ body {
 
 /* ── LORE PANEL (below conveyor): scrollable so full content is reachable */
 .ds-lore-panel {
-  flex: 1; display: flex; padding: 16px 40px 14px;
+  flex: 1; display: flex; padding: 16px 40px 100px;
   overflow-y: auto; position: relative; z-index: 10;
   scrollbar-width: thin; scrollbar-color: #8855ff33 transparent;
 }
@@ -845,8 +845,6 @@ button, [onclick] { touch-action: manipulation; }
           <div class="ability-cards-row" id="abilityCards" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;"></div>
         </div>
       </div>
-      <!-- Spacer so fixed launch buttons never overlap content -->
-      <div style="height:80px;flex-shrink:0;"></div>
     </div>
     </div>
 
