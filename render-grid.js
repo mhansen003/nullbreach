@@ -367,6 +367,9 @@ function renderGrid() {
         // Show tooltip on placed board cards (shows card info + buff status)
 
         div.onmouseenter = (ev) => {
+          div.style.transform = 'scale(1.2)';
+          div.style.zIndex = '20';
+          div.style.transition = 'transform 0.15s ease';
 
           // Hazard warning overrides card tooltip for penalised cards
 
@@ -394,6 +397,8 @@ function renderGrid() {
         };
 
         div.onmouseleave = () => {
+          div.style.transform = '';
+          div.style.zIndex = '';
           document.querySelectorAll('.cell.future-valid').forEach(el => el.classList.remove('future-valid'));
           hideTip();
           clearAbilityZone();

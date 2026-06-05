@@ -80,6 +80,43 @@ function clearAbilityZone() {
   document.querySelectorAll('[data-az]').forEach(el => el.remove());
 }
 
+// Show card's zone property (placement territory influence) as yellow dotted overlays
+function showCardZoneInfluence(card) {
+  if (_zoneSuppressed) return;
+  const _p2mp = typeof _mpPlayer !== 'undefined' && _mpPlayer === 2;
+  const fwd = _p2mp ? -1 : 1;
+  let baseR = _p2mp ? 0 : 4;
+  let baseC = 3;
+  if (_p2mp) {
+    outer: for (let r = 0; r < 5; r++) {
+      for (let c = 0; c < 7; c++) {
+        if (G.grid[r][c].owner === 'player' && G.grid[r][c].card) { baseR = r; baseC = Math.min(Math.max(c,1),5); break outer; }
+      }
+    }
+  } else {
+    outer: for (let r = 4; r >= 0; r--) {
+      for (let c = 0; c < 7; c++) {
+        if (G.grid[r][c].owner === 'player' && G.grid[r][c].card) { baseR = r; baseC = Math.min(Math.max(c,1),5); break outer; }
+      }
+    }
+  }
+  const offsets = (typeof ZONES !== 'undefined' && ZONES[card.zone || 'wide_cross']) || [];
+  const seen = new Set();
+  offsets.forEach(({dr, dc}) => {
+    const r = baseR + (dr * fwd), c = baseC + dc;
+    if (r < 0 || r >= 5 || c < 0 || c >= 7) return;
+    const el = document.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`);
+    if (!el) return;
+    const key = `${r},${c}`;
+    if (seen.has(key)) return;
+    seen.add(key);
+    const ov = document.createElement('div');
+    ov.setAttribute('data-az', '1');
+    ov.style.cssText = 'position:absolute;inset:0;z-index:7;pointer-events:none;border-radius:3px;border:2px dotted #ffdd0099;background:#ffdd0008;';
+    el.appendChild(ov);
+  });
+}
+
 function suppressZone(ms) {
   _zoneSuppressed = true;
   clearTimeout(window._zoneTimer);
@@ -227,7 +264,7 @@ function showTip(e, card) {
 
   const tt      = document.getElementById('tooltip');
 
-  const tierCol = TIER_COLORS[card.tier] || '#888';
+  const tierCol = '#ffffff';
 
   const abi      = card.ability ? (ABILITY_ICONS[card.ability] || {icon:'✦', color:tierCol, label:card.ability.toUpperCase()}) : null;
 
@@ -346,7 +383,7 @@ function showTip(e, card) {
           </div>
           <div style="width:1px;height:18px;background:#ffffff14;flex-shrink:0;"></div>
           <div style="display:flex;align-items:center;gap:3px;">
-            <span style="font-size:8px;color:#555;letter-spacing:2px;">T</span>
+            <span style="font-size:8px;color:#aaa;letter-spacing:2px;">T</span>
             ${Array.from({length:tierNum},()=>`<div style="width:9px;height:9px;border-radius:50%;background:${tierCol};box-shadow:0 0 4px ${tierCol};"></div>`).join('')}
             ${Array.from({length:4-tierNum},()=>`<div style="width:9px;height:9px;border-radius:50%;border:1px solid #222230;"></div>`).join('')}
           </div>
@@ -412,6 +449,8 @@ function showTip(e, card) {
       <div style="width:1px;background:#ffffff10;flex-shrink:0;"></div>
 
       <div style="flex:1;">
+
+        <div style="font-size:9px;letter-spacing:2px;color:#bbb;margin-bottom:4px;">INFLUENCE</div>
 
         ${card.zone ? buildZoneGrid(card) : `<div style="font-size:9px;color:#2a2a3a;">&#x2014;</div>`}
 

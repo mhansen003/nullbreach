@@ -346,6 +346,8 @@ body {
 
   flex-shrink: 0;
 
+  overflow: visible;
+
 }
 
 /* CELLS: 3:4 portrait ratio (114×152) matching hand card proportions */
@@ -723,6 +725,8 @@ body {
   gap: 14px; overflow-x: auto; overflow-y: visible;
 
   max-width: 100%; padding: 10px 4px 6px;
+
+  min-height: 168px;
 
   scrollbar-width: thin; scrollbar-color: #2a2a3a transparent;
 

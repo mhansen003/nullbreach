@@ -1075,7 +1075,7 @@ const RACE_ABILITY_KEYS = {
   choir:      ['commander','flank','cloak','birthright'],
 };
 
-let selectedRace = null;
+var selectedRace = null;
 
 // ── CONVEYOR: JS-based infinite loop ─────────────────
 const TILE_COUNT   = 11;
@@ -1459,6 +1459,16 @@ function selectRace(race, tileEl) {
 
 let voiceMuted = localStorage.getItem("gz_voice_muted") === "true";
 
+// Sync voice mute button UI to saved preference on load
+(function() {
+  if (voiceMuted) {
+    const btn = document.getElementById('voiceMuteBtn');
+    const lbl = document.getElementById('voiceMuteLbl');
+    if (btn) btn.style.opacity = '0.4';
+    if (lbl) lbl.textContent = 'VOICE OFF';
+  }
+})();
+
 function playCivVoice(raceId) {
   const v = document.getElementById('civVoice');
   if (!v || voiceMuted) return;
@@ -1533,8 +1543,18 @@ if (_isMobile) {
 let musicStarted = false;
 let muted = localStorage.getItem("gz_music_muted") === "true";
 
+// Sync mute button UI to saved preference on load
+(function() {
+  if (muted) {
+    const btn = document.getElementById('muteBtn');
+    if (btn) { btn.innerHTML = '🔇 <span id="muteLbl">MUTED</span>'; btn.style.opacity = '0.5'; }
+    const audio = document.getElementById('bgMusic');
+    if (audio) audio.muted = true;
+  }
+})();
+
 function startMusic() {
-  if (musicStarted) return;
+  if (musicStarted || muted) return;
   const audio = document.getElementById('bgMusic');
   audio.loop = true;
   audio.volume = 0.35;

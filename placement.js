@@ -114,11 +114,7 @@ function getValidPlacements(owner, card) {
 
   }
 
-  // RUSH bypasses tier zone restrictions: can go anywhere adjacent to an enemy
-
-  // (still can't go into opponent home row)
-
-  const enemyHome = owner === 'player' ? 0 : 4;
+  // RUSH bypasses all tier zone restrictions, including enemy home row
 
   if (card.ability === 'rush') {
 
@@ -127,7 +123,6 @@ function getValidPlacements(owner, card) {
       .map(s => { const [r,c] = s.split(',').map(Number); return {r,c}; })
 
       .filter(({r,c}) => {
-        if (r === enemyHome) return false;
         const cell = G.grid[r][c];
         if (cell.fortifiedBy && cell.fortifiedBy !== owner) return false;
         return true;
@@ -203,23 +198,25 @@ function doComparisons(r, c, owner, card, depth=0) {
 
     if (!target.card || target.owner !== enemy) continue;
 
-    // Shield: absorbs first comparison
-
-    if (target.card.ability==='shield' && !target.card.shieldExpended) {
-
-      target.card.shieldExpended = true;
-
-      addLog('shield', `${target.card.name} SHIELD absorbs comparison`);
-
-      showFlash(r,c,nr,nc, card.edges[d.myE], target.card.edges[d.theirE], false);
-
-      continue;
-
-    }
-
     const mv = card.edges[d.myE], tv = target.card.edges[d.theirE];
 
     const iWin = mv > tv;
+
+    // Shield on target: only absorbs when attacker wins (target would lose)
+    if (target.card.ability==='shield' && !target.card.shieldExpended && iWin) {
+      target.card.shieldExpended = true;
+      addLog('shield', `${target.card.name} SHIELD absorbs comparison`);
+      showFlash(r,c,nr,nc, mv, tv, false);
+      continue;
+    }
+
+    // Shield on placed card: absorbs when placed card would lose
+    if (card.ability==='shield' && !card.shieldExpended && !iWin) {
+      card.shieldExpended = true;
+      addLog('shield', `${card.name} SHIELD absorbs comparison`);
+      showFlash(r,c,nr,nc, mv, tv, false);
+      continue;
+    }
 
     showFlash(r, c, nr, nc, mv, tv, iWin);
 

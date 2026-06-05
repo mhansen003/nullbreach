@@ -56,6 +56,38 @@ const ZONES = {
   // t1_spread: wide forward arc 2 rows deep
   t1_spread:    [{dr:-1,dc:0},{dr:-1,dc:-1},{dr:-1,dc:1},{dr:-2,dc:-1},{dr:-2,dc:1}],
 
+  // ── FACTION-UNIQUE ZONES ─────────────────────────────────────────
+
+  // TERRAN: front_line — wide shallow line, 5 cells 1 row deep (military formation)
+  front_line:   [{dr:-1,dc:-2},{dr:-1,dc:-1},{dr:-1,dc:0},{dr:-1,dc:1},{dr:-1,dc:2}],
+
+  // BROOD: swarm_burst — forward fan + adjacent laterals, no backward (swarming spread)
+  swarm_burst:  [{dr:-1,dc:-1},{dr:-1,dc:0},{dr:-1,dc:1},{dr:0,dc:-1},{dr:0,dc:1}],
+
+  // CRYSTALLIS: lattice_arm — deep lateral reach + 1 forward (crystal structure)
+  lattice_arm:  [{dr:0,dc:-2},{dr:0,dc:-1},{dr:0,dc:1},{dr:0,dc:2},{dr:-1,dc:0}],
+
+  // VEIL: phase_step — diagonal-only 2 rows deep, no straight lines (phase shift)
+  phase_step:   [{dr:-1,dc:-1},{dr:-1,dc:1},{dr:-2,dc:-2},{dr:-2,dc:2}],
+
+  // ENTROPY: decay_bore — single column 4 rows deep (relentless forward decay)
+  decay_bore:   [{dr:-1,dc:0},{dr:-2,dc:0},{dr:-3,dc:0},{dr:-4,dc:0}],
+
+  // VOID: pincer_clamp — dual off-center columns 2 deep (void hunter pairs)
+  pincer_clamp: [{dr:-1,dc:-1},{dr:-2,dc:-1},{dr:-1,dc:1},{dr:-2,dc:1}],
+
+  // GAS: storm_wing — forward + wide lateral jump (plasma arc burst)
+  storm_wing:   [{dr:-1,dc:-1},{dr:-1,dc:0},{dr:-1,dc:1},{dr:0,dc:-2},{dr:0,dc:2}],
+
+  // LITHOS: bulwark — diagonal-laterals only, no straight forward (corner stones)
+  bulwark:      [{dr:0,dc:-1},{dr:0,dc:1},{dr:-1,dc:-1},{dr:-1,dc:1}],
+
+  // QUANTUM: scatter_field — alternating cells in row + laterals (superposition)
+  scatter_field:[{dr:-1,dc:-2},{dr:-1,dc:0},{dr:-1,dc:2},{dr:0,dc:-1},{dr:0,dc:1}],
+
+  // CHOIR: resonance_arc — curved arc 2 rows deep, no center at depth 2 (sound wave)
+  resonance_arc:[{dr:-1,dc:-1},{dr:-1,dc:0},{dr:-1,dc:1},{dr:-2,dc:-1},{dr:-2,dc:1}],
+
 };
 
 const DIRS4 = [

@@ -64,6 +64,8 @@ const BROOD_CARDS = [
 
   { id:'br_x3', name:'HIVE LANCE',       tier:'III',tierLabel:'SKIMMER',         zone:'lance',      edges:{n:3,s:8,e:5,w:5}, power:2, ability:'commander',        abilityText:'No special ability', art:'assets/cards/brood/void-skimmer.png' },
 
+  { id:'br_x4', name:'SPREAD CARAPACE', tier:'II', tierLabel:'WARRIOR CLUSTER', zone:'swarm_burst', edges:{n:5,s:4,e:6,w:6}, power:2, ability:'rush',            abilityText:'No special ability', art:'assets/cards/brood/biomech-fleet.png' },
+
 ];
 
 // ── CRYSTALLIS DECK: Silicon Lattice Collective ──────────────────
@@ -113,6 +115,8 @@ const CRYSTALLIS_CARDS = [
   { id:'cr_x2',  name:'LENS BATTERY',     tier:'II', tierLabel:'RESONANCE ARRAY',  zone:'flanker',    edges:{n:5,s:3,e:4,w:9}, power:2, ability:'revenge', abilityText:'No special ability', art:'assets/cards/crystallis/t2_b.png' },
 
   { id:'cr_x3',  name:'CRYSTAL LANCE',    tier:'III',tierLabel:'PRISM LANCE',      zone:'lance',      edges:{n:3,s:8,e:5,w:5}, power:3, ability:'density', abilityText:'No special ability', art:'assets/cards/crystallis/t3_b.png' },
+
+  { id:'cr_x4',  name:'LATTICE SPAN',     tier:'II', tierLabel:'RESONANCE ARRAY',  zone:'lattice_arm', edges:{n:5,s:3,e:7,w:6}, power:2, ability:'fortify', abilityText:'No special ability', art:'assets/cards/crystallis/t2_a.png' },
 
 ];
 
@@ -164,6 +168,8 @@ const MYCOS_CARDS = [
 
   { id:'my_x3',  name:'SPORE BLADE',      tier:'III',tierLabel:'BLOOM SURGE',      zone:'lance',      edges:{n:3,s:8,e:5,w:5}, power:3, ability:'lamb', abilityText:'No special ability', art:'assets/cards/mycos/t3_b.png' },
 
+  { id:'my_x4',  name:'LATERAL BLOOM',   tier:'II', tierLabel:'MYCELIUM WEB',     zone:'wall',        edges:{n:5,s:4,e:6,w:6}, power:2, ability:'intimidate', abilityText:'No special ability', art:'assets/cards/mycos/t2_b.png' },
+
 ];
 
 // ── VEIL DECK: Photon Veil Ascendancy ────────────────────────────
@@ -213,6 +219,8 @@ const VEIL_CARDS = [
   { id:'vl_x2',  name:'PHASE BATTERY',    tier:'II', tierLabel:'SHIMMER SCREEN',   zone:'command',    edges:{n:5,s:3,e:4,w:9}, power:2, ability:'cloak', abilityText:'No special ability', art:'assets/cards/veil/t2_a.png' },
 
   { id:'vl_x3',  name:'GHOST LANCE',      tier:'III',tierLabel:'NULL LANCE',       zone:'lance',      edges:{n:3,s:8,e:5,w:5}, power:3, ability:'flank', abilityText:'No special ability', art:'assets/cards/veil/t3_b.png' },
+
+  { id:'vl_x4',  name:'PHASE SPREAD',    tier:'II', tierLabel:'SHIMMER SCREEN',   zone:'phase_step',  edges:{n:5,s:3,e:6,w:7}, power:2, ability:'phantom', abilityText:'No special ability', art:'assets/cards/veil/t2_c.png' },
 
 ];
 
@@ -264,6 +272,8 @@ const ENTROPY_CARDS = [
 
   { id:'en_x3',  name:'DECAY LANCE',      tier:'III',tierLabel:'DISSOLUTION',      zone:'lance',      edges:{n:3,s:8,e:5,w:5}, power:3, ability:'laser_focus', abilityText:'No special ability', art:'assets/cards/entropy/t3_b.png' },
 
+  { id:'en_x4',  name:'BLIGHT SPREAD',   tier:'II', tierLabel:'CORRODE CLUSTER',  zone:'decay_bore',  edges:{n:5,s:4,e:6,w:6}, power:2, ability:'revenge', abilityText:'No special ability', art:'assets/cards/entropy/t2_c.png' },
+
 ];
 
 // ── VOID DECK: Dark Matter Void Collective ────────────────────────
@@ -313,6 +323,8 @@ const VOID_CARDS = [
   { id:'vo_x2',  name:'SHADOW BATTERY',   tier:'II', tierLabel:'DARK CLUSTER',     zone:'flanker',    edges:{n:5,s:3,e:8,w:5}, power:2, ability:'sniper', abilityText:'No special ability', art:'assets/cards/void/t2_a.png' },
 
   { id:'vo_x3',  name:'VOID LANCE',       tier:'III',tierLabel:'SINGULARITY',      zone:'lance',      edges:{n:3,s:8,e:5,w:5}, power:3, ability:'rush', abilityText:'No special ability', art:'assets/cards/void/t3_b.png' },
+
+  { id:'vo_x4',  name:'SHADOW WALL',     tier:'II', tierLabel:'DARK CLUSTER',     zone:'pincer_clamp',edges:{n:5,s:3,e:6,w:7}, power:2, ability:'cloak', abilityText:'No special ability', art:'assets/cards/void/t2_c.png' },
 
 ];
 
@@ -364,6 +376,8 @@ const GAS_CARDS = [
 
   { id:'gs_x3',  name:'GALE LANCE',       tier:'III',tierLabel:'TEMPEST LANCE',    zone:'lance',      edges:{n:3,s:8,e:5,w:5}, power:3, ability:'deciding_factor', abilityText:'No special ability', art:'assets/cards/gas/t3_b.png' },
 
+  { id:'gs_x4',  name:'SURGE SPREAD',    tier:'II', tierLabel:'PLASMA WING',      zone:'storm_wing',  edges:{n:5,s:5,e:6,w:6}, power:2, ability:'rush', abilityText:'No special ability', art:'assets/cards/gas/t2_a.png' },
+
 ];
 
 // ── LITHOS DECK: Stone Geological Dominion ───────────────────────
@@ -413,6 +427,8 @@ const LITHOS_CARDS = [
   { id:'li_x2',  name:'SLATE BATTERY',    tier:'II', tierLabel:'TECTONIC CLUSTER', zone:'flanker',    edges:{n:5,s:3,e:4,w:9}, power:2, ability:'shield', abilityText:'No special ability', art:'assets/cards/lithos/t2_b.png' },
 
   { id:'li_x3',  name:'QUAKE LANCE',      tier:'III',tierLabel:'SEISMIC LANCE',    zone:'lance',      edges:{n:3,s:8,e:5,w:5}, power:3, ability:'deciding_factor', abilityText:'No special ability', art:'assets/cards/lithos/t3_b.png' },
+
+  { id:'li_x4',  name:'TECTONIC SPREAD', tier:'II', tierLabel:'TECTONIC CLUSTER', zone:'bulwark',     edges:{n:5,s:3,e:6,w:8}, power:2, ability:'fortify', abilityText:'No special ability', art:'assets/cards/lithos/t2_c.png' },
 
 ];
 
@@ -464,6 +480,8 @@ const QUANTUM_CARDS = [
 
   { id:'qu_x3',  name:'COLLAPSE LANCE',   tier:'III',tierLabel:'WAVEFORM LANCE',   zone:'lance',      edges:{n:3,s:8,e:5,w:5}, power:3, ability:'density', abilityText:'No special ability', art:'assets/cards/quantum/t3_a.png' },
 
+  { id:'qu_x4',  name:'QUBIT SPREAD',    tier:'II', tierLabel:'SUPERPOSED ARRAY', zone:'scatter_field',edges:{n:5,s:4,e:6,w:6}, power:2, ability:'flank', abilityText:'No special ability', art:'assets/cards/quantum/t2_b.png' },
+
 ];
 
 // ── CHOIR DECK: Sound Resonance Choir ────────────────────────────
@@ -514,6 +532,8 @@ const CHOIR_CARDS = [
 
   { id:'ch_x3',  name:'SONIC BLADE',      tier:'III',tierLabel:'SONIC LANCE',      zone:'lance',      edges:{n:3,s:8,e:5,w:5}, power:3, ability:'commander', abilityText:'No special ability', art:'assets/cards/choir/t3_b.png' },
 
+  { id:'ch_x4',  name:'CHORD SPREAD',    tier:'II', tierLabel:'RESONANCE CHOIR',  zone:'resonance_arc',edges:{n:5,s:3,e:8,w:6}, power:2, ability:'flank', abilityText:'No special ability', art:'assets/cards/choir/t2_a.png' },
+
 ];
 
 // ── CARD DEFINITIONS: TERRAN ACCORD ─────────────────────────────
@@ -563,6 +583,8 @@ const PLAYER_CARDS = [
   { id:'ta_x2', name:'GUNSHIP WING',  tier:'II',  tierLabel:'BATTLE GROUP', zone:'command',     edges:{n:5,s:3,e:8,w:5}, power:3, ability:'double_strike',     abilityText:'No special ability', art:'assets/cards/terran/battle-group.png' },
 
   { id:'ta_x3', name:'GHOST RUNNER',  tier:'III', tierLabel:'STRIKE CRAFT', zone:'lance',       edges:{n:3,s:8,e:5,w:5}, power:2, ability:'commander',        abilityText:'No special ability', art:'assets/cards/terran/fast-runner.png' },
+
+  { id:'ta_x4', name:'DEFENSE LINE',  tier:'II',  tierLabel:'BATTLE GROUP', zone:'front_line',   edges:{n:5,s:4,e:6,w:6}, power:2, ability:'shield',           abilityText:'No special ability', art:'assets/cards/terran/battle-group.png' },
 
 ];
 

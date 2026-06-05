@@ -98,9 +98,9 @@ function renderHand() {
 
     div.onclick      = function() { onCardSelect(card); };
 
-    div.onmouseenter = function(e) { playHoverSfx(); showTip(e, card); };
+    div.onmouseenter = function(e) { playHoverSfx(); showTip(e, card); showCardZoneInfluence(card); if (card.ability) showAbilityZone(card.ability); };
 
-    div.onmouseleave = hideTip;
+    div.onmouseleave = function() { hideTip(); clearAbilityZone(); };
 
     div.draggable    = true;
 

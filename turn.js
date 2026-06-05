@@ -210,6 +210,8 @@ function checkWin() {
 
           onmouseleave="this.style.background='#1a0a2e'">← DECK SELECT</button>
 
+        <button onclick="typeof showLeaderboard==='function'&&showLeaderboard()" style="background:#1a1400;border:1px solid #aa8800;color:#ffdd00;font-family:inherit;font-size:11px;letter-spacing:3px;padding:12px 28px;cursor:pointer;border-radius:5px;transition:all 0.2s;" onmouseenter="this.style.background='#2a2000'" onmouseleave="this.style.background='#1a1400'">★ HIGH SCORES</button>
+
       </div>
 
     </div>`;
