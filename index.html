@@ -1301,10 +1301,11 @@ function selectRace(race, tileEl) {
     const _abilityKeys = RACE_ABILITY_KEYS[race.id] || [];
     ac.innerHTML = race.abilities.map((a, i) => {
       const _key = _abilityKeys[i];
-      const _iconSrc = _key ? `assets/abilities/${race.id}_${_key}.png` : '';
+      const _svgPaths = typeof _ABILITY_SVG_PATHS !== 'undefined' ? _ABILITY_SVG_PATHS[_key] : null;
+      const _iconBlock = _svgPaths ? `<div style="width:72px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:${race.color}12;border-right:1px solid ${race.color}22;"><svg width="36" height="36" viewBox="0 0 24 24" fill="none">${_svgPaths}</svg></div>` : '';
       return `
       <div class="ability-showcase" style="color:${race.color};border-color:${race.color}44;background:${race.color}08;display:flex;flex-direction:row;gap:0;align-items:stretch;padding:0;overflow:hidden;">
-        ${_iconSrc ? `<img src="${_iconSrc}" style="width:88px;flex-shrink:0;object-fit:cover;object-position:center;border-right:1px solid ${race.color}33;align-self:stretch;display:block;" onerror="this.style.display='none'">` : ''}
+        ${_iconBlock}
         <div style="flex:1;display:flex;flex-direction:column;gap:5px;justify-content:center;padding:12px 14px;">
           <div class="absc-title">${a}</div>
           <div class="absc-desc">${ABILITY_DESC[a] || '-'}</div>

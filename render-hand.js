@@ -90,7 +90,7 @@ function renderHand() {
         ? '<div style="position:absolute;top:3px;left:3px;z-index:2;font-family:\'Orbitron\',monospace;font-size:7px;font-weight:700;letter-spacing:1px;color:'+tCol+';text-shadow:0 0 4px '+tCol+'99;">T'+tdNum+'</div>'
         : '<div style="position:absolute;top:4px;left:4px;display:flex;gap:2px;z-index:2;">'+Array.from({length:tdNum},function(){return '<span style="width:5px;height:5px;border-radius:50%;background:'+tCol+';box-shadow:0 0 3px '+tCol+';display:inline-block;"></span>';}).join('')+'</div>') +
 
-      (card.ability ? '<span class="ability-star" style="position:absolute;top:-4px;right:0px;font-size:28px;z-index:6;pointer-events:none;" title="'+ab(card.ability)+'">★</span>' : '') +
+      (card.ability ? '<div style="position:absolute;bottom:14px;left:50%;transform:translateX(-50%);z-index:6;width:24px;height:24px;border-radius:5px;display:flex;align-items:center;justify-content:center;pointer-events:none;" title="'+ab(card.ability)+'">'+_getAbilitySvg(card.ability)+'</div>' : '') +
 
       '<div class="hc-center"><span class="hc-power-center" style="color:#ffffff">'+card.power+'</span></div>' +
 
@@ -646,6 +646,10 @@ function showDragCard(card, x, y) {
   document.getElementById('dc-name').textContent = card.name;
 
   document.getElementById('dc-tier').textContent = card.tier;
+
+  const _dcAbil = document.getElementById('dc-ability');
+
+  if (_dcAbil) _dcAbil.innerHTML = card.ability ? _getAbilitySvg(card.ability) : '';
 
   // Show card art on the drag card: feels like physically picking it up
 

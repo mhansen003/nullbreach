@@ -155,9 +155,9 @@ function renderGrid() {
 
         const bat = cell.battle || { h: 'none', v: 'none' };
 
-        // CLOAK: show '?' if not yet revealed in battle
-
-        const _cloaked = cell.card.ability === 'cloak' && !cell.card.cloakRevealed;
+        // CLOAK: per-edge reveal — only show edge value once that specific edge has been in battle
+        const _cr = cell.card.ability === 'cloak' ? (cell.card.cloakRevealed || {}) : null;
+        const _isCloak = !!_cr;
 
         // Edge: glow on winning direction, dim on losing
 
@@ -183,13 +183,13 @@ function renderGrid() {
 
         div.innerHTML = `
 
-          <span class="edge n" style="color:${_cloaked?'#8888ff':col+vAlpha};${_cloaked?'':''+vGlow}">${_cloaked?'?':cell.card.edges.n+(cell.card.edgeMod?.n||0)}</span>
+          <span class="edge n" style="color:${(_isCloak&&!_cr.n)?'#8888ff':col+vAlpha};${(_isCloak&&!_cr.n)?'':''+vGlow}">${(_isCloak&&!_cr.n)?'?':cell.card.edges.n+(cell.card.edgeMod?.n||0)}</span>
 
-          <span class="edge s" style="color:${_cloaked?'#8888ff':col+vAlpha};${_cloaked?'':''+vGlow}">${_cloaked?'?':cell.card.edges.s+(cell.card.edgeMod?.s||0)}</span>
+          <span class="edge s" style="color:${(_isCloak&&!_cr.s)?'#8888ff':col+vAlpha};${(_isCloak&&!_cr.s)?'':''+vGlow}">${(_isCloak&&!_cr.s)?'?':cell.card.edges.s+(cell.card.edgeMod?.s||0)}</span>
 
-          <span class="edge w" style="color:${_cloaked?'#8888ff':col+hAlpha};${_cloaked?'':''+hGlow}">${_cloaked?'?':cell.card.edges.w+(cell.card.edgeMod?.w||0)}</span>
+          <span class="edge w" style="color:${(_isCloak&&!_cr.w)?'#8888ff':col+hAlpha};${(_isCloak&&!_cr.w)?'':''+hGlow}">${(_isCloak&&!_cr.w)?'?':cell.card.edges.w+(cell.card.edgeMod?.w||0)}</span>
 
-          <span class="edge e" style="color:${_cloaked?'#8888ff':col+hAlpha};${_cloaked?'':''+hGlow}">${_cloaked?'?':cell.card.edges.e+(cell.card.edgeMod?.e||0)}</span>
+          <span class="edge e" style="color:${(_isCloak&&!_cr.e)?'#8888ff':col+hAlpha};${(_isCloak&&!_cr.e)?'':''+hGlow}">${(_isCloak&&!_cr.e)?'?':cell.card.edges.e+(cell.card.edgeMod?.e||0)}</span>
 
           <!-- Tier indicator: text label on mobile, dots on desktop -->
 
@@ -206,7 +206,7 @@ function renderGrid() {
 
           ${cell.card.ability ? `<span class="ability-tag" style="color:${factionCol}88">${ab(cell.card.ability)}</span>` : ''}
 
-          ${cell.card.ability && !cell.card.shieldExpended ? `<div class="ability-badge" style="position:absolute;bottom:5px;left:50%;transform:translateX(-50%);z-index:6;width:28px;height:28px;border-radius:6px;background:#000000cc;display:flex;align-items:center;justify-content:center;pointer-events:none;">${_getAbilitySvg(cell.card.ability)}</div>` : ''}
+          ${cell.card.ability && !cell.card.shieldExpended ? `<div class="ability-badge" style="position:absolute;bottom:18px;left:50%;transform:translateX(-50%);z-index:6;width:26px;height:26px;border-radius:5px;display:flex;align-items:center;justify-content:center;pointer-events:none;">${_getAbilitySvg(cell.card.ability)}</div>` : ''}
 
           ${cell.card.shieldExpended ? `<span style="position:absolute;top:3px;right:3px;z-index:5;font-size:11px;filter:drop-shadow(0 0 4px #aaaaff);pointer-events:none;">\uD83D\uDEE1</span>` : ''}
 

@@ -30,9 +30,9 @@ function computeBattleResults() {
 
           const _aiBuff = (window.aiDifficulty==='aggressive' && cell.owner==='ai') ? 1.1 : 1.0;
 
-          if (cell.card.ability === 'cloak') cell.card.cloakRevealed = true;
+          if (cell.card.ability === 'cloak') { cell.card.cloakRevealed = cell.card.cloakRevealed || {}; cell.card.cloakRevealed.e = true; }
 
-          if (east.card.ability === 'cloak') east.card.cloakRevealed = true;
+          if (east.card.ability === 'cloak') { east.card.cloakRevealed = east.card.cloakRevealed || {}; east.card.cloakRevealed.w = true; }
 
           const me = Math.round((cell.card.edges.e + (cell.card.edgeMod?.e || 0) + surgeBonus) * _aiBuff);
 
@@ -136,9 +136,9 @@ function computeBattleResults() {
 
         if (south.card && south.owner !== cell.owner && cell.owner !== "hazard" && south.owner !== "hazard") {
 
-          if (cell.card.ability === 'cloak')  cell.card.cloakRevealed = true;
+          if (cell.card.ability === 'cloak')  { cell.card.cloakRevealed = cell.card.cloakRevealed || {}; cell.card.cloakRevealed.s = true; }
 
-          if (south.card.ability === 'cloak') south.card.cloakRevealed = true;
+          if (south.card.ability === 'cloak') { south.card.cloakRevealed = south.card.cloakRevealed || {}; south.card.cloakRevealed.n = true; }
 
           const surgeVBonus  = (cell.card.ability === 'surge'  && G.surgeTrigger?.[cell.owner])  ? 3 : 0;
 
@@ -545,14 +545,14 @@ function computeScores() {
 
   });
 
-  // Snapshot results before DECIDING_FACTOR mutates them: ECHO must use raw wins
-
+  // Snapshot results before DECIDING_FACTOR mutates them
   const rawRowResults = rowResults.slice();
-
   const rawColResults = colResults.slice();
 
-  // ECHO ability removed: replaced by LAMB (handled via 0-edge scoring)
+  // Track which rows/cols were decided by DECIDING FACTOR (was a tie, became a win)
+  const dfRows = rowResults.map((res, r) => rawRowResults[r] === 'tie' && res !== 'tie' ? res : null);
+  const dfCols = colResults.map((res, c) => rawColResults[c] === 'tie' && res !== 'tie' ? res : null);
 
-  return { rows, cols, rowResults, colResults, pWins, aWins, pVP, aVP };
+  return { rows, cols, rowResults, colResults, pWins, aWins, pVP, aVP, dfRows, dfCols };
 
 }
