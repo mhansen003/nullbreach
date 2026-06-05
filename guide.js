@@ -343,6 +343,13 @@ const GUIDE_PAGES = [
 
 @keyframes g3tip{0%{opacity:0;transform:translateX(10px)}100%{opacity:1;transform:none}}
 
+@media(max-width:520px){
+  .g3-cards{gap:12px !important;}
+  .g3-card-wrap{width:140px !important;}
+  .g3-card-img{width:88px !important;height:118px !important;}
+  .g3-tip-box{width:140px !important;padding:8px !important;}
+  .g3-tier-rule{grid-template-columns:1fr !important;}
+}
 </style>
 
 <!-- Placement rules -->
@@ -369,10 +376,10 @@ const GUIDE_PAGES = [
 
 <!-- Two ability card examples -->
 <div style="font-size:10px;letter-spacing:3px;color:#ccc;text-align:center;margin-bottom:14px;font-family:&apos;Orbitron&apos;,monospace;">SPECIAL ABILITIES: the icon at the bottom of a card shows its unique power</div>
-<div style="display:flex;gap:24px;justify-content:center;align-items:flex-start;">
+<div class="g3-cards" style="display:flex;gap:24px;justify-content:center;align-items:flex-start;flex-wrap:wrap;">
   <!-- Card 1: LAMB -->
-  <div style="display:flex;flex-direction:column;align-items:center;gap:10px;width:180px;animation:g3fly 0.4s ease 0.3s both;">
-    <div style="position:relative;width:114px;height:152px;border-radius:8px;overflow:hidden;border:2px solid #ffdd00;background:#0e0e08;box-shadow:0 0 18px #ffdd0033;">
+  <div class="g3-card-wrap" style="display:flex;flex-direction:column;align-items:center;gap:10px;width:180px;animation:g3fly 0.4s ease 0.3s both;">
+    <div class="g3-card-img" style="position:relative;width:114px;height:152px;border-radius:8px;overflow:hidden;border:2px solid #ffdd00;background:#0e0e08;box-shadow:0 0 18px #ffdd0033;">
       <img src="assets/cards/mycos/t2_a.png" style="width:100%;height:100%;object-fit:cover;object-position:center top;filter:brightness(1.2);" onerror="this.style.background=&apos;#1a1a10&apos;">
       <span style="position:absolute;top:4px;left:50%;transform:translateX(-50%);font-size:14px;font-weight:bold;color:#fff;background:rgba(0,0,0,0.72);border-radius:50%;min-width:20px;text-align:center;padding:1px 3px;">0</span>
       <span style="position:absolute;bottom:4px;left:50%;transform:translateX(-50%);font-size:14px;font-weight:bold;color:#fff;background:rgba(0,0,0,0.72);border-radius:50%;min-width:20px;text-align:center;padding:1px 3px;">0</span>
@@ -393,7 +400,7 @@ const GUIDE_PAGES = [
   <!-- Card 2: COMMANDER -->
   <div style="display:flex;flex-direction:column;align-items:center;gap:10px;width:180px;animation:g3fly 0.4s ease 0.5s both;">
     <div style="position:relative;width:114px;height:152px;border-radius:8px;overflow:hidden;border:2px solid #ffcc00;background:#160810;box-shadow:0 0 14px #ffcc0022;">
-      <img src="assets/cards/terran/terran-accord.png" style="width:100%;height:100%;object-fit:cover;object-position:center top;filter:brightness(1.15);" onerror="this.style.background=&apos;#181008&apos;">
+      <img src="assets/cards/terran/carrier-wing.png" style="width:100%;height:100%;object-fit:cover;object-position:center top;filter:brightness(1.15);" onerror="this.style.background=&apos;#181008&apos;">
       <span style="position:absolute;top:4px;left:50%;transform:translateX(-50%);font-size:13px;font-weight:bold;color:#fff;background:rgba(0,0,0,0.72);border-radius:50%;min-width:19px;text-align:center;padding:1px 3px;">7</span>
       <span style="position:absolute;bottom:4px;left:50%;transform:translateX(-50%);font-size:13px;font-weight:bold;color:#fff;background:rgba(0,0,0,0.72);border-radius:50%;min-width:19px;text-align:center;padding:1px 3px;">4</span>
       <span style="position:absolute;left:4px;top:50%;transform:translateY(-50%);font-size:13px;font-weight:bold;color:#fff;background:rgba(0,0,0,0.72);border-radius:50%;min-width:19px;text-align:center;padding:1px 3px;">5</span>
