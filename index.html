@@ -1550,8 +1550,10 @@ let muted = localStorage.getItem("gz_music_muted") === "true";
 function startMusic() {
   if (musicStarted) return;
   const audio = document.getElementById('bgMusic');
+  audio.loop = true;
   audio.volume = 0.35;
   audio.play().then(() => { musicStarted = true; }).catch(() => {});
+  audio.addEventListener('ended', () => { if (!muted) { audio.currentTime = 0; audio.play().catch(() => {}); } }, { once: false });
 }
 
 function toggleMute() {
