@@ -384,13 +384,11 @@ function onCardSelect(card) {
     G._previewCell = null;
 
 
-    document.body.style.cursor = 'none';
-
-
-    // Drag card will be positioned on the next mousemove; show it at a default pos for now
-
-
-    showDragCard(card, -200, -200);
+    // Drag ghost only on desktop — mobile uses explicit showDragCard inside the drag gesture
+    if (window.innerWidth > 480) {
+      document.body.style.cursor = 'none';
+      showDragCard(card, -200, -200);
+    }
     showMobileCardPanel(card);
     if (card.ability && window.innerWidth <= 480) setTimeout(() => showAbilityZone(card.ability), 320);
 
