@@ -90,7 +90,7 @@ function renderHand() {
         ? '<div style="position:absolute;top:3px;left:3px;z-index:2;font-family:\'Orbitron\',monospace;font-size:7px;font-weight:700;letter-spacing:1px;color:'+tCol+';text-shadow:0 0 4px '+tCol+'99;">T'+tdNum+'</div>'
         : '<div style="position:absolute;top:4px;left:4px;display:flex;gap:2px;z-index:2;">'+Array.from({length:tdNum},function(){return '<span style="width:5px;height:5px;border-radius:50%;background:'+tCol+';box-shadow:0 0 3px '+tCol+';display:inline-block;"></span>';}).join('')+'</div>') +
 
-      (card.ability ? '<div style="position:absolute;bottom:28px;left:50%;transform:translateX(-50%);z-index:6;width:22px;height:22px;border-radius:4px;background:rgba(10,8,24,0.62);display:flex;align-items:center;justify-content:center;pointer-events:none;animation:abilityPulse 2.5s ease-in-out infinite;" title="'+ab(card.ability)+'">'+_getAbilitySvg(card.ability)+'</div>' : '') +
+      (card.ability ? '<div style="position:absolute;bottom:36px;left:50%;transform:translateX(-50%);z-index:6;width:22px;height:22px;border-radius:4px;background:rgba(10,8,24,0.62);display:flex;align-items:center;justify-content:center;pointer-events:none;animation:abilityPulse 2.5s ease-in-out infinite;" title="'+ab(card.ability)+'">'+_getAbilitySvg(card.ability)+'</div>' : '') +
 
       '<div class="hc-center"><span class="hc-power-center" style="color:#ffffff">'+card.power+'</span></div>' +
 

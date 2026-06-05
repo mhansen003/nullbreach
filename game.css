@@ -461,7 +461,7 @@ body {
 
 .ability-badge {
   position: absolute;
-  bottom: 26px; left: 50%; transform: translateX(-50%);
+  bottom: 36px; left: 50%; transform: translateX(-50%);
   z-index: 6;
   width: 26px; height: 26px;
   border-radius: 5px;
@@ -514,7 +514,9 @@ body {
 .cell-power {
 
   font-size: 28px; font-weight: bold; line-height: 1;
-  text-shadow: 0 2px 8px #000000bb, 0 0 12px #000000aa;
+  background: rgba(20,18,38,0.58);
+  border-radius: 7px;
+  padding: 3px 9px;
 
 }
 
@@ -604,7 +606,7 @@ body {
 
 }
 
-.hc-power-center { font-size: 28px; font-weight: 900; line-height: 1; color: #ffffff; text-shadow: 0 2px 8px #000000bb; }
+.hc-power-center { font-size: 28px; font-weight: 900; line-height: 1; color: #ffffff; background:rgba(20,18,38,0.58); border-radius:7px; padding:3px 9px; }
 
 .hc-name-small   { font-size: 7px; letter-spacing: 1px; opacity: 0.55; color: #00ffcc; }
 
