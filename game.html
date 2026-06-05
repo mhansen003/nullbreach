@@ -2546,6 +2546,21 @@ button, [onclick] { touch-action: manipulation; }
   .ai-avatar { width: 34px; height: 34px; }
   .ai-portrait { min-width: 0; padding: 2px 4px; }
   #sbAiName { font-size: 8px; }
+
+  /* Audio panel: inline accordion inside menu on mobile */
+  #audioPanel {
+    position: static !important;
+    right: auto !important;
+    top: auto !important;
+    width: auto !important;
+    box-shadow: none !important;
+    border-radius: 6px !important;
+    transform: none !important;
+    transition: none !important;
+    padding: 10px 12px !important;
+    margin-top: 2px;
+    border-color: #ffffff0a !important;
+  }
 }
 </style>
 
@@ -3228,46 +3243,10 @@ initGame();
 
 
 <!-- Audio sub-panel — slides in from the right when AUDIO is toggled -->
-<div id="audioPanel" style="
-  display:none;position:fixed;top:44px;right:256px;z-index:100001;
-  background:#0c0c18;border:1px solid #ffffff18;border-radius:10px;
-  padding:14px 16px;width:200px;
-  font-family:'Orbitron',system-ui,sans-serif;
-  box-shadow:0 12px 48px #000000cc,0 0 0 1px #ffffff06;
-  transform:translateX(8px);opacity:0;
-  transition:transform 0.18s ease,opacity 0.18s ease;
-">
-  <div style="font-size:9px;letter-spacing:3px;color:#888;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid #ffffff0a;">AUDIO</div>
-  <div style="font-size:8px;letter-spacing:2px;color:#999;margin-bottom:5px;">MUSIC</div>
-  <input id="volSlider2" type="range" min="0" max="100" value="40"
-    oninput="setVolume(this.value)"
-    style="width:100%;accent-color:#ffffff66;cursor:pointer;margin-bottom:5px;display:block;">
-  <button onclick="toggleGameMusic();updateMuteLabel()" id="muteMenuBtn" style="
-    background:transparent;border:1px solid #ffffff14;color:#888;
-    font-family:'Orbitron',system-ui,sans-serif;font-size:10px;letter-spacing:2px;padding:7px 12px;
-    cursor:pointer;border-radius:5px;text-align:left;width:100%;transition:all 0.15s;margin-bottom:12px;
-  " onmouseenter="this.style.background='#ffffff0a';this.style.color='#fff';this.style.borderColor='#ffffff33'"
-     onmouseleave="this.style.background='transparent';this.style.color='#888';this.style.borderColor='#ffffff14'">
-    MUTE MUSIC
-  </button>
-  <div style="font-size:8px;letter-spacing:2px;color:#999;margin-bottom:5px;">SOUND EFFECTS</div>
-  <input id="sfxSlider" type="range" min="0" max="100" value="100"
-    oninput="setSfxVolume(this.value)"
-    style="width:100%;accent-color:#ffffff66;cursor:pointer;margin-bottom:5px;display:block;">
-  <button onclick="toggleSfxMute()" id="sfxMuteBtn" style="
-    background:transparent;border:1px solid #ffffff14;color:#888;
-    font-family:'Orbitron',system-ui,sans-serif;font-size:10px;letter-spacing:2px;padding:7px 12px;
-    cursor:pointer;border-radius:5px;text-align:left;width:100%;transition:all 0.15s;
-  " onmouseenter="this.style.background='#ffffff0a';this.style.color='#fff';this.style.borderColor='#ffffff33'"
-     onmouseleave="this.style.background='transparent';this.style.color='#888';this.style.borderColor='#ffffff14'">
-    MUTE SFX
-  </button>
-</div>
-
 <div id="gameMenu" style="
   display:none;position:fixed;top:44px;right:16px;z-index:100000;
   background:#0c0c18;border:1px solid #ffffff18;border-radius:10px;
-  padding:14px 16px;min-width:200px;
+  padding:14px 16px;min-width:200px;overflow:visible;
   font-family:'Orbitron',system-ui,sans-serif;
   box-shadow:0 12px 48px #000000cc,0 0 0 1px #ffffff06;
 ">
@@ -3286,6 +3265,43 @@ initGame();
        onmouseleave="this.style.background='transparent';this.style.color='#ccc';this.style.borderColor='#ffffff14'">
       <span>AUDIO</span><span style="font-size:9px;opacity:0.5;">&#x25C0;</span>
     </button>
+
+    <!-- Audio sub-panel: absolute flyout on desktop, inline accordion on mobile -->
+    <div id="audioPanel" style="
+      display:none;position:absolute;top:0;right:calc(100% + 8px);z-index:100001;
+      background:#0c0c18;border:1px solid #ffffff18;border-radius:10px;
+      padding:14px 16px;width:200px;
+      font-family:'Orbitron',system-ui,sans-serif;
+      box-shadow:0 12px 48px #000000cc,0 0 0 1px #ffffff06;
+      transform:translateX(8px);opacity:0;
+      transition:transform 0.18s ease,opacity 0.18s ease;
+    ">
+      <div style="font-size:9px;letter-spacing:3px;color:#888;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid #ffffff0a;">AUDIO</div>
+      <div style="font-size:8px;letter-spacing:2px;color:#999;margin-bottom:5px;">MUSIC</div>
+      <input id="volSlider2" type="range" min="0" max="100" value="40"
+        oninput="setVolume(this.value)"
+        style="width:100%;accent-color:#ffffff66;cursor:pointer;margin-bottom:5px;display:block;">
+      <button onclick="toggleGameMusic();updateMuteLabel()" id="muteMenuBtn" style="
+        background:transparent;border:1px solid #ffffff14;color:#888;
+        font-family:'Orbitron',system-ui,sans-serif;font-size:10px;letter-spacing:2px;padding:7px 12px;
+        cursor:pointer;border-radius:5px;text-align:left;width:100%;transition:all 0.15s;margin-bottom:12px;
+      " onmouseenter="this.style.background='#ffffff0a';this.style.color='#fff';this.style.borderColor='#ffffff33'"
+         onmouseleave="this.style.background='transparent';this.style.color='#888';this.style.borderColor='#ffffff14'">
+        MUTE MUSIC
+      </button>
+      <div style="font-size:8px;letter-spacing:2px;color:#999;margin-bottom:5px;">SOUND EFFECTS</div>
+      <input id="sfxSlider" type="range" min="0" max="100" value="100"
+        oninput="setSfxVolume(this.value)"
+        style="width:100%;accent-color:#ffffff66;cursor:pointer;margin-bottom:5px;display:block;">
+      <button onclick="toggleSfxMute()" id="sfxMuteBtn" style="
+        background:transparent;border:1px solid #ffffff14;color:#888;
+        font-family:'Orbitron',system-ui,sans-serif;font-size:10px;letter-spacing:2px;padding:7px 12px;
+        cursor:pointer;border-radius:5px;text-align:left;width:100%;transition:all 0.15s;
+      " onmouseenter="this.style.background='#ffffff0a';this.style.color='#fff';this.style.borderColor='#ffffff33'"
+         onmouseleave="this.style.background='transparent';this.style.color='#888';this.style.borderColor='#ffffff14'">
+        MUTE SFX
+      </button>
+    </div>
 
     <button onclick="showGuide();closeMenu()" style="
       background:transparent;border:1px solid #ffffff14;color:#ccc;

@@ -160,9 +160,13 @@ function _closeAudioPanel() {
   const ap = document.getElementById('audioPanel');
   const btn = document.getElementById('audioToggleBtn');
   if (!ap) return;
-  ap.style.opacity = '0';
-  ap.style.transform = 'translateX(8px)';
-  setTimeout(() => { if (!_audioPanelOpen) ap.style.display = 'none'; }, 180);
+  if (window.innerWidth > 480) {
+    ap.style.opacity = '0';
+    ap.style.transform = 'translateX(8px)';
+    setTimeout(() => { if (!_audioPanelOpen) ap.style.display = 'none'; }, 180);
+  } else {
+    ap.style.display = 'none';
+  }
   _audioPanelOpen = false;
   if (btn) btn.querySelector('span:last-child').textContent = '◀';
 }
@@ -176,10 +180,12 @@ function toggleAudioPanel() {
   } else {
     _audioPanelOpen = true;
     ap.style.display = 'block';
-    requestAnimationFrame(() => {
-      ap.style.opacity = '1';
-      ap.style.transform = 'translateX(0)';
-    });
+    if (window.innerWidth > 480) {
+      requestAnimationFrame(() => {
+        ap.style.opacity = '1';
+        ap.style.transform = 'translateX(0)';
+      });
+    }
     if (btn) btn.querySelector('span:last-child').textContent = '▶';
   }
 }
