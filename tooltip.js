@@ -427,8 +427,6 @@ function showTip(e, card) {
 
       <div style="flex:1;">
 
-        <div style="font-size:8px;letter-spacing:2px;color:#ccc;margin-bottom:4px;"> INFLUENCE </div>
-
         ${card.zone ? buildZoneGrid(card) : `<div style="font-size:9px;color:#2a2a3a;">&#x2014;</div>`}
 
       </div>
