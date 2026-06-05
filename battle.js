@@ -451,15 +451,21 @@ function computeScores() {
   const rawRowResults = rowResults.slice();
   const rawColResults = colResults.slice();
 
-  // DECIDING FACTOR: player ties become player wins
+  // DECIDING FACTOR: breaks ties — but if both sides have one in the same row/col they nullify each other
 
   for (let r = 0; r < 5; r++) {
 
     if (rowResults[r] === 'tie') {
 
-      const hasDf = G.grid[r].some(cell => cell.card && cell.owner === 'player' && cell.card.ability === 'deciding_factor' && !cell.card.sniped);
+      const hasPDf  = G.grid[r].some(cell => cell.card && cell.owner === 'player' && cell.card.ability === 'deciding_factor' && !cell.card._silenced);
+      const hasAiDf = G.grid[r].some(cell => cell.card && cell.owner === 'ai'     && cell.card.ability === 'deciding_factor' && !cell.card._silenced);
 
-      if (hasDf) {
+      if (hasPDf && hasAiDf) {
+        addLog('compare', 'DECIDING FACTOR: both sides — nullified (row ' + (r+1) + ' stays TIE)');
+        continue; // stays tie
+      }
+
+      if (hasPDf) {
         rowResults[r] = 'p';
         addLog('compare', 'DECIDING FACTOR: tie broken in row ' + (r+1) + ' for player');
         setTimeout(function() {
@@ -475,9 +481,7 @@ function computeScores() {
         continue;
       }
 
-      const hasAiDfRow = G.grid[r].some(cell => cell.card && cell.owner === 'ai' && cell.card.ability === 'deciding_factor' && !cell.card.sniped);
-
-      if (hasAiDfRow) rowResults[r] = 'a';
+      if (hasAiDf) rowResults[r] = 'a';
 
     }
 
@@ -487,31 +491,22 @@ function computeScores() {
 
     if (colResults[c] === 'tie') {
 
-      let hasDf = false;
+      let hasPDfCol = false, hasAiDfCol = false;
 
       for (let r = 0; r < 5; r++) {
-
         const cell = G.grid[r][c];
-
-        if (cell.card && cell.owner === 'player' && cell.card.ability === 'deciding_factor' && !cell.card.sniped) { hasDf = true; break; }
-
+        if (!cell.card || cell.card.ability !== 'deciding_factor' || cell.card._silenced) continue;
+        if (cell.owner === 'player') hasPDfCol = true;
+        if (cell.owner === 'ai')     hasAiDfCol = true;
       }
 
-      if (hasDf) colResults[c] = 'p';
-
-    // AI DECIDING_FACTOR
-
-    let hasAiDf3 = false;
-
-    for (let _r3=0; _r3<5; _r3++) {
-
-      const _c2 = G.grid[_r3][c];
-
-      if (_c2.card && _c2.owner==='ai' && _c2.card.ability==='deciding_factor' && !_c2.card.sniped) hasAiDf3 = true;
-
-    }
-
-    if (hasAiDf3 && colResults[c]==='tie') colResults[c] = 'a';
+      if (hasPDfCol && hasAiDfCol) {
+        addLog('compare', 'DECIDING FACTOR: both sides — nullified (col ' + (c+1) + ' stays TIE)');
+      } else if (hasPDfCol) {
+        colResults[c] = 'p';
+      } else if (hasAiDfCol) {
+        colResults[c] = 'a';
+      }
 
     }
 
