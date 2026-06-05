@@ -121,6 +121,13 @@ function renderGrid() {
 
   const el = document.getElementById('grid');
 
+  // Save existing hazard video elements to prevent restart on re-render
+  const _savedHzVideos = new Map();
+  el.querySelectorAll('.cell.hazard').forEach(cellEl => {
+    const vid = cellEl.querySelector('video');
+    if (vid) _savedHzVideos.set(`${cellEl.dataset.r},${cellEl.dataset.c}`, { vid, time: vid.currentTime, paused: vid.paused });
+  });
+
   el.innerHTML = '';
 
   const valid = (G.turn === 'player' && G.selectedCard)
@@ -173,7 +180,15 @@ function renderGrid() {
 
         `;
 
-                div.style.border = '2px solid #ff660088';
+                // Restore saved video element to prevent playback restart
+        const _savedHz = _savedHzVideos.get(`${r},${c}`);
+        if (_savedHz) {
+          const existingVid = div.querySelector('video');
+          if (existingVid) { div.replaceChild(_savedHz.vid, existingVid); }
+          if (!_savedHz.paused) { _savedHz.vid.currentTime = _savedHz.time; _savedHz.vid.play().catch(()=>{}); }
+        }
+
+        div.style.border = '2px solid #ff660088';
 
         div.style.boxShadow = '0 0 18px #ff440066, inset 0 0 12px #ff220022';
 

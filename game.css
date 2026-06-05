@@ -392,23 +392,7 @@ body {
 
 .bpv-tie  { outline: 3px solid #ffdd0088 !important; box-shadow: 0 0 18px #ffdd0044, inset 0 0 14px #ffdd0022 !important; }
 
-/* Safe zone bars: player home (row 4) gets top bar, AI home (row 0) gets bottom bar */
-
-.cell[data-r="4"]::before {
-
-  content:''; position:absolute; top:0;left:0;right:0; height:3px; z-index:3; pointer-events:none;
-
-  background:linear-gradient(90deg,transparent,var(--player-safe-col,#00ffcc44),transparent);
-
-}
-
-.cell[data-r="0"]::after {
-
-  content:''; position:absolute; bottom:0;left:0;right:0; height:3px; z-index:3; pointer-events:none;
-
-  background:linear-gradient(90deg,transparent,var(--ai-safe-col,#ff008044),transparent);
-
-}
+/* Safe zone bars removed — too visually intrusive over card art */
 
 /* Battle result chip: positioned in gap between battling cells */
 
