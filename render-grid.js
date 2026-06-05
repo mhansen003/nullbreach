@@ -1,3 +1,32 @@
+// ── ABILITY SVG ICON MAP ──────────────────────────────────────────────────────
+const _ABILITY_SVG_PATHS = {
+  shield:         `<path d="M12 3L4 6.5V12c0 4.4 3.4 8.5 8 9.5 4.6-1 8-5.1 8-9.5V6.5L12 3z" stroke="white" stroke-width="2" fill="rgba(255,255,255,0.08)"/>`,
+  flank:          `<path d="M4 12a8 8 0 0 1 8-8" stroke="white" stroke-width="2" stroke-linecap="round"/><path d="M12 4l3 3-3 3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 12a8 8 0 0 1-8 8" stroke="white" stroke-width="2" stroke-linecap="round"/><path d="M12 20l-3-3 3-3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`,
+  commander:      `<path d="M6 20l6-6 6 6" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 13l6-6 6 6" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>`,
+  laser_focus:    `<path d="M6 10l6-6 6 6" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><line x1="9" y1="12" x2="9" y2="22" stroke="white" stroke-width="2.5" stroke-linecap="round"/><line x1="15" y1="12" x2="15" y2="22" stroke="white" stroke-width="2.5" stroke-linecap="round"/>`,
+  rush:           `<path d="M5 12h14M13 6l6 6-6 6" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>`,
+  intimidate:     `<path d="M12 5v14M7 15l5 5 5-5" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><line x1="6" y1="8" x2="18" y2="8" stroke="white" stroke-width="2" stroke-linecap="round"/>`,
+  phantom:        `<path d="M6 10a6 6 0 1 1 12 0v10l-2-2-2 2-2-2-2 2-2-2-2 2V10z" stroke="white" stroke-width="2" fill="rgba(255,255,255,0.08)"/><circle cx="10" cy="11" r="1.5" fill="white"/><circle cx="14" cy="11" r="1.5" fill="white"/>`,
+  home_invader:   `<path d="M3 11l9-8 9 8" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><rect x="6" y="11" width="12" height="10" rx="1" stroke="white" stroke-width="2"/><rect x="10" y="16" width="4" height="5" rx="0.5" stroke="white" stroke-width="1.5"/>`,
+  fortify:        `<path d="M4 20V8h3V5h2v3h4V5h2v3h3v12H4z" stroke="white" stroke-width="2" stroke-linejoin="round" fill="rgba(255,255,255,0.08)"/><rect x="9" y="13" width="6" height="7" stroke="white" stroke-width="1.5" fill="rgba(255,255,255,0.1)"/>`,
+  pierce:         `<path d="M5 12h14M16 7l5 5-5 5" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><line x1="5" y1="12" x2="10" y2="12" stroke="white" stroke-width="2.5" stroke-dasharray="2 2"/>`,
+  double_strike:  `<path d="M7 6l5 6-5 6M12 6l5 6-5 6" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>`,
+  cloak:          `<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24M1 1l22 22" stroke="white" stroke-width="2" stroke-linecap="round"/>`,
+  sniper:         `<circle cx="12" cy="12" r="7" stroke="white" stroke-width="2"/><circle cx="12" cy="12" r="2" fill="white"/><line x1="12" y1="3" x2="12" y2="7" stroke="white" stroke-width="2"/><line x1="12" y1="17" x2="12" y2="21" stroke="white" stroke-width="2"/><line x1="3" y1="12" x2="7" y2="12" stroke="white" stroke-width="2"/><line x1="17" y1="12" x2="21" y2="12" stroke="white" stroke-width="2"/>`,
+  deciding_factor:`<line x1="5" y1="9" x2="19" y2="9" stroke="white" stroke-width="2.5" stroke-linecap="round"/><line x1="5" y1="15" x2="19" y2="15" stroke="white" stroke-width="2.5" stroke-linecap="round"/><line x1="4" y1="19" x2="20" y2="5" stroke="white" stroke-width="2" stroke-linecap="round"/>`,
+  density:        `<text x="12" y="16" text-anchor="middle" fill="white" font-size="11" font-family="monospace" font-weight="bold">x1.5</text>`,
+  lamb:           `<circle cx="12" cy="12" r="9" stroke="#ff2222" stroke-width="2.5"/><line x1="5.5" y1="5.5" x2="18.5" y2="18.5" stroke="#ff2222" stroke-width="2.5" stroke-linecap="round"/>`,
+  revenge:        `<path d="M18 8A8 8 0 0 0 6 8" stroke="white" stroke-width="2" stroke-linecap="round"/><path d="M6 8l-3-1 1 3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><text x="12" y="20" text-anchor="middle" fill="white" font-size="10" font-weight="700">-VP</text>`,
+  birthright:     `<rect x="8" y="2" width="8" height="4" rx="1" stroke="white" stroke-width="1.5"/><rect x="5" y="6" width="14" height="16" rx="1" stroke="white" stroke-width="2"/><line x1="9" y1="11" x2="15" y2="11" stroke="white" stroke-width="1.5" stroke-linecap="round"/><line x1="9" y1="14" x2="15" y2="14" stroke="white" stroke-width="1.5" stroke-linecap="round"/><line x1="9" y1="17" x2="13" y2="17" stroke="white" stroke-width="1.5" stroke-linecap="round"/>`,
+  boost:          `<path d="M6 20l6-6 6 6" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 13l6-6 6 6" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>`,
+  spawn:          `<path d="M6 20l6-6 6 6" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 13l6-6 6 6" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>`,
+};
+
+function _getAbilitySvg(ability) {
+  const paths = _ABILITY_SVG_PATHS[ability] || `<text x="12" y="16" text-anchor="middle" fill="white" font-size="9" font-weight="bold">${(ability||'').substring(0,3).toUpperCase()}</text>`;
+  return `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" style="animation:abilityPulse 2.5s ease-in-out infinite;">${paths}</svg>`;
+}
+
 function renderGrid() {
 
   const el = document.getElementById('grid');
@@ -177,11 +206,12 @@ function renderGrid() {
 
           ${cell.card.ability ? `<span class="ability-tag" style="color:${factionCol}88">${ab(cell.card.ability)}</span>` : ''}
 
-          ${cell.card.ability && !cell.card.shieldExpended ? `<span class="ability-star" style="position:absolute;bottom:12px;left:50%;transform:translateX(-50%);z-index:6;font-size:18px;pointer-events:none;">\u2605</span>` : ''}
+          ${cell.card.ability && !cell.card.shieldExpended ? `<div class="ability-badge" style="position:absolute;bottom:5px;left:50%;transform:translateX(-50%);z-index:6;width:28px;height:28px;border-radius:6px;background:#000000cc;display:flex;align-items:center;justify-content:center;pointer-events:none;">${_getAbilitySvg(cell.card.ability)}</div>` : ''}
 
           ${cell.card.shieldExpended ? `<span style="position:absolute;top:3px;right:3px;z-index:5;font-size:11px;filter:drop-shadow(0 0 4px #aaaaff);pointer-events:none;">\uD83D\uDEE1</span>` : ''}
 
-          ${cell.card._sniped||cell.card._sniperLocked ? `<div style='position:absolute;top:3px;right:3px;z-index:7;font-size:8px;color:#ff8800;text-shadow:0 0 6px #ff8800;pointer-events:none;' title='Sniper: -2 all battle values'>🎯</div>` : ''}
+          ${cell.card._silenced ? `<div style='position:absolute;inset:0;z-index:4;pointer-events:none;border-radius:4px;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;'><span style='font-size:8px;letter-spacing:1px;color:#ff8800;font-family:"Orbitron",monospace;background:#0a0a14;padding:2px 5px;border-radius:3px;border:1px solid #ff880044;opacity:0.9;'>0 VP</span></div>` : ''}
+          ${(cell.card._sniped||cell.card._sniperLocked) && !cell.card._silenced ? `<div style='position:absolute;top:3px;right:3px;z-index:7;font-size:8px;color:#ff8800;text-shadow:0 0 6px #ff8800;pointer-events:none;' title='Sniper: -2 all battle values'>🎯</div>` : ''}
           ${cell.card._revengePenalty > 0 ? `<div style='position:absolute;top:${cell.card._sniped?'14':'3'}px;right:3px;z-index:7;font-size:8px;color:#ff4488;text-shadow:0 0 6px #ff4488;pointer-events:none;' title='Revenge penalty -${cell.card._revengePenalty} VP'>↩-${cell.card._revengePenalty}</div>` : ''}
           <img src="${cell.owner==='player'?(window.playerAvatarImg||''):(window.aiAvatarImg||'')}" style="position:absolute;bottom:3px;right:3px;width:18px;height:18px;border-radius:50%;object-fit:cover;object-position:top;border:1px solid ${factionCol}55;opacity:0.6;z-index:2;pointer-events:none;" onerror="this.style.display='none'">
 

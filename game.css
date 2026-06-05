@@ -454,6 +454,22 @@ body {
 
 .ability-star { animation: starPulse 2s ease-in-out infinite; }
 
+@keyframes abilityPulse {
+  0%,100% { filter: drop-shadow(0 0 3px #7722aa) brightness(0.85); }
+  50%     { filter: drop-shadow(0 0 7px #ffffff) brightness(1.6); }
+}
+
+.ability-badge {
+  position: absolute;
+  bottom: 5px; left: 50%; transform: translateX(-50%);
+  z-index: 6;
+  width: 28px; height: 28px;
+  border-radius: 6px;
+  background: #000000cc;
+  display: flex; align-items: center; justify-content: center;
+  pointer-events: none;
+}
+
 /* Card face -- all absolutely positioned inside position:relative .cell */
 
 .edge {

@@ -426,6 +426,9 @@ function computeScores() {
 
         .filter(({dr,dc}) => { const rr=r+dr,cc=c+dc; return rr>=0&&rr<5&&cc>=0&&cc<7&&G.grid[rr][cc].owner==='hazard'; }).length;
 
+      // SNIPER: silenced cards contribute 0 VP
+      if (cell.card._silenced) continue;
+
       // REVENGE: cap penalty to basePower-1 so floor of 1 is always kept
       const _revPen = Math.min(cell.card._revengePenalty || 0, Math.max(0, basePower - 1));
       const effPower = Math.max(1, basePower - _adjHazards * 2 - _revPen);

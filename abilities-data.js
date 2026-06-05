@@ -1,104 +1,98 @@
 const RACE_ABILITY_NAMES = {
 
-  terran:     { shield:'COLONIAL BULWARK', double_strike:'ACCORD BARRAGE', commander:'FLEET ADMIRAL', flank:'PINCER MANEUVER' },
+  terran:     { commander:'COMMANDER', flank:'FLANK', shield:'SHIELD', double_strike:'DOUBLE STRIKE' },
 
-  brood:      { spawn:'HIVE PULSE', laser_focus:'MANDIBLE FOCUS', rush:'ACID CHARGE', boost:"QUEEN'S FAVOR" },
+  brood:      { commander:'COMMANDER', laser_focus:'LASER FOCUS', rush:'RUSH', birthright:'BIRTHRIGHT' },
 
-  crystallis: { fortify:'CRYSTAL FORTRESS', revenge:'REFRACTION REVENGE', shield:'LATTICE WARD', density:'CRYSTAL DENSITY' },
+  crystallis: { density:'DENSITY', fortify:'FORTIFY', shield:'SHIELD', revenge:'REVENGE' },
 
-  mycos:      { home_invader:'MYCELIUM LINK', birthright:'SPORE BURST', lamb:'MYCELIAL SACRIFICE', overwhelm:'MYCO SURGE' },
+  mycos:      { lamb:'LAMB', intimidate:'INTIMIDATE', home_invader:'HOME INVADER', birthright:'BIRTHRIGHT' },
 
-  veil:       { phantom:'PHASE SHIFT', flank:'AFTERIMAGE', edge_play:'LIGHT BEND', pierce:'PHOTON LANCE' },
+  veil:       { flank:'FLANK', phantom:'PHANTOM', pierce:'PIERCE', cloak:'CLOAK' },
 
-  entropy:    { revenge:'ENTROPY REVERSAL', laser_focus:'RUST EQUALIZE', double_strike:'SECOND ROT', ambush:'CORROSIVE STRIKE' },
+  entropy:    { lamb:'LAMB', laser_focus:'LASER FOCUS', intimidate:'INTIMIDATE', revenge:'REVENGE' },
 
-  void:       { sniper:'VOID LANCE', ambush:'DARK SURGE', rush:'DARK LUNGE', pierce:'EVENT HORIZON' },
+  void:       { rush:'RUSH', pierce:'PIERCE', cloak:'CLOAK', sniper:'SNIPER' },
 
-  gas:        { edge_play:'STORM WRAP', overwhelm:'PLASMA SURGE', birthright:'STORM BIRTH', double_strike:'TWIN PLASMA' },
+  gas:        { deciding_factor:'DECIDING FACTOR', rush:'RUSH', home_invader:'HOME INVADER', double_strike:'DOUBLE STRIKE' },
 
-  lithos:     { fortify:'TECTONIC HOLD', deciding_factor:'FAULT LINE', commander:'TECTONIC ARRAY', shield:'STONE SKIN' },
+  lithos:     { deciding_factor:'DECIDING FACTOR', commander:'COMMANDER', fortify:'FORTIFY', shield:'SHIELD' },
 
-  quantum:    { flank:'PROBABILITY CASCADE', deciding_factor:'WAVE COLLAPSE', phantom:'SUPERPOSITION', sniper:'OBSERVER EFFECT' },
+  quantum:    { density:'DENSITY', flank:'FLANK', phantom:'PHANTOM', sniper:'SNIPER' },
 
-  choir:      { home_invader:'RESONANT CHORD', overwhelm:'SONIC BOOM', boost:'HARMONIC PULSE', rush:'SONIC RUSH' },
+  choir:      { commander:'COMMANDER', flank:'FLANK', cloak:'CLOAK', birthright:'BIRTHRIGHT' },
 
 };
 
 const ABILITY_TEXT = {
 
-  shield: 'Absorbs the first battle loss: activates once per game.',
+  lamb: '5 VP but zero on all battle values. Scores full power if uncontested; zero if any enemy is adjacent.',
 
-  double_strike: 'Win a battle, and the card one step beyond also takes half-damage.',
+  density: 'VP of this card is worth 1.5.',
 
-  commander: 'All adjacent friendly cards gain +2 to every battle value when placed.',
+  deciding_factor: 'When a row or column ends in a tie, this card tips the result in your favor.',
 
-  boost: 'All adjacent friendly cards gain +1 to every battle value when placed.',
+  commander: 'Adjacent friendly cards gain battle value on placement. Amount varies by faction (+1 or +2). Stacks.',
 
-  fortify: 'Claims all adjacent empty cells: opponents cannot place there.',
+  laser_focus: 'Sums all four battle values into the enemy-facing side only. Zero on all other sides.',
+
+  intimidate: 'Adjacent enemies lose 1 from their highest battle value on placement. Reactive: fires again when enemy places adjacent later.',
 
   flank: 'After placing this card, take one extra turn immediately.',
 
-  spawn: 'Adjacent Brood cards gain +2 to every battle value (hive sync).',
+  rush: 'Can be placed next to ANY enemy card anywhere on the board, bypassing normal tier zone restrictions.',
 
-  rush: 'Can be placed next to any enemy card anywhere on the board.',
+  phantom: 'Can be freely placed in your home row or the row directly above it, plus normal adjacency cells.',
 
-  cloak: 'Edges show as ? and are revealed only when this card fights its first battle.',
+  home_invader: 'Can be placed directly on the opponent\'s home row, bypassing all tier restrictions.',
 
-  pierce: 'Edge ties count as wins for this card instead of draws.',
+  fortify: 'Claims the forward cell on placement. Opponent cannot place there; you can.',
 
-  phantom: 'Can be freely placed in your home row or the row above it.',
+  shield: 'Absorbs the first battle loss. Sets shieldBlockH AND shieldBlockV simultaneously — one use per game.',
 
-  intimidate: 'Adjacent enemies lose 1 from their highest battle value on placement.',
+  pierce: 'Ties count as wins for this card instead of draws.',
 
-  revenge: 'When defeated in battle, the winning card permanently loses 1 VP.',
+  double_strike: 'When this card wins a horizontal battle, the card two steps beyond also takes half-damage.',
 
-  ambush: '2 random adjacent enemies each lose 1 from every battle value on placement.',
+  cloak: 'Battle values show as ? until this card fights its first battle — then all values are revealed permanently.',
 
-  laser_focus: 'Combines all four battle values into the North facing. Zero on all other sides.',
+  sniper: 'On placement, silences one opponent card on their home row. That card contributes 0 VP for the rest of the game.',
 
-  sniper: 'Cancels the opposing home-row card in this column: it scores 0 VP.',
+  revenge: 'When this card loses a battle comparison, the winning enemy card permanently loses 1 VP (floor of 1).',
 
-  birthright: 'On placement, a bonus Tier II card is added to your hand.',
+  birthright: 'On placement, a bonus Tier II card is added to your hand immediately.',
 
-  deciding_factor:'When a row or column ends in a tie, this card tips the result in your favor.',
+  boost: 'Adjacent friendly cards gain +1 to every battle value when placed.',
 
-  lamb: '5 VP but zero edges. Scores full value uncontested, nothing if attacked.',
-
-  overwhelm: 'Win a battle by 3 or more and you also win the opposing axis.',
-
-  density: 'This card contributes 1.5× its power to the row/column score.',
-
-  home_invader: 'Can be placed directly on the opponent\'s home row.',
-
-  edge_play: 'Placed on a board edge, this card wraps around to fight the card on the opposite side.',
+  spawn: 'Adjacent friendly cards gain +2 to every battle value when placed (hive sync).',
 
 };
 
 const FACTION_ABILITY_POOLS = {
 
-  terran:     ['shield','double_strike','commander','flank'],
+  terran:     ['commander','flank','shield','double_strike'],
 
-  brood:      ['spawn','laser_focus','rush','boost'],
+  brood:      ['commander','laser_focus','rush','birthright'],
 
-  crystallis: ['fortify','revenge','shield','density'],
+  crystallis: ['density','fortify','shield','revenge'],
 
-  mycos:      ['home_invader','birthright','lamb','overwhelm'],
+  mycos:      ['lamb','intimidate','home_invader','birthright'],
 
-  veil:       ['phantom','flank','edge_play','pierce'],
+  veil:       ['flank','phantom','pierce','cloak'],
 
-  entropy:    ['revenge','laser_focus','double_strike','ambush'],
+  entropy:    ['lamb','laser_focus','intimidate','revenge'],
 
-  void:       ['sniper','ambush','rush','pierce'],
+  void:       ['rush','pierce','cloak','sniper'],
 
-  gas:        ['edge_play','overwhelm','birthright','double_strike'],
+  gas:        ['deciding_factor','rush','home_invader','double_strike'],
 
-  lithos:     ['fortify','deciding_factor','commander','shield'],
+  lithos:     ['deciding_factor','commander','fortify','shield'],
 
-  quantum:    ['flank','deciding_factor','phantom','sniper'],
+  quantum:    ['density','flank','phantom','sniper'],
 
-  choir:      ['home_invader','overwhelm','boost','cloak'],
+  choir:      ['commander','flank','cloak','birthright'],
 
-  _default:   ['shield','double_strike','boost','laser_focus','pierce','flank'],
+  _default:   ['shield','double_strike','commander','laser_focus','pierce','flank'],
 
 };
 
@@ -114,8 +108,6 @@ const ABILITY_ICONS = {
 
   commander:      { icon:'★★',  color:'#ffcc00', label:'COMMANDER'      },
 
-  surge:          { icon:'⚡+',  color:'#ff6600', label:'SURGE'          },
-
   shield:         { icon:'🛡',   color:'#aaaaff', label:'SHIELD'         },
 
   fortify:        { icon:'⬡',   color:'#4488ff', label:'FORTIFY'        },
@@ -128,11 +120,9 @@ const ABILITY_ICONS = {
 
   spawn:          { icon:'★★',  color:'#88cc44', label:'SPAWN'          },
 
-  intimidate:     { icon:'↓↓',  color:'#ff6644', label:'INTIMIDATE'     },
+  intimidate:     { icon:'↓↓',  color:'#ff4488', label:'INTIMIDATE'     },
 
   revenge:        { icon:'↩⚡',  color:'#ff4488', label:'REVENGE'        },
-
-  ambush:         { icon:'✕✕',  color:'#cc44ff', label:'AMBUSH'         },
 
   laser_focus:    { icon:'◉',   color:'#ff4400', label:'LASER FOCUS'    },
 
@@ -142,14 +132,10 @@ const ABILITY_ICONS = {
 
   deciding_factor:{ icon:'⚖',   color:'#ffdd88', label:'DECIDING FACTOR'},
 
-  lamb:           { icon:'★',   color:'#ffdd00', label:'LAMB'           },
-
-  overwhelm:      { icon:'▲▲',  color:'#88cc44', label:'OVERWHELM'      },
+  lamb:           { icon:'★',   color:'#ff2222', label:'LAMB'           },
 
   density:        { icon:'⬛+',  color:'#9b59b6', label:'DENSITY'        },
 
   home_invader:   { icon:'↑⚔',  color:'#ff0066', label:'HOME INVADER'   },
-
-  edge_play:      { icon:'↩↪',  color:'#ff55aa', label:'EDGE PLAY'      },
 
 };

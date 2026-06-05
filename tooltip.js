@@ -1,9 +1,5 @@
 function showAbilityZone(ability, _baseR, _baseC, _owner) {
   if (_zoneSuppressed) return;
-  // Zone color: green=passive/buff, red=offensive
-  const _passiveAbils = new Set(['shield','boost','commander','phantom','cloak','spawn','fortify','birthright','deciding_factor','lamb','density']);
-  const abilCol = _passiveAbils.has(ability) ? '#44ff88' : (_owner==='ai' ? '#ff2244' : '#ff5533');
-  // Use explicit position from placed card, or guess from nearest player card
   let baseR = (_baseR !== undefined) ? _baseR : 4;
   let baseC = (_baseC !== undefined) ? _baseC : 3;
   if (_baseR === undefined) {
@@ -13,56 +9,69 @@ function showAbilityZone(ability, _baseR, _baseC, _owner) {
       }
     }
   }
-  const PATTERNS = {
-    boost:          [{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}],
-    commander:      [{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}],
-    spawn:          [{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}],
-    ambush:         [{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}],
-    intimidate:     [{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}],
-    fortify:        [{dr:0,dc:0},{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}],
-    revenge:        [{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}],
-    laser_focus:    [{dr:-1,dc:0}],
-    double_strike:  [{dr:-1,dc:0},{dr:-2,dc:0}],
-    sniper:         [{dr:-1,dc:0},{dr:-2,dc:0},{dr:-3,dc:0},{dr:-4,dc:0}],
-    lamb:           [{dr:0,dc:0}],
-    overwhelm:      [{dr:-1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}],
-    density:        [{dr:0,dc:0}],
-    phantom:        [{dr:0,dc:0},{dr:-1,dc:0}],
-    deciding_factor:[{dr:-1,dc:0},{dr:-2,dc:0},{dr:-3,dc:0},{dr:-4,dc:0}],
-    cloak:          [{dr:0,dc:0}],
-    home_invader:   [{dr:-1,dc:0},{dr:-2,dc:0},{dr:-3,dc:0},{dr:-4,dc:0}],
+  const _p2 = typeof _mpPlayer !== 'undefined' && _mpPlayer === 2;
+  const fwd = (_owner === 'ai') ? (_p2 ? 1 : -1) : (_p2 ? -1 : 1);
+
+  // 3-layer zone definitions (dr uses player-perspective: -1 = toward enemy)
+  // influence: yellow dotted  buff: blue solid  aggressive: red solid
+  const ZONE3 = {
+    commander:      { inf:[{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}], buf:[{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}], agg:[] },
+    laser_focus:    { inf:[{dr:-1,dc:0},{dr:-2,dc:0},{dr:-3,dc:0}], buf:[], agg:[{dr:-1,dc:0}] },
+    intimidate:     { inf:[{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}], buf:[], agg:[{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}] },
+    flank:          { inf:[{dr:0,dc:0}], buf:[{dr:0,dc:0}], agg:[] },
+    phantom:        { inf:[{dr:0,dc:0},{dr:-1,dc:0}], buf:[{dr:0,dc:0},{dr:-1,dc:0}], agg:[] },
+    home_invader:   { inf:[{dr:-1,dc:0},{dr:-2,dc:0},{dr:-3,dc:0},{dr:-4,dc:0}], buf:[], agg:[{dr:-1,dc:0},{dr:-2,dc:0},{dr:-3,dc:0},{dr:-4,dc:0}] },
+    fortify:        { inf:[{dr:-1,dc:0}], buf:[{dr:-1,dc:0}], agg:[] },
+    shield:         { inf:[{dr:0,dc:0}], buf:[{dr:0,dc:0}], agg:[] },
+    pierce:         { inf:[{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}], buf:[], agg:[{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}] },
+    double_strike:  { inf:[{dr:-1,dc:0},{dr:-2,dc:0}], buf:[], agg:[{dr:-2,dc:0}] },
+    cloak:          { inf:[{dr:0,dc:0}], buf:[{dr:0,dc:0}], agg:[] },
+    sniper:         { inf:[{dr:-1,dc:0},{dr:-2,dc:0},{dr:-3,dc:0},{dr:-4,dc:0}], buf:[], agg:[{dr:-1,dc:0},{dr:-2,dc:0},{dr:-3,dc:0},{dr:-4,dc:0}] },
+    deciding_factor:{ inf:[{dr:0,dc:0}], buf:[{dr:0,dc:0}], agg:[] },
+    density:        { inf:[{dr:0,dc:0}], buf:[{dr:0,dc:0}], agg:[] },
+    lamb:           { inf:[{dr:0,dc:0},{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}], buf:[{dr:0,dc:0}], agg:[] },
+    revenge:        { inf:[{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}], buf:[], agg:[{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}] },
+    birthright:     { inf:[{dr:0,dc:0}], buf:[{dr:0,dc:0}], agg:[] },
+    spawn:          { inf:[{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}], buf:[{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}], agg:[] },
+    boost:          { inf:[{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}], buf:[{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}], agg:[] },
   };
 
-  function mkOverlay(el) {
+  function mkLayer(el, type) {
     const ov = document.createElement('div');
     ov.setAttribute('data-az','1');
-    ov.style.cssText = 'position:absolute;inset:0;z-index:7;pointer-events:none;border-radius:3px;'
-      + 'background:' + abilCol + '33;border:2px solid ' + abilCol + 'cc;'
-      + 'box-shadow:inset 0 0 8px ' + abilCol + '22;';
+    const styles = {
+      inf: 'border:2px dashed #ffdd0099;background:#ffdd0011;box-shadow:inset 0 0 6px #ffdd0022;',
+      buf: 'border:2px solid #4488ffcc;background:#4488ff22;box-shadow:inset 0 0 8px #4488ff22;',
+      agg: 'border:2px solid #ff4444cc;background:#ff444422;box-shadow:inset 0 0 8px #ff333322;',
+    };
+    ov.style.cssText = 'position:absolute;inset:0;z-index:7;pointer-events:none;border-radius:3px;' + (styles[type] || styles.inf);
     el.appendChild(ov);
   }
 
   if (ability === 'rush') {
-    document.querySelectorAll('.cell.valid').forEach(mkOverlay);
-    return;
-  }
-  if (ability === 'edge_play') {
-    [0,6].forEach(c => {
-      for (let r=0;r<5;r++) { const el=document.querySelector('.cell[data-r="'+r+'"][data-c="'+c+'"]'); if(el) mkOverlay(el); }
-    });
+    document.querySelectorAll('.cell.valid').forEach(el => mkLayer(el, 'agg'));
     return;
   }
 
-  const pattern = PATTERNS[ability];
-  if (!pattern) return;
-  pattern.forEach(({dr,dc}) => {
-    const _p2 = typeof _mpPlayer !== 'undefined' && _mpPlayer === 2;
-    const fwd = (_owner==='ai') ? (_p2 ? 1 : -1) : (_p2 ? -1 : 1);
-    const r = baseR+(dr*fwd), c = baseC+dc;
-    if (r<0||r>=5||c<0||c>=7) return;
-    const el = document.querySelector('.cell[data-r="'+r+'"][data-c="'+c+'"]');
-    if (el) mkOverlay(el);
-  });
+  const zones = ZONE3[ability];
+  if (!zones) return;
+
+  // Track which cells already have a layer to avoid stacking same-type
+  const layered = new Map();
+  const applyLayer = (offsets, type) => {
+    offsets.forEach(({dr, dc}) => {
+      const r = baseR + (dr * fwd), c = baseC + dc;
+      if (r < 0 || r >= 5 || c < 0 || c >= 7) return;
+      const el = document.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`);
+      if (!el) return;
+      const key = `${r},${c},${type}`;
+      if (!layered.has(key)) { mkLayer(el, type); layered.set(key, 1); }
+    });
+  };
+
+  applyLayer(zones.inf, 'inf');
+  applyLayer(zones.buf, 'buf');
+  applyLayer(zones.agg, 'agg');
 }
 
 let _zoneSuppressed = false;
@@ -114,7 +123,7 @@ function buildAbilityVisual(ability) {
                        `<div style="width:24px;height:20px;border-radius:2px;background:#001830;border:2px dashed #4488ff88;display:flex;align-items:center;justify-content:center;font-size:8px;color:#4488ff;">🔒</div>`,
                        empty(),`<div style="width:24px;height:20px;border-radius:2px;background:#001830;border:2px dashed #4488ff88;display:flex;align-items:center;justify-content:center;font-size:8px;color:#4488ff;">🔒</div>`,empty()]),
     revenge:        G([empty(),e('↩−1'),empty(), e('↩−1'),y('★'),e('↩−1'), empty(),e('↩−1'),empty()]),
-    laser_focus:    `<div style="display:flex;align-items:center;gap:8px;"><div style="color:#aaa;font-size:10px;">N+S+E+W</div><span style="color:#ff4400;font-size:14px;">→</span><div style="color:#ff4400;font-size:12px;font-weight:700;">N only</div></div>`,
+    laser_focus:    `<div style="display:flex;align-items:center;gap:8px;"><div style="color:#aaa;font-size:10px;">ALL SIDES</div><span style="color:#ff4400;font-size:14px;">→</span><div style="color:#ff4400;font-size:12px;font-weight:700;">FACING only</div></div>`,
     deciding_factor:`<div style="display:flex;align-items:center;gap:8px;"><div style="color:#aaa;font-size:13px;font-weight:600;">3=3</div><span style="color:#00ffcc;font-size:14px;">→</span><div style="color:#00ffcc;font-size:12px;font-weight:700;">WIN</div></div>`,
     home_invader:   G([e('?'),y('↑★'),e('?'), empty(),empty(),empty(), empty(),empty(),empty()]),
     edge_play:      G5([y('★'),empty(),empty(),empty(),e()]),

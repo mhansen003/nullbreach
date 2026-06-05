@@ -39,7 +39,11 @@ function ab(a) {
 
     boost:'BST', commander:'CMD', sweep:'SWP', flank:'FLK',
 
-    rush:'RSH', pierce:'PRC', spawn:'SPN', surge:'SRG'
+    rush:'RSH', pierce:'PRC', spawn:'SPN', surge:'SRG',
+
+    laser_focus:'LSR', lamb:'LMB', home_invader:'HMI', cloak:'CLK',
+
+    revenge:'RVG', fortify:'FRT'
 
   }[a] || (a ? a.slice(0,3).toUpperCase() : '');
 

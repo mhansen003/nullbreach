@@ -148,90 +148,37 @@ function applyPlacementAbility(card, r, c, owner) {
 
   }
 
-  // FORTIFY: claims adjacent empty cells as reserved: opponents cannot place there
+  // FORTIFY: claims the single forward cell (toward opponent home row = lower row index for player)
   if (card.ability === 'fortify') {
-    dirs.forEach(({dr,dc}) => {
-      const nr=r+dr, nc=c+dc;
-      if (nr<0||nr>=5||nc<0||nc>=7) return;
+    // Forward = lower row index for player (attacks toward row 0), higher row index for ai (attacks toward row 4)
+    const forwardDr = owner === 'player' ? -1 : 1;
+    const nr = r + forwardDr, nc = c;
+    if (nr >= 0 && nr < 5) {
       const tgt = G.grid[nr][nc];
       if (!tgt.card) {
         tgt.fortifiedBy = owner; // mark as reserved by this player
+        addLog('compare', `FORTIFY: ${card.name} claims forward cell [${nr},${nc}]`);
       }
-    });
-    addLog('compare', `FORTIFY: ${card.name} claims adjacent territory`);
-  }
-
-  // AMBUSH: randomly pick up to 2 adjacent enemies, weaken all 4 edges -1
-
-  if (card.ability === 'ambush') {
-    card._ambushHitsRemaining = 2; // track remaining reactive uses
-    const adjEnemies = [];
-
-    dirs.forEach(({dr,dc}) => {
-
-      const nr=r+dr, nc=c+dc;
-
-      if (nr<0||nr>=5||nc<0||nc>=7) return;
-
-      const nb = G.grid[nr][nc];
-
-      if (nb.card && nb.owner !== owner) adjEnemies.push({r:nr, c:nc, card:nb.card});
-
-    });
-
-    // Shuffle and pick up to 2
-
-    const _rng = window._mpSeed || Math.random;
-
-    adjEnemies.sort(() => _rng() - 0.5);
-
-    const targets = adjEnemies.slice(0, 2);
-
-    const names = [];
-
-    targets.forEach(({r:nr, c:nc, card:tc}) => {
-
-      tc.edgeMod = tc.edgeMod || {n:0,s:0,e:0,w:0};
-
-      tc.edgeMod.n -= 1; tc.edgeMod.s -= 1;
-
-      tc.edgeMod.e -= 1; tc.edgeMod.w -= 1;
-
-      names.push(tc.name);
-
-      // Visual flash
-
-      const cellEl = document.querySelector(`.cell[data-r="${nr}"][data-c="${nc}"]`);
-
-      if (cellEl) {
-
-        cellEl.classList.add('ambush-hit');
-
-        setTimeout(() => cellEl.classList.remove('ambush-hit'), 850);
-
-      }
-
-    });
-
-    if (targets.length === 0) { addLog('compare','AMBUSH: no adjacent enemies to weaken'); return; }
-
-    if (names.length) addLog('compare', `AMBUSH: ${names.join(', ')} weakened`);
-
+    }
   }
 
   // REVENGE: passive: triggers in battle scoring (see battle.js computeScores)
 
-  // SNIPER: silence enemy home-row card in this column
-
+  // SNIPER: on placement, silence the highest-power card on the opponent's home row
   if (card.ability === 'sniper') {
-    // Debuff all existing enemies in the same row
-    for (let sc=0; sc<7; sc++) {
-      if (sc === c) continue;
-      const tgt = G.grid[r][sc];
-      if (tgt.card && tgt.owner !== owner && !tgt.card._sniped) {
-        _applySnipe(tgt.card, r, sc);
-        addLog('compare', `SNIPER: ${card.name} locks onto ${tgt.card.name} at [${r},${sc}]`);
+    const homeRow = owner === 'player' ? 0 : 4; // opponent home row
+    let bestCell = null, bestPower = -1;
+    for (let sc = 0; sc < 7; sc++) {
+      const tgt = G.grid[homeRow][sc];
+      if (tgt.card && tgt.owner !== owner && !tgt.card._silenced) {
+        const effP = tgt.card.power || 0;
+        if (effP > bestPower) { bestPower = effP; bestCell = tgt; }
       }
+    }
+    if (bestCell) {
+      bestCell.card._silenced = true;
+      addLog('compare', `SNIPER: ${card.name} silences ${bestCell.card.name} — 0 VP for the rest of the game`);
+      if (typeof showToast === 'function') showToast(`SNIPER: ${bestCell.card.name} silenced — 0 VP`);
     }
   }
 
@@ -295,16 +242,6 @@ function fireReactiveAbilities(newR, newC, newCard, newOwner) {
 
       switch (aCard.ability) {
 
-        // SNIPER: any enemy entering same row gets debuffed
-        case 'sniper':
-          if (r === newR && !newCard._sniped) {
-            _applySnipe(newCard, newR, newC);
-            addLog('compare', `SNIPER: ${aCard.name} locks onto ${newCard.name} entering row ${newR}`);
-            // Persistent visual: mark cell as sniper-locked
-            newCard._sniperLocked = true;
-          }
-          break;
-
         // INTIMIDATE: enemy enters adjacent cell → lose 1 from highest edge
         case 'intimidate':
           if (dist === 1 && !newCard._intimidatedBy?.has(aCard)) {
@@ -322,20 +259,7 @@ function fireReactiveAbilities(newR, newC, newCard, newOwner) {
           }
           break;
 
-        // AMBUSH: enemy enters adjacent → fires (limited uses)
-        case 'ambush':
-          if (dist === 1 && (aCard._ambushHitsRemaining ?? 2) > 0) {
-            newCard.edgeMod = newCard.edgeMod || {n:0,s:0,e:0,w:0};
-            newCard.edgeMod.n -= 1; newCard.edgeMod.s -= 1;
-            newCard.edgeMod.e -= 1; newCard.edgeMod.w -= 1;
-            aCard._ambushHitsRemaining = (aCard._ambushHitsRemaining ?? 2) - 1;
-            const cellEl = document.querySelector(`.cell[data-r="${newR}"][data-c="${newC}"]`);
-            if (cellEl) { cellEl.classList.add('ambush-hit'); setTimeout(()=>cellEl.classList.remove('ambush-hit'),900); }
-            addLog('compare', `AMBUSH: ${aCard.name} strikes ${newCard.name} (${aCard._ambushHitsRemaining} charges left)`);
-          }
-          break;
-
-        // No additional reactive cases for replaced abilities
+        // No additional reactive cases
       }
     }
   }
