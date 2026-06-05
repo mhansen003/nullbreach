@@ -148,90 +148,61 @@ function computeBattleResults() {
 
           const them = (south.card.edges.n + (south.card.edgeMod?.n || 0) + surgeVBonusS);
 
-          if (me > them) {
+          const pierceCell  = cell.card.ability === 'pierce';
+          const pierceSouth = south.card.ability === 'pierce';
+
+          if (me > them || (me === them && pierceCell && !pierceSouth)) {
 
             b[r][c].vW++;
 
             const margin = me - them;
 
-            // OVERWHELM: win by 3+ → bonus win on H axis too
-
-            if (cell.card.ability === 'overwhelm' && margin >= 3) b[r][c].hW++;
-
-            // SHIELD V: south card blocks first V loss: permanently
-
+            // SHIELD V: south card blocks first V loss
             if (south.card.ability === 'shield' && !south.card.shieldExpended) {
-
               south.card.shieldExpended = true;
-
               south.card.shieldBlockH = true;
               south.card.shieldBlockV = true;
-
             }
 
             if (!south.card.shieldBlockV) b[r+1][c].vL++;
-            // REVENGE: south card loses V: penalize the cell card
             if (south.card.ability === 'revenge') {
               cell.card._revengePenalty = Math.min((cell.card._revengePenalty || 0) + 1, 9);
             }
+            if (pierceCell && me === them) addLog('compare', 'PIERCE (V): tie → win for cell');
 
             // DOUBLE STRIKE downward at half strength
-
             if (cell.card.ability === 'double_strike' && r < 3) {
-
               const far = G.grid[r+2][c];
-
               if (far.card && far.owner !== cell.owner) {
-
                 const me2 = Math.max(1, Math.floor(me / 2));
-
                 if (me2 > (far.card.edges.n + (far.card.edgeMod?.n||0))) b[r+2][c].vL++;
-
               }
-
             }
 
-          } else if (me < them) {
+          } else if (me < them || (me === them && pierceSouth && !pierceCell)) {
 
             b[r+1][c].vW++;
 
-            const margin = them - me;
-
-            // OVERWHELM on south card
-
-            if (south.card.ability === 'overwhelm' && margin >= 3) b[r+1][c].hW++;
-
-            // SHIELD V: cell (north card) blocks first V loss: permanently
-
+            // SHIELD V: cell (north card) blocks first V loss
             if (cell.card.ability === 'shield' && !cell.card.shieldExpended) {
-
               cell.card.shieldExpended = true;
-
               cell.card.shieldBlockH = true;
               cell.card.shieldBlockV = true;
-
             }
 
             if (!cell.card.shieldBlockV) b[r][c].vL++;
-            // REVENGE: cell loses V: penalize the south card
             if (cell.card.ability === 'revenge') {
               south.card._revengePenalty = Math.min((south.card._revengePenalty || 0) + 1, 9);
             }
+            if (pierceSouth && me === them) addLog('compare', 'PIERCE (V): tie → win for south');
 
             // DOUBLE STRIKE upward at half strength
-
             if (south.card.ability === 'double_strike' && r > 0) {
-
               const far = G.grid[r-1][c];
-
               if (far.card && far.owner !== south.owner) {
-
                 const me2 = Math.max(1, Math.floor(them / 2));
-
                 if (me2 > (far.card.edges.s + (far.card.edgeMod?.s||0))) b[r-1][c].vL++;
-
               }
-
             }
 
           } else { b[r][c].vL++; b[r+1][c].vL++; } // tie = neither wins
@@ -406,7 +377,6 @@ function computeScores() {
 
       // SNIPER: sniped card contributes 0 VP
 
-      if (cell.card.sniped) continue;
 
       const bat = battles[r][c];
 
@@ -428,6 +398,13 @@ function computeScores() {
 
       // SNIPER: silenced cards contribute 0 VP
       if (cell.card._silenced) continue;
+
+      // LAMB: 0 VP if ANY enemy is adjacent (full bypass, not per-axis)
+      if (cell.card.ability === 'lamb') {
+        const _hasAdjEnemy = [{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}]
+          .some(({dr,dc}) => { const rr=r+dr,cc=c+dc; return rr>=0&&rr<5&&cc>=0&&cc<7&&G.grid[rr][cc].card&&G.grid[rr][cc].owner!==cell.owner&&G.grid[rr][cc].owner!=='hazard'; });
+        if (_hasAdjEnemy) continue;
+      }
 
       // REVENGE: cap penalty to basePower-1 so floor of 1 is always kept
       const _revPen = Math.min(cell.card._revengePenalty || 0, Math.max(0, basePower - 1));

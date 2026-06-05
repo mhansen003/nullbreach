@@ -1,16 +1,4 @@
-function _applySnipe(card, r, c) {
-  if (card._sniped) return;
-  card._sniped = true;
-  card.edgeMod = card.edgeMod || {n:0,s:0,e:0,w:0};
-  card.edgeMod.n -= 2; card.edgeMod.s -= 2;
-  card.edgeMod.e -= 2; card.edgeMod.w -= 2;
-  // Visual flash on the cell
-  const el = document.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`);
-  if (el) {
-    el.classList.add('ambush-hit');
-    setTimeout(() => el.classList.remove('ambush-hit'), 900);
-  }
-}
+
 
 // _applyMirror removed: mirror ability replaced by revenge
 
@@ -81,27 +69,29 @@ function applyPlacementAbility(card, r, c, owner) {
   }
 
   // LASER FOCUS: sums all 4 edges into the forward-facing edge only.
-  // Player attacks north (row 0 direction) → concentrate into N.
-  // AI cards are N↔S flipped in state.js → AI attacks south → concentrate into S.
+  // Player attacks toward lower row (N). P2 in PvP is inverted — attacks toward higher row (S).
+  // AI attacks S. P2's AI (opponent from P2's view) attacks N.
 
   if (card.ability === 'laser_focus') {
 
+    const _p2 = typeof _mpPlayer !== 'undefined' && _mpPlayer === 2;
     const total = card.edges.n + card.edges.s + card.edges.e + card.edges.w;
-
     card.edgeMod = card.edgeMod || {n:0,s:0,e:0,w:0};
+    // forward edge: player=N normally, player=S for P2; ai=S normally, ai=N for P2
+    const _fwdN = (owner === 'player') ? !_p2 : _p2;
 
-    if (owner === 'ai') {
-      card.edgeMod.s = total - card.edges.s;
-      card.edgeMod.n = -card.edges.n;
-      card.edgeMod.e = -card.edges.e;
-      card.edgeMod.w = -card.edges.w;
-      addLog('compare', `LASER FOCUS: ${card.name} concentrates all power forward: S=${total}`);
-    } else {
+    if (_fwdN) {
       card.edgeMod.n = total - card.edges.n;
       card.edgeMod.s = -card.edges.s;
       card.edgeMod.e = -card.edges.e;
       card.edgeMod.w = -card.edges.w;
-      addLog('compare', `LASER FOCUS: ${card.name} concentrates all power forward: N=${total}`);
+      addLog('compare', `LASER FOCUS: ${card.name} concentrates forward: N=${total}`);
+    } else {
+      card.edgeMod.s = total - card.edges.s;
+      card.edgeMod.n = -card.edges.n;
+      card.edgeMod.e = -card.edges.e;
+      card.edgeMod.w = -card.edges.w;
+      addLog('compare', `LASER FOCUS: ${card.name} concentrates forward: S=${total}`);
     }
 
   }
@@ -148,10 +138,10 @@ function applyPlacementAbility(card, r, c, owner) {
 
   }
 
-  // FORTIFY: claims the single forward cell (toward opponent home row = lower row index for player)
+  // FORTIFY: claims the single forward cell. P2 mirror: player attacks toward row 4 (+1 not -1).
   if (card.ability === 'fortify') {
-    // Forward = lower row index for player (attacks toward row 0), higher row index for ai (attacks toward row 4)
-    const forwardDr = owner === 'player' ? -1 : 1;
+    const _p2f = typeof _mpPlayer !== 'undefined' && _mpPlayer === 2;
+    const forwardDr = (owner === 'player') ? (_p2f ? 1 : -1) : (_p2f ? -1 : 1);
     const nr = r + forwardDr, nc = c;
     if (nr >= 0 && nr < 5) {
       const tgt = G.grid[nr][nc];
@@ -164,9 +154,10 @@ function applyPlacementAbility(card, r, c, owner) {
 
   // REVENGE: passive: triggers in battle scoring (see battle.js computeScores)
 
-  // SNIPER: on placement, silence the highest-power card on the opponent's home row
+  // SNIPER: silence highest-power card on opponent's home row. P2 mirror: player home=4, opponent=0 swaps.
   if (card.ability === 'sniper') {
-    const homeRow = owner === 'player' ? 0 : 4; // opponent home row
+    const _p2s = typeof _mpPlayer !== 'undefined' && _mpPlayer === 2;
+    const homeRow = (owner === 'player') ? (_p2s ? 4 : 0) : (_p2s ? 0 : 4); // opponent home row
     let bestCell = null, bestPower = -1;
     for (let sc = 0; sc < 7; sc++) {
       const tgt = G.grid[homeRow][sc];
