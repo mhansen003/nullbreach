@@ -98,9 +98,19 @@ function renderHand() {
 
     div.onclick      = function() { onCardSelect(card); };
 
-    div.onmouseenter = function(e) { playHoverSfx(); showTip(e, card); showCardZoneInfluence(card); if (card.ability) showAbilityZone(card.ability); };
+    div.onmouseenter = function(e) {
+      this.style.transform = 'scale(1.22)';
+      this.style.transformOrigin = 'bottom center';
+      this.style.zIndex = '20';
+      playHoverSfx(); showTip(e, card); showCardZoneInfluence(card); if (card.ability) showAbilityZone(card.ability);
+    };
 
-    div.onmouseleave = function() { hideTip(); clearAbilityZone(); };
+    div.onmouseleave = function() {
+      this.style.transform = '';
+      this.style.transformOrigin = '';
+      this.style.zIndex = '';
+      hideTip(); clearAbilityZone();
+    };
 
     div.draggable    = true;
 
