@@ -622,6 +622,9 @@ function renderGrid() {
 
               });
 
+              // Zone influence: show dotted overlay from this candidate position
+              showCardZoneInfluence(G.selectedCard, _pRow, _pCol);
+
               // Hazard adjacency warning
 
               const _hzDirs = [{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}]
@@ -654,6 +657,7 @@ function renderGrid() {
 
             div.onmouseleave = () => {
               hideTip();
+              clearAbilityZone();
 
               document.querySelectorAll('.cell.future-valid').forEach(el => el.classList.remove('future-valid'));
 
