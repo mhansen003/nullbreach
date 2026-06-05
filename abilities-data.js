@@ -54,9 +54,9 @@ const ABILITY_TEXT = {
 
   double_strike: 'When this card wins any battle, the card two steps beyond in that same direction also takes half-damage.',
 
-  cloak: 'Battle values show as ? until this card fights its first battle — then all values are revealed permanently.',
+  cloak: 'Battle values show as ? for each side until that specific side fights its first battle.',
 
-  sniper: 'On placement, silences one opponent card on their home row. That card contributes 0 VP for the rest of the game.',
+  sniper: 'On placement, silences the highest-power opponent card on their home row. That card contributes 0 VP.',
 
   revenge: 'When this card loses a battle comparison, the winning enemy card permanently loses 1 VP (floor of 1).',
 

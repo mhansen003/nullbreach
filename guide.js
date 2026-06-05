@@ -253,9 +253,9 @@ const GUIDE_PAGES = [
 
   <div class="g2-desc" style="margin:10px auto 0;max-width:360px;text-align:center;font-size:13px;color:#ddd;line-height:1.7;">
 
-    Each card has four battle values (N/S/E/W). When placed next to an enemy, the touching values compete.
+    Each card has four battle values (one per side). When placed next to an enemy, the touching values compete.
 
-    The higher battle value wins that direction, and the winning side earns the <strong>power difference</strong> as VP.
+    The higher battle value wins that matchup, and the winning side earns the <strong>power difference</strong> as VP.
 
   </div>
 
@@ -384,7 +384,7 @@ const GUIDE_PAGES = [
     <div style="background:#0d0d10;border:1px solid #ffdd0044;border-radius:8px;padding:12px;width:180px;box-sizing:border-box;animation:g3tip 0.4s ease 0.7s both;">
       <div style="font-family:Inter,sans-serif;">
         <div style="font-size:10px;color:#ffdd00;font-weight:700;letter-spacing:1px;margin-bottom:5px;">LAMB</div>
-        <div style="font-size:11px;color:#ddd;line-height:1.6;">5 VP but zero edges. Scores full value if no enemy is adjacent. Scores nothing if attacked.</div>
+        <div style="font-size:11px;color:#ddd;line-height:1.6;">5 VP but zero battle values. Scores full power if uncontested; zero if any enemy is adjacent.</div>
       </div>
     </div>
   </div>
