@@ -316,18 +316,12 @@ function renderHand() {
 
     wrap.appendChild(front);
 
-    // Count pill floating to the right of the stack
-
+    // Stack count: centered at icon position, yellow VP-sized text
     if (cards.length > 1) {
-
       var countPill = document.createElement('div');
-
-      countPill.style.cssText = 'position:absolute;bottom:8px;right:-18px;background:#0a0a1a;border:1px solid '+_fc+'66;border-radius:10px;padding:2px 6px;font-size:11px;font-weight:bold;color:'+_fc+';font-family:\'Courier New\',monospace;z-index:5;white-space:nowrap;pointer-events:none;';
-
+      countPill.style.cssText = 'position:absolute;bottom:36px;left:50%;transform:translateX(-50%);font-size:26px;font-weight:900;color:#ffdd00;font-family:\'Courier New\',monospace;z-index:10;white-space:nowrap;pointer-events:none;text-shadow:0 0 10px #ffdd0088,0 2px 6px #000;line-height:1;';
       countPill.textContent = '×' + cards.length;
-
       wrap.appendChild(countPill);
-
     }
 
     if (canOpen) {
