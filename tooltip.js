@@ -296,8 +296,15 @@ function showTip(e, card) {
 
 
   const _isCloaked = card.ability === 'cloak' && !card.cloakRevealed;
-  const n  = _isCloaked ? '?' : card.edges.n + (mod?.n||0), s  = _isCloaked ? '?' : card.edges.s + (mod?.s||0);
-  const e_ = _isCloaked ? '?' : card.edges.e + (mod?.e||0), w  = _isCloaked ? '?' : card.edges.w + (mod?.w||0);
+  const _edgeVal = (base, modVal) => {
+    const eff = base + (modVal || 0);
+    if (card.ability === 'laser_focus' && mod && eff <= 0) return '—';
+    return eff;
+  };
+  const n  = _isCloaked ? '?' : _edgeVal(card.edges.n, mod?.n);
+  const s  = _isCloaked ? '?' : _edgeVal(card.edges.s, mod?.s);
+  const e_ = _isCloaked ? '?' : _edgeVal(card.edges.e, mod?.e);
+  const w  = _isCloaked ? '?' : _edgeVal(card.edges.w, mod?.w);
 
 
   const tierNum = {'I':1,'II':2,'III':3,'IV':4}[card.tier] || 1;

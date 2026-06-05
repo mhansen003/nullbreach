@@ -1579,6 +1579,14 @@ function playClick() {
 // Start music on first ANY interaction with the page
 document.addEventListener('click', () => startMusic(), { once: true });
 
+// Resume music when user returns to tab (mobile suspends audio on tab-switch)
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden && musicStarted && !muted) {
+    const audio = document.getElementById('bgMusic');
+    if (audio && audio.paused) audio.play().catch(() => {});
+  }
+});
+
 // Wire click sound to buttons and race tiles (using event delegation)
 document.addEventListener('click', e => {
   const t = e.target;

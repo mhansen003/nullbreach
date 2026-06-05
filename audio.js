@@ -144,6 +144,14 @@ document.addEventListener('click',      _autoStartMusic, { once: true, capture: 
 document.addEventListener('keydown',    _autoStartMusic, { once: true, capture: true });
 document.addEventListener('touchstart', _autoStartMusic, { once: true, capture: true });
 
+// Resume music when user returns to tab (mobile suspends audio on tab-switch)
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden && musicStarted && !musicMuted) {
+    const audio = document.getElementById('bgTrack');
+    if (audio && audio.paused) audio.play().catch(() => {});
+  }
+});
+
 function setSfxVolume(val) {
 
 
