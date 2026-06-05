@@ -437,10 +437,9 @@ function showTip(e, card) {
 
       ${abi ? `
       <div style="border:1px solid #ffffff14;border-radius:6px;padding:10px;background:#ffffff06;">
-        <!-- Header: small icon + pulsing star + ability name on one line -->
+        <!-- Header: SVG ability icon + name -->
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
-          ${_iconSrc ? `<img src="${_iconSrc}" style="width:44px;height:44px;border-radius:5px;object-fit:cover;object-position:center;flex-shrink:0;border:1px solid #ffffff22;background:#050510;" onerror="this.style.display='none'">` : `<div style="width:44px;height:44px;border-radius:5px;background:#ffffff08;border:1px solid #ffffff1a;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;color:#ffdd00;">★</div>`}
-          <span class="ability-star" style="font-size:16px;flex-shrink:0;">★</span>
+          <div style="width:38px;height:38px;border-radius:7px;background:rgba(10,8,24,0.72);border:1px solid #ffffff1a;display:flex;align-items:center;justify-content:center;flex-shrink:0;animation:abilityPulse 2.5s ease-in-out infinite;">${typeof _getAbilitySvg === 'function' ? _getAbilitySvg(card.ability) : ''}</div>
           <div style="font-family:'Orbitron',monospace;font-size:11px;letter-spacing:1px;color:#fff;font-weight:700;line-height:1.2;">${card.abilityLabel || abi.label}</div>
         </div>
         <!-- Description + zone visual side by side -->
