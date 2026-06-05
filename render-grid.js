@@ -24,7 +24,7 @@ const _ABILITY_SVG_PATHS = {
 
 function _getAbilitySvg(ability) {
   const paths = _ABILITY_SVG_PATHS[ability] || `<text x="12" y="16" text-anchor="middle" fill="white" font-size="9" font-weight="bold">${(ability||'').substring(0,3).toUpperCase()}</text>`;
-  return `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" style="animation:abilityPulse 2.5s ease-in-out infinite;">${paths}</svg>`;
+  return `<svg width="20" height="20" viewBox="0 0 24 24" fill="none">${paths}</svg>`;
 }
 
 function renderGrid() {
@@ -183,13 +183,17 @@ function renderGrid() {
 
         div.innerHTML = `
 
-          <span class="edge n" style="color:${(_isCloak&&!_cr.n)?'#8888ff':col+vAlpha};${(_isCloak&&!_cr.n)?'':''+vGlow}">${(_isCloak&&!_cr.n)?'?':cell.card.edges.n+(cell.card.edgeMod?.n||0)}</span>
-
-          <span class="edge s" style="color:${(_isCloak&&!_cr.s)?'#8888ff':col+vAlpha};${(_isCloak&&!_cr.s)?'':''+vGlow}">${(_isCloak&&!_cr.s)?'?':cell.card.edges.s+(cell.card.edgeMod?.s||0)}</span>
-
-          <span class="edge w" style="color:${(_isCloak&&!_cr.w)?'#8888ff':col+hAlpha};${(_isCloak&&!_cr.w)?'':''+hGlow}">${(_isCloak&&!_cr.w)?'?':cell.card.edges.w+(cell.card.edgeMod?.w||0)}</span>
-
-          <span class="edge e" style="color:${(_isCloak&&!_cr.e)?'#8888ff':col+hAlpha};${(_isCloak&&!_cr.e)?'':''+hGlow}">${(_isCloak&&!_cr.e)?'?':cell.card.edges.e+(cell.card.edgeMod?.e||0)}</span>
+          ${['n','s','e','w'].map(edge => {
+            const axAlpha = (edge==='e'||edge==='w') ? hAlpha : vAlpha;
+            const axGlow  = (edge==='e'||edge==='w') ? hGlow  : vGlow;
+            const cloakHidden = _isCloak && !_cr[edge];
+            const mod = cell.card.edgeMod?.[edge] || 0;
+            const edgeColor = cloakHidden ? '#8888ff' : mod > 0 ? '#44ff88' : mod < 0 ? '#ff5555' : col + axAlpha;
+            const edgeGlow  = cloakHidden ? '' : mod > 0 ? 'text-shadow:0 0 6px #44ff8899;' : mod < 0 ? 'text-shadow:0 0 6px #ff555599;' : axGlow;
+            const val = cloakHidden ? '?' : (cell.card.edges[edge] + mod);
+            const modBadge = (!cloakHidden && mod !== 0) ? `<span style="position:absolute;font-size:7px;font-weight:900;color:${mod>0?'#44ff88':'#ff5555'};line-height:1;${edge==='n'?'top:-1px;right:-4px;':edge==='s'?'bottom:-1px;right:-4px;':edge==='w'?'top:-2px;left:-6px;':'top:-2px;right:-6px;'}">${mod>0?'+':''}${mod}</span>` : '';
+            return `<span class="edge ${edge}" style="position:relative;color:${edgeColor};${edgeGlow}">${val}${modBadge}</span>`;
+          }).join('')}
 
           <!-- Tier indicator: text label on mobile, dots on desktop -->
 

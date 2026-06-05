@@ -477,6 +477,17 @@ let G = {};   // game state shorthand
 loadAudioSettings(); // restore vol/mute prefs before game starts
 initRaceTheme();
 initGame();
+// Force music start on first user interaction regardless of prior mute state in localStorage
+// (user arriving at game.html is a fresh session — music should play unless they mute in THIS session)
+if (localStorage.getItem('gz_musicMuted') === '1') {
+  localStorage.removeItem('gz_musicMuted');
+  if (typeof musicMuted !== 'undefined') musicMuted = false;
+  const _mb = document.getElementById('musicMuteBtn'); if (_mb) _mb.textContent = '🔊';
+}
+document.addEventListener('click', function _forceMusicStart() {
+  if (!musicStarted && !musicMuted) startGameMusic();
+  document.removeEventListener('click', _forceMusicStart, true);
+}, { once: true, capture: true });
 
 </script>
 

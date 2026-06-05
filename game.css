@@ -455,19 +455,20 @@ body {
 .ability-star { animation: starPulse 2s ease-in-out infinite; }
 
 @keyframes abilityPulse {
-  0%,100% { filter: drop-shadow(0 0 3px #7722aa) brightness(0.85); }
-  50%     { filter: drop-shadow(0 0 7px #ffffff) brightness(1.6); }
+  0%,100% { filter: drop-shadow(0 0 3px #7722aa); opacity: 0.8; }
+  50%     { filter: drop-shadow(0 0 8px #ffffff) drop-shadow(0 0 4px #cc88ff); opacity: 1; }
 }
 
 .ability-badge {
   position: absolute;
-  bottom: 18px; left: 50%; transform: translateX(-50%);
+  bottom: 26px; left: 50%; transform: translateX(-50%);
   z-index: 6;
   width: 26px; height: 26px;
   border-radius: 5px;
-  background: transparent;
+  background: rgba(10,8,24,0.62);
   display: flex; align-items: center; justify-content: center;
   pointer-events: none;
+  animation: abilityPulse 2.5s ease-in-out infinite;
 }
 
 /* Card face -- all absolutely positioned inside position:relative .cell */
