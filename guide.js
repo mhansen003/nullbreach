@@ -368,18 +368,20 @@ const GUIDE_PAGES = [
 </div>
 
 <!-- Two ability card examples -->
-<div style="font-size:10px;letter-spacing:3px;color:#ccc;text-align:center;margin-bottom:14px;font-family:&apos;Orbitron&apos;,monospace;">SPECIAL ABILITIES: cards marked ★ carry a unique power</div>
+<div style="font-size:10px;letter-spacing:3px;color:#ccc;text-align:center;margin-bottom:14px;font-family:&apos;Orbitron&apos;,monospace;">SPECIAL ABILITIES: the icon at the bottom of a card shows its unique power</div>
 <div style="display:flex;gap:24px;justify-content:center;align-items:flex-start;">
   <!-- Card 1: LAMB -->
   <div style="display:flex;flex-direction:column;align-items:center;gap:10px;width:180px;animation:g3fly 0.4s ease 0.3s both;">
-    <div style="position:relative;width:114px;height:152px;border-radius:5px;overflow:hidden;border:2px solid #ffdd00;background:#0e0e08;box-shadow:0 0 18px #ffdd0033;">
+    <div style="position:relative;width:114px;height:152px;border-radius:8px;overflow:hidden;border:2px solid #ffdd00;background:#0e0e08;box-shadow:0 0 18px #ffdd0033;">
       <img src="assets/cards/mycos/t2_a.png" style="width:100%;height:100%;object-fit:cover;object-position:center top;filter:brightness(1.2);" onerror="this.style.background=&apos;#1a1a10&apos;">
-      <span style="position:absolute;top:4px;left:50%;transform:translateX(-50%);font-size:14px;font-weight:bold;color:#ffdd00;background:rgba(0,0,0,0.88);border-radius:50%;min-width:20px;text-align:center;padding:1px 3px;">0</span>
-      <span style="position:absolute;bottom:4px;left:50%;transform:translateX(-50%);font-size:14px;font-weight:bold;color:#ffdd00;background:rgba(0,0,0,0.88);border-radius:50%;min-width:20px;text-align:center;padding:1px 3px;">0</span>
-      <span style="position:absolute;left:4px;top:50%;transform:translateY(-50%);font-size:14px;font-weight:bold;color:#ffdd00;background:rgba(0,0,0,0.88);border-radius:50%;min-width:20px;text-align:center;padding:1px 3px;">0</span>
-      <span style="position:absolute;right:4px;top:50%;transform:translateY(-50%);font-size:14px;font-weight:bold;color:#ffdd00;background:rgba(0,0,0,0.88);border-radius:50%;min-width:20px;text-align:center;padding:1px 3px;">0</span>
-      <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:26px;font-weight:bold;color:#ffdd00;background:#000000dd;padding:3px 6px;border-radius:4px;line-height:1;text-shadow:0 0 12px #ffdd00;">5</div>
-      <span class="ability-star" style="position:absolute;top:4px;right:4px;font-size:16px;z-index:5;pointer-events:none;">★</span>
+      <span style="position:absolute;top:4px;left:50%;transform:translateX(-50%);font-size:14px;font-weight:bold;color:#fff;background:rgba(0,0,0,0.72);border-radius:50%;min-width:20px;text-align:center;padding:1px 3px;">0</span>
+      <span style="position:absolute;bottom:4px;left:50%;transform:translateX(-50%);font-size:14px;font-weight:bold;color:#fff;background:rgba(0,0,0,0.72);border-radius:50%;min-width:20px;text-align:center;padding:1px 3px;">0</span>
+      <span style="position:absolute;left:4px;top:50%;transform:translateY(-50%);font-size:14px;font-weight:bold;color:#fff;background:rgba(0,0,0,0.72);border-radius:50%;min-width:20px;text-align:center;padding:1px 3px;">0</span>
+      <span style="position:absolute;right:4px;top:50%;transform:translateY(-50%);font-size:14px;font-weight:bold;color:#fff;background:rgba(0,0,0,0.72);border-radius:50%;min-width:20px;text-align:center;padding:1px 3px;">0</span>
+      <div style="position:absolute;top:36%;left:50%;transform:translate(-50%,-50%);font-size:28px;font-weight:900;color:#fff;background:rgba(20,18,38,0.58);padding:3px 9px;border-radius:7px;line-height:1;">5</div>
+      <div style="position:absolute;bottom:36px;left:50%;transform:translateX(-50%);z-index:6;width:26px;height:26px;border-radius:5px;background:rgba(10,8,24,0.62);display:flex;align-items:center;justify-content:center;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#ff2222" stroke-width="2.5"/><line x1="5.5" y1="5.5" x2="18.5" y2="18.5" stroke="#ff2222" stroke-width="2.5" stroke-linecap="round"/></svg>
+      </div>
     </div>
     <div style="background:#0d0d10;border:1px solid #ffdd0044;border-radius:8px;padding:12px;width:180px;box-sizing:border-box;animation:g3tip 0.4s ease 0.7s both;">
       <div style="font-family:Inter,sans-serif;">
@@ -388,26 +390,28 @@ const GUIDE_PAGES = [
       </div>
     </div>
   </div>
-  <!-- Card 2: REVENGE -->
+  <!-- Card 2: COMMANDER -->
   <div style="display:flex;flex-direction:column;align-items:center;gap:10px;width:180px;animation:g3fly 0.4s ease 0.5s both;">
-    <div style="position:relative;width:114px;height:152px;border-radius:5px;overflow:hidden;border:2px solid #ff4488;background:#160810;box-shadow:0 0 14px #ff448822;">
-      <img src="assets/cards/crystallis/t2_b.png" style="width:100%;height:100%;object-fit:cover;object-position:center top;filter:brightness(1.15);" onerror="this.style.background=&apos;#180818&apos;">
-      <span style="position:absolute;top:4px;left:50%;transform:translateX(-50%);font-size:13px;font-weight:bold;color:#fff;background:rgba(0,0,0,0.82);border-radius:50%;min-width:19px;text-align:center;padding:1px 3px;">5</span>
-      <span style="position:absolute;bottom:4px;left:50%;transform:translateX(-50%);font-size:13px;font-weight:bold;color:#fff;background:rgba(0,0,0,0.82);border-radius:50%;min-width:19px;text-align:center;padding:1px 3px;">3</span>
-      <span style="position:absolute;left:4px;top:50%;transform:translateY(-50%);font-size:13px;font-weight:bold;color:#fff;background:rgba(0,0,0,0.82);border-radius:50%;min-width:19px;text-align:center;padding:1px 3px;">2</span>
-      <span style="position:absolute;right:4px;top:50%;transform:translateY(-50%);font-size:13px;font-weight:bold;color:#fff;background:rgba(0,0,0,0.82);border-radius:50%;min-width:19px;text-align:center;padding:1px 3px;">4</span>
-      <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:22px;font-weight:bold;color:#fff;background:#000000cc;padding:3px 6px;border-radius:4px;line-height:1;">2</div>
-      <span class="ability-star" style="position:absolute;top:4px;right:4px;font-size:16px;z-index:5;pointer-events:none;">★</span>
+    <div style="position:relative;width:114px;height:152px;border-radius:8px;overflow:hidden;border:2px solid #ffcc00;background:#160810;box-shadow:0 0 14px #ffcc0022;">
+      <img src="assets/cards/terran/terran-accord.png" style="width:100%;height:100%;object-fit:cover;object-position:center top;filter:brightness(1.15);" onerror="this.style.background=&apos;#181008&apos;">
+      <span style="position:absolute;top:4px;left:50%;transform:translateX(-50%);font-size:13px;font-weight:bold;color:#fff;background:rgba(0,0,0,0.72);border-radius:50%;min-width:19px;text-align:center;padding:1px 3px;">7</span>
+      <span style="position:absolute;bottom:4px;left:50%;transform:translateX(-50%);font-size:13px;font-weight:bold;color:#fff;background:rgba(0,0,0,0.72);border-radius:50%;min-width:19px;text-align:center;padding:1px 3px;">4</span>
+      <span style="position:absolute;left:4px;top:50%;transform:translateY(-50%);font-size:13px;font-weight:bold;color:#fff;background:rgba(0,0,0,0.72);border-radius:50%;min-width:19px;text-align:center;padding:1px 3px;">5</span>
+      <span style="position:absolute;right:4px;top:50%;transform:translateY(-50%);font-size:13px;font-weight:bold;color:#fff;background:rgba(0,0,0,0.72);border-radius:50%;min-width:19px;text-align:center;padding:1px 3px;">6</span>
+      <div style="position:absolute;top:36%;left:50%;transform:translate(-50%,-50%);font-size:28px;font-weight:900;color:#fff;background:rgba(20,18,38,0.58);padding:3px 9px;border-radius:7px;line-height:1;">3</div>
+      <div style="position:absolute;bottom:36px;left:50%;transform:translateX(-50%);z-index:6;width:26px;height:26px;border-radius:5px;background:rgba(10,8,24,0.62);display:flex;align-items:center;justify-content:center;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M6 20l6-6 6 6" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 13l6-6 6 6" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
     </div>
-    <div style="background:#0d0d10;border:1px solid #ff448844;border-radius:8px;padding:12px;width:180px;box-sizing:border-box;animation:g3tip 0.4s ease 0.9s both;">
+    <div style="background:#0d0d10;border:1px solid #ffcc0044;border-radius:8px;padding:12px;width:180px;box-sizing:border-box;animation:g3tip 0.4s ease 0.9s both;">
       <div style="font-family:Inter,sans-serif;">
-        <div style="font-size:10px;color:#ff4488;font-weight:700;letter-spacing:1px;margin-bottom:5px;">REVENGE</div>
-        <div style="font-size:11px;color:#ddd;line-height:1.6;">When this card loses a battle, the winning enemy permanently loses 1 VP.</div>
+        <div style="font-size:10px;color:#ffcc00;font-weight:700;letter-spacing:1px;margin-bottom:5px;">COMMANDER</div>
+        <div style="font-size:11px;color:#ddd;line-height:1.6;">Adjacent friendly cards gain battle value on placement. The icon at card bottom pulses to show the ability is active.</div>
       </div>
     </div>
   </div>
 </div>
-<div style="text-align:center;margin-top:14px;font-size:13px;color:#bbb;">The <span class="ability-star" style="font-size:13px;">★</span> marks a special ability. Hover in-game to see what it does.</div>
+<div style="text-align:center;margin-top:14px;font-size:13px;color:#bbb;">The glowing icon at the bottom of a card shows its ability. Hover any card in-game for full details.</div>
 
     `
 
