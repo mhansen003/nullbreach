@@ -112,7 +112,7 @@ function buildAbilityVisual(ability) {
 
   const patterns = {
     shield:         G([empty(),e(),empty(), empty(),y('🛡'),empty(), empty(),empty(),empty()]),
-    double_strike:  G([empty(),hit('E2'),empty(), empty(),e('E1'),empty(), empty(),y(),empty()]),
+    double_strike:  `<div style="display:flex;flex-direction:column;gap:4px;"><div style="display:flex;align-items:center;gap:6px;">${y()}<span style="color:#ffdd00;font-size:11px;">→</span>${e('E1')}<span style="color:#ffdd00;font-size:11px;">→</span>${hit('E2')}</div><div style="display:flex;align-items:center;gap:6px;">${y()}<span style="color:#ffdd00;font-size:11px;">↑</span>${e('E1')}<span style="color:#ffdd00;font-size:11px;">↑</span>${hit('E2')}</div></div>`,
     flank:          `<div style="display:flex;align-items:center;gap:8px;">${y('★')}<span style="color:#00ffcc;font-size:14px;">→</span><div style="font-size:10px;color:#00ffcc;font-weight:600;">EXTRA TURN</div></div>`,
     rush:           G([empty(),e(),empty(), cell(YOU,YB,'★?',true,'0.7'),empty(),e(), empty(),empty(),cell(YOU,YB,'★?',true,'0.7')]),
     sniper:         G([zero('0'),empty(),empty(), empty(),empty(),empty(), y('★'),empty(),empty()]),
@@ -201,17 +201,7 @@ function buildZoneGrid(card) {
 
   }
 
-  html += `</div>
-
-    <div style="display:flex;gap:10px;margin-top:5px;">
-
-      <span style="font-size:9px;color:#ccc;">■ <span style="color:${tierCol}">this card</span></span>
-
-      <span style="font-size:9px;color:#ccc;">■ <span style="color:#ffdd00">opens for next card</span></span>
-
-    </div>
-
-  </div>`;
+  html += `</div></div>`;
 
   return html;
 

@@ -52,7 +52,7 @@ const ABILITY_TEXT = {
 
   pierce: 'Ties count as wins for this card instead of draws.',
 
-  double_strike: 'When this card wins a horizontal battle, the card two steps beyond also takes half-damage.',
+  double_strike: 'When this card wins any battle, the card two steps beyond in that same direction also takes half-damage.',
 
   cloak: 'Battle values show as ? until this card fights its first battle — then all values are revealed permanently.',
 
