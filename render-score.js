@@ -112,66 +112,37 @@ function _hideScoreTip() {
 
 function renderScoreBadges(_precomputed) {
 
-
   const s = _precomputed || computeScores();
-
-
-
-
 
   // Update total score display
 
-
   const tP = document.getElementById('totalP');
-
 
   const tA = document.getElementById('totalA');
 
-
   const pLabel = window.playerFactionName || 'YOU';
-
 
   const aLabel = window.aiFactionName    || 'AI';
 
-
   if (tP) tP.textContent = `${pLabel}: ${s.pVP} VP`;
-
 
   if (tA) tA.textContent = `${aLabel}: ${s.aVP} VP`;
 
-
-
-
-
   const pAvatar = window.playerAvatarImg || `assets/avatars/${window.playerRaceId||'terran'}.png`;
-
 
   const aAvatar = window.aiAvatarImg    || `assets/avatars/${window.aiRaceId||'entropy'}.png`;
 
-
   const pCol    = window.playerFactionColor || '#00ffcc';
-
 
   const aCol    = window.aiFactionColor     || '#ff0080';
 
-
-
-
-
   // ── Score badge: show WINNER only prominently; loser = tiny "vs N" text ──
-
 
   // This eliminates confusion of "I see my avatar = I must be winning"
 
-
-
-
-
   function rowBadgeHtml(p, a, res) {
 
-
     if (p === 0 && a === 0) return `<span style="font-size:14px;color:#444466;letter-spacing:2px;pointer-events:none;">--</span>`;
-
 
     if (res === 'tie') return `
       <div style="display:flex;flex-direction:column;align-items:center;gap:2px;pointer-events:none;">
@@ -179,169 +150,111 @@ function renderScoreBadges(_precomputed) {
         <span style="font-size:8px;letter-spacing:2px;color:#ffdd00aa;pointer-events:none;">TIE</span>
       </div>`;
 
-
     const pWin = res === 'p';
-
 
     const wAvg = pWin ? pAvatar : aAvatar;
 
-
     const wScore = pWin ? p : a, lScore = pWin ? a : p;
-
 
     const delta = wScore - lScore;
 
-
     const wCol = pWin ? pCol : aCol;
-
 
     return `
 
-
       <div style="display:flex;flex-direction:column;align-items:center;gap:3px;pointer-events:none;">
-
 
         <img src="${wAvg}" style="width:26px;height:26px;border-radius:50%;object-fit:cover;
 
-
           object-position:top;border:2px solid ${wCol};box-shadow:0 0 8px ${wCol}66;pointer-events:none;">
-
 
         <span style="font-size:20px;font-weight:bold;color:${wCol};line-height:1;
 
-
           text-shadow:0 0 8px ${wCol};pointer-events:none;">+${delta}</span>
-
 
       </div>`;
 
-
   }
-
-
-
-
 
   function colBadgeHtml(p, a, res) {
 
-
     if (p === 0 && a === 0) return `<span style="font-size:13px;color:#444466;letter-spacing:2px;pointer-events:none;">--</span>`;
-
 
     if (res === 'tie') return `<div style="pointer-events:none;text-align:center;">
       <span style="font-size:13px;font-weight:bold;color:#ffdd00;line-height:1;display:block;">${p}:${a}</span>
       <span style="font-size:8px;letter-spacing:2px;color:#ffdd00aa;display:block;">TIE</span></div>`;
 
-
     const pWin = res === 'p';
-
 
     const wAvg = pWin ? pAvatar : aAvatar;
 
-
     const wScore = pWin ? p : a, lScore = pWin ? a : p;
-
 
     const delta = wScore - lScore;
 
-
     const wCol = pWin ? pCol : aCol;
-
 
     return `
 
-
       <div style="display:flex;align-items:center;gap:5px;pointer-events:none;">
-
 
         <img src="${wAvg}" style="width:26px;height:26px;border-radius:50%;object-fit:cover;
 
-
           object-position:top;border:2px solid ${wCol};box-shadow:0 0 8px ${wCol}55;pointer-events:none;">
-
 
         <span style="font-size:18px;font-weight:bold;color:${wCol};line-height:1;
 
-
           text-shadow:0 0 8px ${wCol};pointer-events:none;">+${delta}</span>
-
 
       </div>`;
 
-
   }
-
-
-
-
 
   // ROW score badges: apply faction border color dynamically
 
-
   const rowEl = document.getElementById('rowScores');
 
-
   rowEl.innerHTML = '';
-
 
   const _rowOrder = (typeof _mpPlayer !== 'undefined' && _mpPlayer === 2)
     ? [4,3,2,1,0] : [0,1,2,3,4];
   for (const r of _rowOrder) {
 
-
     const {p,a} = s.rows[r];
-
 
     const res = s.rowResults[r];
 
-
     const badge = document.createElement('div');
-
 
     badge.className = 'row-score-badge'; badge.style.cursor = 'pointer';
 
-
     // WIN=player color border, LOSE=opponent color border, TIE=grey
-
 
     const rowWinCol  = res==='p' ? pCol : res==='a' ? aCol : '#333';
 
-
     const rowBg      = res==='p' ? '#06060e' : res==='a' ? '#06060e' : (p===0&&a===0)?'#06060e':'#06060e';
-
 
     const rowBorder  = res==='p' ? pCol+'55' : res==='a' ? aCol+'55' : (p===0&&a===0)?'#111120':'#221a33';
 
-
     badge.style.cssText = `background:${rowBg};border:1px solid ${rowBorder};border-left:3px solid ${rowWinCol};`;
-
 
     badge.innerHTML = rowBadgeHtml(p, a, res);
 
-
     // Flip animation when leadership changes between renders
-
 
     const prevRes = _prevBadgeRes.rows[r];
 
-
     if (prevRes !== null && prevRes !== res && (res==='p'||res==='a') && (prevRes==='p'||prevRes==='a')) {
-
 
       badge.classList.add('badge-flip');
 
-
       setTimeout(() => badge.classList.remove('badge-flip'), 450);
-
 
     }
 
-
     _prevBadgeRes.rows[r] = res;
 
-
     const _rowHlCol = res==='p' ? pCol : res==='a' ? aCol : '#ffffff';
-
 
     const _showRowHl = () => {
       document.querySelectorAll('.cell').forEach(el => {
@@ -382,80 +295,53 @@ function renderScoreBadges(_precomputed) {
       else { if (_activeBadge) _clearRowHl(); _activeBadge = badge; _showRowHl(); }
     });
 
-
     rowEl.appendChild(badge);
-
 
   }
 
-
-
-
-
   // COL score badges: apply faction border color dynamically
-
 
   const colEl = document.getElementById('colScores');
 
-
   colEl.innerHTML = '';
-
 
   const _colOrder = (typeof _mpPlayer !== 'undefined' && _mpPlayer === 2)
     ? [6,5,4,3,2,1,0] : [0,1,2,3,4,5,6];
   for (const c of _colOrder) {
 
-
     const {p,a} = s.cols[c];
-
 
     const res = s.colResults[c];
 
-
     const badge = document.createElement('div');
-
 
     badge.className = 'col-score-badge'; badge.style.cursor = 'pointer';
 
-
     // WIN=player color top-border, LOSE=opponent color, TIE=grey
-
 
     const colWinCol  = res==='p' ? pCol : res==='a' ? aCol : '#333';
 
-
     const colBg      = res==='p' ? '#06060e' : res==='a' ? '#06060e' : (p===0&&a===0)?'#06060e':'#06060e';
-
 
     const colBorder  = res==='p' ? pCol+'55' : res==='a' ? aCol+'55' : (p===0&&a===0)?'#111120':'#221a33';
 
-
     badge.style.cssText = `background:${colBg};border:1px solid ${colBorder};border-top:3px solid ${colWinCol};`;
-
 
     badge.innerHTML = colBadgeHtml(p, a, res);
 
-
     const prevResC = _prevBadgeRes.cols[c];
-
 
     if (prevResC !== null && prevResC !== res && (res==='p'||res==='a') && (prevResC==='p'||prevResC==='a')) {
 
-
       badge.classList.add('badge-flip');
-
 
       setTimeout(() => badge.classList.remove('badge-flip'), 450);
 
-
     }
-
 
     _prevBadgeRes.cols[c] = res;
 
-
     const _colHlCol = res==='p' ? pCol : res==='a' ? aCol : '#ffffff';
-
 
     const _showColHl = () => {
       document.querySelectorAll('.cell').forEach(el => {
@@ -496,80 +382,50 @@ function renderScoreBadges(_precomputed) {
       else { if (_activeBadge) { document.querySelectorAll('.cell').forEach(el=>{el.style.outline='';el.style.filter='';el.style.opacity='';}); document.querySelectorAll('.score-hl').forEach(el=>el.remove()); } _activeBadge = badge; _showColHl(); }
     });
 
-
     colEl.appendChild(badge);
 
-
   }
-
 
 }
 
 function renderScoreHeader(_precomputed) {
 
-
   const s = _precomputed || computeScores();
-
-
-
-
 
   const tag = document.getElementById('turnTag');
 
-
   if (tag) {
-
 
     const _isMp = typeof _mpRoom !== 'undefined' && _mpRoom;
     tag.textContent = G.turn==='player' ? 'YOUR TURN'
       : _isMp ? 'WAITING FOR OPPONENT...'
       : 'AI THINKING...';
 
-
     tag.className   = 'turn-tag ' + G.turn;
 
-
   }
-
-
-
-
 
   const q = document.getElementById('aiQuote');
 
-
   if (q) {
-
 
     if (s.aVP > s.pVP+2) q.textContent = '"Predictable. You are nothing."';
 
-
     else if (s.pVP > s.aVP+2) q.textContent = '"Impossible... recalculating."';
-
 
     else q.textContent = '"Your breach ends here."';
 
-
   }
-
-
-
-
 
   // ── Score HUD (bottom-right): faction-colored ──────────────────
 
-
   const pCol = window.playerFactionColor || '#00ffcc';
-
 
   const aCol = window.aiFactionColor     || '#ff0080';
 
-
   const pAvg = window.playerAvatarImg    || '';
 
-
   const aAvg = window.aiAvatarImg        || '';
-
 
   let pNam = window.playerFactionName  || 'YOU';
   let aNam = window.aiFactionName      || 'AI';
@@ -583,105 +439,61 @@ function renderScoreHeader(_precomputed) {
     if (window._mpP1Initials && window._mpP1Initials !== '---') aNam = window._mpP1Initials;
   }
 
-
-
-
-
   const pLeading = s.pVP > s.aVP;
-
 
   const aLeading = s.aVP > s.pVP;
 
-
-
-
-
   // ── FACTION HUD (fixed upper-right) ──────────────────
-
 
   const hud = document.getElementById('factionHUD');
 
-
   const fhAiEl  = document.getElementById('fhAi');
-
 
   const fhPEl   = document.getElementById('fhPlayer');
 
-
   const sbAiAv  = document.getElementById('sbAiAvatar');
 
-
   const sbAiNum = document.getElementById('sbAiNum');
-
 
   const sbAiName= document.getElementById('sbAiName');
   const sbAiAvEl= document.getElementById('sbAiAvatar');
 
-
   const sbAiLead= document.getElementById('sbAiLead');
-
 
   const sbPAv   = document.getElementById('sbPlayerAvatar');
 
-
   const sbPNum  = document.getElementById('sbPlayerNum');
-
 
   const sbPName = document.getElementById('sbPlayerName');
 
-
   const sbPLead = document.getElementById('sbPlayerLead');
-
-
-
-
 
   // AI faction row
 
-
   if (sbAiAv) { sbAiAv.src = aAvg; sbAiAv.style.borderColor = aLeading ? aCol : '#2a2a3a'; sbAiAv.style.boxShadow = aLeading ? `0 0 12px ${aCol}88` : 'none'; }
-
 
   if (sbAiNum) { sbAiNum.textContent = s.aVP; sbAiNum.style.color = aLeading ? aCol : '#555566'; sbAiNum.style.textShadow = aLeading ? `0 0 12px ${aCol}` : 'none'; }
 
-
   if (sbAiName) { sbAiName.textContent = aNam; sbAiName.style.color = aLeading ? aCol : aCol + 'bb'; }
-
 
   if (sbAiLead) { sbAiLead.textContent = aLeading ? 'LEADS' : ''; sbAiLead.style.color = aCol; }
 
-
   if (fhAiEl) { fhAiEl.style.background = aLeading ? aCol + '18' : 'transparent'; fhAiEl.style.boxShadow = aLeading ? `0 0 0 1px ${aCol}44` : 'none'; }
-
-
-
-
 
   // Player faction row
 
-
   if (sbPAv) { sbPAv.src = pAvg; sbPAv.style.borderColor = pLeading ? pCol : '#2a2a3a'; sbPAv.style.boxShadow = pLeading ? `0 0 12px ${pCol}88` : 'none'; }
-
 
   if (sbPNum) { sbPNum.textContent = s.pVP; sbPNum.style.color = pLeading ? pCol : '#555566'; sbPNum.style.textShadow = pLeading ? `0 0 12px ${pCol}` : 'none'; }
 
-
   if (sbPName) { sbPName.textContent = pNam; sbPName.style.color = pLeading ? pCol : pCol + 'bb'; }
-
 
   if (sbPLead) { sbPLead.textContent = pLeading ? 'LEADS' : ''; sbPLead.style.color = pCol; }
 
-
   if (fhPEl) { fhPEl.style.background = pLeading ? pCol + '18' : 'transparent'; fhPEl.style.boxShadow = pLeading ? `0 0 0 1px ${pCol}44` : 'none'; }
-
-
-
-
 
   // HUD outer glow
 
-
   if (hud) hud.style.borderColor = pLeading ? pCol+'33' : aLeading ? aCol+'33' : '#1a1a28';
-
 
 }

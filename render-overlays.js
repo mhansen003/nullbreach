@@ -1,0 +1,508 @@
+function renderPassiveAbilityGlows(el) {
+  const ADJ4 = [{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}];
+
+  // ── Per-cell custom rendering ────────────────────────────────────────────
+  for (let r = 0; r < 5; r++) {
+    for (let c = 0; c < 7; c++) {
+      const cell = G.grid[r][c];
+      if (!cell.card || cell.owner === 'hazard') continue;
+      const card = cell.card;
+
+      // ── SNIPER: amber pulse on entire row (except own cell) ──────────────
+      if (card.ability === 'sniper') {
+        for (let sc=0; sc<7; sc++) {
+          if (sc === c) continue;
+          const tgtCell = G.grid[r][sc];
+          const tgtEl = document.querySelector(`.cell[data-r="${r}"][data-c="${sc}"]`);
+          if (!tgtEl) continue;
+          const isEnemy = tgtCell.owner !== cell.owner;
+          const col = isEnemy ? '#ff8800' : '#ff880033';
+          const ov = document.createElement('div');
+          ov.dataset.passiveZone = '1';
+          ov.style.cssText = `position:absolute;inset:0;pointer-events:none;z-index:1;border-radius:3px;background:${col}22;border-top:1px dashed ${col}66;border-bottom:1px dashed ${col}66;`;
+          tgtEl.appendChild(ov);
+          // SNIPER LOCK badge on sniped/locked enemy cards
+          if (tgtCell.card && isEnemy && (tgtCell.card._sniped || tgtCell.card._sniperLocked)) {
+            const badge = document.createElement('div');
+            badge.dataset.passiveZone = '1';
+            badge.style.cssText = `position:absolute;top:3px;left:50%;transform:translateX(-50%);z-index:8;pointer-events:none;background:#220800;border:1px solid #ff880099;border-radius:3px;padding:1px 5px;font-family:'Orbitron',monospace;font-size:7px;letter-spacing:1px;color:#ff8800;text-shadow:0 0 6px #ff8800;white-space:nowrap;`;
+            badge.textContent = '🎯 LOCKED';
+            tgtEl.appendChild(badge);
+          }
+        }
+      }
+
+      // ── INTIMIDATE: red threat zone on adjacent cells ────────────────────
+      else if (card.ability === 'intimidate') {
+        ADJ4.forEach(({dr,dc}) => {
+          const nr=r+dr, nc=c+dc;
+          if (nr<0||nr>=5||nc<0||nc>=7) return;
+          const tgt = G.grid[nr][nc];
+          if (tgt.card && tgt.owner === cell.owner) return;
+          const tgtEl = document.querySelector(`.cell[data-r="${nr}"][data-c="${nc}"]`);
+          if (!tgtEl) return;
+          const ov = document.createElement('div');
+          ov.dataset.passiveZone = '1';
+          ov.style.cssText = `position:absolute;inset:0;pointer-events:none;z-index:1;border-radius:3px;background:#ff444422;border:1px solid #ff444444;`;
+          tgtEl.appendChild(ov);
+        });
+      }
+
+      // ── AMBUSH: red threat, dim if charges spent ─────────────────────────
+      else if (card.ability === 'ambush') {
+        const charges = card._ambushHitsRemaining ?? 2;
+        if (charges <= 0) break;
+        ADJ4.forEach(({dr,dc}) => {
+          const nr=r+dr, nc=c+dc;
+          if (nr<0||nr>=5||nc<0||nc>=7) return;
+          const tgt = G.grid[nr][nc];
+          if (tgt.card && tgt.owner === cell.owner) return;
+          const tgtEl = document.querySelector(`.cell[data-r="${nr}"][data-c="${nc}"]`);
+          if (!tgtEl) return;
+          const alpha = charges === 2 ? '33' : '18';
+          const ov = document.createElement('div');
+          ov.dataset.passiveZone = '1';
+          ov.style.cssText = `position:absolute;inset:0;pointer-events:none;z-index:1;border-radius:3px;background:#ff4444${alpha};border:1px dashed #ff444455;`;
+          tgtEl.appendChild(ov);
+        });
+      }
+
+      // ── FORTIFY: blue glow on self; dashed blue border on fortified empty cells ──
+      else if (card.ability === 'fortify') {
+        const cellEl = document.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`);
+        if (cellEl) {
+          const ov = document.createElement('div');
+          ov.dataset.passiveZone = '1';
+          ov.style.cssText = `position:absolute;inset:0;pointer-events:none;z-index:1;border-radius:3px;background:#4488ff18;border:2px solid #4488ff55;box-shadow:inset 0 0 12px #4488ff22;`;
+          cellEl.appendChild(ov);
+        }
+      }
+
+      // ── REVENGE: red pulsing border on revenge cards ──────────────────────
+      else if (card.ability === 'revenge') {
+        const cellEl = document.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`);
+        if (cellEl) {
+          const ov = document.createElement('div');
+          ov.dataset.passiveZone = '1';
+          ov.style.cssText = `position:absolute;inset:0;pointer-events:none;z-index:1;border-radius:3px;background:#ff448818;border:2px solid #ff448855;box-shadow:inset 0 0 10px #ff440022;animation:hazardPulse2 1.4s ease-in-out infinite;`;
+          cellEl.appendChild(ov);
+        }
+        // Show red glow on adjacent enemy cells to signal revenge threat
+        ADJ4.forEach(({dr,dc}) => {
+          const nr=r+dr, nc=c+dc;
+          if (nr<0||nr>=5||nc<0||nc>=7) return;
+          const tgt = G.grid[nr][nc];
+          if (!tgt.card || tgt.owner === cell.owner) return;
+          const tgtEl = document.querySelector(`.cell[data-r="${nr}"][data-c="${nc}"]`);
+          if (!tgtEl) return;
+          const ov = document.createElement('div');
+          ov.dataset.passiveZone = '1';
+          ov.style.cssText = `position:absolute;inset:0;pointer-events:none;z-index:1;border-radius:3px;background:#ff448811;border:1px dashed #ff448844;`;
+          tgtEl.appendChild(ov);
+        });
+      }
+
+      // ── LAMB: golden shimmer on high-value zero-edge card ────────────────
+      else if (card.ability === 'lamb') {
+        const cellEl = document.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`);
+        if (cellEl) {
+          const ov = document.createElement('div');
+          ov.dataset.passiveZone = '1';
+          ov.style.cssText = `position:absolute;inset:0;pointer-events:none;z-index:1;border-radius:3px;background:#ffdd0015;border:2px solid #ffdd0044;box-shadow:inset 0 0 14px #ffdd0022;animation:hazardPulse2 2s ease-in-out infinite;`;
+          cellEl.appendChild(ov);
+        }
+      }
+
+      // ── POSITIVE zone abilities: boost/commander/spawn ────────────────────
+      else {
+        const POSITIVE_ZONES = {
+          boost:     { dirs:ADJ4, col:'#00ffcc', op:'0.18' },
+          commander: { dirs:ADJ4, col:'#ffcc00', op:'0.18' },
+          spawn:     { dirs:ADJ4, col:'#88cc44', op:'0.18' },
+        };
+        const zone = POSITIVE_ZONES[card.ability];
+        if (!zone) continue;
+        const GRAD_DIR = {'-1,0':'to bottom','1,0':'to top','0,-1':'to right','0,1':'to left'};
+        zone.dirs.forEach(({dr,dc}) => {
+          const _p2g = typeof _mpPlayer !== 'undefined' && _mpPlayer === 2;
+          const _fwd = (cell.owner==='ai') ? (_p2g ? 1 : -1) : (_p2g ? -1 : 1);
+          const nr=r+(dr*_fwd), nc=c+dc;
+          if (nr<0||nr>=5||nc<0||nc>=7) return;
+          const tgt = G.grid[nr][nc];
+          if (tgt.card && tgt.owner !== cell.owner) return;
+          const tgtEl = document.querySelector(`.cell[data-r="${nr}"][data-c="${nc}"]`);
+          if (!tgtEl) return;
+          const gradDir = GRAD_DIR[`${dr},${dc}`] || 'center';
+          const opHex = Math.round(parseFloat(zone.op)*255).toString(16).padStart(2,'0');
+          const ov = document.createElement('div');
+          ov.dataset.passiveZone = '1';
+          ov.style.cssText = `position:absolute;inset:0;pointer-events:none;z-index:1;border-radius:3px;background:linear-gradient(${gradDir},${zone.col}${opHex} 0%,transparent 65%);border:1px solid ${zone.col}44;`;
+          tgtEl.appendChild(ov);
+        });
+      }
+    }
+  }
+}
+
+function renderBattleIndicators(el) {
+
+  const CHIP = 40; // chip diameter px
+
+  const pAvg = window.playerAvatarImg || '';
+
+  const aAvg = window.aiAvatarImg    || '';
+
+  const pCol = window.playerFactionColor || '#00ffcc';
+
+  const aCol = window.aiFactionColor     || '#ff0080';
+
+  const pName= window.playerFactionName  || 'YOU';
+
+  const aName= window.aiFactionName      || 'AI';
+
+  const pairs = [
+
+    { dr:0, dc:1, myE:'e', theirE:'w', axis:'h',
+
+      label: (c) => `E → W`,
+
+      // center in horizontal gap between col c and c+1
+      chipX: (r,c) => { const m=_mobileDims(); return m ? c*m.sw+m.cw+m.gap/2-12 : c*CS_W+124+3-CHIP/2; },
+      chipY: (r,c) => { const m=_mobileDims(); return m ? r*m.sh+m.ch/2-12 : r*CS_H+76-CHIP/2; } },
+
+    { dr:1, dc:0, myE:'s', theirE:'n', axis:'v',
+
+      label: (c) => `S → N`,
+
+      // center in vertical gap between row r and r+1
+      chipX: (r,c) => { const m=_mobileDims(); return m ? c*m.sw+m.cw/2-12 : c*CS_W+62-CHIP/2; },
+      chipY: (r,c) => { const m=_mobileDims(); return m ? r*m.sh+m.ch+m.gap/2-12 : r*CS_H+152+3-CHIP/2; } },
+
+  ];
+
+  for (let r = 0; r < 5; r++) for (let c = 0; c < 7; c++) {
+
+    const cell = G.grid[r][c];
+
+    if (!cell.card) continue;
+
+    for (const d of pairs) {
+
+      const nr = r+d.dr, nc = c+d.dc;
+
+      if (nr<0||nr>=5||nc<0||nc>=7) continue;
+
+      const nb = G.grid[nr][nc];
+
+      if (!nb.card || nb.owner === cell.owner) continue;
+
+      if (cell.owner === 'hazard' || nb.owner === 'hazard') continue;
+      if (cell.card.isHazard || nb.card.isHazard) continue;
+
+      // Recompute edge values with mods + surge bonus
+
+      const surgeBonus = (cell.card.ability==='surge' && G.surgeTrigger?.[cell.owner]) ? 3 : 0;
+
+      const nbSurgeBonus = (nb.card.ability==='surge' && G.surgeTrigger?.[nb.owner]) ? 3 : 0;
+
+      let mv = cell.card.edges[d.myE] + (cell.card.edgeMod?.[d.myE]||0) + surgeBonus;
+      if (d.axis === 'h' && cell.owner === 'ai' && window.aiDifficulty === 'aggressive') {
+        mv = Math.round(mv * 1.1);
+      }
+
+      let tv = nb.card.edges[d.theirE] + (nb.card.edgeMod?.[d.theirE]||0) + nbSurgeBonus;
+
+      // PIERCE tiebreak
+
+      const pierce = cell.card.ability==='pierce', pierceThem = nb.card.ability==='pierce';
+
+      const isTie = mv === tv && !pierce && !pierceThem;
+
+      const iWin  = mv > tv || (mv===tv && pierce && !pierceThem);
+
+      const winnerOwner = isTie ? null : iWin ? cell.owner : nb.owner;
+
+      const winAvg  = winnerOwner==='player' ? pAvg : aAvg;
+
+      const winCol  = winnerOwner==='player' ? pCol : aCol;
+
+      const winName = winnerOwner==='player' ? pName : aName;
+
+      const losName = winnerOwner==='player' ? aName : pName;
+
+      const losAvg  = winnerOwner==='player' ? aAvg : pAvg;
+
+      const cellName = cell.owner==='player' ? pName : aName;
+
+      const nbName   = nb.owner==='player' ? pName : aName;
+
+      const chip = document.createElement('div');
+
+      chip.className = `bti ${isTie?'tie-chip':'win-chip'}`;
+
+      const x = d.chipX(r,c), y = d.chipY(r,c);
+
+      // Build ability note for tooltip
+
+      const abilities = [];
+
+      if (cell.card.ability==='shield'&&cell.card.shieldExpended) abilities.push(`${cellName} SHIELD absorbed a loss`);
+
+      if (nb.card.ability==='shield'&&nb.card.shieldExpended)     abilities.push(`${nbName} SHIELD absorbed a loss`);
+
+      if (surgeBonus)   abilities.push(`${cellName} SURGE +3`);
+
+      if (nbSurgeBonus) abilities.push(`${nbName} SURGE +3`);
+
+      if (pierce&&mv===tv)    abilities.push(`${cellName} PIERCE: tie → win`);
+
+      if (pierceThem&&mv===tv)abilities.push(`${nbName} PIERCE: tie → win`);
+
+      if (cell.card.ability==='double_strike') abilities.push(`${cellName} DOUBLE STRIKE extends reach`);
+
+      if (nb.card.ability==='double_strike')   abilities.push(`${nbName} DOUBLE STRIKE extends reach`);
+
+      // Encode tooltip data as JSON in dataset
+
+      const tipData = JSON.stringify({
+
+        axis: d.axis, myE: d.myE, theirE: d.theirE,
+
+        mv, tv, isTie, winName, losName, winCol, winAvg, losAvg,
+
+        abilities, winnerOwner,
+
+        pAvg, aAvg, pCol, aCol,
+
+        cellName, nbName,
+
+        cellOwner: cell.owner, nbOwner: nb.owner
+
+      });
+
+      chip.dataset.tip = tipData;
+      chip.dataset.cr = r; chip.dataset.cc = c;
+      chip.dataset.nr = r+d.dr; chip.dataset.nc = c+d.dc;
+
+      const _mDims = _mobileDims();
+      if (_mDims) {
+        // Mobile: compact W/L/T text chips
+        const mChipSz = 24;
+        if (isTie) {
+          chip.style.cssText = `position:absolute;left:${x}px;top:${y}px;width:${mChipSz}px;height:${mChipSz}px;z-index:6;background:#1a1a2a;border:1px solid #555;cursor:pointer;`;
+          chip.innerHTML = `<span style="pointer-events:none;font-size:8px;font-weight:bold;font-family:'Courier New',monospace;color:#fff;">T</span>`;
+        } else {
+          const isPlayerWin = winnerOwner === 'player';
+          const mCol = isPlayerWin ? '#00dd66' : '#ff3355';
+          const mLbl = isPlayerWin ? 'W' : 'L';
+          chip.style.cssText = `position:absolute;left:${x}px;top:${y}px;width:${mChipSz}px;height:${mChipSz}px;border:1.5px solid ${mCol};--wc:${mCol};background:${mCol}22;z-index:6;cursor:pointer;`;
+          chip.innerHTML = `<span style="pointer-events:none;font-size:9px;font-weight:bold;font-family:'Courier New',monospace;color:${mCol};">${mLbl}</span>`;
+        }
+        chip.onclick = (ev) => {
+          ev.stopPropagation();
+          if (chip._active) {
+            hideTip();
+            chip._active = false;
+            chip.classList.remove('bchip-active');
+            return;
+          }
+          document.querySelectorAll('.bchip-active').forEach(c => { c._active = false; c.classList.remove('bchip-active'); });
+          chip._active = true;
+          chip.classList.add('bchip-active');
+          const _d = JSON.parse(chip.dataset.tip);
+          showBattleTip(ev, _d);
+          setTimeout(() => { hideTip(); chip._active = false; chip.classList.remove('bchip-active'); }, 2800);
+        };
+      } else if (isTie) {
+
+        chip.style.cssText = `position:absolute;left:${x}px;top:${y}px;width:${CHIP}px;height:${CHIP}px;z-index:6;`;
+
+        chip.innerHTML = `<span style="pointer-events:none;font-size:9px;">TIE</span>`;
+
+      } else {
+
+        chip.style.cssText = `position:absolute;left:${x}px;top:${y}px;width:${CHIP}px;height:${CHIP}px;border:3px solid ${winCol};--wc:${winCol};background:${winCol}18;z-index:6;`;
+
+        chip.innerHTML = `<img src="${winAvg}" style="width:${CHIP-6}px;height:${CHIP-6}px;border-radius:50%;object-fit:cover;object-position:top;pointer-events:none;">`;
+
+      }
+
+      chip.onmouseenter = (ev) => {
+        const _d = JSON.parse(chip.dataset.tip);
+        showBattleTip(ev, _d);
+        if (!_d.isTie && _d.winnerOwner) {
+          const _cr=+chip.dataset.cr,_cc=+chip.dataset.cc,_nr=+chip.dataset.nr,_nc=+chip.dataset.nc;
+          const winOwner = _d.winnerOwner;
+          [[_cr,_cc,_d.cellOwner],[_nr,_nc,_d.nbOwner]].forEach(([rr,cc,own])=>{
+            const el=document.querySelector('.cell[data-r="'+rr+'"][data-c="'+cc+'"]');
+            if(el) el.style.filter = (own===winOwner)?'brightness(1.15)':'brightness(0.3) saturate(0.2)';
+          });
+        }
+      };
+
+      chip.onmouseleave = () => {
+        hideTip();
+        document.querySelectorAll('.cell').forEach(el=>{el.style.filter='';});
+      };
+
+      el.appendChild(chip);
+
+    }
+
+  }
+
+}
+
+function showBattleTip(e, d) {
+
+  hideTip();
+
+  const tt = document.getElementById('tooltip');
+
+  tt.style.setProperty('--tc',     d.winCol || '#8855ff');
+
+  tt.style.setProperty('--tc-dim', (d.winCol||'#8855ff') + '55');
+
+  tt.style.setProperty('--tc-glow',(d.winCol||'#8855ff') + '22');
+
+  if (d.cellOwner === 'hazard' || d.nbOwner === 'hazard') { hideTip(); return; }
+  const dirLabel = d.axis==='h' ? 'HORIZONTAL BATTLE' : 'VERTICAL BATTLE';
+
+  const edgeLabels = d.axis==='h' ? ['E','W'] : ['S','N'];
+
+  const cIsP = d.cellOwner==='player';
+
+  const cCol = cIsP ? d.pCol : d.aCol;
+
+  const nCol = cIsP ? d.aCol : d.pCol;
+
+  const diff = Math.abs(d.mv - d.tv);
+
+  tt.innerHTML = `
+
+  <div class="tip-shine-layer"></div>
+
+  <div class="tip-body">
+
+    <!-- Header -->
+
+    <div style="display:flex;align-items:center;gap:8px;padding:10px 14px 8px;border-bottom:1px solid var(--tc-dim);">
+
+      <span style="font-family:'Orbitron',monospace;font-size:10px;letter-spacing:2px;color:var(--tc);font-weight:700;">${dirLabel}</span>
+
+    </div>
+
+    <!-- Comparison rows -->
+
+    <div style="padding:6px 10px;display:flex;flex-direction:column;gap:4px;">
+
+      <!-- Cell side -->
+
+      <div style="display:flex;align-items:center;gap:8px;">
+
+        <img src="${cIsP?d.pAvg:d.aAvg}" style="width:22px;height:22px;border-radius:50%;object-fit:cover;border:2px solid ${cCol};flex-shrink:0;">
+
+        <span style="font-size:10px;color:${cCol};letter-spacing:1px;flex:1;">${d.cellName}</span>
+
+        <span style="font-size:9px;color:#bbb;letter-spacing:1px;">${edgeLabels[0]}:</span>
+
+        <span style="font-size:18px;font-weight:bold;color:${d.cellOwner===d.winnerOwner?cCol:'#778899'};
+
+          ${d.cellOwner===d.winnerOwner?`text-shadow:0 0 8px ${cCol};`:''}">${d.mv}</span>
+
+      </div>
+
+      <!-- Neighbor side -->
+
+      <div style="display:flex;align-items:center;gap:8px;">
+
+        <img src="${cIsP?d.aAvg:d.pAvg}" style="width:22px;height:22px;border-radius:50%;object-fit:cover;border:2px solid ${nCol};flex-shrink:0;">
+
+        <span style="font-size:10px;color:${nCol};letter-spacing:1px;flex:1;">${d.nbName}</span>
+
+        <span style="font-size:9px;color:#bbb;letter-spacing:1px;">${edgeLabels[1]}:</span>
+
+        <span style="font-size:18px;font-weight:bold;color:${d.nbOwner===d.winnerOwner?nCol:'#778899'};
+
+          ${d.nbOwner===d.winnerOwner?`text-shadow:0 0 8px ${nCol};`:''}">${d.tv}</span>
+
+      </div>
+
+    </div>
+
+    <!-- Result -->
+
+    <div style="height:1px;background:linear-gradient(90deg,transparent,var(--tc-dim),transparent);margin:0 12px;"></div>
+
+    <div style="padding:6px 10px 8px;">
+
+      ${d.isTie
+
+        ? `<div style="font-size:11px;color:#bbb;letter-spacing:2px;text-align:center;">TIE: equal battle values</div>`
+
+        : `<div style="display:flex;align-items:center;gap:8px;">
+
+            <img src="${d.winAvg}" style="width:18px;height:18px;border-radius:50%;object-fit:cover;border:1px solid ${d.winCol};">
+
+            <span style="font-size:12px;font-weight:bold;color:${d.winCol};letter-spacing:1px;">${d.winName} WINS</span>
+
+            <span style="font-size:10px;color:#bbb;margin-left:auto;">+${diff}</span>
+
+          </div>`}
+
+      ${d.abilities.length ? `
+
+        <div style="margin-top:6px;border-top:1px solid #1a1a2a;padding-top:6px;display:flex;flex-direction:column;gap:3px;">
+
+          ${d.abilities.map(a => `<div style="font-size:10px;color:#aa88ff;letter-spacing:0.5px;">⚡ ${a}</div>`).join('')}
+
+        </div>` : ''}
+
+    </div>
+
+  </div>`;
+
+  tt.style.display = 'block';
+
+  const ttH = tt.offsetHeight || 220;
+
+  const ttW = tt.offsetWidth  || 315;
+
+  const spaceBelow = window.innerHeight - e.clientY;
+
+  const top  = spaceBelow > ttH + 20 ? e.clientY + 14 : e.clientY - ttH - 14;
+
+  const left = e.clientX + ttW + 20 > window.innerWidth ? e.clientX - ttW - 14 : e.clientX + 14;
+
+  // Clear fixed-corner positioning from card tooltip before cursor-follow
+  tt.style.right  = 'auto';
+  tt.style.bottom = 'auto';
+  tt.style.width  = '220px'; // battle tips are narrower than card tips
+  tt.style.top  = Math.max(8, top)  + 'px';
+  tt.style.left = Math.max(8, left) + 'px';
+
+}
+
+function showFlash(r1, c1, r2, c2, myVal, theirVal, iWin) {
+
+  const el  = document.getElementById('grid');
+
+  const midY = ((r1+r2)/2)*CS_H + 58;
+
+  const midX = ((c1+c2)/2)*CS_W + 24;
+
+  const f   = document.createElement('div');
+
+  f.className = 'flash';
+
+  const col = iWin ? '#00ffcc' : '#ff4455';
+
+  f.style.cssText = `top:${midY}px;left:${midX}px;color:${col};background:${col}22;border:1px solid ${col}44;`;
+
+  f.textContent   = iWin ? `${myVal} > ${theirVal} WIN` : `${myVal} < ${theirVal} LOSE`;
+
+  el.appendChild(f);
+
+  setTimeout(() => f.remove(), 1900);
+
+}

@@ -13,6 +13,38 @@ const _LB_KEY = 'gz_lb_v1';
   } catch(e) {}
 })();
 
+// ── Supabase config (anon/public key — safe to ship) ─────────────────────────
+const _SB_LB_URL = 'https://mstpkwxxhsspivtngfnm.supabase.co';
+const _SB_LB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1zdHBrd3h4aHNzcGl2dG5nZm5tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0NTE2MTcsImV4cCI6MjA5NjAyNzYxN30.B0F-e_mGzv5kbjwOa2yw499OfsZ3qJDXdoyrCu2tNiI';
+const _SB_LB_H = { 'apikey': _SB_LB_KEY, 'Authorization': 'Bearer ' + _SB_LB_KEY, 'Content-Type': 'application/json' };
+
+// POST a single entry to Supabase (fire-and-forget)
+function _sbSaveEntry(pFac, aFac, initials, delta, mode) {
+  fetch(_SB_LB_URL + '/rest/v1/gz_leaderboard', {
+    method: 'POST',
+    headers: _SB_LB_H,
+    body: JSON.stringify({ player_faction: pFac, ai_faction: aFac, initials, delta, mode: mode || 'pve' })
+  }).catch(() => {});
+}
+
+// Fetch best record per opponent for a given player faction from Supabase
+function _sbFetchFaction(pFac, cb) {
+  fetch(_SB_LB_URL + '/rest/v1/gz_leaderboard?player_faction=eq.' + pFac + '&select=ai_faction,initials,delta,mode&order=delta.desc', {
+    headers: _SB_LB_H
+  })
+  .then(r => r.ok ? r.json() : [])
+  .then(rows => {
+    const best = {};
+    (rows || []).forEach(row => {
+      if (!best[row.ai_faction] || row.delta > best[row.ai_faction].delta) {
+        best[row.ai_faction] = { initials: row.initials, delta: row.delta, mode: row.mode };
+      }
+    });
+    cb(best);
+  })
+  .catch(() => cb({}));
+}
+
 const _LB_FACTIONS = {
   terran:     { name:'TERRAN ACCORD',   short:'TERRAN',     color:'#7ab8e8', img:'assets/avatars/terran.png'     },
   brood:      { name:'BROOD SOVEREIGN', short:'BROOD',      color:'#88cc44', img:'assets/avatars/brood.png'      },

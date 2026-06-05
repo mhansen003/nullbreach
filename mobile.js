@@ -30,7 +30,6 @@ function showMobileCardPanel(card) {
     return '<span style="width:5px;height:5px;border-radius:50%;border:1px solid #2a2a3a;display:inline-block;"></span>';
   }).join('');
 
-
   // Compact compass HTML (3×3 grid, smaller cells)
   const compassHtml =
     '<div style="display:grid;grid-template-columns:repeat(3,28px);grid-template-rows:repeat(3,24px);gap:2px;">' +
@@ -47,9 +46,10 @@ function showMobileCardPanel(card) {
     '<div style="font-size:7px;color:#333;font-family:\'Courier New\',monospace;display:flex;justify-content:space-between;padding:1px 3px 0;"><span>W</span><span>E</span></div>';
 
   content.innerHTML =
-    // Header: close btn row
-    '<div style="display:flex;justify-content:flex-end;margin-bottom:6px;">' +
-      '<div onclick="hideMobileCardPanel()" style="cursor:pointer;width:24px;height:24px;border-radius:50%;background:#1a1a2c;border:1px solid ' + tierCol + '55;display:flex;align-items:center;justify-content:center;font-size:12px;color:#aaa;flex-shrink:0;" title="Close">✕</div>' +
+    // Drag handle + close button
+    '<div style="position:relative;display:flex;justify-content:center;align-items:center;height:22px;margin-bottom:6px;">' +
+      '<div style="width:32px;height:3px;border-radius:2px;background:#333;"></div>' +
+      '<div onclick="hideMobileCardPanel()" style="position:absolute;right:0;top:50%;transform:translateY(-50%);cursor:pointer;width:22px;height:22px;border-radius:50%;background:#1a1a2c;border:1px solid ' + tierCol + '55;display:flex;align-items:center;justify-content:center;font-size:11px;color:#aaa;" title="Close">✕</div>' +
     '</div>' +
     // Two-column header: art | name + tier + compass
     '<div style="display:flex;gap:8px;margin-bottom:8px;align-items:flex-start;">' +
@@ -80,14 +80,12 @@ function showMobileCardPanel(card) {
   panel.style.borderColor = tierCol + '88';
   const tab = document.getElementById('mobileCardPanelTab');
   if (tab) {
-    const isOpen = panel.classList.contains('open');
     tab.style.display = 'flex';
-    tab.textContent = isOpen ? '▶' : '◀';
-    tab.style.right = isOpen ? '195px' : '0';
+    tab.textContent = panel.classList.contains('open') ? '▼' : '▲';
     tab.style.borderColor = tierCol + '88';
     tab.style.background = tierCol + '33';
     tab.style.color = tierCol;
-    tab.style.boxShadow = '-3px 0 14px ' + tierCol + '99';
+    tab.style.boxShadow = '0 -3px 14px ' + tierCol + '99';
   }
 }
 
@@ -99,12 +97,11 @@ function hideMobileCardPanel() {
   // Restore glow if a card is still selected; otherwise reset fully
   if (G.selectedCard && tab) {
     const _tc = TIER_COLORS[G.selectedCard.tier] || (window.playerFactionColor || '#00ffcc');
-    tab.style.right = '0';
-    tab.textContent = '◀';
+    tab.textContent = '▲';
     tab.style.borderColor = _tc + '88';
     tab.style.background = _tc + '33';
     tab.style.color = _tc;
-    tab.style.boxShadow = '-3px 0 14px ' + _tc + '99';
+    tab.style.boxShadow = '0 -3px 14px ' + _tc + '99';
   } else if (tab) {
     tab.style.display = 'none';
   }
@@ -128,6 +125,6 @@ function toggleMobileCardPanel() {
     hideMobileCardPanel();
   } else {
     setTimeout(function() { panel.classList.add('open'); }, 10);
-    if (tab) { tab.style.right = '195px'; tab.textContent = '▶'; }
+    if (tab) { tab.textContent = '▼'; }
   }
 }

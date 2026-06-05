@@ -16,69 +16,43 @@ function _applySnipe(card, r, c) {
 
 function applyPlacementAbility(card, r, c, owner) {
 
-
   const dirs = [{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}];
-
 
   const enemy = owner === 'player' ? 'ai' : 'player';
 
-
-
-
-
   // Ensure edgeMod is initialized on the placed card
-
 
   card.edgeMod = card.edgeMod || {n:0,s:0,e:0,w:0};
 
-
-
-
-
   // BOOST: adjacent friendly cards +1 all edges
-
 
   // COMMANDER: adjacent same-tier friendly cards +2 all edges
 
-
   // SPAWN (Brood): identical math to COMMANDER: Brood-unique name
-
 
   if (card.ability === 'boost' || card.ability === 'commander' || card.ability === 'spawn') {
 
-
     const bonus = (card.ability === 'commander' || card.ability === 'spawn') ? 2 : 1;
-
 
     dirs.forEach(({dr,dc}) => {
 
-
       const nr=r+dr, nc=c+dc;
-
 
       if (nr<0||nr>=5||nc<0||nc>=7) return;
 
-
       const nb = G.grid[nr][nc];
-
 
       if (nb.card && nb.owner === owner) {
 
-
         nb.card.edgeMod = nb.card.edgeMod || {n:0,s:0,e:0,w:0};
-
 
         nb.card.edgeMod.n += bonus; nb.card.edgeMod.s += bonus;
 
-
         nb.card.edgeMod.e += bonus; nb.card.edgeMod.w += bonus;
-
 
       }
 
-
     });
-
 
     if (card.ability === 'spawn') addLog('compare', `SPAWN: ${card.name} coordinates the hive: adjacent same-tier allies +2`);
 
@@ -104,12 +78,7 @@ function applyPlacementAbility(card, r, c, owner) {
 
   if (false) {
 
-
   }
-
-
-
-
 
   // LASER FOCUS: sums all 4 edges into the forward-facing edge only.
   // Player attacks north (row 0 direction) → concentrate into N.
@@ -117,9 +86,7 @@ function applyPlacementAbility(card, r, c, owner) {
 
   if (card.ability === 'laser_focus') {
 
-
     const total = card.edges.n + card.edges.s + card.edges.e + card.edges.w;
-
 
     card.edgeMod = card.edgeMod || {n:0,s:0,e:0,w:0};
 
@@ -137,78 +104,49 @@ function applyPlacementAbility(card, r, c, owner) {
       addLog('compare', `LASER FOCUS: ${card.name} concentrates all power forward: N=${total}`);
     }
 
-
   }
-
-
-
-
 
   // INTIMIDATE: find adjacent enemies, reduce their highest edge by -1 via edgeMod
 
-
   if (card.ability === 'intimidate') {
-
 
     dirs.forEach(({dr,dc}) => {
 
-
       const nr=r+dr, nc=c+dc;
-
 
       if (nr<0||nr>=5||nc<0||nc>=7) return;
 
-
       const nb = G.grid[nr][nc];
-
 
       if (!nb.card || nb.owner === owner) return;
 
-
       nb.card.edgeMod = nb.card.edgeMod || {n:0,s:0,e:0,w:0};
-
 
       const effN = nb.card.edges.n + nb.card.edgeMod.n;
 
-
       const effS = nb.card.edges.s + nb.card.edgeMod.s;
-
 
       const effE = nb.card.edges.e + nb.card.edgeMod.e;
 
-
       const effW = nb.card.edges.w + nb.card.edgeMod.w;
-
 
       const max = Math.max(effN, effS, effE, effW);
 
-
       let edgeName = 'N';
-
 
       if (effN === max) { nb.card.edgeMod.n -= 1; edgeName = 'N'; }
 
-
       else if (effS === max) { nb.card.edgeMod.s -= 1; edgeName = 'S'; }
-
 
       else if (effE === max) { nb.card.edgeMod.e -= 1; edgeName = 'E'; }
 
-
       else { nb.card.edgeMod.w -= 1; edgeName = 'W'; }
-
 
       addLog('compare', `INTIMIDATE: ${nb.card.name} loses 1 from ${edgeName}`);
 
-
     });
 
-
   }
-
-
-
-
 
   // FORTIFY: claims adjacent empty cells as reserved: opponents cannot place there
   if (card.ability === 'fortify') {
@@ -223,107 +161,67 @@ function applyPlacementAbility(card, r, c, owner) {
     addLog('compare', `FORTIFY: ${card.name} claims adjacent territory`);
   }
 
-
-
-
-
   // AMBUSH: randomly pick up to 2 adjacent enemies, weaken all 4 edges -1
-
 
   if (card.ability === 'ambush') {
     card._ambushHitsRemaining = 2; // track remaining reactive uses
     const adjEnemies = [];
 
-
     dirs.forEach(({dr,dc}) => {
-
 
       const nr=r+dr, nc=c+dc;
 
-
       if (nr<0||nr>=5||nc<0||nc>=7) return;
-
 
       const nb = G.grid[nr][nc];
 
-
       if (nb.card && nb.owner !== owner) adjEnemies.push({r:nr, c:nc, card:nb.card});
 
-
     });
-
 
     // Shuffle and pick up to 2
 
-
     const _rng = window._mpSeed || Math.random;
-
 
     adjEnemies.sort(() => _rng() - 0.5);
 
-
     const targets = adjEnemies.slice(0, 2);
-
 
     const names = [];
 
-
     targets.forEach(({r:nr, c:nc, card:tc}) => {
-
 
       tc.edgeMod = tc.edgeMod || {n:0,s:0,e:0,w:0};
 
-
       tc.edgeMod.n -= 1; tc.edgeMod.s -= 1;
-
 
       tc.edgeMod.e -= 1; tc.edgeMod.w -= 1;
 
-
       names.push(tc.name);
-
 
       // Visual flash
 
-
       const cellEl = document.querySelector(`.cell[data-r="${nr}"][data-c="${nc}"]`);
-
 
       if (cellEl) {
 
-
         cellEl.classList.add('ambush-hit');
-
 
         setTimeout(() => cellEl.classList.remove('ambush-hit'), 850);
 
-
       }
-
 
     });
 
-
     if (targets.length === 0) { addLog('compare','AMBUSH: no adjacent enemies to weaken'); return; }
-
 
     if (names.length) addLog('compare', `AMBUSH: ${names.join(', ')} weakened`);
 
-
   }
-
-
-
-
 
   // REVENGE: passive: triggers in battle scoring (see battle.js computeScores)
 
-
-
-
-
   // SNIPER: silence enemy home-row card in this column
-
 
   if (card.ability === 'sniper') {
     // Debuff all existing enemies in the same row
@@ -336,10 +234,6 @@ function applyPlacementAbility(card, r, c, owner) {
       }
     }
   }
-
-
-
-
 
   // HOME INVADER: placement rule handled in placement.js: no placement-time effect here
   // LAMB: stats set during assignRandomAbilities: no placement-time effect here
@@ -375,24 +269,15 @@ function applyPlacementAbility(card, r, c, owner) {
     }
   }
 
-
-
-
-
   // Update surge trigger state (used in computeBattleResults)
-
 
   if (!G.surgeTrigger) G.surgeTrigger = {player:false, ai:false};
 
-
   const s = computeScores();
-
 
   G.surgeTrigger.player = s.rowResults.filter(r=>r==='a').length > s.rowResults.filter(r=>r==='p').length;
 
-
   G.surgeTrigger.ai     = s.rowResults.filter(r=>r==='p').length > s.rowResults.filter(r=>r==='a').length;
-
 
 }
 
@@ -458,102 +343,61 @@ function fireReactiveAbilities(newR, newC, newCard, newOwner) {
 
 function assignRandomAbilities(hand, raceId) {
 
-
   hand.forEach(c => { c.ability = null; c.abilityText = 'No special ability'; c.isSpecial = false; });
-
 
   const pool = FACTION_ABILITY_POOLS[raceId] || FACTION_ABILITY_POOLS._default;
 
-
-
-
-
   // In multiplayer seed from room+faction so both clients assign identical abilities
-
 
   const _arng = (() => {
 
-
     if (typeof _mpRoom === 'undefined' || !_mpRoom) return () => Math.random();
-
 
     let s = 0;
 
-
     for (const ch of _mpRoom + raceId) s = (s * 31 + ch.charCodeAt(0)) & 0x7fffffff;
-
 
     return seededRand(s);
 
-
   })();
-
 
   const _fy = arr => {
 
-
     const a = [...arr];
-
 
     for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(_arng() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
 
-
     return a;
-
 
   };
 
-
-
-
-
   const t1Cards    = _fy(hand.filter(c => c.tier === 'I'));
-
 
   const higherCards = hand.filter(c => c.tier !== 'I');
 
-
   const weighted = [];
-
 
   higherCards.forEach(c => {
 
-
     const w = {II:2, III:3, IV:5}[c.tier] || 2;
-
 
     for (let i = 0; i < w; i++) weighted.push(c);
 
-
   });
-
 
   const shuffledW = _fy(weighted);
 
-
-
-
-
   const chosen = new Set();
-
 
   for (const card of shuffledW) {
 
-
     if (chosen.size >= 4) break;
-
 
     chosen.add(card);
 
-
   }
 
-
   if (chosen.size < 5 && t1Cards.length > 0) chosen.add(t1Cards[0]);
-
-
-
-
 
   // Build an assignment list: all pool abilities in shuffled order first,
   // then random picks for any slots beyond pool size.
@@ -569,24 +413,17 @@ function assignRandomAbilities(hand, raceId) {
   _chosenArr.forEach((card, i) => {
     const ab = _assignments[i];
 
-
     card.ability = ab;
-
 
     card.abilityText = (typeof ABILITY_TEXT !== 'undefined' && ABILITY_TEXT[ab]) || ab.toUpperCase();
 
-
     const _raceNames = RACE_ABILITY_NAMES[raceId] || {};
-
 
     card.abilityLabel = _raceNames[ab] || null;
 
-
     card.raceId = raceId;
 
-
     card.isSpecial = true;
-
 
     // LAMB: zero all edges, set power to 5
     if (ab === 'lamb') {
@@ -595,8 +432,6 @@ function assignRandomAbilities(hand, raceId) {
       card.power = 5;
     }
 
-
   });
-
 
 }
