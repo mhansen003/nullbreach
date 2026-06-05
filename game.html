@@ -3230,6 +3230,7 @@ let G = {};   // game state shorthand
   }[raceId] || PLAYER_CARDS;
 })();
 
+loadAudioSettings(); // restore vol/mute prefs before game starts
 initRaceTheme();
 initGame();
 

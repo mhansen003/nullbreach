@@ -136,6 +136,14 @@ function startGameMusic() {
 
 }
 
+// Auto-start music on first user interaction (browser blocks autoplay without a gesture)
+function _autoStartMusic() {
+  if (!musicMuted && !musicStarted) startGameMusic();
+}
+document.addEventListener('click',      _autoStartMusic, { once: true, capture: true });
+document.addEventListener('keydown',    _autoStartMusic, { once: true, capture: true });
+document.addEventListener('touchstart', _autoStartMusic, { once: true, capture: true });
+
 function setSfxVolume(val) {
 
 
