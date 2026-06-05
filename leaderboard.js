@@ -84,6 +84,7 @@ function saveLeaderboardEntry(pFac, aFac, initials, delta, mode) {
   const data = _lbLoad();
   data[_lbKey(pFac, aFac)] = { initials: initials.toUpperCase(), delta, mode: mode || 'pve' };
   _lbSave(data);
+  _sbSaveEntry(pFac, aFac, initials.toUpperCase(), delta, mode);
 }
 
 // ── Initials entry ────────────────────────────────────────────────────────────
@@ -172,9 +173,9 @@ function showLeaderboard() {
   _lbRenderModal();
 }
 
-function _lbRenderModal() {
+function _lbRenderModal(data) {
   document.getElementById('lbModal')?.remove();
-  const data = _lbLoad();
+  data = data || _lbLoad();
   const pId  = _lbActiveFaction;
   const pF   = _LB_FACTIONS[pId];
   const total = Object.keys(data).length;
@@ -326,6 +327,25 @@ function _lbRenderModal() {
   // Hide the mobile LAUNCH DECK bar while leaderboard is open
   const _lb = document.getElementById('mobileLaunchBar') || document.getElementById('desktopLaunchBar');
   if (_lb) _lb.style.display = 'none';
+
+  // Background fetch from Supabase — merge in any better remote records and re-render if modal still open
+  const _fetchFaction = pId;
+  _sbFetchFaction(_fetchFaction, remote => {
+    if (!Object.keys(remote).length) return;
+    const local = _lbLoad();
+    let changed = false;
+    Object.entries(remote).forEach(([aFac, entry]) => {
+      const k = _lbKey(_fetchFaction, aFac);
+      if (!local[k] || entry.delta > (local[k].delta || 0)) {
+        local[k] = { initials: entry.initials, delta: entry.delta, mode: entry.mode || 'pve' };
+        changed = true;
+      }
+    });
+    if (changed) {
+      _lbSave(local);
+      if (document.getElementById('lbModal') && _lbActiveFaction === _fetchFaction) _lbRenderModal(local);
+    }
+  });
 }
 
 function _lbSetTab(id) {
