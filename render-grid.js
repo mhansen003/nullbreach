@@ -27,6 +27,96 @@ function _getAbilitySvg(ability) {
   return `<svg width="20" height="20" viewBox="0 0 24 24" fill="none">${paths}</svg>`;
 }
 
+// ── EMPTY CELL INFLUENCE TOOLTIP ─────────────────────────────────────────────
+function showEmptyCellInfluenceTip(ev, r, c) {
+  const influences = [];
+  const dirs = [{dr:-1,dc:0,side:'N'},{dr:1,dc:0,side:'S'},{dr:0,dc:-1,side:'W'},{dr:0,dc:1,side:'E'}];
+  const p2 = typeof _mpPlayer !== 'undefined' && _mpPlayer === 2;
+
+  // Fortified?
+  const cell = G.grid[r][c];
+  if (cell.fortifiedBy) {
+    const who = cell.fortifiedBy === 'player' ? 'Your' : 'Opponent\'s';
+    influences.push({ color:'#4488ff', icon:'fortify', text: `${who} FORTIFY — this cell is claimed. ${cell.fortifiedBy === 'player' ? 'Only you can place here.' : 'You cannot place here.'}` });
+  }
+
+  // Scan adjacent cards
+  dirs.forEach(({dr,dc}) => {
+    const nr = r+dr, nc = c+dc;
+    if (nr<0||nr>=5||nc<0||nc>=7) return;
+    const nb = G.grid[nr][nc];
+    if (!nb.card || nb.owner === 'hazard') return;
+    const a = nb.card.ability;
+    const isAlly = nb.owner === 'player';
+    const isEnemy = nb.owner === 'ai';
+
+    if (a === 'commander' || a === 'boost' || a === 'spawn') {
+      const bonus = a === 'boost' ? '+1' : '+2';
+      if (isAlly) influences.push({ color:'#44ff88', icon:a, text:`COMMANDER nearby — friendly card here gains ${bonus} to all battle values` });
+    }
+    if (a === 'intimidate') {
+      if (isEnemy) influences.push({ color:'#ff5555', icon:'intimidate', text:'INTIMIDATE nearby — any card placed here by the enemy loses 1 from their highest battle value' });
+      if (isAlly)  influences.push({ color:'#ff5555', icon:'intimidate', text:'INTIMIDATE (yours) — enemies placed adjacent to you here will lose 1 battle value' });
+    }
+    if (a === 'lamb' && isAlly) {
+      influences.push({ color:'#ff2222', icon:'lamb', text:'LAMB nearby — placing an enemy adjacent to your LAMB card cancels its scoring bonus' });
+    }
+    if (a === 'revenge' && isEnemy) {
+      influences.push({ color:'#ff4488', icon:'revenge', text:'REVENGE nearby — if you defeat this enemy card, you permanently lose 1 VP' });
+    }
+    if (a === 'double_strike' && isEnemy) {
+      influences.push({ color:'#ffdd00', icon:'double_strike', text:'DOUBLE STRIKE range — a winning enemy here may deal secondary damage to the card 2 steps beyond' });
+    }
+    if (a === 'shield' && isEnemy) {
+      influences.push({ color:'#aaaaff', icon:'shield', text:'SHIELD nearby — this enemy card will absorb its first battle loss' });
+    }
+    if (a === 'fortify' && isAlly) {
+      influences.push({ color:'#4488ff', icon:'fortify', text:'FORTIFY nearby — placing here claims the forward cell, blocking enemies from that spot' });
+    }
+  });
+
+  // Scan sniper in same column (for opponent home row context)
+  if (r === 0) {
+    for (let _r=1; _r<5; _r++) {
+      const sc = G.grid[_r][c];
+      if (sc.card && sc.owner === 'ai' && sc.card.ability === 'sniper') {
+        influences.push({ color:'#ff8800', icon:'sniper', text:'SNIPER in column — this opponent card can silence the highest-power card on your home row' });
+        break;
+      }
+    }
+  }
+
+  // Deciding factor in same row
+  for (let _c=0; _c<7; _c++) {
+    const dc = G.grid[r][_c];
+    if (dc.card && dc.card.ability === 'deciding_factor') {
+      const who = dc.owner === 'player' ? 'Your' : 'Opponent\'s';
+      influences.push({ color:'#ffdd88', icon:'deciding_factor', text:`${who} DECIDING FACTOR in this row — tied result tips in their favor` });
+      break;
+    }
+  }
+
+  if (!influences.length) return;
+
+  const tt = document.getElementById('tooltip');
+  if (!tt) return;
+  tt.style.width = '280px';
+  tt.style.right = '16px'; tt.style.left = 'auto';
+  tt.style.bottom = '16px'; tt.style.top = 'auto';
+
+  const rows = influences.map(inf => `
+    <div style="display:flex;align-items:flex-start;gap:8px;padding:5px 0;border-bottom:1px solid #ffffff08;">
+      <div style="width:20px;height:20px;border-radius:4px;background:${inf.color}22;border:1px solid ${inf.color}55;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${_getAbilitySvg(inf.icon)}</div>
+      <span style="font-size:11px;color:#dde;line-height:1.5;">${inf.text}</span>
+    </div>`).join('');
+
+  tt.innerHTML = `<div class="tip-body" style="padding:10px 12px;">
+    <div style="font-size:9px;letter-spacing:2px;color:#7ab8e8;margin-bottom:6px;">CELL INFLUENCE</div>
+    ${rows}
+  </div>`;
+  tt.style.display = 'block';
+}
+
 function renderGrid() {
 
   const el = document.getElementById('grid');
@@ -346,6 +436,13 @@ function renderGrid() {
 
           div.onmouseleave = hideTip;
 
+        }
+
+        // Idle hover (no card selected): show influence tooltip
+        if (!G.selectedCard && _emptyHzDirs.length === 0) {
+          const _ir = r, _ic = c;
+          div.onmouseenter = ev => showEmptyCellInfluenceTip(ev, _ir, _ic);
+          div.onmouseleave = hideTip;
         }
 
         if (valid.some(v => v.r===r && v.c===c)) {
