@@ -177,7 +177,7 @@ function renderGrid() {
 
           ${cell.card.ability ? `<span class="ability-tag" style="color:${factionCol}88">${ab(cell.card.ability)}</span>` : ''}
 
-          ${cell.card.ability && !cell.card.shieldExpended ? `<span class="ability-star" style="position:absolute;top:-4px;right:0px;z-index:6;font-size:28px;pointer-events:none;">\u2605</span>` : ''}
+          ${cell.card.ability && !cell.card.shieldExpended ? `<span class="ability-star" style="position:absolute;bottom:12px;left:50%;transform:translateX(-50%);z-index:6;font-size:18px;pointer-events:none;">\u2605</span>` : ''}
 
           ${cell.card.shieldExpended ? `<span style="position:absolute;top:3px;right:3px;z-index:5;font-size:11px;filter:drop-shadow(0 0 4px #aaaaff);pointer-events:none;">\uD83D\uDEE1</span>` : ''}
 
