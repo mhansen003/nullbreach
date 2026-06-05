@@ -112,7 +112,7 @@ function showCardZoneInfluence(card) {
     seen.add(key);
     const ov = document.createElement('div');
     ov.setAttribute('data-az', '1');
-    ov.style.cssText = 'position:absolute;inset:0;z-index:7;pointer-events:none;border-radius:3px;border:2px dotted #ffdd0099;background:#ffdd0008;';
+    ov.style.cssText = 'position:absolute;inset:0;z-index:7;pointer-events:none;border-radius:3px;border:2px dotted #ffdd00cc;background:#ffdd0022;';
     el.appendChild(ov);
   });
 }

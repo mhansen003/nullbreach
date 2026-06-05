@@ -2164,21 +2164,14 @@ Promise.all(
 });
 
 function quickStartGame() {
-  const races = Object.keys(RACES);
-  const rIdx = Math.floor(Math.random() * races.length);
-  const raceId = races[rIdx];
-  const race = RACES[raceId];
-  // Pick random AI opponent (different race)
-  const aiRaces = races.filter(r => r !== raceId);
-  const aiId = aiRaces[Math.floor(Math.random() * aiRaces.length)];
-  const aiRace = RACES[aiId];
-  const params = new URLSearchParams({
-    race: raceId,
-    color: encodeURIComponent(race.color || '#888'),
-    name: encodeURIComponent(race.name || raceId),
-    difficulty: 'balanced',
-    aiRace: aiId
-  });
+  const allIds = RACES.map(r => r.id);
+  const rIdx = Math.floor(Math.random() * allIds.length);
+  const raceId = allIds[rIdx];
+  const race = RACES[rIdx];
+  const aiIds = allIds.filter(id => id !== raceId);
+  const aiId = aiIds[Math.floor(Math.random() * aiIds.length)];
+  sessionStorage.setItem('gz_ai_race', aiId);
+  const params = new URLSearchParams({ race: raceId, color: race.color || '#888', name: race.name || raceId, difficulty: 'balanced' });
   window.location.href = 'game.html?' + params.toString();
 }
 </script>

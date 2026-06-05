@@ -67,7 +67,7 @@
 
 <span id="scoreHud"        style="display:none"></span>
 
-<div id="game-top-bg" style="position:fixed;top:0;left:0;right:0;height:100vh;background-size:cover;background-position:top center;z-index:0;opacity:0;transition:opacity 1s;pointer-events:none;mask-image:linear-gradient(to bottom,black 0%,black 25%,transparent 65%);-webkit-mask-image:linear-gradient(to bottom,black 0%,black 25%,transparent 65%);"></div>
+<div id="game-top-bg" style="position:fixed;top:0;left:0;right:0;height:100vh;background-size:cover;background-position:top center;z-index:0;opacity:0;transition:opacity 1s;pointer-events:none;filter:brightness(1.5);mask-image:linear-gradient(to bottom,black 0%,black 25%,transparent 65%);-webkit-mask-image:linear-gradient(to bottom,black 0%,black 25%,transparent 65%);"></div>
 
 <div id="game-bottom-bg" style="position:fixed;bottom:0;left:0;right:0;height:100%;background-size:cover;background-position:center bottom;z-index:0;opacity:0;transition:opacity 1s;pointer-events:none;mask-image:linear-gradient(to top,black 0%,black 20%,transparent 60%);-webkit-mask-image:linear-gradient(to top,black 0%,black 20%,transparent 60%);"></div>
 
@@ -452,6 +452,7 @@
 <script src="render-score.js"></script>
 
 <!-- Phase 6: Turn, State, UI -->
+<script src="demo-gate.js"></script>
 <script src="turn.js"></script>
 <script src="state.js"></script>
 <script src="ui.js"></script>
