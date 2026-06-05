@@ -222,12 +222,29 @@ function renderHand() {
         const _sx = t.clientX, _sy = t.clientY;
         let _dragging = false, _done = false;
 
+        // Long-press: hold 480ms without moving → open card tooltip panel
+        let _longPressTimer = setTimeout(() => {
+          if (_done || _dragging) return;
+          _done = true;
+          _cleanup();
+          G.selectedCard = card;
+          renderGrid();
+          showMobileCardPanel(card);
+          const panel = document.getElementById('mobileCardPanel');
+          const tab   = document.getElementById('mobileCardPanelTab');
+          if (panel && !panel.classList.contains('open')) {
+            setTimeout(() => { panel.classList.add('open'); if (tab) { tab.style.right = '195px'; tab.textContent = '▶'; } }, 10);
+          }
+        }, 480);
+
         function _move(e) {
           if (_done) return;
           const touch = Array.from(e.touches).find(tt => tt.identifier === _id);
           if (!touch) return;
           const dx = touch.clientX - _sx, dy = touch.clientY - _sy;
           const ax = Math.abs(dx), ay = Math.abs(dy);
+
+          if (ax > 6 || ay > 6) { clearTimeout(_longPressTimer); _longPressTimer = null; }
 
           if (!_dragging) {
             if (ax > ay && ax > 8) { _done = true; _cleanup(); return; } // horizontal = deck scroll
@@ -293,6 +310,7 @@ function renderHand() {
 
         function _cleanup() {
           _done = true;
+          if (_longPressTimer) { clearTimeout(_longPressTimer); _longPressTimer = null; }
           document.removeEventListener('touchmove', _move);
           document.removeEventListener('touchend', _end);
           document.removeEventListener('touchcancel', _cancel);

@@ -111,8 +111,9 @@ function applyPlacementAbility(card, r, c, owner) {
 
 
 
-  // LASER FOCUS: sums all 4 edges into the North facing only. S/E/W become 0.
-
+  // LASER FOCUS: sums all 4 edges into the forward-facing edge only.
+  // Player attacks north (row 0 direction) → concentrate into N.
+  // AI cards are N↔S flipped in state.js → AI attacks south → concentrate into S.
 
   if (card.ability === 'laser_focus') {
 
@@ -122,20 +123,19 @@ function applyPlacementAbility(card, r, c, owner) {
 
     card.edgeMod = card.edgeMod || {n:0,s:0,e:0,w:0};
 
-
-    card.edgeMod.n = total - card.edges.n;   // make N = total
-
-
-    card.edgeMod.s = -card.edges.s;           // make S = 0
-
-
-    card.edgeMod.e = -card.edges.e;           // make E = 0
-
-
-    card.edgeMod.w = -card.edges.w;           // make W = 0
-
-
-    addLog('compare', `LASER FOCUS: ${card.name} concentrates all power forward: N=${total}`);
+    if (owner === 'ai') {
+      card.edgeMod.s = total - card.edges.s;
+      card.edgeMod.n = -card.edges.n;
+      card.edgeMod.e = -card.edges.e;
+      card.edgeMod.w = -card.edges.w;
+      addLog('compare', `LASER FOCUS: ${card.name} concentrates all power forward: S=${total}`);
+    } else {
+      card.edgeMod.n = total - card.edges.n;
+      card.edgeMod.s = -card.edges.s;
+      card.edgeMod.e = -card.edges.e;
+      card.edgeMod.w = -card.edges.w;
+      addLog('compare', `LASER FOCUS: ${card.name} concentrates all power forward: N=${total}`);
+    }
 
 
   }
