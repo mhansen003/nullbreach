@@ -88,6 +88,20 @@ const ZONES = {
   // CHOIR: resonance_arc — curved arc 2 rows deep, no center at depth 2 (sound wave)
   resonance_arc:[{dr:-1,dc:-1},{dr:-1,dc:0},{dr:-1,dc:1},{dr:-2,dc:-1},{dr:-2,dc:1}],
 
+  // ── EXTENDED PATTERNS ────────────────────────────────────────────
+
+  // v_wing: carrier V-formation, fans out wider at depth 2 (wings, carriers, fleets)
+  v_wing:       [{dr:-1,dc:0},{dr:-1,dc:-1},{dr:-1,dc:1},{dr:-2,dc:-2},{dr:-2,dc:2}],
+
+  // hammer: 5-wide strike front + single penetrating center 2 deep (battle groups, tectonic)
+  hammer:       [{dr:-1,dc:-2},{dr:-1,dc:-1},{dr:-1,dc:0},{dr:-1,dc:1},{dr:-1,dc:2},{dr:-2,dc:0}],
+
+  // deep_fan: 3-tier forward fan — flanker extended with 3rd row tip (fast movers, surges)
+  deep_fan:     [{dr:-1,dc:-1},{dr:-1,dc:0},{dr:-1,dc:1},{dr:-2,dc:-1},{dr:-2,dc:1},{dr:-3,dc:0}],
+
+  // trident: 3 parallel 2-deep prongs — left, center, right columns (strikes, surges)
+  trident:      [{dr:-1,dc:-2},{dr:-2,dc:-2},{dr:-1,dc:0},{dr:-2,dc:0},{dr:-1,dc:2},{dr:-2,dc:2}],
+
 };
 
 const DIRS4 = [
