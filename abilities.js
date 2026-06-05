@@ -182,7 +182,21 @@ function applyPlacementAbility(card, r, c, owner) {
     }
   }
 
-  // HOME INVADER: placement rule handled in placement.js: no placement-time effect here
+  // HOME INVADER: placement rule handled in placement.js
+  // Visual: briefly flash red glow on all cells in the opponent's home row when placed there
+  if (card.ability === 'home_invader') {
+    const opponentHomeRow = owner === 'player' ? 0 : 4;
+    if (r === opponentHomeRow) {
+      for (let hc = 0; hc < 7; hc++) {
+        const hEl = document.querySelector(`.cell[data-r="${opponentHomeRow}"][data-c="${hc}"]`);
+        if (hEl) {
+          hEl.classList.add('ambush-hit');
+          setTimeout(() => hEl.classList.remove('ambush-hit'), 900);
+        }
+      }
+    }
+  }
+
   // LAMB: stats set during assignRandomAbilities: no placement-time effect here
 
   // BIRTHRIGHT: on placement, add a bonus T2 card to hand
@@ -199,7 +213,7 @@ function applyPlacementAbility(card, r, c, owner) {
         bonus.edgeMod = {n:0,s:0,e:0,w:0};
         G.playerHand.push(bonus);
         addLog('player', `BIRTHRIGHT: ${card.name} grants a bonus card: ${bonus.name}`);
-        if (typeof showToast === 'function') showToast(`BIRTHRIGHT: ${bonus.name} added to your hand`);
+        if (typeof showToast === 'function') showToast(`BIRTHRIGHT: bonus card drawn`, '#ffaaff');
       }
     } else {
       // AI birthright: pick a random unused T2 from aiHand pool

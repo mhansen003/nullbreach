@@ -75,13 +75,17 @@ function _buildScoreBreakdown(axis, idx) {
     const icol = batTxt(e.axBat);
     const abilTag = e.ability ? `<span style="font-size:8px;color:#ffffff44;letter-spacing:1px;"> · ${(ABILITY_ICONS[e.ability]||{label:e.ability}).label}</span>` : '';
     const modTag  = e.mods.length ? `<span style="font-size:8px;color:#ffaa44;"> ${e.mods.join(', ')}</span>` : '';
+    // DENSITY: show ×1.5 badge inline next to VP
+    const _vpDisplay = e.ability === 'density' && e.vp > 0
+      ? `${e.vp} <span style="font-size:8px;color:#aaff44;">×1.5</span>`
+      : `${e.vp}`;
     return `
       <div style="display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid #0f0f1a;">
         <img src="${e.avatar}" style="width:20px;height:20px;border-radius:50%;object-fit:cover;border:1px solid ${e.fCol}44;flex-shrink:0;">
         <span style="flex:1;font-size:11px;color:#ccc;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${e.name}${abilTag}</span>
         ${modTag}
         <span style="font-size:13px;color:${icol};flex-shrink:0;width:10px;text-align:center;">${icon}</span>
-        <span style="font-size:12px;font-weight:bold;color:${e.vp>0?'#fff':'#444'};flex-shrink:0;width:32px;text-align:right;">${e.vp} <span style="font-size:9px;color:#555;">VP</span></span>
+        <span style="font-size:12px;font-weight:bold;color:${e.vp>0?'#fff':'#444'};flex-shrink:0;width:32px;text-align:right;">${_vpDisplay} <span style="font-size:9px;color:#555;">VP</span></span>
       </div>`;
   }).join('');
 
@@ -140,7 +144,7 @@ function renderScoreBadges(_precomputed) {
 
   // This eliminates confusion of "I see my avatar = I must be winning"
 
-  function rowBadgeHtml(p, a, res) {
+  function rowBadgeHtml(p, a, res, dfBroken) {
 
     if (p === 0 && a === 0) return `<span style="font-size:14px;color:#444466;letter-spacing:2px;pointer-events:none;">--</span>`;
 
@@ -160,6 +164,9 @@ function renderScoreBadges(_precomputed) {
 
     const wCol = pWin ? pCol : aCol;
 
+    // DECIDING FACTOR: gold ≠ badge when this row was a tie that got broken
+    const dfBadge = dfBroken ? `<span style="font-size:6px;letter-spacing:1px;color:#ffdd00;background:#2a2000;border:1px solid #ffdd0066;border-radius:2px;padding:0 2px;pointer-events:none;">≠ BROKEN</span>` : '';
+
     return `
 
       <div style="display:flex;flex-direction:column;align-items:center;gap:3px;pointer-events:none;">
@@ -172,11 +179,13 @@ function renderScoreBadges(_precomputed) {
 
           text-shadow:0 0 8px ${wCol};pointer-events:none;">+${delta}</span>
 
+        ${dfBadge}
+
       </div>`;
 
   }
 
-  function colBadgeHtml(p, a, res) {
+  function colBadgeHtml(p, a, res, dfBroken) {
 
     if (p === 0 && a === 0) return `<span style="font-size:13px;color:#444466;letter-spacing:2px;pointer-events:none;">--</span>`;
 
@@ -194,6 +203,9 @@ function renderScoreBadges(_precomputed) {
 
     const wCol = pWin ? pCol : aCol;
 
+    // DECIDING FACTOR: gold ≠ badge when this col was a tie that got broken
+    const dfBadge = dfBroken ? `<span style="font-size:6px;letter-spacing:0px;color:#ffdd00;background:#2a2000;border:1px solid #ffdd0066;border-radius:2px;padding:0 2px;pointer-events:none;">≠</span>` : '';
+
     return `
 
       <div style="display:flex;align-items:center;gap:5px;pointer-events:none;">
@@ -205,6 +217,8 @@ function renderScoreBadges(_precomputed) {
         <span style="font-size:18px;font-weight:bold;color:${wCol};line-height:1;
 
           text-shadow:0 0 8px ${wCol};pointer-events:none;">+${delta}</span>
+
+        ${dfBadge}
 
       </div>`;
 
@@ -238,7 +252,7 @@ function renderScoreBadges(_precomputed) {
 
     badge.style.cssText = `background:${rowBg};border:1px solid ${rowBorder};border-left:3px solid ${rowWinCol};`;
 
-    badge.innerHTML = rowBadgeHtml(p, a, res);
+    badge.innerHTML = rowBadgeHtml(p, a, res, s.dfRows && s.dfRows[r]);
 
     // Flip animation when leadership changes between renders
 
@@ -327,7 +341,7 @@ function renderScoreBadges(_precomputed) {
 
     badge.style.cssText = `background:${colBg};border:1px solid ${colBorder};border-top:3px solid ${colWinCol};`;
 
-    badge.innerHTML = colBadgeHtml(p, a, res);
+    badge.innerHTML = colBadgeHtml(p, a, res, s.dfCols && s.dfCols[c]);
 
     const prevResC = _prevBadgeRes.cols[c];
 

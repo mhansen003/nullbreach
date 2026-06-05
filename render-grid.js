@@ -181,6 +181,10 @@ function renderGrid() {
         const _hzNear = [{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}].filter(({dr,dc})=>{const rr=r+dr,cc=c+dc;return rr>=0&&rr<5&&cc>=0&&cc<7&&G.grid[rr][cc].owner==='hazard';}).length;
         const _hzPen = _hzNear*2;
 
+        // LASER FOCUS: determine the active (forward-facing) edge and dim others
+        const _isLaserFocus = cell.card.ability === 'laser_focus';
+        const _laserActiveEdge = _isLaserFocus ? (cell.owner === 'ai' ? 's' : 'n') : null;
+
         div.innerHTML = `
 
           ${['n','s','e','w'].map(edge => {
@@ -192,7 +196,11 @@ function renderGrid() {
             const edgeGlow  = cloakHidden ? '' : mod > 0 ? 'text-shadow:0 0 6px #44ff8899;' : mod < 0 ? 'text-shadow:0 0 6px #ff555599;' : axGlow;
             const val = cloakHidden ? '?' : (cell.card.edges[edge] + mod);
             const modBadge = (!cloakHidden && mod !== 0) ? `<span style="position:absolute;font-size:7px;font-weight:900;color:${mod>0?'#44ff88':'#ff5555'};line-height:1;${edge==='n'?'top:-1px;right:-4px;':edge==='s'?'bottom:-1px;right:-4px;':edge==='w'?'top:-2px;left:-6px;':'top:-2px;right:-6px;'}">${mod>0?'+':''}${mod}</span>` : '';
-            return `<span class="edge ${edge}" style="position:relative;color:${edgeColor};${edgeGlow}">${val}${modBadge}</span>`;
+            // LASER FOCUS: dim non-active edges
+            const _laserDim = _isLaserFocus && edge !== _laserActiveEdge;
+            const _laserStyle = _laserDim ? 'opacity:0.22;text-decoration:line-through;' : '';
+            const _cloakClass = (cloakHidden && !_isLaserFocus) ? ' cloak-hidden-edge' : '';
+            return `<span class="edge ${edge}${_cloakClass}" style="position:relative;color:${edgeColor};${edgeGlow}${_laserStyle}">${val}${modBadge}</span>`;
           }).join('')}
 
           <!-- Tier indicator: text label on mobile, dots on desktop -->
@@ -210,11 +218,11 @@ function renderGrid() {
 
           ${cell.card.ability ? `<span class="ability-tag" style="color:${factionCol}88">${ab(cell.card.ability)}</span>` : ''}
 
-          ${cell.card.ability && !cell.card.shieldExpended ? `<div class="ability-badge" style="position:absolute;bottom:18px;left:50%;transform:translateX(-50%);z-index:6;width:26px;height:26px;border-radius:5px;display:flex;align-items:center;justify-content:center;pointer-events:none;">${_getAbilitySvg(cell.card.ability)}</div>` : ''}
+          ${cell.card.ability ? `<div class="ability-badge" style="position:absolute;bottom:18px;left:50%;transform:translateX(-50%);z-index:6;width:26px;height:26px;border-radius:5px;display:flex;align-items:center;justify-content:center;pointer-events:none;${cell.card.shieldExpended?'opacity:0.28;filter:grayscale(1);':''}${cell.card.ability==='shield'&&!cell.card.shieldExpended?'box-shadow:0 0 8px #aaaaff88;':''}">${_getAbilitySvg(cell.card.ability)}</div>` : ''}
 
-          ${cell.card.shieldExpended ? `<span style="position:absolute;top:3px;right:3px;z-index:5;font-size:11px;filter:drop-shadow(0 0 4px #aaaaff);pointer-events:none;">\uD83D\uDEE1</span>` : ''}
+          ${cell.card.shieldExpended ? `<span style="position:absolute;top:3px;right:3px;z-index:5;font-size:11px;filter:drop-shadow(0 0 4px #555577);opacity:0.45;pointer-events:none;">\uD83D\uDEE1</span>` : ''}
 
-          ${cell.card._silenced ? `<div style='position:absolute;inset:0;z-index:4;pointer-events:none;border-radius:4px;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;'><span style='font-size:8px;letter-spacing:1px;color:#ff8800;font-family:"Orbitron",monospace;background:#0a0a14;padding:2px 5px;border-radius:3px;border:1px solid #ff880044;opacity:0.9;'>0 VP</span></div>` : ''}
+          ${cell.card._silenced ? `<div style='position:absolute;inset:0;z-index:4;pointer-events:none;border-radius:4px;background:rgba(0,0,0,0.6);border:2px solid #ff880066;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;'><span style='font-size:16px;line-height:1;filter:drop-shadow(0 0 6px #ff8800);'>🎯</span><span style='font-size:7px;letter-spacing:1px;color:#ff8800;font-family:"Orbitron",monospace;background:#0a0a14;padding:1px 4px;border-radius:3px;border:1px solid #ff880066;opacity:0.9;'>0 VP</span></div>` : ''}
           ${(cell.card._sniped||cell.card._sniperLocked) && !cell.card._silenced ? `<div style='position:absolute;top:3px;right:3px;z-index:7;font-size:8px;color:#ff8800;text-shadow:0 0 6px #ff8800;pointer-events:none;' title='Sniper: -2 all battle values'>🎯</div>` : ''}
           ${cell.card._revengePenalty > 0 ? `<div style='position:absolute;top:${cell.card._sniped?'14':'3'}px;right:3px;z-index:7;font-size:8px;color:#ff4488;text-shadow:0 0 6px #ff4488;pointer-events:none;' title='Revenge penalty -${cell.card._revengePenalty} VP'>↩-${cell.card._revengePenalty}</div>` : ''}
           <img src="${cell.owner==='player'?(window.playerAvatarImg||''):(window.aiAvatarImg||'')}" style="position:absolute;bottom:3px;right:3px;width:18px;height:18px;border-radius:50%;object-fit:cover;object-position:top;border:1px solid ${factionCol}55;opacity:0.6;z-index:2;pointer-events:none;" onerror="this.style.display='none'">

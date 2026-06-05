@@ -447,6 +447,10 @@ function computeScores() {
 
   let colResults = cols.map(c => c.p > c.a ? 'p' : c.a > c.p ? 'a' : 'tie');
 
+  // Snapshot BEFORE DECIDING FACTOR mutations (for dfRows/dfCols tracking)
+  const rawRowResults = rowResults.slice();
+  const rawColResults = colResults.slice();
+
   // DECIDING FACTOR: player ties become player wins
 
   for (let r = 0; r < 5; r++) {
@@ -545,11 +549,7 @@ function computeScores() {
 
   });
 
-  // Snapshot results before DECIDING_FACTOR mutates them
-  const rawRowResults = rowResults.slice();
-  const rawColResults = colResults.slice();
-
-  // Track which rows/cols were decided by DECIDING FACTOR (was a tie, became a win)
+  // Track which rows/cols were decided by DECIDING FACTOR (was a tie pre-DF, became a win post-DF)
   const dfRows = rowResults.map((res, r) => rawRowResults[r] === 'tie' && res !== 'tie' ? res : null);
   const dfCols = colResults.map((res, c) => rawColResults[c] === 'tie' && res !== 'tie' ? res : null);
 

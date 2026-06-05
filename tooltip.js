@@ -40,7 +40,7 @@ function showAbilityZone(ability, _baseR, _baseC, _owner) {
     const ov = document.createElement('div');
     ov.setAttribute('data-az','1');
     const styles = {
-      inf: 'border:2px dashed #ffdd0099;background:#ffdd0011;box-shadow:inset 0 0 6px #ffdd0022;',
+      inf: 'border:2px dotted #ffdd0099;background:#ffdd0008;',
       buf: 'border:2px solid #4488ffcc;background:#4488ff22;box-shadow:inset 0 0 8px #4488ff22;',
       agg: 'border:2px solid #ff4444cc;background:#ff444422;box-shadow:inset 0 0 8px #ff333322;',
     };

@@ -1513,6 +1513,26 @@ button, [onclick] { touch-action: manipulation; }
 @keyframes tapPulse { 0%,100% { opacity:0.6; transform:scale(0.95); } 50% { opacity:1; transform:scale(1.05); } }
 @keyframes confirmPulse { 0%,100% { opacity:0.85; transform:scale(1); } 50% { opacity:1; transform:scale(1.12); } }
 
+/* hazardPulse2: generic glow pulse used by passive ability overlays */
+@keyframes hazardPulse2 {
+  0%,100% { opacity:0.55; }
+  50%     { opacity:1; }
+}
+
+/* lambEnemyPulse: red pulsing border on LAMB card when enemy is adjacent */
+@keyframes lambEnemyPulse {
+  0%,100% { box-shadow: 0 0 0 2px #ff2222aa, inset 0 0 8px #ff222233; }
+  50%     { box-shadow: 0 0 0 4px #ff2222ff, inset 0 0 18px #ff222266; }
+}
+.lamb-enemy-adjacent { animation: lambEnemyPulse 0.9s ease-in-out infinite !important; }
+
+/* cloakPulse: fade on hidden cloak edges */
+@keyframes cloakPulse {
+  0%,100% { opacity:0.45; }
+  50%     { opacity:1; }
+}
+.cloak-hidden-edge { animation: cloakPulse 1.4s ease-in-out infinite; }
+
   /* Score panel: avatar+number only */
   #sbAiName, #sbPlayerName { display:none !important; }
   #sbYouBadge { font-size:6px !important; padding:1px 3px !important; }

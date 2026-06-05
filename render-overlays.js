@@ -103,13 +103,30 @@ function renderPassiveAbilityGlows(el) {
       }
 
       // ── LAMB: golden shimmer on high-value zero-edge card ────────────────
+      // Red pulse when an enemy is adjacent (ability invalidated)
       else if (card.ability === 'lamb') {
         const cellEl = document.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`);
         if (cellEl) {
-          const ov = document.createElement('div');
-          ov.dataset.passiveZone = '1';
-          ov.style.cssText = `position:absolute;inset:0;pointer-events:none;z-index:1;border-radius:3px;background:#ffdd0015;border:2px solid #ffdd0044;box-shadow:inset 0 0 14px #ffdd0022;animation:hazardPulse2 2s ease-in-out infinite;`;
-          cellEl.appendChild(ov);
+          const adjacentEnemies = ADJ4.filter(({dr,dc}) => {
+            const nr=r+dr, nc=c+dc;
+            if (nr<0||nr>=5||nc<0||nc>=7) return false;
+            const tgt = G.grid[nr][nc];
+            return tgt.card && tgt.owner !== cell.owner && tgt.owner !== 'hazard';
+          });
+          if (adjacentEnemies.length > 0) {
+            // Enemy adjacent: red pulsing border — LAMB bonus is invalidated
+            cellEl.classList.add('lamb-enemy-adjacent');
+            const ov = document.createElement('div');
+            ov.dataset.passiveZone = '1';
+            ov.style.cssText = `position:absolute;inset:0;pointer-events:none;z-index:1;border-radius:3px;background:#ff222211;`;
+            cellEl.appendChild(ov);
+          } else {
+            // No enemy adjacent: golden shimmer — LAMB bonus is active
+            const ov = document.createElement('div');
+            ov.dataset.passiveZone = '1';
+            ov.style.cssText = `position:absolute;inset:0;pointer-events:none;z-index:1;border-radius:3px;background:#ffdd0015;border:2px solid #ffdd0044;box-shadow:inset 0 0 14px #ffdd0022;animation:hazardPulse2 2s ease-in-out infinite;`;
+            cellEl.appendChild(ov);
+          }
         }
       }
 
@@ -337,12 +354,48 @@ function renderBattleIndicators(el) {
             const el=document.querySelector('.cell[data-r="'+rr+'"][data-c="'+cc+'"]');
             if(el) el.style.filter = (own===winOwner)?'brightness(1.15)':'brightness(0.3) saturate(0.2)';
           });
+
+          // PIERCE: if winner won a tied edge comparison, flash loser cell white
+          const _pierceTie = _d.abilities && _d.abilities.some(a => a.includes('PIERCE: tie'));
+          if (_pierceTie) {
+            const _losEl = _d.cellOwner === winOwner
+              ? document.querySelector('.cell[data-r="'+_nr+'"][data-c="'+_nc+'"]')
+              : document.querySelector('.cell[data-r="'+_cr+'"][data-c="'+_cc+'"]');
+            if (_losEl) {
+              const _flashOv = document.createElement('div');
+              _flashOv.setAttribute('data-abil-flash','1');
+              _flashOv.style.cssText = 'position:absolute;inset:0;z-index:9;pointer-events:none;background:#ffffff44;border:2px solid #ffffffcc;border-radius:3px;animation:hazardPulse2 0.6s ease-in-out 3;';
+              _losEl.appendChild(_flashOv);
+            }
+          }
+
+          // DOUBLE STRIKE: highlight the 2nd-target cell beyond the neighbor
+          const _hasDS = _d.abilities && _d.abilities.some(a => a.includes('DOUBLE STRIKE'));
+          if (_hasDS) {
+            // Determine direction from chip positions
+            const _dsDr = _nr - _cr, _dsDc = _nc - _cc;
+            // Winner cell drives double strike
+            const _dsWinR = _d.cellOwner === winOwner ? _cr : _nr;
+            const _dsWinC = _d.cellOwner === winOwner ? _cc : _nc;
+            const _ds2r = _dsWinR + _dsDr*2, _ds2c = _dsWinC + _dsDc*2;
+            if (_ds2r >= 0 && _ds2r < 5 && _ds2c >= 0 && _ds2c < 7) {
+              const _ds2El = document.querySelector('.cell[data-r="'+_ds2r+'"][data-c="'+_ds2c+'"]');
+              if (_ds2El && G.grid[_ds2r][_ds2c].card && G.grid[_ds2r][_ds2c].owner !== winOwner) {
+                const _dsOv = document.createElement('div');
+                _dsOv.setAttribute('data-abil-flash','1');
+                const _dsCol = winOwner === 'player' ? (window.playerFactionColor||'#00ffcc') : (window.aiFactionColor||'#ff0080');
+                _dsOv.style.cssText = `position:absolute;inset:0;z-index:9;pointer-events:none;background:${_dsCol}22;border:2px dashed ${_dsCol}88;border-radius:3px;animation:hazardPulse2 0.8s ease-in-out 3;`;
+                _ds2El.appendChild(_dsOv);
+              }
+            }
+          }
         }
       };
 
       chip.onmouseleave = () => {
         hideTip();
         document.querySelectorAll('.cell').forEach(el=>{el.style.filter='';});
+        document.querySelectorAll('[data-abil-flash]').forEach(el=>el.remove());
       };
 
       el.appendChild(chip);

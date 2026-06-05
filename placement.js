@@ -225,6 +225,21 @@ function doComparisons(r, c, owner, card, depth=0) {
 
     addLog('compare', `${card.name} ${mv}${iWin?'>':'<'}${tv} vs ${target.card.name} (${d.lbl})`);
 
+    // REVENGE: if the target card has REVENGE and loses, flash the winning card orange
+    if (!iWin && target.card.ability === 'revenge') {
+      setTimeout(() => {
+        const _rvEl = document.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`);
+        if (_rvEl) { _rvEl.classList.add('ambush-hit'); setTimeout(()=>_rvEl.classList.remove('ambush-hit'),800); }
+      }, 350);
+    }
+    // REVENGE: if the placed card has REVENGE and loses to target, flash the target
+    if (iWin && card.ability === 'revenge') {
+      setTimeout(() => {
+        const _rvEl2 = document.querySelector(`.cell[data-r="${nr}"][data-c="${nc}"]`);
+        if (_rvEl2) { _rvEl2.classList.add('ambush-hit'); setTimeout(()=>_rvEl2.classList.remove('ambush-hit'),800); }
+      }, 350);
+    }
+
     // DOUBLE STRIKE: contest 2nd cell at HALF strength
 
     if (card.ability==='double_strike' && iWin) {
