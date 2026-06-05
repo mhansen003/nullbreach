@@ -200,7 +200,7 @@ function renderGrid() {
             const _laserDim = _isLaserFocus && edge !== _laserActiveEdge;
             const _laserStyle = _laserDim ? 'opacity:0.22;text-decoration:line-through;' : '';
             const _cloakClass = (cloakHidden && !_isLaserFocus) ? ' cloak-hidden-edge' : '';
-            return `<span class="edge ${edge}${_cloakClass}" style="position:relative;color:${edgeColor};${edgeGlow}${_laserStyle}">${val}${modBadge}</span>`;
+            return `<span class="edge ${edge}${_cloakClass}" style="color:${edgeColor};${edgeGlow}${_laserStyle}">${val}</span>`;
           }).join('')}
 
           <!-- Tier indicator: text label on mobile, dots on desktop -->
@@ -285,14 +285,7 @@ function renderGrid() {
 
           }
 
-          // Show the card's zone expansion: same future-valid style as the tooltip zone diagram
-          const _zonePreview = typeof getZonePreview === 'function'
-            ? getZonePreview(r, c, cell.card, cell.owner)
-            : [];
-          _zonePreview.forEach(({r:zr, c:zc}) => {
-            const zEl = document.querySelector(`.cell[data-r="${zr}"][data-c="${zc}"]`);
-            if (zEl && !zEl.classList.contains('valid')) zEl.classList.add('future-valid');
-          });
+          // ability zone already shown via showAbilityZone (dotted overlays) — no future-valid needed for placed cards
 
         };
 
