@@ -392,6 +392,8 @@ function renderGrid() {
 
           }
 
+          if (cell.owner === 'player') showCardZoneInfluence(cell.card, r, c);
+
           // ability zone already shown via showAbilityZone (dotted overlays) — no future-valid needed for placed cards
 
         };

@@ -80,23 +80,29 @@ function clearAbilityZone() {
   document.querySelectorAll('[data-az]').forEach(el => el.remove());
 }
 
-// Show card's zone property (placement territory influence) as yellow dotted overlays
-function showCardZoneInfluence(card) {
+// Show card's zone property (placement territory influence) as yellow dotted overlays.
+// If cardR/cardC provided (board card hover), use that card's exact position.
+// Otherwise find the frontmost player card (hand card hover preview).
+function showCardZoneInfluence(card, cardR, cardC) {
   if (_zoneSuppressed) return;
   const _p2mp = typeof _mpPlayer !== 'undefined' && _mpPlayer === 2;
   const fwd = _p2mp ? -1 : 1;
-  let baseR = _p2mp ? 0 : 4;
-  let baseC = 3;
-  if (_p2mp) {
-    outer: for (let r = 0; r < 5; r++) {
-      for (let c = 0; c < 7; c++) {
-        if (G.grid[r][c].owner === 'player' && G.grid[r][c].card) { baseR = r; baseC = Math.min(Math.max(c,1),5); break outer; }
-      }
-    }
+  let baseR, baseC;
+  if (cardR !== undefined && cardC !== undefined) {
+    baseR = cardR; baseC = cardC;
   } else {
-    outer: for (let r = 4; r >= 0; r--) {
-      for (let c = 0; c < 7; c++) {
-        if (G.grid[r][c].owner === 'player' && G.grid[r][c].card) { baseR = r; baseC = Math.min(Math.max(c,1),5); break outer; }
+    baseR = _p2mp ? 0 : 4; baseC = 3;
+    if (_p2mp) {
+      outer: for (let r = 0; r < 5; r++) {
+        for (let c = 0; c < 7; c++) {
+          if (G.grid[r][c].owner === 'player' && G.grid[r][c].card) { baseR = r; baseC = Math.min(Math.max(c,1),5); break outer; }
+        }
+      }
+    } else {
+      outer: for (let r = 4; r >= 0; r--) {
+        for (let c = 0; c < 7; c++) {
+          if (G.grid[r][c].owner === 'player' && G.grid[r][c].card) { baseR = r; baseC = Math.min(Math.max(c,1),5); break outer; }
+        }
       }
     }
   }
