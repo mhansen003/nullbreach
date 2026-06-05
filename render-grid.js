@@ -80,7 +80,6 @@ function renderGrid() {
 
           <div style="position:absolute;inset:0;background:linear-gradient(transparent 50%,#ff440022);z-index:1;pointer-events:none;"></div>
 
-          ${window.innerWidth > 480 ? `<div style="position:absolute;bottom:4px;left:0;right:0;text-align:center;font-family:'Orbitron',monospace;font-size:7px;letter-spacing:1px;color:#ff6600;text-shadow:0 0 6px #ff6600;z-index:2;">⚠ ${cell.card.name}</div>` : ''}
 
         `;
 

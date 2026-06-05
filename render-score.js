@@ -67,29 +67,28 @@ function _buildScoreBreakdown(axis, idx) {
 
   // Card rows: clean and minimal
   const batIcon = b => b==='win'?'▲':b==='lose'?'▼':b==='tie'?'◆':'·';
-  const batTxt  = b => b==='win'?'#44dd88':b==='lose'?'#dd4444':b==='tie'?'#ffdd00':'#555';
+  const batTxt  = b => b==='win'?'#44dd88':b==='lose'?'#dd4444':b==='tie'?'#ffdd00':'#888';
 
   const cardsHtml = entries.map(e => {
-    if (e.hazard) return `<div style="display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid #0f0f1a;opacity:0.6;"><span style="color:#ff8800;font-size:10px;">⚠ HAZARD</span></div>`;
+    if (e.hazard) return `<div style="display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid #0f0f1a;opacity:0.6;"><span style="color:#ff8800;font-size:11px;">⚠ HAZARD</span></div>`;
     const icon = batIcon(e.axBat);
     const icol = batTxt(e.axBat);
-    const abilTag = e.ability ? `<span style="font-size:8px;color:#ffffff44;letter-spacing:1px;"> · ${(ABILITY_ICONS[e.ability]||{label:e.ability}).label}</span>` : '';
-    const modTag  = e.mods.length ? `<span style="font-size:8px;color:#ffaa44;"> ${e.mods.join(', ')}</span>` : '';
-    // DENSITY: show ×1.5 badge inline next to VP
+    const abilTag = e.ability ? `<span style="font-size:9px;color:#aabbcc;letter-spacing:1px;"> · ${(ABILITY_ICONS[e.ability]||{label:e.ability}).label}</span>` : '';
+    const modTag  = e.mods.length ? `<span style="font-size:9px;color:#ffaa44;"> ${e.mods.join(', ')}</span>` : '';
     const _vpDisplay = e.ability === 'density' && e.vp > 0
-      ? `${e.vp} <span style="font-size:8px;color:#aaff44;">×1.5</span>`
+      ? `${e.vp} <span style="font-size:9px;color:#aaff44;">×1.5</span>`
       : `${e.vp}`;
     return `
-      <div style="display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid #0f0f1a;">
+      <div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid #0f0f1a;">
         <img src="${e.avatar}" style="width:20px;height:20px;border-radius:50%;object-fit:cover;border:1px solid ${e.fCol}44;flex-shrink:0;">
-        <span style="flex:1;font-size:11px;color:#ccc;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${e.name}${abilTag}</span>
+        <span style="flex:1;font-size:12px;color:#dde;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${e.name}${abilTag}</span>
         ${modTag}
-        <span style="font-size:13px;color:${icol};flex-shrink:0;width:10px;text-align:center;">${icon}</span>
-        <span style="font-size:12px;font-weight:bold;color:${e.vp>0?'#fff':'#444'};flex-shrink:0;width:32px;text-align:right;">${_vpDisplay} <span style="font-size:9px;color:#555;">VP</span></span>
+        <span style="font-size:14px;color:${icol};flex-shrink:0;width:12px;text-align:center;">${icon}</span>
+        <span style="font-size:13px;font-weight:bold;color:${e.vp>0?'#fff':'#888'};flex-shrink:0;width:36px;text-align:right;">${_vpDisplay} <span style="font-size:10px;color:#aaa;">VP</span></span>
       </div>`;
   }).join('');
 
-  return heroHtml + (cardsHtml || `<div style="font-size:10px;color:#444;padding:4px 0;">No cards placed</div>`);
+  return heroHtml + (cardsHtml || `<div style="font-size:11px;color:#888;padding:4px 0;">No cards placed</div>`);
 }
 
 let _scoreTipEl = null;
