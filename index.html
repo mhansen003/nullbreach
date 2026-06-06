@@ -1513,7 +1513,10 @@ if (_isMobile) {
   const _mbar = document.createElement('div');
   _mbar.id = 'mobileLaunchBar';
   _mbar.style.cssText = 'display:none;position:fixed;bottom:0;left:0;right:0;z-index:99998;padding:10px 16px 20px;background:linear-gradient(transparent,#020208 30%);';
-  _mbar.innerHTML = '<button id="mobileLaunchBtn" onclick="showOpponentPicker()" style="width:100%;padding:16px 0;font-family:\'Orbitron\',monospace;font-size:13px;letter-spacing:4px;border:2px solid #00ffcc;color:#00ffcc;background:transparent;border-radius:4px;cursor:pointer;text-transform:uppercase;white-space:nowrap;">LAUNCH DECK</button>';
+  _mbar.innerHTML = '<div style="display:flex;gap:10px;width:100%;">'
+    + '<button onclick="quickStartGame()" style="flex:1;padding:16px 0;font-family:\'Orbitron\',monospace;font-size:11px;letter-spacing:2px;border:2px solid #ff9900;color:#ff9900;background:#ff990011;border-radius:4px;cursor:pointer;white-space:nowrap;">⚡ QUICK START</button>'
+    + '<button id="mobileLaunchBtn" onclick="showOpponentPicker()" style="flex:2;padding:16px 0;font-family:\'Orbitron\',monospace;font-size:13px;letter-spacing:4px;border:2px solid #00ffcc;color:#00ffcc;background:transparent;border-radius:4px;cursor:pointer;text-transform:uppercase;white-space:nowrap;">LAUNCH DECK ▶</button>'
+    + '</div>';
   document.body.appendChild(_mbar);
   _splashBg.style.backgroundImage = "url('assets/splash.png')";
   _splashBg.style.backgroundSize = 'cover';
