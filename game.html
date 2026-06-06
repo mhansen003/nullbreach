@@ -478,6 +478,12 @@ let G = {};   // game state shorthand
 loadAudioSettings(); // restore vol/mute prefs before game starts
 initRaceTheme();
 initGame();
+logGameEvent('game_start', {
+  player_faction: window.playerRaceId,
+  ai_faction:     window.aiRaceId,
+  difficulty:     window.aiDifficulty || 'balanced',
+  mode:           (typeof _mpRoom !== 'undefined' && _mpRoom) ? 'pvp' : 'pve'
+});
 // Force music start on first user interaction regardless of prior mute state in localStorage
 // (user arriving at game.html is a fresh session — music should play unless they mute in THIS session)
 if (localStorage.getItem('gz_musicMuted') === '1') {

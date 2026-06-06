@@ -91,6 +91,18 @@ function checkWin() {
 
   G.gameOver = true;
 
+  const _evS = computeScores();
+  const _evWon = _evS.pVP > _evS.aVP, _evDraw = _evS.pVP === _evS.aVP;
+  if (typeof logGameEvent === 'function') logGameEvent('game_end', {
+    player_faction: window.playerRaceId,
+    ai_faction:     window.aiRaceId,
+    difficulty:     window.aiDifficulty || 'balanced',
+    mode:           _mpRoom ? 'pvp' : 'pve',
+    outcome:        _evWon ? 'win' : _evDraw ? 'draw' : 'loss',
+    player_vp:      _evS.pVP,
+    ai_vp:          _evS.aVP
+  });
+
   if (_mpRoom) {
 
     fetch(`${_SB_URL}/rest/v1/gz_rooms?id=eq.${_mpRoom}`, {
