@@ -1627,6 +1627,12 @@ button, [onclick] { touch-action: manipulation; }
 /* ── HEIGHT 901–1040px: hide dir-row only, no zoom needed ── */
 @media (max-height: 1040px) and (min-width: 600px) {
   .board-dir-row { display: none; }
+  .board-and-scores { zoom: 0.83; }
+}
+
+/* ── HEIGHT 901–960px: close gap between 1040 and 900 breakpoints ── */
+@media (max-height: 960px) and (min-width: 600px) {
+  .board-and-scores { zoom: 0.76; }
 }
 
 /* ── HEIGHT 801–900px: moderate shrink (830px × 0.74 = 614px) ── */

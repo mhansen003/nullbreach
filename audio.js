@@ -20,9 +20,7 @@ const PLAYLIST = [
 
 ];
 
-let playlistOrder = [];
-
-let trackIdx = 0;
+let _currentTrack = null;
 
 let musicStarted = false;
 
@@ -32,51 +30,26 @@ let _sfxMuted  = false;
 
 let _sfxVol    = 1.0;
 
-function shufflePlaylist() {
-
-  playlistOrder = [...PLAYLIST];
-
-  for (let i = playlistOrder.length - 1; i > 0; i--) {
-
-    const j = Math.floor(Math.random() * (i + 1));
-
-    [playlistOrder[i], playlistOrder[j]] = [playlistOrder[j], playlistOrder[i]];
-
-  }
-
-  trackIdx = 0;
-
-}
-
 function playNextTrack() {
 
   if (musicMuted) return;
 
-  if (trackIdx >= playlistOrder.length) {
-    const lastTrack = playlistOrder[playlistOrder.length - 1];
-    shufflePlaylist();
-    // prevent same song repeating at boundary
-    if (playlistOrder[0] === lastTrack && playlistOrder.length > 1) {
-      const swap = Math.floor(Math.random() * (playlistOrder.length - 1)) + 1;
-      [playlistOrder[0], playlistOrder[swap]] = [playlistOrder[swap], playlistOrder[0]];
-    }
-  }
+  // Pick a random track guaranteed to differ from the last one played
+  const candidates = PLAYLIST.length > 1
+    ? PLAYLIST.filter(t => t !== _currentTrack)
+    : [...PLAYLIST];
+  _currentTrack = candidates[Math.floor(Math.random() * candidates.length)];
 
   const audio = document.getElementById('bgTrack');
 
-  audio.src = playlistOrder[trackIdx++];
+  audio.src = _currentTrack;
   audio.load(); // force browser to fetch new src (required with preload="none")
 
   audio.volume = 0.4;
 
   audio.play().catch(() => {
     // Autoplay blocked — retry on first user interaction
-    const retry = () => {
-      audio.play().catch(() => {});
-      document.removeEventListener('click', retry, true);
-      document.removeEventListener('keydown', retry, true);
-      document.removeEventListener('touchstart', retry, true);
-    };
+    const retry = () => { audio.play().catch(() => {}); };
     document.addEventListener('click',      retry, { once:true, capture:true });
     document.addEventListener('keydown',    retry, { once:true, capture:true });
     document.addEventListener('touchstart', retry, { once:true, capture:true });
@@ -89,8 +62,6 @@ function startGameMusic() {
   if (musicStarted) return;
 
   musicStarted = true;
-
-  shufflePlaylist();
 
   const audio = document.getElementById('bgTrack');
 

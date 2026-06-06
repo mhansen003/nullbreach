@@ -14,7 +14,7 @@ const _ABILITY_SVG_PATHS = {
   cloak:          `<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24M1 1l22 22" stroke="white" stroke-width="2" stroke-linecap="round"/>`,
   sniper:         `<circle cx="12" cy="12" r="7" stroke="white" stroke-width="2"/><circle cx="12" cy="12" r="2" fill="white"/><line x1="12" y1="3" x2="12" y2="7" stroke="white" stroke-width="2"/><line x1="12" y1="17" x2="12" y2="21" stroke="white" stroke-width="2"/><line x1="3" y1="12" x2="7" y2="12" stroke="white" stroke-width="2"/><line x1="17" y1="12" x2="21" y2="12" stroke="white" stroke-width="2"/>`,
   deciding_factor:`<line x1="5" y1="9" x2="19" y2="9" stroke="white" stroke-width="2.5" stroke-linecap="round"/><line x1="5" y1="15" x2="19" y2="15" stroke="white" stroke-width="2.5" stroke-linecap="round"/><line x1="4" y1="19" x2="20" y2="5" stroke="white" stroke-width="2" stroke-linecap="round"/>`,
-  density:        `<text x="12" y="16" text-anchor="middle" fill="white" font-size="11" font-family="monospace" font-weight="bold">x1.5</text>`,
+  density:        `<text x="12" y="16" text-anchor="middle" fill="white" font-size="11" font-family="monospace" font-weight="bold">+2</text>`,
   lamb:           `<circle cx="12" cy="12" r="9" stroke="#ff2222" stroke-width="2.5"/><line x1="5.5" y1="5.5" x2="18.5" y2="18.5" stroke="#ff2222" stroke-width="2.5" stroke-linecap="round"/>`,
   revenge:        `<path d="M18 8A8 8 0 0 0 6 8" stroke="white" stroke-width="2" stroke-linecap="round"/><path d="M6 8l-3-1 1 3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><text x="12" y="20" text-anchor="middle" fill="white" font-size="10" font-weight="700">-VP</text>`,
   birthright:     `<rect x="8" y="2" width="8" height="4" rx="1" stroke="white" stroke-width="1.5"/><rect x="5" y="6" width="14" height="16" rx="1" stroke="white" stroke-width="2"/><line x1="9" y1="11" x2="15" y2="11" stroke="white" stroke-width="1.5" stroke-linecap="round"/><line x1="9" y1="14" x2="15" y2="14" stroke="white" stroke-width="1.5" stroke-linecap="round"/><line x1="9" y1="17" x2="13" y2="17" stroke="white" stroke-width="1.5" stroke-linecap="round"/>`,
@@ -370,6 +370,15 @@ function renderGrid() {
           div.style.transform = 'scale(1.2)';
           div.style.zIndex = '20';
           div.style.transition = 'transform 0.15s ease';
+          // Push adjacent battle chips outward so they stay attached to the card edge
+          document.querySelectorAll(`.bti[data-cr="${r}"][data-cc="${c}"], .bti[data-nr="${r}"][data-nc="${c}"]`)
+            .forEach(chip => {
+              const cdr = +chip.dataset.nr - +chip.dataset.cr;
+              const cdc = +chip.dataset.nc - +chip.dataset.cc;
+              const fromCr = +chip.dataset.cr === r && +chip.dataset.cc === c;
+              chip.style.transform = `translate(${(fromCr ? cdc : -cdc) * 8}px, ${(fromCr ? cdr : -cdr) * 8}px)`;
+              chip.style.transition = 'transform 0.15s ease';
+            });
 
           // Hazard warning overrides card tooltip for penalised cards
 
@@ -402,6 +411,9 @@ function renderGrid() {
           div.style.transform = '';
           div.style.zIndex = '';
           document.querySelectorAll('.cell.future-valid').forEach(el => el.classList.remove('future-valid'));
+          // Reset chip positions
+          document.querySelectorAll(`.bti[data-cr="${r}"][data-cc="${c}"], .bti[data-nr="${r}"][data-nc="${c}"]`)
+            .forEach(chip => { chip.style.transform = ''; chip.style.transition = ''; });
           hideTip();
           clearAbilityZone();
         };

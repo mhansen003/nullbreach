@@ -28,7 +28,7 @@ const ABILITY_TEXT = {
 
   lamb: '5 VP but zero on all battle values. Scores full power if uncontested; zero if any enemy is adjacent.',
 
-  density: 'VP of this card is worth 1.5.',
+  density: 'This card scores +2 bonus VP.',
 
   deciding_factor: 'When a row or column ends in a tie, this card tips the result in your favor.',
 

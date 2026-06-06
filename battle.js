@@ -384,11 +384,11 @@ function computeScores() {
 
       const countsV = bat.v === 'win' || bat.v === 'none';
 
-      // DENSITY: 1.5x power
+      // DENSITY: +2 flat bonus power
 
       const basePower = cell.card.ability === 'density'
 
-        ? Math.ceil(cell.card.power * 1.5) : cell.card.power;
+        ? cell.card.power + 2 : cell.card.power;
 
       // COSMIC HAZARD penalty: -2 per adjacent hazard card
 

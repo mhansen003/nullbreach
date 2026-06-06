@@ -42,9 +42,9 @@ function _buildScoreBreakdown(axis, idx) {
 
     const adjHz   = [{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}]
       .filter(({dr,dc})=>{const rr=r+dr,cc=c+dc;return rr>=0&&rr<5&&cc>=0&&cc<7&&G.grid[rr][cc].owner==='hazard';}).length;
-    const basePow = cell.card.ability === 'density' ? Math.ceil(cell.card.power*1.5) : cell.card.power;
+    const basePow = cell.card.ability === 'density' ? cell.card.power + 2 : cell.card.power;
     const effPow  = Math.max(0, basePow - adjHz*2);
-    if (cell.card.ability === 'density') mods.push(`×1.5`);
+    if (cell.card.ability === 'density') mods.push(`+2 VP`);
     if (adjHz > 0) mods.push(`−${adjHz*2} haz`);
     if (silenced)  mods.push(_silenceReason);
 
@@ -69,11 +69,11 @@ function _buildScoreBreakdown(axis, idx) {
       ${winAvg ? `<img src="${winAvg}" style="width:44px;height:44px;border-radius:50%;object-fit:cover;border:2px solid ${winCol};box-shadow:0 0 12px ${winCol}44;flex-shrink:0;">` : `<div style="width:44px;height:44px;border-radius:50%;background:#ffdd0022;border:2px solid #ffdd0066;display:flex;align-items:center;justify-content:center;font-size:18px;">⚖</div>`}
       <div>
         <div style="font-family:'Orbitron',monospace;font-size:12px;font-weight:700;color:${winCol};letter-spacing:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px;">${winName}</div>
-        <div style="font-size:10px;color:#888;letter-spacing:2px;margin-top:2px;">${result==='tie'?'ALL TIED':'WINS '+label}</div>
+        <div style="font-size:10px;color:#ccd;letter-spacing:2px;margin-top:2px;">${result==='tie'?'ALL TIED':'WINS '+label}</div>
       </div>
       <div style="margin-left:auto;text-align:right;">
-        <div style="font-size:11px;color:#888;letter-spacing:1px;">${pName} <span style="color:${pCol};font-weight:bold;">${tot?.p||0}</span></div>
-        <div style="font-size:11px;color:#888;letter-spacing:1px;margin-top:2px;">${aName} <span style="color:${aCol};font-weight:bold;">${tot?.a||0}</span></div>
+        <div style="font-size:11px;color:#ccd;letter-spacing:1px;">${pName} <span style="color:${pCol};font-weight:bold;">${tot?.p||0}</span></div>
+        <div style="font-size:11px;color:#ccd;letter-spacing:1px;margin-top:2px;">${aName} <span style="color:${aCol};font-weight:bold;">${tot?.a||0}</span></div>
       </div>
     </div>`;
 
@@ -90,7 +90,7 @@ function _buildScoreBreakdown(axis, idx) {
       : `<span style="font-size:9px;color:#aabbcc;letter-spacing:1px;"> · ${(ABILITY_ICONS[e.ability]||{label:e.ability}).label}</span>`) : '';
     const modTag  = e.mods.length ? `<span style="font-size:9px;color:#ffaa44;"> ${e.mods.join(', ')}</span>` : '';
     const _vpDisplay = e.ability === 'density' && e.vp > 0
-      ? `${e.vp} <span style="font-size:9px;color:#aaff44;">×1.5</span>`
+      ? `${e.vp} <span style="font-size:9px;color:#aaff44;">+2</span>`
       : `${e.vp}`;
     return `
       <div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid #0f0f1a;">
