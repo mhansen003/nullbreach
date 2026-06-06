@@ -584,17 +584,19 @@ function renderGrid() {
 
                 const myVal   = card.edges[myE] + (card.edgeMod?.[myE]||0) + surgeB + sweepB;
 
-                const theirVal= adj.card.edges[theirE] + (adj.card.edgeMod?.[theirE]||0);
+                // CLOAK: hide edge value if that specific side hasn't been in battle yet
+                const _theirCloaked = adj.card.ability === 'cloak' && !adj.card.cloakRevealed?.[theirE];
+                const theirVal= _theirCloaked ? null : adj.card.edges[theirE] + (adj.card.edgeMod?.[theirE]||0);
 
-                const pierceTie = card.ability === 'pierce' && myVal === theirVal;
+                const pierceTie = !_theirCloaked && card.ability === 'pierce' && myVal === theirVal;
 
-                const result  = (myVal > theirVal || pierceTie) ? 'win' : myVal < theirVal ? 'lose' : 'tie';
+                const result  = _theirCloaked ? 'unknown' : (myVal > theirVal || pierceTie) ? 'win' : myVal < theirVal ? 'lose' : 'tie';
 
                 const adjEl   = document.querySelector(`.cell[data-r="${nr}"][data-c="${nc}"]`);
 
                 if (!adjEl) return;
 
-                adjEl.classList.add(`bpv-${result}`);
+                if (result !== 'unknown') adjEl.classList.add(`bpv-${result}`);
 
                 // Inject floating badge showing edge values + result
 
@@ -602,7 +604,7 @@ function renderGrid() {
 
                 badge.dataset.bpv = '1';
 
-                const col = result==='win'?'#00ff88':result==='lose'?'#ff3333':'#ffdd00';
+                const col = result==='win'?'#00ff88':result==='lose'?'#ff3333':result==='unknown'?'#8888ff':'#ffdd00';
 
                 badge.style.cssText = `position:absolute;z-index:12;pointer-events:none;
 
@@ -626,9 +628,9 @@ function renderGrid() {
 
                 badge.innerHTML = `
 
-                  <span style="font-size:10px;font-weight:bold;color:${labelCol};letter-spacing:1px;">${result.toUpperCase()}</span>
+                  <span style="font-size:10px;font-weight:bold;color:${labelCol};letter-spacing:1px;">${result==='unknown'?'??':result.toUpperCase()}</span>
 
-                  <span style="font-size:8px;color:${col}bb;">${myVal}v${theirVal}</span>`;
+                  <span style="font-size:8px;color:${col}bb;">${myVal}v${_theirCloaked?'?':theirVal}</span>`;
 
                 adjEl.appendChild(badge);
 
