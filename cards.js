@@ -54,7 +54,7 @@ const BROOD_CARDS = [
 
   { id:'br_t3c', name:'LARVAE STRIKE',   tier:'III',tierLabel:'SKIMMER',         zone:'trident',      edges:{n:5,s:5,e:6,w:5}, power:2, ability:'laser_focus',         abilityText:'No special ability',    art:'assets/cards/brood/skimmer.png' },
 
-  { id:'br_t4',  name:'THE SOVEREIGN',   tier:'IV', tierLabel:'SOVEREIGN',       zone:'dreadnaught',edges:{n:8,s:6,e:7,w:7}, power:4, ability:'rush',   abilityText:'No special ability', art:'assets/cards/brood/the-sovereign.png' },
+  { id:'br_t4',  name:'THE SOVEREIGN',   tier:'IV', tierLabel:'SOVEREIGN',       zone:'dreadnaught',edges:{n:8,s:6,e:7,w:7}, power:4, ability:'rush',   abilityText:'No special ability', art:'assets/cards/brood/t4.png' },
 
   // Extra cards
 
