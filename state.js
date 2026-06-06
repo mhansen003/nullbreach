@@ -16,6 +16,8 @@ function loadAudioSettings() {
 
 function initGame() {
 
+  if (typeof achievOnGameStart === 'function') achievOnGameStart();
+
   const _hsfx=document.getElementById('hoverSfx'); if(_hsfx)_hsfx.load();
 
   G = {

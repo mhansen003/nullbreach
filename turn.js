@@ -93,6 +93,22 @@ function checkWin() {
 
   const _evS = computeScores();
   const _evWon = _evS.pVP > _evS.aVP, _evDraw = _evS.pVP === _evS.aVP;
+
+  // ── Achievement check ──────────────────────────────────────────────────────
+  const _newAchievs = typeof checkAchievements === 'function'
+    ? checkAchievements({
+        outcome: _evWon ? 'win' : _evDraw ? 'draw' : 'loss',
+        pVP: _evS.pVP, aVP: _evS.aVP,
+        pWins: _evS.pWins, aWins: _evS.aWins,
+        playerFaction: window.playerRaceId,
+        aiFaction: window.aiRaceId,
+        grid: G.grid,
+        rowResults: _evS.rowResults,
+        colResults: _evS.colResults,
+        dfRows: _evS.dfRows, dfCols: _evS.dfCols,
+      })
+    : [];
+
   if (typeof logGameEvent === 'function') logGameEvent('game_end', {
     player_faction: window.playerRaceId,
     ai_faction:     window.aiRaceId,
@@ -211,6 +227,19 @@ function checkWin() {
         ${s.pWins} ${s.pWins===1?"sector":"sectors"} won &nbsp;·&nbsp; ${s.aWins} to opponent
 
       </div>
+
+      ${_newAchievs.length > 0 ? `
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px;background:#0a0a1a;border:1px solid #ffdd0033;border-radius:8px;padding:10px 18px;width:100%;box-sizing:border-box;">
+        <div style="font-family:'Orbitron',monospace;font-size:9px;letter-spacing:3px;color:#ffdd00;text-shadow:0 0 10px #ffdd0055;">✦ ${_newAchievs.length} NEW ACHIEVEMENT${_newAchievs.length>1?'S':''} UNLOCKED ✦</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center;">
+          ${_newAchievs.map(id => {
+            const a = (typeof ACHIEVEMENTS !== 'undefined' && ACHIEVEMENTS.find(x=>x.id===id)) || {name:id};
+            return `<div title="${a.name}" style="position:relative;">
+              <img src="badges/${id}.png" style="width:36px;height:36px;border-radius:6px;border:1px solid #ffdd0055;box-shadow:0 0 8px #ffdd0033;" onerror="this.style.display='none'">
+            </div>`;
+          }).join('')}
+        </div>
+      </div>` : ''}
 
       <div style="display:flex;gap:14px;margin-top:4px;">
 

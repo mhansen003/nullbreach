@@ -69,7 +69,7 @@ const _LB_FACTIONS = {
 };
 const _LB_ORDER = ['terran','brood','crystallis','mycos','veil','entropy','void','gas','lithos','quantum','choir'];
 
-let _lbActiveFaction = 'terran'; // which player faction tab is active
+let _lbActiveFaction = 'terran'; // which player faction tab is active; 'achievements' for badge gallery
 
 // ── Storage ───────────────────────────────────────────────────────────────────
 function _lbLoad() {
@@ -242,6 +242,8 @@ function _lbRenderModal(data) {
   }).join('');
 
   // Faction tab pills
+  const _achivCount = typeof getUnlockedAchievements === 'function' ? getUnlockedAchievements().size : 0;
+  const _achivTotal = typeof ACHIEVEMENTS !== 'undefined' ? ACHIEVEMENTS.length : 80;
   const tabsHtml = _LB_ORDER.map(id => {
     const f      = _LB_FACTIONS[id];
     const active = id === pId;
@@ -261,7 +263,17 @@ function _lbRenderModal(data) {
         <img src="${f.img}" class="${active?'lb-tab-img-a':'lb-tab-img'}" style="width:${active?'38px':'30px'};height:${active?'38px':'30px'};border-radius:50%;object-fit:cover;object-position:top;border:2px solid ${active?f.color:f.color+'44'};transition:all 0.15s;${active?`box-shadow:0 0 14px ${f.color}55;`:''}">
         ${recs > 0 ? `<div style="font-size:8px;color:${active?f.color:'#aabbcc'};font-family:'Courier New',monospace;letter-spacing:1px;">${recs}/10</div>` : `<div style="font-size:8px;color:#445566;font-family:'Courier New',monospace;">-</div>`}
       </div>`;
-  }).join('');
+  }).join('') + `
+    <div onclick="_lbSetTab('achievements')" class="lb-tab" style="
+      display:flex;flex-direction:column;align-items:center;gap:4px;
+      padding:8px 10px;cursor:pointer;border-radius:8px;flex-shrink:0;
+      transition:all 0.15s;border-bottom:2px solid transparent;"
+    onmouseenter="this.style.background='#ffdd0011'"
+    onmouseleave="this.style.background='transparent'"
+    data-id="achievements">
+      <div style="width:30px;height:30px;border-radius:50%;background:#ffdd0011;border:2px solid #ffdd0044;display:flex;align-items:center;justify-content:center;font-size:14px;transition:all 0.15s;">✦</div>
+      <div style="font-size:8px;color:#ffdd0088;font-family:'Courier New',monospace;letter-spacing:1px;">${_achivCount}/${_achivTotal}</div>
+    </div>`;
 
   const modal = document.createElement('div');
   modal.id = 'lbModal';
@@ -390,7 +402,235 @@ function _lbRenderModal(data) {
 
 function _lbSetTab(id) {
   _lbActiveFaction = id;
-  _lbRenderModal();
+  if (id === 'achievements') {
+    _lbRenderAchievementsPanel();
+  } else {
+    _lbRenderModal();
+  }
+}
+
+// ── Achievements panel (replaces inner content without full re-render) ─────────
+function _lbRenderAchievementsPanel() {
+  // Full re-render with achievements view active
+  document.getElementById('lbModal')?.remove();
+  const unlocked = typeof getUnlockedAchievements === 'function' ? getUnlockedAchievements() : new Set();
+  const allDefs   = typeof ACHIEVEMENTS !== 'undefined' ? ACHIEVEMENTS : [];
+  const total     = allDefs.length;
+  const count     = unlocked.size;
+  const sessionNew = new Set(window._achievSessionUnlocks || []);
+
+  // Tab pills (faction tabs + achievements tab)
+  const data = _lbLoad();
+  const tabsHtml = _LB_ORDER.map(id => {
+    const f = _LB_FACTIONS[id];
+    const recs = _LB_ORDER.filter(a=>a!==id&&data[_lbKey(id,a)]).length;
+    return `
+      <div onclick="_lbSetTab('${id}')" class="lb-tab" style="
+        display:flex;flex-direction:column;align-items:center;gap:4px;
+        padding:8px 10px;cursor:pointer;border-radius:8px;flex-shrink:0;
+        transition:all 0.15s;border-bottom:2px solid transparent;"
+      onmouseenter="this.style.background='${f.color}11'"
+      onmouseleave="this.style.background='transparent'"
+      data-id="${id}">
+        <img src="${f.img}" class="lb-tab-img" style="width:30px;height:30px;border-radius:50%;object-fit:cover;object-position:top;border:2px solid ${f.color}44;transition:all 0.15s;">
+        ${recs > 0 ? `<div style="font-size:8px;color:#aabbcc;font-family:'Courier New',monospace;letter-spacing:1px;">${recs}/10</div>` : `<div style="font-size:8px;color:#445566;font-family:'Courier New',monospace;">-</div>`}
+      </div>`;
+  }).join('') + `
+    <div onclick="_lbSetTab('achievements')" class="lb-tab" style="
+      display:flex;flex-direction:column;align-items:center;gap:4px;
+      padding:8px 10px;cursor:pointer;border-radius:8px;flex-shrink:0;
+      transition:all 0.15s;background:#ffdd0022;border-bottom:2px solid #ffdd00;"
+    data-id="achievements">
+      <div style="width:30px;height:30px;border-radius:50%;background:#ffdd0022;border:2px solid #ffdd00;display:flex;align-items:center;justify-content:center;font-size:16px;">✦</div>
+      <div style="font-size:8px;color:#ffdd00;font-family:'Courier New',monospace;letter-spacing:1px;">${count}/${total}</div>
+    </div>`;
+
+  // Badge grid
+  const badgesHtml = allDefs.map(a => {
+    const isUnlocked = unlocked.has(a.id);
+    const isNew = sessionNew.has(a.id);
+    const tooltipText = isUnlocked
+      ? `<b>${a.name}</b><br>${a.desc}`
+      : `<b>${a.name}</b><br>HOW TO UNLOCK:<br>${a.desc}`;
+    return `
+      <div class="lb-badge-cell" data-id="${a.id}"
+        style="position:relative;width:56px;height:56px;flex-shrink:0;cursor:pointer;"
+        onmouseenter="_lbShowBadgeTip(this,'${a.id}',${isUnlocked})"
+        onmouseleave="_lbHideBadgeTip()"
+        onclick="_lbBadgeClick(this,'${a.id}',${isUnlocked},event)">
+        <img src="badges/${a.id}.png"
+          style="width:100%;height:100%;border-radius:8px;object-fit:cover;
+            ${isUnlocked
+              ? `border:2px solid ${isNew ? '#ffdd00' : '#00ffcc44'};
+                 box-shadow:${isNew ? '0 0 12px #ffdd0077,0 0 24px #ffdd0033' : '0 0 8px #00ffcc33'};
+                 ${isNew ? 'animation:lbBadgePulse 1.5s ease-in-out infinite;' : ''}`
+              : 'filter:grayscale(1) brightness(0.35);border:2px solid #1a1a28;'}"
+          onerror="this.style.background='#0a0a18';this.style.content='';this.alt='${a.id}'">
+      </div>`;
+  }).join('');
+
+  const modal = document.createElement('div');
+  modal.id = 'lbModal';
+  modal.style.cssText = 'position:fixed;inset:0;z-index:99990;display:flex;align-items:center;justify-content:center;background:#000000bb;backdrop-filter:blur(8px);padding:20px;';
+
+  modal.innerHTML = `<div id="lbInner" style="display:flex;flex-direction:column;width:100%;max-width:780px;height:100%;max-height:90vh;background:#020208;border:1px solid #1a1a2a;border-radius:14px;overflow:hidden;box-shadow:0 24px 80px #000000cc;">
+
+    <style>
+      #lbModal ::-webkit-scrollbar{width:4px;height:4px}
+      #lbModal ::-webkit-scrollbar-track{background:transparent}
+      #lbModal ::-webkit-scrollbar-thumb{background:#1a1a38;border-radius:2px}
+      @keyframes lbFadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+      @keyframes lbBadgePulse{0%,100%{box-shadow:0 0 12px #ffdd0077,0 0 24px #ffdd0033}50%{box-shadow:0 0 20px #ffdd00bb,0 0 40px #ffdd0066}}
+      @media(max-width:600px){
+        #lbModal{padding:8px!important}
+        #lbInner{border-radius:10px!important}
+        .lb-tab{padding:5px 4px!important}
+        .lb-tab-img{width:22px!important;height:22px!important}
+        .lb-badge-cell{width:44px!important;height:44px!important}
+        .lb-badge-grid{gap:8px!important;padding:12px!important;justify-content:center!important}
+      }
+      @media(max-width:380px){
+        .lb-badge-cell{width:38px!important;height:38px!important}
+        .lb-badge-grid{gap:6px!important;padding:8px!important}
+      }
+    </style>
+
+    <!-- Banner -->
+    <div style="position:relative;flex-shrink:0;height:clamp(110px,15vw,190px);overflow:hidden;">
+      <img src="assets/leaderboard-banner.png" style="width:100%;height:100%;object-fit:cover;object-position:center 35%;display:block;">
+      <div style="position:absolute;inset:0;background:linear-gradient(transparent 20%,#020208f2 100%);"></div>
+      <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:14px;">
+        <div style="font-family:'Orbitron',monospace;font-size:clamp(18px,3vw,34px);font-weight:900;letter-spacing:6px;color:#fff;text-shadow:0 0 40px #ffdd0077,0 2px 12px #000;">HALL OF CHAMPIONS</div>
+        <div style="font-family:'Courier New',monospace;font-size:9px;letter-spacing:5px;color:#ffdd0088;margin-top:4px;">GALACTIC ZERO · FACTION RECORDS</div>
+      </div>
+      <button onclick="hideLeaderboard()" style="position:absolute;top:10px;right:12px;background:#000000bb;border:1px solid #ffffff44;border-radius:50%;width:34px;height:34px;cursor:pointer;color:#fff;font-size:15px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;line-height:1;"
+        onmouseenter="this.style.background='#ffffff22'"
+        onmouseleave="this.style.background='#000000bb'">✕</button>
+    </div>
+
+    <!-- Tabs -->
+    <div style="flex-shrink:0;border-bottom:1px solid #0d0d1a;background:#030310;overflow-x:auto;scrollbar-width:none;">
+      <div style="display:flex;gap:2px;padding:6px 14px 0;min-width:max-content;">
+        ${tabsHtml}
+      </div>
+    </div>
+
+    <!-- Achievements header -->
+    <div style="flex-shrink:0;padding:14px 24px 12px;background:linear-gradient(90deg,#ffdd0014 0%,transparent 60%);border-bottom:1px solid #ffdd0022;display:flex;align-items:center;gap:16px;">
+      <div style="font-size:32px;line-height:1;">✦</div>
+      <div style="flex:1;">
+        <div style="font-family:'Orbitron',monospace;font-size:14px;font-weight:900;letter-spacing:3px;color:#ffdd00;text-shadow:0 0 16px #ffdd0055;">ACHIEVEMENTS</div>
+        <div style="font-family:'Courier New',monospace;font-size:10px;letter-spacing:2px;color:#8899bb;margin-top:3px;">GALACTIC ZERO · UNLOCK HISTORY</div>
+      </div>
+      <div style="flex-shrink:0;text-align:right;">
+        <div style="font-family:'Courier New',monospace;font-size:9px;letter-spacing:2px;color:#778899;">UNLOCKED</div>
+        <div style="font-family:'Orbitron',monospace;font-size:18px;font-weight:700;color:${count>0?'#ffdd00':'#aabbcc'};${count>0?'text-shadow:0 0 10px #ffdd0044;':''}">${count}<span style="font-size:10px;color:#778899;"> /${total}</span></div>
+      </div>
+    </div>
+
+    <!-- Badge grid -->
+    <div style="flex:1;overflow-y:auto;overflow-x:hidden;animation:lbFadeIn 0.2s ease;">
+      <div class="lb-badge-grid" style="display:flex;flex-wrap:wrap;gap:10px;padding:16px 20px;justify-content:flex-start;">
+        ${badgesHtml}
+      </div>
+    </div>
+
+    <!-- Tooltip container (positioned absolutely) -->
+    <div id="lbBadgeTip" style="display:none;position:fixed;z-index:99999;background:#0a0a18ee;border:1px solid #ffdd0044;border-radius:8px;padding:8px 12px;font-family:'Courier New',monospace;font-size:11px;color:#eee;max-width:200px;line-height:1.5;pointer-events:none;box-shadow:0 4px 20px #000c;"></div>
+
+    <!-- Footer -->
+    <div style="flex-shrink:0;padding:10px 20px;border-top:1px solid #0a0a14;background:#020208;display:flex;align-items:center;justify-content:flex-end;">
+      <button onclick="hideLeaderboard()" style="padding:10px 28px;border-radius:6px;cursor:pointer;background:transparent;border:1px solid #334466;color:#aabbdd;font-family:'Orbitron',monospace;font-size:11px;letter-spacing:2px;transition:all 0.2s;"
+        onmouseenter="this.style.borderColor='#8855ff';this.style.color='#fff';this.style.background='#8855ff22'"
+        onmouseleave="this.style.borderColor='#334466';this.style.color='#aabbdd';this.style.background='transparent'">✕ CLOSE</button>
+    </div>
+  </div>`;
+
+  document.body.appendChild(modal);
+
+  const _lb = document.getElementById('mobileLaunchBar') || document.getElementById('desktopLaunchBar');
+  if (_lb) _lb.style.display = 'none';
+
+  // Scroll achievements tab into view
+  setTimeout(() => {
+    const activeTab = modal.querySelector('[data-id="achievements"]');
+    if (activeTab) activeTab.scrollIntoView({ behavior: 'instant', inline: 'center', block: 'nearest' });
+  }, 30);
+}
+
+function _lbBadgeTipContent(id, isUnlocked) {
+  const allDefs = typeof ACHIEVEMENTS !== 'undefined' ? ACHIEVEMENTS : [];
+  const a = allDefs.find(x => x.id === id);
+  if (!a) return '';
+  const isHidden = a.id.startsWith('hidden') && !isUnlocked;
+  return isUnlocked
+    ? `<b style="color:#ffdd00;font-size:12px;">${a.name}</b><br><span style="color:#aabbcc;font-size:10px;">${a.desc}</span>`
+    : `<b style="color:#667788;font-size:12px;">${isHidden ? '???' : a.name}</b><br><span style="color:#445566;font-size:10px;">HOW TO UNLOCK:<br>${isHidden ? '???' : a.desc}</span>`;
+}
+
+function _lbPositionTip(tip, el) {
+  const rect = el.getBoundingClientRect();
+  const margin = 8;
+  tip.style.display = 'block';
+  tip.style.visibility = 'hidden';
+  // Measure after display
+  requestAnimationFrame(() => {
+    const tw = tip.offsetWidth || 200;
+    const th = tip.offsetHeight || 60;
+    let left = rect.left + (rect.width / 2) - tw / 2;
+    if (left < margin) left = margin;
+    if (left + tw > window.innerWidth - margin) left = window.innerWidth - margin - tw;
+    const topAbove = rect.top - th - 6;
+    const topBelow = rect.bottom + 6;
+    tip.style.left = left + 'px';
+    tip.style.top = (topAbove < margin ? topBelow : topAbove) + 'px';
+    tip.style.visibility = 'visible';
+  });
+}
+
+function _lbShowBadgeTip(el, id, isUnlocked) {
+  if ('ontouchstart' in window) return; // handled by click on touch devices
+  const tip = document.getElementById('lbBadgeTip');
+  if (!tip) return;
+  tip.innerHTML = _lbBadgeTipContent(id, isUnlocked);
+  _lbPositionTip(tip, el);
+}
+
+function _lbHideBadgeTip() {
+  const tip = document.getElementById('lbBadgeTip');
+  if (tip && !tip._pinned) tip.style.display = 'none';
+}
+
+let _lbTipPinnedId = null;
+function _lbBadgeClick(el, id, isUnlocked, evt) {
+  evt && evt.stopPropagation();
+  const tip = document.getElementById('lbBadgeTip');
+  if (!tip) return;
+  if (_lbTipPinnedId === id) {
+    // Second tap on same badge: dismiss
+    tip.style.display = 'none';
+    tip._pinned = false;
+    _lbTipPinnedId = null;
+    return;
+  }
+  tip.innerHTML = _lbBadgeTipContent(id, isUnlocked);
+  tip._pinned = true;
+  _lbTipPinnedId = id;
+  _lbPositionTip(tip, el);
+  // Dismiss if user taps elsewhere
+  setTimeout(() => {
+    const dismiss = (e) => {
+      if (!el.contains(e.target)) {
+        tip.style.display = 'none';
+        tip._pinned = false;
+        _lbTipPinnedId = null;
+        document.removeEventListener('click', dismiss, { capture: true });
+        document.removeEventListener('touchstart', dismiss, { capture: true });
+      }
+    };
+    document.addEventListener('click', dismiss, { capture: true, once: true });
+    document.addEventListener('touchstart', dismiss, { capture: true, once: true });
+  }, 0);
 }
 
 function hideLeaderboard() {
