@@ -28,7 +28,7 @@ function _buildScoreBreakdown(axis, idx) {
     let silenced = false;
     let _silenceReason = 'silenced';
 
-    if (cell.card.sniped || cell.card.stonewall_victim) silenced = true;
+    if (cell.card._silenced || cell.card.stonewalled || cell.card.stonewall_victim) silenced = true;
 
     // LAMB: 0 VP if any enemy is adjacent (mirrors battle.js computeScores logic)
     if (!silenced && cell.card.ability === 'lamb') {
@@ -43,9 +43,11 @@ function _buildScoreBreakdown(axis, idx) {
     const adjHz   = [{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}]
       .filter(({dr,dc})=>{const rr=r+dr,cc=c+dc;return rr>=0&&rr<5&&cc>=0&&cc<7&&G.grid[rr][cc].owner==='hazard';}).length;
     const basePow = cell.card.ability === 'density' ? cell.card.power + 2 : cell.card.power;
-    const effPow  = Math.max(0, basePow - adjHz*2);
+    const _revPen = Math.min(cell.card._revengePenalty || 0, Math.max(0, basePow - 1));
+    const effPow  = Math.max(0, basePow - adjHz*2 - _revPen);
     if (cell.card.ability === 'density') mods.push(`+2 VP`);
     if (adjHz > 0) mods.push(`−${adjHz*2} haz`);
+    if (_revPen > 0) mods.push(`−${_revPen} revenge`);
     if (silenced)  mods.push(_silenceReason);
 
     const counts = !silenced && (axBat === 'win' || axBat === 'none');
