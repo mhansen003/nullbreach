@@ -51,6 +51,8 @@ function placeCard(card, r, c, owner) {
 
   checkWin();
 
+  if (typeof demoTrackMove === 'function') demoTrackMove(owner);
+
 }
 
 function checkWin() {
@@ -79,7 +81,11 @@ function checkWin() {
 
     const allDone = G.playerHand.every(c=>c.used) && G.aiHand.every(c=>c.used);
 
-    if (!allDone) return;
+    if (!allDone) {
+      // Deadlock: unused cards exist but neither side has valid placements
+      if (hasAnyMoves('player') || hasAnyMoves('ai')) return;
+      // Neither can move — fall through to show result
+    }
 
   }
 

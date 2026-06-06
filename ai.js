@@ -254,9 +254,12 @@ function aiTurn() {
 
   } else if (!G.gameOver) {
 
-    G.turn = 'player';
-
-    renderScoreHeader();
+    // AI has cards but no valid placements — check for game end before handing turn back
+    checkWin();
+    if (!G.gameOver) {
+      G.turn = 'player';
+      renderScoreHeader();
+    }
 
   }
 
