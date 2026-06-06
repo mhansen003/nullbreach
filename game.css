@@ -1624,10 +1624,14 @@ button, [onclick] { touch-action: manipulation; }
 
 /* ── SHORT DESKTOP VIEWPORT: scale hand deck to fit within 100dvh ── */
 
-/* ── HEIGHT 801–900px: mild shrink ── */
-@media (max-height: 900px) and (min-width: 600px) {
+/* ── HEIGHT 901–1040px: hide dir-row only, no zoom needed ── */
+@media (max-height: 1040px) and (min-width: 600px) {
   .board-dir-row { display: none; }
-  .board-and-scores { zoom: 0.82; }
+}
+
+/* ── HEIGHT 801–900px: moderate shrink (830px × 0.74 = 614px) ── */
+@media (max-height: 900px) and (min-width: 600px) {
+  .board-and-scores { zoom: 0.74; }
   .player-area { padding: 2px 14px 4px; gap: 3px; }
   .hand-cards  { gap: 8px; padding: 6px 4px 4px; }
   .hand-card   { width: 106px; height: 130px; }
