@@ -248,6 +248,16 @@ function renderHand() {
 
   }
 
+  // Returns card dims matching the CSS hand-card breakpoints
+  function _stackCardDims() {
+    const h = window.innerHeight;
+    if (h <= 580) return { w: 62, h: 78 };
+    if (h <= 700) return { w: 78, h: 96 };
+    if (h <= 800) return { w: 94, h: 116 };
+    if (h <= 900) return { w: 106, h: 130 };
+    return { w: 122, h: 148 };
+  }
+
   // Build a collapsed stack thumbnail for a tier
 
   function buildStack(tier, cards, locked) {
@@ -258,15 +268,17 @@ function renderHand() {
 
     const canOpen = cards.length > 0;
 
+    const dims    = _stackCardDims();
+
     // Shadow cards: 1 shadow for 2 cards, 2 shadows for 3+ cards
 
     const shadows = Math.min(Math.max(cards.length - 1, 0), 2);
 
-    const stackW  = 122 + shadows * 9; // extra width for shadow peekout
+    const stackW  = dims.w + shadows * 9; // extra width for shadow peekout
 
     var wrap = document.createElement('div');
 
-    wrap.style.cssText = 'position:relative;width:'+stackW+'px;height:148px;flex-shrink:0;cursor:'+(canOpen?'pointer':'default')+';transition:transform 0.15s;';
+    wrap.style.cssText = 'position:relative;width:'+stackW+'px;height:'+dims.h+'px;flex-shrink:0;cursor:'+(canOpen?'pointer':'default')+';transition:transform 0.15s;';
 
     // Shadow cards peek out to the RIGHT: creates physical stack look
 
@@ -274,7 +286,7 @@ function renderHand() {
 
       var sh = document.createElement('div');
 
-      sh.style.cssText = 'position:absolute;top:'+(i*3)+'px;left:'+(i*9)+'px;width:122px;height:148px;border-radius:6px;background:#0c0c1e;border:1px solid '+tCol+'44;box-shadow:inset 0 0 6px #00000088;';
+      sh.style.cssText = 'position:absolute;top:'+(i*3)+'px;left:'+(i*9)+'px;width:'+dims.w+'px;height:'+dims.h+'px;border-radius:6px;background:#0c0c1e;border:1px solid '+tCol+'44;box-shadow:inset 0 0 6px #00000088;';
 
       wrap.appendChild(sh);
 
@@ -286,7 +298,7 @@ function renderHand() {
 
     var _fc = factionC || '#00ffcc';
 
-    front.style.cssText = 'position:absolute;top:0;left:0;width:122px;height:148px;border-radius:6px;background-color:#10101e;background-size:cover;background-position:center top;border:1px solid '+(canOpen?_fc+'55':'#1a1a28')+';box-shadow:'+(canOpen?'0 0 10px '+_fc+'22':'none')+';overflow:hidden;transition:border-color 0.2s,box-shadow 0.2s,transform 0.15s;';
+    front.style.cssText = 'position:absolute;top:0;left:0;width:'+dims.w+'px;height:'+dims.h+'px;border-radius:6px;background-color:#10101e;background-size:cover;background-position:center top;border:1px solid '+(canOpen?_fc+'55':'#1a1a28')+';box-shadow:'+(canOpen?'0 0 10px '+_fc+'22':'none')+';overflow:hidden;transition:border-color 0.2s,box-shadow 0.2s,transform 0.15s;';
 
     if (cards[0] && cards[0].art) {
 
@@ -319,7 +331,9 @@ function renderHand() {
     // Stack count: centered at icon position, yellow VP-sized text
     if (cards.length > 1) {
       var countPill = document.createElement('div');
-      countPill.style.cssText = 'position:absolute;bottom:36px;left:50%;transform:translateX(-50%);font-size:26px;font-weight:900;color:#ffdd00;font-family:\'Courier New\',monospace;z-index:10;white-space:nowrap;pointer-events:none;text-shadow:0 0 10px #ffdd0088,0 2px 6px #000;line-height:1;';
+      var _pillFontSz = Math.max(14, Math.round(dims.h * 0.18));
+      var _pillBottom = Math.round(dims.h * 0.25);
+      countPill.style.cssText = 'position:absolute;bottom:'+_pillBottom+'px;left:50%;transform:translateX(-50%);font-size:'+_pillFontSz+'px;font-weight:900;color:#ffdd00;font-family:\'Courier New\',monospace;z-index:10;white-space:nowrap;pointer-events:none;text-shadow:0 0 10px #ffdd0088,0 2px 6px #000;line-height:1;';
       countPill.textContent = '×' + cards.length;
       wrap.appendChild(countPill);
     }

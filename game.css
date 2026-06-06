@@ -202,7 +202,7 @@ body {
 
 /* MAIN AREA */
 
-.main-area { flex: 1; display: flex; overflow: visible; min-height: 0; }
+.main-area { flex: 1; display: flex; overflow: visible; min-height: 0; position: relative; z-index: 1; background: #06060e; }
 
 /* BOARD WRAP */
 
