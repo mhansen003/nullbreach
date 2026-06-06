@@ -184,7 +184,7 @@ function aiTurn() {
 
     for (const {r,c} of getValidPlacements('ai', card)) {
 
-      let score = card.power;
+      let score = 0;
 
       const s = computeScores();
 
@@ -232,9 +232,9 @@ function aiTurn() {
 
       }
 
-      const _noise = _diff==='passive' ? Math.random()*4.0 : (_diff==='aggressive' ? Math.random()*0.2 : Math.random()*0.5);
+      const _noise = _diff==='passive' ? Math.random()*5.0 : (_diff==='aggressive' ? Math.random()*1.5 : Math.random()*2.5);
 
-      score += r * 0.2 + (2.5-Math.abs(2.5-c)) * 0.1 + _noise;
+      score += r * 0.2 + (2.5-Math.abs(2.5-c)) * 0.1 + _noise + card.power * 0.25;
 
       // Passive: occasionally force a random suboptimal pick
 
