@@ -26,15 +26,27 @@ function _buildScoreBreakdown(axis, idx) {
     const axBat = axis === 'row' ? bat.h : bat.v;
     const mods  = [];
     let silenced = false;
+    let _silenceReason = 'silenced';
 
     if (cell.card.sniped || cell.card.stonewall_victim) silenced = true;
+
+    // LAMB: 0 VP if any enemy is adjacent (mirrors battle.js computeScores logic)
+    if (!silenced && cell.card.ability === 'lamb') {
+      const _dirs = [{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}];
+      const _hasAdjEnemy = _dirs.some(({dr,dc}) => {
+        const rr=r+dr, cc=c+dc;
+        return rr>=0&&rr<5&&cc>=0&&cc<7&&G.grid[rr][cc].card&&G.grid[rr][cc].owner!==cell.owner&&G.grid[rr][cc].owner!=='hazard';
+      });
+      if (_hasAdjEnemy) { silenced = true; _silenceReason = '🚫 enemy adjacent'; }
+    }
+
     const adjHz   = [{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}]
       .filter(({dr,dc})=>{const rr=r+dr,cc=c+dc;return rr>=0&&rr<5&&cc>=0&&cc<7&&G.grid[rr][cc].owner==='hazard';}).length;
     const basePow = cell.card.ability === 'density' ? Math.ceil(cell.card.power*1.5) : cell.card.power;
     const effPow  = Math.max(0, basePow - adjHz*2);
     if (cell.card.ability === 'density') mods.push(`×1.5`);
     if (adjHz > 0) mods.push(`−${adjHz*2} haz`);
-    if (silenced)  mods.push('silenced');
+    if (silenced)  mods.push(_silenceReason);
 
     const counts = !silenced && (axBat === 'win' || axBat === 'none');
     const vp = counts ? effPow : 0;
@@ -73,7 +85,9 @@ function _buildScoreBreakdown(axis, idx) {
     if (e.hazard) return `<div style="display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid #0f0f1a;opacity:0.6;"><span style="color:#ff8800;font-size:11px;">⚠ HAZARD</span></div>`;
     const icon = batIcon(e.axBat);
     const icol = batTxt(e.axBat);
-    const abilTag = e.ability ? `<span style="font-size:9px;color:#aabbcc;letter-spacing:1px;"> · ${(ABILITY_ICONS[e.ability]||{label:e.ability}).label}</span>` : '';
+    const abilTag = e.ability ? (e.silenced
+      ? `<span style="font-size:9px;color:#555;letter-spacing:1px;text-decoration:line-through;"> · ${(ABILITY_ICONS[e.ability]||{label:e.ability}).label}</span>`
+      : `<span style="font-size:9px;color:#aabbcc;letter-spacing:1px;"> · ${(ABILITY_ICONS[e.ability]||{label:e.ability}).label}</span>`) : '';
     const modTag  = e.mods.length ? `<span style="font-size:9px;color:#ffaa44;"> ${e.mods.join(', ')}</span>` : '';
     const _vpDisplay = e.ability === 'density' && e.vp > 0
       ? `${e.vp} <span style="font-size:9px;color:#aaff44;">×1.5</span>`
