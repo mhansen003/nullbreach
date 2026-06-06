@@ -406,9 +406,10 @@ function computeScores() {
         if (_hasAdjEnemy) continue;
       }
 
-      // REVENGE: cap penalty to basePower-1 so floor of 1 is always kept
+      // REVENGE: cap penalty so revenge alone can't zero a card (floor 1 after revenge only)
       const _revPen = Math.min(cell.card._revengePenalty || 0, Math.max(0, basePower - 1));
-      const effPower = Math.max(1, basePower - _adjHazards * 2 - _revPen);
+      // Hazard CAN zero a card out — use floor 0 so tooltip and score agree
+      const effPower = Math.max(0, basePower - _adjHazards * 2 - _revPen);
 
       if (countsH) { if (cell.owner==='player') rows[r].p += effPower; else rows[r].a += effPower; }
 
