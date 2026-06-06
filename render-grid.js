@@ -392,7 +392,7 @@ function renderGrid() {
 
           }
 
-          if (cell.owner === 'player') showCardZoneInfluence(cell.card, r, c);
+          showCardZoneInfluence(cell.card, r, c, cell.owner);
 
           // ability zone already shown via showAbilityZone (dotted overlays) — no future-valid needed for placed cards
 
@@ -623,7 +623,7 @@ function renderGrid() {
               });
 
               // Zone influence: show dotted overlay from this candidate position
-              showCardZoneInfluence(G.selectedCard, _pRow, _pCol);
+              showCardZoneInfluence(G.selectedCard, _pRow, _pCol, 'player');
 
               // Hazard adjacency warning
 

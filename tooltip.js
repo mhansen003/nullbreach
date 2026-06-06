@@ -80,13 +80,17 @@ function clearAbilityZone() {
   document.querySelectorAll('[data-az]').forEach(el => el.remove());
 }
 
-// Show card's zone property (placement territory influence) as yellow dotted overlays.
-// If cardR/cardC provided (board card hover), use that card's exact position.
-// Otherwise find the frontmost player card (hand card hover preview).
-function showCardZoneInfluence(card, cardR, cardC) {
+// Show card's zone property (placement territory influence) as dotted overlays.
+// owner: 'player' (yellow) or 'ai' (red). cardR/cardC: exact board position if known.
+function showCardZoneInfluence(card, cardR, cardC, owner) {
   if (_zoneSuppressed) return;
   const _p2mp = typeof _mpPlayer !== 'undefined' && _mpPlayer === 2;
-  const fwd = _p2mp ? -1 : 1;
+  const _owner = owner || 'player';
+  // fwd: zone dr=-1 means "toward enemy". player attacks toward row 0 (+1 keeps dr=-1 = up).
+  // AI attacks toward row 4, so fwd=-1 flips dr=-1 to +1 (downward).
+  const fwd = _owner === 'ai'
+    ? (_p2mp ? 1 : -1)
+    : (_p2mp ? -1 : 1);
   let baseR, baseC;
   if (cardR !== undefined && cardC !== undefined) {
     baseR = cardR; baseC = cardC;
@@ -106,6 +110,7 @@ function showCardZoneInfluence(card, cardR, cardC) {
       }
     }
   }
+  const col = _owner === 'ai' ? { border: '#ff4444cc', bg: '#ff222222' } : { border: '#ffdd00cc', bg: '#ffdd0022' };
   const offsets = (typeof ZONES !== 'undefined' && ZONES[card.zone || 'wide_cross']) || [];
   const seen = new Set();
   offsets.forEach(({dr, dc}) => {
@@ -118,7 +123,7 @@ function showCardZoneInfluence(card, cardR, cardC) {
     seen.add(key);
     const ov = document.createElement('div');
     ov.setAttribute('data-az', '1');
-    ov.style.cssText = 'position:absolute;inset:0;z-index:7;pointer-events:none;border-radius:3px;border:2px dotted #ffdd00cc;background:#ffdd0022;';
+    ov.style.cssText = `position:absolute;inset:0;z-index:7;pointer-events:none;border-radius:3px;border:2px dotted ${col.border};background:${col.bg};`;
     el.appendChild(ov);
   });
 }
