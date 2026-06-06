@@ -106,7 +106,8 @@ function showInitialsEntry(playerFaction, aiFaction, delta, mode) {
   el.id = 'lbInitialsOverlay';
   el.style.cssText = 'position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:#000000cc;backdrop-filter:blur(6px);';
   el.innerHTML = `
-    <div style="background:linear-gradient(160deg,#0a0818,#06060e);border:1px solid #ffdd0055;border-radius:16px;padding:32px 36px;max-width:380px;width:90%;box-shadow:0 0 60px #ffdd0022,0 24px 80px #000c;text-align:center;font-family:'Courier New',monospace;">
+    <style>@media(max-width:480px){.lb-init-card{padding:22px 18px!important}.lb-init-inp{width:48px!important;height:56px!important;font-size:26px!important}}</style>
+    <div class="lb-init-card" style="background:linear-gradient(160deg,#0a0818,#06060e);border:1px solid #ffdd0055;border-radius:16px;padding:32px 36px;max-width:380px;width:90%;box-shadow:0 0 60px #ffdd0022,0 24px 80px #000c;text-align:center;font-family:'Courier New',monospace;">
       <div style="font-size:10px;letter-spacing:4px;color:#ffdd00;font-family:'Orbitron',monospace;margin-bottom:4px;">✦ NEW RECORD ✦</div>
       <div style="font-size:22px;font-weight:900;letter-spacing:3px;color:#fff;font-family:'Orbitron',monospace;margin-bottom:20px;">HALL OF CHAMPIONS</div>
       <div style="display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:8px;">
@@ -123,7 +124,7 @@ function showInitialsEntry(playerFaction, aiFaction, delta, mode) {
       <div style="font-size:12px;color:#ffdd00;letter-spacing:3px;margin-bottom:24px;font-family:'Orbitron',monospace;">WIN BY +${delta} VP</div>
       <div style="font-size:9px;letter-spacing:3px;color:#666;margin-bottom:12px;">ENTER YOUR INITIALS</div>
       <div style="display:flex;gap:10px;justify-content:center;margin-bottom:28px;">
-        ${[0,1,2].map(i=>`<input id="lbInit${i}" maxlength="1" type="text" style="width:56px;height:64px;text-align:center;background:#0a0a18;border:2px solid #ffdd0044;color:#ffdd00;font-size:32px;font-weight:700;font-family:'Orbitron',monospace;border-radius:8px;caret-color:transparent;text-transform:uppercase;outline:none;">`).join('')}
+        ${[0,1,2].map(i=>`<input id="lbInit${i}" maxlength="1" type="text" class="lb-init-inp" style="width:56px;height:64px;text-align:center;background:#0a0a18;border:2px solid #ffdd0044;color:#ffdd00;font-size:32px;font-weight:700;font-family:'Orbitron',monospace;border-radius:8px;caret-color:transparent;text-transform:uppercase;outline:none;">`).join('')}
       </div>
       <div style="display:flex;gap:12px;justify-content:center;">
         <button onclick="_lbSkipInitials()" style="padding:10px 24px;border-radius:6px;cursor:pointer;background:transparent;border:1px solid #222244;color:#444466;font-family:'Courier New',monospace;font-size:11px;letter-spacing:2px;transition:all 0.2s;" onmouseenter="this.style.borderColor='#555577';this.style.color='#8888aa'" onmouseleave="this.style.borderColor='#222244';this.style.color='#444466'">SKIP</button>
@@ -204,7 +205,7 @@ function _lbRenderModal(data) {
     const isPvP = mode === 'pvp';
 
     return `
-      <div style="
+      <div class="lb-row" style="
         display:flex;align-items:center;gap:0;
         padding:0 24px;height:54px;
         border-bottom:1px solid #0a0a16;
@@ -215,23 +216,23 @@ function _lbRenderModal(data) {
       onmouseleave="this.style.background='${has ? aF.color+'08' : 'transparent'}'">
 
         <!-- Opponent -->
-        <div style="display:flex;align-items:center;gap:12px;flex:1;min-width:0;">
-          <div style="font-size:10px;letter-spacing:2px;color:#778899;font-family:'Courier New',monospace;flex-shrink:0;width:20px;text-align:right;">vs</div>
-          <img src="${aF.img}" style="width:38px;height:38px;border-radius:50%;object-fit:cover;object-position:top;border:2px solid ${aF.color}${has?'cc':'55'};flex-shrink:0;${has?`box-shadow:0 0 12px ${aF.color}44;`:''}">
-          <div style="font-family:'Orbitron',monospace;font-size:11px;letter-spacing:1px;color:${has?aF.color:'#aabbcc'};font-weight:700;">${aF.short}</div>
+        <div class="lb-opp-gap" style="display:flex;align-items:center;gap:12px;flex:1;min-width:0;">
+          <div class="lb-vs" style="font-size:10px;letter-spacing:2px;color:#778899;font-family:'Courier New',monospace;flex-shrink:0;width:20px;text-align:right;">vs</div>
+          <img src="${aF.img}" class="lb-opp-img" style="width:38px;height:38px;border-radius:50%;object-fit:cover;object-position:top;border:2px solid ${aF.color}${has?'cc':'55'};flex-shrink:0;${has?`box-shadow:0 0 12px ${aF.color}44;`:''}">
+          <div class="lb-opp-name" style="font-family:'Orbitron',monospace;font-size:11px;letter-spacing:1px;color:${has?aF.color:'#aabbcc'};font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${aF.short}</div>
         </div>
 
         <!-- Initials + mode badge -->
-        <div style="width:82px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:2px;">
-          <div style="font-family:'Orbitron',monospace;font-weight:900;letter-spacing:3px;font-size:17px;color:${has?'#ffdd00':'#ffffff33'};${has?'text-shadow:0 0 12px #ffdd0055;':''}">${inits}</div>
-          ${has ? `<div style="font-size:7px;letter-spacing:2px;font-family:'Courier New',monospace;padding:1px 5px;border-radius:3px;${isPvP?'color:#cc88ff;background:#8855ff18;border:1px solid #8855ff44;':'color:#00ffcc88;background:#00ffcc08;border:1px solid #00ffcc22;'}">${isPvP?'PvP':'PvE'}</div>` : ''}
+        <div class="lb-init-col" style="width:82px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:2px;">
+          <div class="lb-init-val" style="font-family:'Orbitron',monospace;font-weight:900;letter-spacing:3px;font-size:17px;color:${has?'#ffdd00':'#ffffff33'};${has?'text-shadow:0 0 12px #ffdd0055;':''}">${inits}</div>
+          ${has ? `<div class="lb-init-badge" style="font-size:7px;letter-spacing:2px;font-family:'Courier New',monospace;padding:1px 5px;border-radius:3px;${isPvP?'color:#cc88ff;background:#8855ff18;border:1px solid #8855ff44;':'color:#00ffcc88;background:#00ffcc08;border:1px solid #00ffcc22;'}">${isPvP?'PvP':'PvE'}</div>` : ''}
         </div>
 
         <!-- Divider -->
-        <div style="width:1px;height:28px;background:#0d0d1a;flex-shrink:0;margin:0 6px;"></div>
+        <div class="lb-divider" style="width:1px;height:28px;background:#0d0d1a;flex-shrink:0;margin:0 6px;"></div>
 
         <!-- Delta -->
-        <div style="
+        <div class="lb-delta-col" style="
           width:72px;text-align:right;flex-shrink:0;
           font-family:'Courier New',monospace;font-size:12px;letter-spacing:1px;
           color:${has?'#00ffcc':'#ffffff33'};
@@ -246,7 +247,7 @@ function _lbRenderModal(data) {
     const active = id === pId;
     const recs   = _LB_ORDER.filter(a=>a!==id&&data[_lbKey(id,a)]).length;
     return `
-      <div onclick="_lbSetTab('${id}')" style="
+      <div onclick="_lbSetTab('${id}')" class="lb-tab" style="
         display:flex;flex-direction:column;align-items:center;gap:4px;
         padding:8px 10px;cursor:pointer;border-radius:8px;flex-shrink:0;
         transition:all 0.15s;
@@ -257,7 +258,7 @@ function _lbRenderModal(data) {
       onmouseenter="if(this.dataset.id!=='${pId}')this.style.background='${f.color}11'"
       onmouseleave="if(this.dataset.id!=='${pId}')this.style.background='transparent'"
       data-id="${id}">
-        <img src="${f.img}" style="width:${active?'38px':'30px'};height:${active?'38px':'30px'};border-radius:50%;object-fit:cover;object-position:top;border:2px solid ${active?f.color:f.color+'44'};transition:all 0.15s;${active?`box-shadow:0 0 14px ${f.color}55;`:''}">
+        <img src="${f.img}" class="${active?'lb-tab-img-a':'lb-tab-img'}" style="width:${active?'38px':'30px'};height:${active?'38px':'30px'};border-radius:50%;object-fit:cover;object-position:top;border:2px solid ${active?f.color:f.color+'44'};transition:all 0.15s;${active?`box-shadow:0 0 14px ${f.color}55;`:''}">
         ${recs > 0 ? `<div style="font-size:8px;color:${active?f.color:'#aabbcc'};font-family:'Courier New',monospace;letter-spacing:1px;">${recs}/10</div>` : `<div style="font-size:8px;color:#445566;font-family:'Courier New',monospace;">-</div>`}
       </div>`;
   }).join('');
@@ -273,6 +274,30 @@ function _lbRenderModal(data) {
       #lbModal ::-webkit-scrollbar-track{background:transparent}
       #lbModal ::-webkit-scrollbar-thumb{background:#1a1a38;border-radius:2px}
       @keyframes lbFadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+      @media(max-width:600px){
+        #lbModal{padding:8px!important}
+        #lbInner{border-radius:10px!important}
+        .lb-tab{padding:5px 4px!important}
+        .lb-tab-img{width:22px!important;height:22px!important}
+        .lb-tab-img-a{width:28px!important;height:28px!important}
+        .lb-fac-hdr{padding:8px 12px!important;gap:10px!important}
+        .lb-fac-avatar{width:38px!important;height:38px!important}
+        .lb-fac-name{font-size:11px!important;letter-spacing:1px!important}
+        .lb-fac-sub{display:none!important}
+        .lb-col-hdr{padding:5px 12px!important}
+        .lb-col-init{width:60px!important;font-size:8px!important;letter-spacing:1px!important}
+        .lb-col-delta{width:52px!important;font-size:8px!important;letter-spacing:1px!important}
+        .lb-row{padding:0 12px!important;height:46px!important}
+        .lb-vs{width:12px!important;font-size:8px!important;letter-spacing:0!important}
+        .lb-opp-gap{gap:7px!important}
+        .lb-opp-img{width:28px!important;height:28px!important}
+        .lb-opp-name{font-size:9px!important;letter-spacing:0!important}
+        .lb-init-col{width:60px!important}
+        .lb-init-val{font-size:13px!important;letter-spacing:2px!important}
+        .lb-init-badge{font-size:6px!important;padding:1px 3px!important}
+        .lb-divider{display:none!important}
+        .lb-delta-col{width:52px!important;font-size:11px!important}
+      }
     </style>
 
     <!-- Banner -->
@@ -296,26 +321,26 @@ function _lbRenderModal(data) {
     </div>
 
     <!-- Active faction header -->
-    <div style="flex-shrink:0;padding:14px 24px 12px;background:linear-gradient(90deg,${pF.color}14 0%,transparent 60%);border-bottom:1px solid ${pF.color}22;display:flex;align-items:center;gap:16px;">
-      <img src="${pF.img}" style="width:52px;height:52px;border-radius:50%;object-fit:cover;object-position:top;border:2px solid ${pF.color};box-shadow:0 0 20px ${pF.color}55;flex-shrink:0;">
-      <div>
-        <div style="font-family:'Orbitron',monospace;font-size:14px;font-weight:900;letter-spacing:3px;color:${pF.color};text-shadow:0 0 16px ${pF.color}55;">${pF.name}</div>
-        <div style="font-family:'Courier New',monospace;font-size:10px;letter-spacing:2px;color:#8899bb;margin-top:3px;">
+    <div class="lb-fac-hdr" style="flex-shrink:0;padding:14px 24px 12px;background:linear-gradient(90deg,${pF.color}14 0%,transparent 60%);border-bottom:1px solid ${pF.color}22;display:flex;align-items:center;gap:16px;">
+      <img src="${pF.img}" class="lb-fac-avatar" style="width:52px;height:52px;border-radius:50%;object-fit:cover;object-position:top;border:2px solid ${pF.color};box-shadow:0 0 20px ${pF.color}55;flex-shrink:0;">
+      <div style="min-width:0;flex:1;">
+        <div class="lb-fac-name" style="font-family:'Orbitron',monospace;font-size:14px;font-weight:900;letter-spacing:3px;color:${pF.color};text-shadow:0 0 16px ${pF.color}55;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${pF.name}</div>
+        <div class="lb-fac-sub" style="font-family:'Courier New',monospace;font-size:10px;letter-spacing:2px;color:#8899bb;margin-top:3px;">
           PLAYING AS THIS FACTION · ${facRecords} / 10 RECORDS SET
         </div>
       </div>
-      <div style="margin-left:auto;text-align:right;">
+      <div style="flex-shrink:0;text-align:right;">
         <div style="font-family:'Courier New',monospace;font-size:9px;letter-spacing:2px;color:#778899;">TOTAL</div>
         <div style="font-family:'Orbitron',monospace;font-size:18px;font-weight:700;color:${total>0?'#ffdd00':'#aabbcc'};${total>0?'text-shadow:0 0 10px #ffdd0044;':''}">${total}<span style="font-size:10px;color:#778899;"> /110</span></div>
       </div>
     </div>
 
     <!-- Column labels -->
-    <div style="flex-shrink:0;display:flex;align-items:center;gap:0;padding:6px 24px;background:#020208;border-bottom:1px solid #0a0a16;">
+    <div class="lb-col-hdr" style="flex-shrink:0;display:flex;align-items:center;gap:0;padding:6px 24px;background:#020208;border-bottom:1px solid #0a0a16;">
       <div style="flex:1;font-size:10px;letter-spacing:3px;color:#aabbcc;font-family:'Courier New',monospace;">OPPONENT</div>
-      <div style="width:70px;text-align:center;font-size:10px;letter-spacing:2px;color:#aabbcc;font-family:'Courier New',monospace;">INITIALS</div>
-      <div style="width:7px;"></div>
-      <div style="width:72px;text-align:right;font-size:10px;letter-spacing:2px;color:#aabbcc;font-family:'Courier New',monospace;">WIN BY</div>
+      <div class="lb-col-init" style="width:70px;text-align:center;font-size:10px;letter-spacing:2px;color:#aabbcc;font-family:'Courier New',monospace;">INITIALS</div>
+      <div class="lb-divider" style="width:7px;"></div>
+      <div class="lb-col-delta" style="width:72px;text-align:right;font-size:10px;letter-spacing:2px;color:#aabbcc;font-family:'Courier New',monospace;">WIN BY</div>
     </div>
 
     <!-- Opponent rows -->
@@ -332,6 +357,12 @@ function _lbRenderModal(data) {
   </div>`;
 
   document.body.appendChild(modal);
+
+  // Scroll active faction tab into view (important on mobile where tabs overflow)
+  setTimeout(() => {
+    const activeTab = modal.querySelector(`[data-id="${pId}"]`);
+    if (activeTab) activeTab.scrollIntoView({ behavior: 'instant', inline: 'center', block: 'nearest' });
+  }, 30);
 
   // Hide the mobile LAUNCH DECK bar while leaderboard is open
   const _lb = document.getElementById('mobileLaunchBar') || document.getElementById('desktopLaunchBar');
