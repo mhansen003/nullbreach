@@ -1,10 +1,11 @@
 // ── MULTIPLAYER ENGINE ────────────────────────────────────────────────────────
 
-const _SB_URL = 'https://mstpkwxxhsspivtngfnm.supabase.co';
+// Supabase config — single source: shared-data.js window.GZ_SB (loaded first)
+const _SB_URL = window.GZ_SB.url;
 
-const _SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1zdHBrd3h4aHNzcGl2dG5nZm5tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0NTE2MTcsImV4cCI6MjA5NjAyNzYxN30.B0F-e_mGzv5kbjwOa2yw499OfsZ3qJDXdoyrCu2tNiI';
+const _SB_KEY = window.GZ_SB.key;
 
-const _SB_H   = { 'apikey':_SB_KEY, 'Authorization':'Bearer '+_SB_KEY, 'Content-Type':'application/json' };
+const _SB_H   = window.GZ_SB.headers;
 
 // Detect multiplayer params
 
@@ -13,6 +14,7 @@ const _mpParams = new URLSearchParams(window.location.search);
 const _mpRoom   = _mpParams.get('room');
 
 const _mpPlayer = parseInt(_mpParams.get('player') || '0'); // 1 or 2, 0 = single player
+window._mpPlayer = _mpPlayer; // exposed for render-score.js initials display
 
 const _mpP2Fac  = _mpParams.get('p2faction') || ''; // P1 knows P2's faction from room
 
@@ -44,37 +46,55 @@ let _mpPollInt  = null; // polling interval handle
 let _mpMyTurn   = _mpPlayer === 1; // P1 goes first
 
 // ── 60-second turn timer ──────────────────────────────────────────────────────
+// Countdown is computed from a wall-clock deadline (Date.now()), NOT from
+// counting interval ticks: background tabs throttle timers, which used to
+// stretch the 60s forfeit window indefinitely.
 let _mpTimerInterval = null;
-let _mpTimerSecs = 60;
+let _mpTimerDeadline = 0;
+const _MP_TURN_MS = 60000;
 
+function _mpTimerTick() {
+  const msLeft = _mpTimerDeadline - Date.now();
+  const secs   = Math.max(0, Math.ceil(msLeft / 1000));
+  const bar    = document.getElementById('mpTimerBar');
+  const count  = document.getElementById('mpTimerCount');
+  const pct = Math.max(0, Math.min(100, msLeft / _MP_TURN_MS * 100));
+  if (bar) {
+    bar.style.width = pct + '%';
+    bar.style.background = secs > 30 ? '#00ffcc'
+      : secs > 15 ? '#ffdd00' : '#ff4444';
+  }
+  if (count) {
+    const m = Math.floor(secs / 60);
+    const s = String(secs % 60).padStart(2, '0');
+    count.textContent = m + ':' + s;
+  }
+  if (msLeft <= 0) {
+    mpStopTurnTimer();
+    if (typeof forfeitGame === 'function') forfeitGame();
+  }
+}
+
+// Safe to call twice: any running timer is cleared first (no stacked
+// intervals) and a fresh 60s deadline starts. Call from turn.js's flank
+// branch to time the FLANK bonus turn.
 function mpStartTurnTimer() {
   mpStopTurnTimer();
-  _mpTimerSecs = 60;
-  const bar   = document.getElementById('mpTimerBar');
-  const count = document.getElementById('mpTimerCount');
-  const timer = document.getElementById('mpTurnTimer');
+  _mpTimerDeadline = Date.now() + _MP_TURN_MS;
+  const timer  = document.getElementById('mpTurnTimer');
   const banner = document.getElementById('mpTurnBanner');
   if (timer)  timer.style.display  = 'block';
   if (banner) banner.style.display = 'block';
-  _mpTimerInterval = setInterval(() => {
-    _mpTimerSecs--;
-    const pct = Math.max(0, _mpTimerSecs / 60 * 100);
-    if (bar) {
-      bar.style.width = pct + '%';
-      bar.style.background = _mpTimerSecs > 30 ? '#00ffcc'
-        : _mpTimerSecs > 15 ? '#ffdd00' : '#ff4444';
-    }
-    if (count) {
-      const m = Math.floor(_mpTimerSecs / 60);
-      const s = String(_mpTimerSecs % 60).padStart(2, '0');
-      count.textContent = m + ':' + s;
-    }
-    if (_mpTimerSecs <= 0) {
-      mpStopTurnTimer();
-      if (typeof forfeitGame === 'function') forfeitGame();
-    }
-  }, 1000);
+  _mpTimerTick();
+  _mpTimerInterval = setInterval(_mpTimerTick, 250);
 }
+window.mpStartTurnTimer = mpStartTurnTimer;
+
+// Throttled tabs may not tick for a long time: re-check the deadline the
+// moment the tab becomes visible again.
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden && _mpTimerInterval) _mpTimerTick();
+});
 
 function mpStopTurnTimer() {
   if (_mpTimerInterval) { clearInterval(_mpTimerInterval); _mpTimerInterval = null; }
@@ -92,71 +112,152 @@ function mpShowWaiting(show) {
 
 }
 
-async function mpSubmitMove(cardId, r, c, seed, isFlank = false) {
+// ── Move submission ───────────────────────────────────────────────────────────
+// Preferred path: atomic append via the gz_append_move Postgres function
+// (see supabase/migration.sql) — the server locks the row, verifies the
+// expected move index and appends, so two clients can never clobber each
+// other's moves with a full-array PATCH.
+// Fallback: the legacy read-modify-write PATCH, used ONLY while the RPC
+// doesn't exist yet (404 = migration not applied).
+let _mpRpcMissing = false;
 
-  const move = { player:_mpPlayer, turn:_mpTurnNum, cardId, r, c, seed };
+async function _mpAppendMove(move) {
 
-  if (isFlank) move.flank = true;
+  if (!_mpRpcMissing) {
 
-  for (let attempt = 0; attempt < 3; attempt++) {
+    const rpc = await fetch(`${_SB_URL}/rest/v1/rpc/gz_append_move`, {
+      method:'POST', headers:_SB_H,
+      body: JSON.stringify({ room_id:_mpRoom, move, expected_index:move.turn })
+    });
 
-    try {
+    if (rpc.ok) return; // atomic append confirmed
 
-      const res = await fetch(`${_SB_URL}/rest/v1/gz_rooms?id=eq.${_mpRoom}&select=moves`, { headers:_SB_H });
-
-      const data = await res.json();
-
-      const moves = (data[0]?.moves || []);
-
-      // Idempotency: don't double-write if a retry already succeeded
-
-      if (!moves.find(m => m.player === _mpPlayer && m.turn === _mpTurnNum)) {
-
-        moves.push(move);
-
-        const patch = await fetch(`${_SB_URL}/rest/v1/gz_rooms?id=eq.${_mpRoom}`, {
-
-          method:'PATCH', headers:_SB_H,
-
-          body: JSON.stringify({ moves, updated_at: new Date().toISOString() })
-
-        });
-
-        if (!patch.ok) throw new Error('PATCH ' + patch.status);
-
-      }
-
-      _mpTurnNum++;
-
-      return; // success
-
-    } catch(e) {
-
-      console.error(`MP: submit attempt ${attempt+1} failed`, e);
-
-      if (attempt < 2) await new Promise(r => setTimeout(r, 800 * (attempt + 1)));
-
-      else showToast('Move may not have saved: check connection', '#ff4422');
-
+    if (rpc.status === 404) {
+      console.warn('MP: gz_append_move RPC not found — using legacy read-modify-write');
+      _mpRpcMissing = true; // fall through to the legacy path below
+    } else {
+      throw new Error('RPC gz_append_move ' + rpc.status);
     }
+
+  }
+
+  // Legacy fallback (lossy under concurrent writes) — pre-migration only
+  const res = await fetch(`${_SB_URL}/rest/v1/gz_rooms?id=eq.${_mpRoom}&select=moves`, { headers:_SB_H });
+
+  const data = await res.json();
+
+  const moves = (data[0]?.moves || []);
+
+  // Idempotency: don't double-write if a retry already succeeded
+  if (!moves.find(m => m.player === move.player && m.turn === move.turn)) {
+
+    moves.push(move);
+
+    const patch = await fetch(`${_SB_URL}/rest/v1/gz_rooms?id=eq.${_mpRoom}`, {
+      method:'PATCH', headers:_SB_H,
+      body: JSON.stringify({ moves, updated_at: new Date().toISOString() })
+    });
+
+    if (!patch.ok) throw new Error('PATCH ' + patch.status);
 
   }
 
 }
 
+// Persistent blocking error UI shown when a move can't be saved. A transient
+// toast is not enough: an unsaved move means the two clients have silently
+// desynced, so the game must not continue until the save is confirmed.
+function _mpShowSubmitError(onRetry) {
+
+  let ov = document.getElementById('mpSubmitErrorOverlay');
+
+  if (!ov) {
+    ov = document.createElement('div');
+    ov.id = 'mpSubmitErrorOverlay';
+    ov.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;background:rgba(0,0,0,0.88);text-align:center;padding:20px;';
+    ov.innerHTML = `
+      <div style="font-family:'Orbitron',monospace;font-size:20px;letter-spacing:4px;color:#ff4466;text-shadow:0 0 20px #ff446688;">CONNECTION ERROR</div>
+      <div style="font-family:'Courier New',monospace;font-size:13px;color:#cccccc;max-width:420px;line-height:1.6;">Your move could not be saved to the server.<br>Your opponent has NOT seen it yet.</div>
+      <button id="mpSubmitRetryBtn" style="font-family:'Orbitron',monospace;font-size:14px;letter-spacing:3px;color:#00ffcc;background:none;border:1px solid #00ffcc88;border-radius:6px;padding:12px 34px;cursor:pointer;">RETRY</button>`;
+    document.body.appendChild(ov);
+  }
+
+  ov.style.display = 'flex';
+
+  const btn = document.getElementById('mpSubmitRetryBtn');
+
+  if (btn) {
+    btn.disabled = false;
+    btn.textContent = 'RETRY';
+    btn.onclick = () => { btn.disabled = true; btn.textContent = 'RETRYING...'; onRetry(); };
+  }
+
+}
+
+function _mpHideSubmitError() {
+
+  const ov = document.getElementById('mpSubmitErrorOverlay');
+
+  if (ov) ov.style.display = 'none';
+
+}
+
+function mpSubmitMove(cardId, r, c, seed, isFlank = false) {
+
+  const move = { player:_mpPlayer, turn:_mpTurnNum, cardId, r, c, seed };
+
+  if (isFlank) move.flank = true;
+
+  // Resolves ONLY once the move is confirmed saved. After 3 failed attempts a
+  // full-screen blocking overlay with a RETRY button appears and the promise
+  // stays pending, so the caller's .then() flow (turn.js) resumes as soon as
+  // a manual retry succeeds — no more silent success after failure.
+  return new Promise((resolve) => {
+
+    const runAttempts = async () => {
+
+      for (let attempt = 0; attempt < 3; attempt++) {
+
+        try {
+
+          await _mpAppendMove(move);
+
+          _mpHideSubmitError();
+
+          _mpTurnNum++;
+
+          resolve();
+
+          return; // success
+
+        } catch(e) {
+
+          console.error(`MP: submit attempt ${attempt+1} failed`, e);
+
+          if (attempt < 2) await new Promise(r2 => setTimeout(r2, 800 * (attempt + 1)));
+
+        }
+
+      }
+
+      // All retries failed — block the game until the save is confirmed.
+      // The move was already made locally, so pause the forfeit timer.
+      mpStopTurnTimer();
+
+      _mpShowSubmitError(runAttempts);
+
+    };
+
+    runAttempts();
+
+  });
+
+}
+
 function mpFindCard(cardId, opponentFaction) {
 
-  const allDecks = {
-
-    terran:PLAYER_CARDS, brood:BROOD_CARDS, crystallis:CRYSTALLIS_CARDS,
-
-    mycos:MYCOS_CARDS, veil:VEIL_CARDS, entropy:ENTROPY_CARDS,
-
-    void:VOID_CARDS, gas:GAS_CARDS, lithos:LITHOS_CARDS,
-
-    quantum:QUANTUM_CARDS, choir:CHOIR_CARDS
-
-  };
+  // Faction → deck map lives in cards.js (window.GZ_DECKS)
+  const allDecks = window.GZ_DECKS || {};
 
   const deck = allDecks[opponentFaction] || [];
 
@@ -310,9 +411,9 @@ function mpStartPolling() {
 
         clearInterval(_mpPollInt); _mpPollInt = null;
 
-        addLog('system', 'Lost connection to server. Please refresh to reconnect.');
+        addLog('system', 'Lost connection to server. Refresh the page to reconnect: the game will resume where it left off.');
 
-        showToast('Connection lost: please refresh', '#ff4422');
+        showToast('Connection lost: refresh to resume', '#ff4422');
 
       }
 
@@ -322,16 +423,127 @@ function mpStartPolling() {
 
 }
 
+// ── RESUME / RECONNECT ────────────────────────────────────────────────────────
+
+// mpApplyMove is for LIVE opponent moves only: it animates, flips turn state
+// and assumes the move is the opponent's. Replay instead applies BOTH players'
+// moves deterministically onto the fresh board via placeCard.
+function mpReplayMove(mv) {
+
+  const isMine = mv.player === _mpPlayer;
+
+  // Coords are stored in the SUBMITTER's frame with P2 pre-mirroring (turn.js):
+  //  - my own moves: invert my submit transform (P2 mirrored, P1 raw)
+  //  - opponent moves: same transform as live mpApplyMove (P1 mirrors, P2 raw)
+  let rr, cc;
+
+  if (isMine) { rr = (_mpPlayer === 2) ? 4 - mv.r : mv.r; cc = (_mpPlayer === 2) ? 6 - mv.c : mv.c; }
+
+  else        { rr = (_mpPlayer === 2) ? mv.r : 4 - mv.r; cc = (_mpPlayer === 2) ? mv.c : 6 - mv.c; }
+
+  let handCard;
+
+  if (isMine) {
+
+    handCard = G.playerHand.find(c => c.id === mv.cardId && !c.used);
+
+  } else {
+
+    const opFaction = _mpPlayer === 1 ? _mpP2Fac : (_mpParams.get('aifaction') || window.aiRaceId);
+
+    handCard = G.aiHand.find(c => c.id === mv.cardId && !c.used);
+
+    if (!handCard) {
+      const card = mpFindCard(mv.cardId, opFaction);
+      if (card) handCard = {...card, used:false, shieldExpended:false, edgeMod:{n:0,s:0,e:0,w:0}};
+    }
+
+  }
+
+  if (!handCard) { console.warn('MP: replay card not found', mv.cardId); return; }
+
+  // Same seeded random as live play so AMBUSH/STONEWALL resolve identically
+  if (mv.seed) window._mpSeed = seededRand(mv.seed);
+
+  placeCard(handCard, rr, cc, isMine ? 'player' : 'ai');
+
+}
+
+function mpResumeGame(moves, status) {
+
+  addLog('system', `Reconnected: restoring ${moves.length} move(s)`);
+
+  moves.forEach(mv => mpReplayMove(mv));
+
+  _mpTurnNum = moves.length;
+
+  // A pending flank flag is re-derived by the NEXT placeCard before anything
+  // reads it: clear the stale one so state matches live play post-flank.
+  G._flankTriggered = null;
+
+  if (typeof renderAll === 'function') renderAll();
+
+  if (status === 'done' || status === 'forfeited') {
+    if (!G.gameOver && typeof checkWin === 'function') checkWin();
+    return;
+  }
+
+  if (G.gameOver) return;
+
+  // Whose turn: the mover repeats on a flank move, otherwise it alternates
+  const last = moves[moves.length - 1];
+
+  let myTurn = last.flank === true ? (last.player === _mpPlayer) : (last.player !== _mpPlayer);
+
+  // "No valid moves — opponent continues" isn't recorded in the history
+  if (myTurn && typeof hasAnyMoves === 'function' && !hasAnyMoves('player')) myTurn = false;
+
+  _mpMyTurn = myTurn;
+
+  G.turn = myTurn ? 'player' : 'ai';
+
+  renderScoreHeader();
+
+  if (myTurn) {
+
+    setTimeout(() => { if (!G.gameOver && G.turn === 'player') mpStartTurnTimer(); }, 600);
+
+  } else {
+
+    mpStartPolling();
+
+  }
+
+}
+
 // ── MULTIPLAYER HOOKS ─────────────────────────────────────────────────────────
 
 if (_mpRoom && _mpPlayer) {
 
   // After game init, replace turn flow with MP version
 
-  window.addEventListener('load', () => {
+  window.addEventListener('load', async () => {
   loadAudioSettings();
 
-    // P2 waits for P1's first move
+    // Resume support: if the room already has moves (page refresh mid-game),
+    // replay the full history onto the fresh board before doing anything else.
+    let roomMoves = [], roomStatus = '';
+
+    try {
+
+      const res = await fetch(`${_SB_URL}/rest/v1/gz_rooms?id=eq.${_mpRoom}&select=moves,status`, { headers:_SB_H });
+
+      const data = await res.json();
+
+      roomMoves  = (data[0] && data[0].moves)  || [];
+
+      roomStatus = (data[0] && data[0].status) || '';
+
+    } catch(e) { console.warn('MP: resume check failed — starting fresh', e); }
+
+    if (roomMoves.length > 0) { mpResumeGame(roomMoves, roomStatus); return; }
+
+    // Fresh game — P2 waits for P1's first move
     if (_mpPlayer === 2) {
       G.turn = 'ai';
       renderScoreHeader();

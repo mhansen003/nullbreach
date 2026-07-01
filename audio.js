@@ -57,6 +57,11 @@ function playNextTrack() {
 
 }
 
+// Consecutive track-load failures. Capped at one full playlist pass so a
+// broken audio setup (offline, missing files) can't loop error→next-track
+// forever; reset whenever a track actually plays.
+let _musicErrorStreak = 0;
+
 function startGameMusic() {
 
   if (musicStarted) return;
@@ -66,7 +71,17 @@ function startGameMusic() {
   const audio = document.getElementById('bgTrack');
 
   audio.addEventListener('ended', playNextTrack);
-  audio.addEventListener('error', () => { if (musicStarted && !musicMuted) playNextTrack(); });
+  audio.addEventListener('error', () => {
+    if (!musicStarted || musicMuted) return;
+    _musicErrorStreak++;
+    if (_musicErrorStreak >= PLAYLIST.length) {
+      if (_musicErrorStreak === PLAYLIST.length)
+        console.warn('Music: every playlist track failed to load — stopping retries');
+      return;
+    }
+    playNextTrack();
+  });
+  audio.addEventListener('playing', () => { _musicErrorStreak = 0; });
 
   playNextTrack();
 
