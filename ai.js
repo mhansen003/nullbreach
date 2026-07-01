@@ -10,7 +10,77 @@ function animateAiCard(card, r, c, noTurnFlip = false) {
 
                  document.getElementById('fhAi');
 
-  if (!target || !srcEl) { placeCard(card, r, c, 'ai'); return; }
+  // Single completion path: placement + flank handling + turn flip.
+  // Used by BOTH the animated branch and the no-DOM fallback so headless /
+  // degraded environments get identical game flow.
+  const _finish = () => {
+
+    placeCard(card, r, c, 'ai');
+
+    if (G._flankTriggered === 'ai' && !G.gameOver) {
+
+      G._flankTriggered = null;
+
+      if (_mpRoom && _mpPlayer) {
+
+        // MP: the move's flank flag (noTurnFlip) is authoritative — the mover
+        // only submits flank=true when it actually takes the extra turn.
+        if (noTurnFlip) {
+          addLog('ai', '↺ FLANK — opponent takes extra turn');
+          mpStartPolling();
+          return;
+        }
+        // Fizzled flank (opponent had no playable card): fall through to normal flip
+
+      } else if (hasAnyMoves('ai')) {
+
+        addLog('ai', '↺ FLANK — AI takes extra turn');
+
+        setTimeout(aiTurn, 1000);
+
+        return;
+
+      } else {
+
+        addLog('ai', '↺ FLANK — AI has no cards left, turn passes');
+
+      }
+
+    }
+
+    if (!G.gameOver && !noTurnFlip) {
+
+      G.turn = 'player';
+
+      G._placeInFlight = false;   // player may act again
+
+      renderScoreHeader();
+
+      if (!hasAnyMoves('player')) {
+
+        G.turn = 'ai';
+
+        if (_mpRoom && _mpPlayer) {
+
+          addLog('system', 'You have no valid moves: opponent continues');
+
+          mpStartPolling();
+
+        } else {
+
+          addLog('system', 'You have no moves -- AI goes again');
+
+          setTimeout(aiTurn, 1200);
+
+        }
+
+      }
+
+    }
+
+  };
+
+  if (!target || !srcEl) { _finish(); return; }
 
   const src  = srcEl.getBoundingClientRect();
 
@@ -38,7 +108,7 @@ function animateAiCard(card, r, c, noTurnFlip = false) {
 
     background:#050510 center/cover no-repeat;
 
-    ${card.art ? `background-image:url('${card.art}');` : ''}
+    ${card.art ? `background-image:url('${typeof gzCardArt === 'function' ? gzCardArt(card.art) : card.art}');` : ''}
 
     border:2px solid ${aCol}99;
 
@@ -74,57 +144,7 @@ function animateAiCard(card, r, c, noTurnFlip = false) {
 
     floater.remove();
 
-    placeCard(card, r, c, 'ai');
-
-    if (G._flankTriggered === 'ai' && !G.gameOver) {
-
-      G._flankTriggered = null;
-
-      if (_mpRoom && _mpPlayer) {
-
-        addLog('ai', '\u21BA FLANK \u2014 opponent takes extra turn');
-
-        mpStartPolling();
-
-      } else {
-
-        addLog('ai', '\u21BA FLANK \u2014 AI takes extra turn');
-
-        setTimeout(aiTurn, 1000);
-
-      }
-
-      return;
-
-    }
-
-    if (!G.gameOver && !noTurnFlip) {
-
-      G.turn = 'player';
-
-      renderScoreHeader();
-
-      if (!hasAnyMoves('player')) {
-
-        G.turn = 'ai';
-
-        if (_mpRoom && _mpPlayer) {
-
-          addLog('system', 'You have no valid moves: opponent continues');
-
-          mpStartPolling();
-
-        } else {
-
-          addLog('system', 'You have no moves -- AI goes again');
-
-          setTimeout(aiTurn, 1200);
-
-        }
-
-      }
-
-    }
+    _finish();
 
   }, 580);
 
@@ -153,7 +173,7 @@ function animatePlayerCard(card, r, c, callback) {
     left:${startL}px; top:${startT}px;
     border-radius:6px;
     background:#050510 center/cover no-repeat;
-    ${card.art ? `background-image:url('${card.art}');` : ''}
+    ${card.art ? `background-image:url('${typeof gzCardArt === 'function' ? gzCardArt(card.art) : card.art}');` : ''}
     border:2px solid ${pCol}99;
     box-shadow: 0 0 28px ${pCol}66, 0 8px 32px #000000cc;
     opacity:1;
@@ -180,13 +200,15 @@ function aiTurn() {
 
   let best = -Infinity, bestCard = null, bestR = -1, bestC = -1;
 
+  // Board scores don't change while evaluating candidates — compute once,
+  // not once per candidate cell (computeScores rebuilds all battle state).
+  const s = computeScores();
+
   for (const card of avail) {
 
     for (const {r,c} of getValidPlacements('ai', card)) {
 
       let score = 0;
-
-      const s = computeScores();
 
       if (s.rowResults[r] !== 'a') score += 2;
 
@@ -258,6 +280,7 @@ function aiTurn() {
     checkWin();
     if (!G.gameOver) {
       G.turn = 'player';
+      G._placeInFlight = false;
       renderScoreHeader();
     }
 

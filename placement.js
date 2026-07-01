@@ -11,10 +11,12 @@ function getValidPlacements(owner, card) {
       : (_p2mp ? [3,4] : [0,1]);
     const seen = new Set();
     const cells = [];
-    // Free home rows (2 rows)
+    // Free home rows (2 rows) — still respects enemy FORTIFY claims
     for (let r = minR; r <= maxR; r++)
       for (let c = 0; c < 7; c++)
-        if (!G.grid[r][c].card) { const k=r+','+c; if(!seen.has(k)){seen.add(k);cells.push({r,c});} }
+        if (!G.grid[r][c].card && !(G.grid[r][c].fortifiedBy && G.grid[r][c].fortifiedBy !== owner)) {
+          const k=r+','+c; if(!seen.has(k)){seen.add(k);cells.push({r,c});}
+        }
     // ALSO include normal adjacency placements anywhere on the board
     // (temporarily clear phantom ability to avoid recursion)
     const _ab = card.ability; card.ability = null;
@@ -42,7 +44,11 @@ function getValidPlacements(owner, card) {
 
     if (!G.grid[homeRow][c].card) set.add(`${homeRow},${c}`);
 
-  // RUSH: also add cells adjacent to enemy cards (aggressive placement bypass)
+  // RUSH: cells adjacent to enemy cards bypass tier zone restrictions.
+  // Collected separately: RUSH's normal home-row/zone-expansion cells still
+  // obey the tier row limits — ONLY the enemy-adjacent cells bypass them.
+
+  const rushSet = new Set();
 
   if (card.ability === 'rush') {
 
@@ -58,7 +64,7 @@ function getValidPlacements(owner, card) {
 
           const nr=r+dr, nc=c+dc;
 
-          if (nr>=0&&nr<5&&nc>=0&&nc<7&&!G.grid[nr][nc].card) set.add(`${nr},${nc}`);
+          if (nr>=0&&nr<5&&nc>=0&&nc<7&&!G.grid[nr][nc].card) rushSet.add(`${nr},${nc}`);
 
         });
 
@@ -114,22 +120,6 @@ function getValidPlacements(owner, card) {
 
   }
 
-  // RUSH bypasses all tier zone restrictions, including enemy home row
-
-  if (card.ability === 'rush') {
-
-    return [...set]
-
-      .map(s => { const [r,c] = s.split(',').map(Number); return {r,c}; })
-
-      .filter(({r,c}) => {
-        const cell = G.grid[r][c];
-        if (cell.fortifiedBy && cell.fortifiedBy !== owner) return false;
-        return true;
-      });
-
-  }
-
   const validCells = [...set]
 
     .map(s => { const [r,c] = s.split(',').map(Number); return {r,c}; })
@@ -141,9 +131,21 @@ function getValidPlacements(owner, card) {
       return true;
     });
 
-  // HOME INVADER: also add opponent home row cells as valid
+  // RUSH: enemy-adjacent cells bypass the tier row limits (but not FORTIFY)
+  if (rushSet.size > 0) {
+    const seenR = new Set(validCells.map(({r,c}) => r+','+c));
+    rushSet.forEach(key => {
+      if (seenR.has(key)) return;
+      const [r,c] = key.split(',').map(Number);
+      if (G.grid[r][c].fortifiedBy && G.grid[r][c].fortifiedBy !== owner) return;
+      seenR.add(key);
+      validCells.push({r,c});
+    });
+  }
+
+  // HOME INVADER: also add opponent home row cells as valid (P2 mirror: opponent home = 4)
   if (card.ability === 'home_invader') {
-    const enemyHomeRow = owner === 'player' ? 0 : 4;
+    const enemyHomeRow = owner === 'player' ? (_p2mp ? 4 : 0) : (_p2mp ? 0 : 4);
     const seen = new Set(validCells.map(({r,c}) => r+','+c));
     for (let hc = 0; hc < 7; hc++) {
       const cell = G.grid[enemyHomeRow][hc];
@@ -164,7 +166,11 @@ function getZonePreview(r, c, card, owner) {
 
   const zoneOffsets = ZONES[zoneKey] || ZONES.wide_cross;
 
-  const fwd = 1; // always show from player's viewing perspective (forward = upward in the mini-grid)
+  // P2 in multiplayer expands toward row 4 (game coords), so mirror fwd.
+  // The board renders reversed for P2, so it still LOOKS forward on screen.
+  const _p2zp = typeof _mpPlayer !== 'undefined' && _mpPlayer === 2;
+
+  const fwd = (owner === 'player' && _p2zp) ? -1 : 1;
 
   const cells = [];
 
@@ -182,6 +188,8 @@ function getZonePreview(r, c, card, owner) {
 
 }
 
+// DISPLAY-ONLY placement flashes. Mirrors computeBattleResults math exactly;
+// never mutates card/shield state (computeScores already ran in placeCard).
 function doComparisons(r, c, owner, card, depth=0) {
 
   if (depth > 3) return;
@@ -198,39 +206,47 @@ function doComparisons(r, c, owner, card, depth=0) {
 
     if (!target.card || target.owner !== enemy) continue;
 
-    const mv = card.edges[d.myE], tv = target.card.edges[d.theirE];
+    // Same effective-edge math as computeBattleResults (edgeMod + AI buff + pierce).
+    const mv = gzEffEdge(card, owner, d.myE);
+    const tv = gzEffEdge(target.card, target.owner, d.theirE);
 
-    const iWin = mv > tv;
+    const pMe   = card.ability === 'pierce';
+    const pThem = target.card.ability === 'pierce';
 
-    // Shield on target: only absorbs when attacker wins (target would lose)
-    if (target.card.ability==='shield' && !target.card.shieldExpended && iWin) {
-      target.card.shieldExpended = true;
-      addLog('shield', `${target.card.name} SHIELD absorbs comparison`);
+    const iWin  = mv > tv || (mv === tv && pMe && !pThem);
+    const iLose = tv > mv || (mv === tv && pThem && !pMe);
+    // pure tie: neither iWin nor iLose — harmless, never involves a shield
+
+    // SHIELD display only: computeScores (runs before doComparisons in placeCard)
+    // is the single authority for shield consumption. Show "absorbs" only for
+    // the exact battle that consumed the shield — never on ties or won battles.
+    if (iWin && target.card.ability==='shield' &&
+        target.card.shieldConsumedBy === d.theirE + ':' + card.id) {
+      addLog('shield', `${target.card.name} SHIELD absorbs the loss`);
       showFlash(r,c,nr,nc, mv, tv, false);
       continue;
     }
 
-    // Shield on placed card: absorbs when placed card would lose
-    if (card.ability==='shield' && !card.shieldExpended && !iWin) {
-      card.shieldExpended = true;
-      addLog('shield', `${card.name} SHIELD absorbs comparison`);
+    if (iLose && card.ability==='shield' &&
+        card.shieldConsumedBy === d.myE + ':' + target.card.id) {
+      addLog('shield', `${card.name} SHIELD absorbs the loss`);
       showFlash(r,c,nr,nc, mv, tv, false);
       continue;
     }
 
     showFlash(r, c, nr, nc, mv, tv, iWin);
 
-    addLog('compare', `${card.name} ${mv}${iWin?'>':'<'}${tv} vs ${target.card.name} (${d.lbl})`);
+    addLog('compare', `${card.name} ${mv}${iWin?'>':iLose?'<':'='}${tv} vs ${target.card.name} (${d.lbl})`);
 
-    // REVENGE: if the target card has REVENGE and loses, flash the winning card orange
-    if (!iWin && target.card.ability === 'revenge') {
+    // REVENGE: target card has REVENGE and lost — flash the winner (it takes the -1 VP)
+    if (iWin && target.card.ability === 'revenge') {
       setTimeout(() => {
         const _rvEl = document.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`);
         if (_rvEl) { _rvEl.classList.add('ambush-hit'); setTimeout(()=>_rvEl.classList.remove('ambush-hit'),800); }
       }, 350);
     }
-    // REVENGE: if the placed card has REVENGE and loses to target, flash the target
-    if (iWin && card.ability === 'revenge') {
+    // REVENGE: the placed REVENGE card lost — flash the winning target
+    if (iLose && card.ability === 'revenge') {
       setTimeout(() => {
         const _rvEl2 = document.querySelector(`.cell[data-r="${nr}"][data-c="${nc}"]`);
         if (_rvEl2) { _rvEl2.classList.add('ambush-hit'); setTimeout(()=>_rvEl2.classList.remove('ambush-hit'),800); }
@@ -249,7 +265,7 @@ function doComparisons(r, c, owner, card, depth=0) {
 
         if (t2.card && t2.owner===enemy) {
 
-          const mv2=Math.max(1,Math.floor(mv/2)), tv2=t2.card.edges[d.theirE];
+          const mv2=Math.max(1,Math.floor(mv/2)), tv2=gzEffEdge(t2.card, t2.owner, d.theirE);
 
           showFlash(nr,nc,nr2,nc2,mv2,tv2,mv2>tv2);
 

@@ -30,9 +30,9 @@ const ABILITY_TEXT = {
 
   density: 'This card scores +2 bonus VP.',
 
-  deciding_factor: 'When a row or column ends in a tie, this card tips the result in your favor.',
+  deciding_factor: 'When a row or column ends in a tie, your side wins that line and scores bonus VP equal to this card\'s power.',
 
-  commander: 'Adjacent friendly cards gain battle value on placement. Amount varies by faction (+1 or +2). Stacks.',
+  commander: '+2 to all battle values of adjacent friendly cards (all tiers), applied when either card is placed. Stacks.',
 
   laser_focus: 'Sums all four battle values into the enemy-facing side only. Zero on all other sides.',
 
@@ -48,7 +48,7 @@ const ABILITY_TEXT = {
 
   fortify: 'Claims the forward cell on placement. Opponent cannot place there; you can.',
 
-  shield: 'Absorbs the first battle loss. Sets shieldBlockH AND shieldBlockV simultaneously — one use per game.',
+  shield: 'The first time this card would lose a battle, the loss is prevented. One use per game — after that the shield is spent.',
 
   pierce: 'Ties count as wins for this card instead of draws.',
 
@@ -58,13 +58,9 @@ const ABILITY_TEXT = {
 
   sniper: 'On placement, silences the highest-power opponent card on their home row. That card contributes 0 VP.',
 
-  revenge: 'When this card loses a battle comparison, the winning enemy card permanently loses 1 VP (floor of 1).',
+  revenge: 'When this card loses a battle, the winning enemy card loses 1 VP for the rest of the game (revenge alone can\'t drop a card below 1 VP).',
 
-  birthright: 'On placement, a bonus Tier II card is added to your hand immediately.',
-
-  boost: 'Adjacent friendly cards gain +1 to every battle value when placed.',
-
-  spawn: 'Adjacent friendly cards gain +2 to every battle value when placed (hive sync).',
+  birthright: 'On placement, a copy of a random unused Tier II card from your hand is added to your hand immediately.',
 
 };
 
@@ -104,8 +100,6 @@ const ABILITY_ICONS = {
 
   flank:          { icon:'↺↺',  color:'#ff9900', label:'FLANK'          },
 
-  boost:          { icon:'⬆',   color:'#44ffcc', label:'BOOST'          },
-
   commander:      { icon:'★★',  color:'#ffcc00', label:'COMMANDER'      },
 
   shield:         { icon:'🛡',   color:'#aaaaff', label:'SHIELD'         },
@@ -117,8 +111,6 @@ const ABILITY_ICONS = {
   rush:           { icon:'▶!',  color:'#ff6644', label:'RUSH'           },
 
   cloak:          { icon:'?',   color:'#8888ff', label:'CLOAK'          },
-
-  spawn:          { icon:'★★',  color:'#88cc44', label:'SPAWN'          },
 
   intimidate:     { icon:'↓↓',  color:'#ff4488', label:'INTIMIDATE'     },
 

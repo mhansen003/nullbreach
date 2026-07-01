@@ -1,4 +1,11 @@
-﻿const RACE_DATA = {
+﻿// NOTE ON STATIC CARD FIELDS: the per-card `ability` / `abilityText` values in
+// the deck arrays below are LEGACY/DISPLAY-ONLY. Live games overwrite both via
+// assignRandomAbilities() (abilities.js) at initGame; they remain only as
+// fallback data for the multiplayer static-deck lookup (mpFindCard spread) and
+// the dev harness. Do not treat them as the shipped ability assignment.
+// `power` is likewise recomputed from tier in state.js (kept for the harness).
+
+const RACE_DATA = {
 
   terran:     { name:'THE TERRAN ACCORD',      sub:'UNITED COLONIAL FEDERATION',     color:'#7ab8e8', avatar:'â˜…',  avatarImg:'assets/avatars/terran.png',    quote:'"We are many worlds, one purpose."',            loreBg:'assets/lore_terran.png'     },
 
@@ -643,3 +650,28 @@ const HAZARD_CARDS = [
   { id:'hz_td',  name:'TIME DISPLACEMENT',  video:'assets/cards/hazard/time_displacement.mp4',  color:'#aa44ff' },
 
 ];
+
+// ── FACTION THEME OVERRIDE ─────────────────────────────────────────────────
+// window.GZ_FACTIONS (shared-data.js, loaded before this file in game.html) is
+// the single source of truth for faction name/color. RACE_DATA keeps its
+// literals as a safe fallback when GZ_FACTIONS is absent (dev harness, tests).
+if (typeof window !== 'undefined' && window.GZ_FACTIONS) {
+  for (const _fk in RACE_DATA) {
+    const _f = window.GZ_FACTIONS[_fk];
+    if (!_f) continue;
+    if (_f.color) RACE_DATA[_fk].color = _f.color;
+    if (_f.name)  RACE_DATA[_fk].name  = _f.name;
+  }
+}
+
+// ── SHARED FACTION → DECK MAP ──────────────────────────────────────────────
+// Single source of truth for faction id → deck array, consumed by game.html
+// (__activeDeck), state.js (aiHand) and multiplayer.js (opponent card lookup).
+if (typeof window !== 'undefined') {
+  window.GZ_DECKS = {
+    terran: PLAYER_CARDS, brood: BROOD_CARDS,
+    crystallis: CRYSTALLIS_CARDS, mycos: MYCOS_CARDS, veil: VEIL_CARDS,
+    entropy: ENTROPY_CARDS, void: VOID_CARDS, gas: GAS_CARDS,
+    lithos: LITHOS_CARDS, quantum: QUANTUM_CARDS, choir: CHOIR_CARDS
+  };
+}

@@ -16,6 +16,10 @@ function loadAudioSettings() {
 
 function initGame() {
 
+  // Desktop shell (Steam/Electron): mark a match as active (rich presence etc.)
+  if (window.gzDesktop && typeof window.gzDesktop.setMatchActive === 'function')
+    window.gzDesktop.setMatchActive(true);
+
   if (typeof achievOnGameStart === 'function') achievOnGameStart();
 
   const _hsfx=document.getElementById('hoverSfx'); if(_hsfx)_hsfx.load();
@@ -28,7 +32,9 @@ function initGame() {
 
     ),
 
-    playerHand: (window.__activeDeck || PLAYER_CARDS).map(c => {
+    // _brClone entries are BIRTHRIGHT clones registered into the static decks
+    // for multiplayer card lookup — never part of a fresh hand.
+    playerHand: (window.__activeDeck || PLAYER_CARDS).filter(c => !c._brClone).map(c => {
 
       // Power = tier number globally
 
@@ -40,21 +46,12 @@ function initGame() {
 
     aiHand: ((() => {
 
-      const factionDecks = {
-
-        terran: PLAYER_CARDS, brood: BROOD_CARDS,
-
-        crystallis: CRYSTALLIS_CARDS, mycos: MYCOS_CARDS, veil: VEIL_CARDS,
-
-        entropy: ENTROPY_CARDS, void: VOID_CARDS, gas: GAS_CARDS,
-
-        lithos: LITHOS_CARDS, quantum: QUANTUM_CARDS, choir: CHOIR_CARDS
-
-      };
+      // Faction → deck map lives in cards.js (window.GZ_DECKS)
+      const factionDecks = window.GZ_DECKS || {};
 
       return factionDecks[window.aiRaceId] || AI_CARDS;
 
-    })()).map(c => {
+    })()).filter(c => !c._brClone).map(c => {
 
       const tierPow = {'I':1,'II':2,'III':3,'IV':4}[c.tier] || c.power;
 

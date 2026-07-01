@@ -12,15 +12,11 @@ function applyPlacementAbility(card, r, c, owner) {
 
   card.edgeMod = card.edgeMod || {n:0,s:0,e:0,w:0};
 
-  // BOOST: adjacent friendly cards +1 all edges
+  // COMMANDER: adjacent friendly cards +2 all edges (any tier). Stacks.
 
-  // COMMANDER: adjacent same-tier friendly cards +2 all edges
+  if (card.ability === 'commander') {
 
-  // SPAWN (Brood): identical math to COMMANDER: Brood-unique name
-
-  if (card.ability === 'boost' || card.ability === 'commander' || card.ability === 'spawn') {
-
-    const bonus = (card.ability === 'commander' || card.ability === 'spawn') ? 2 : 1;
+    const bonus = 2;
 
     dirs.forEach(({dr,dc}) => {
 
@@ -42,31 +38,21 @@ function applyPlacementAbility(card, r, c, owner) {
 
     });
 
-    if (card.ability === 'spawn') addLog('compare', `SPAWN: ${card.name} coordinates the hive: adjacent same-tier allies +2`);
-
   }
 
-  // RETROACTIVE BUFF: if an adjacent friendly card is a commander/boost/spawn, buff this card
+  // RETROACTIVE BUFF: if an adjacent friendly card is a commander, buff this card
   dirs.forEach(({dr,dc}) => {
     const nr=r+dr, nc=c+dc;
     if (nr<0||nr>=5||nc<0||nc>=7) return;
     const nb = G.grid[nr][nc];
     if (!nb.card || nb.owner !== owner) return;
-    if (nb.card.ability === 'commander' || nb.card.ability === 'spawn') {
+    if (nb.card.ability === 'commander') {
       const bonus = 2;
       card.edgeMod = card.edgeMod || {n:0,s:0,e:0,w:0};
       card.edgeMod.n += bonus; card.edgeMod.s += bonus;
       card.edgeMod.e += bonus; card.edgeMod.w += bonus;
-    } else if (nb.card.ability === 'boost') {
-      card.edgeMod = card.edgeMod || {n:0,s:0,e:0,w:0};
-      card.edgeMod.n += 1; card.edgeMod.s += 1;
-      card.edgeMod.e += 1; card.edgeMod.w += 1;
     }
   });
-
-  if (false) {
-
-  }
 
   // LASER FOCUS: sums all 4 edges into the forward-facing edge only.
   // Player attacks toward lower row (N). P2 in PvP is inverted — attacks toward higher row (S).
@@ -80,17 +66,20 @@ function applyPlacementAbility(card, r, c, owner) {
     // forward edge: player=N normally, player=S for P2; ai=S normally, ai=N for P2
     const _fwdN = (owner === 'player') ? !_p2 : _p2;
 
+    // ACCUMULATE (+=) so buffs already applied (e.g. commander retro-buff)
+    // are preserved: base edges collapse into the forward side (fwd = total,
+    // others = 0 base), while edgeMod bonuses stay additive on top.
     if (_fwdN) {
-      card.edgeMod.n = total - card.edges.n;
-      card.edgeMod.s = -card.edges.s;
-      card.edgeMod.e = -card.edges.e;
-      card.edgeMod.w = -card.edges.w;
+      card.edgeMod.n += total - card.edges.n;
+      card.edgeMod.s += -card.edges.s;
+      card.edgeMod.e += -card.edges.e;
+      card.edgeMod.w += -card.edges.w;
       addLog('compare', `LASER FOCUS: ${card.name} concentrates forward: N=${total}`);
     } else {
-      card.edgeMod.s = total - card.edges.s;
-      card.edgeMod.n = -card.edges.n;
-      card.edgeMod.e = -card.edges.e;
-      card.edgeMod.w = -card.edges.w;
+      card.edgeMod.s += total - card.edges.s;
+      card.edgeMod.n += -card.edges.n;
+      card.edgeMod.e += -card.edges.e;
+      card.edgeMod.w += -card.edges.w;
       addLog('compare', `LASER FOCUS: ${card.name} concentrates forward: S=${total}`);
     }
 
@@ -108,7 +97,7 @@ function applyPlacementAbility(card, r, c, owner) {
 
       const nb = G.grid[nr][nc];
 
-      if (!nb.card || nb.owner === owner) return;
+      if (!nb.card || nb.owner === owner || nb.owner === 'hazard') return;
 
       nb.card.edgeMod = nb.card.edgeMod || {n:0,s:0,e:0,w:0};
 
@@ -170,13 +159,18 @@ function applyPlacementAbility(card, r, c, owner) {
       bestCell.card._silenced = true;
       addLog('compare', `SNIPER: ${card.name} silences ${bestCell.card.name} — 0 VP for the rest of the game`);
       if (typeof showToast === 'function') showToast(`SNIPER: ${bestCell.card.name} silenced — 0 VP`);
+    } else {
+      // Fizzle: no un-silenced enemy card on their home row — tell the player
+      addLog('compare', `SNIPER: ${card.name} finds no target on the enemy home row — shot wasted`);
+      if (typeof showToast === 'function') showToast('SNIPER: no target — shot wasted', '#ff8800');
     }
   }
 
   // HOME INVADER: placement rule handled in placement.js
   // Visual: briefly flash red glow on all cells in the opponent's home row when placed there
   if (card.ability === 'home_invader') {
-    const opponentHomeRow = owner === 'player' ? 0 : 4;
+    const _p2hi = typeof _mpPlayer !== 'undefined' && _mpPlayer === 2;
+    const opponentHomeRow = owner === 'player' ? (_p2hi ? 4 : 0) : (_p2hi ? 0 : 4);
     if (r === opponentHomeRow) {
       for (let hc = 0; hc < 7; hc++) {
         const hEl = document.querySelector(`.cell[data-r="${opponentHomeRow}"][data-c="${hc}"]`);
@@ -190,46 +184,72 @@ function applyPlacementAbility(card, r, c, owner) {
 
   // LAMB: stats set during assignRandomAbilities: no placement-time effect here
 
-  // BIRTHRIGHT: on placement, add a bonus T2 card to hand
+  // BIRTHRIGHT: on placement, add a copy of a random UNUSED Tier II card from
+  // the owner's own hand (same semantics for player and AI).
+  //
+  // MP determinism: both clients hold mirrored hands (same static deck order,
+  // same room-seeded abilities, same used flags), so the candidate list is
+  // identical on both sides. The pick index and the clone id are derived from
+  // room + source card id + number of cards on the board — values both clients
+  // compute identically at this moment — so both clients create the SAME clone
+  // with the SAME id.
   if (card.ability === 'birthright') {
-    if (owner === 'player') {
-      const availableT2 = (window.__activeDeck || G.playerHand).filter(c =>
-        c.tier === 'II' && !G.playerHand.some(h => h.id === c.id) && !c.used
-      );
-      if (availableT2.length > 0) {
-        const src = availableT2[Math.floor(Math.random() * availableT2.length)];
-        const bonus = {...src};
-        bonus.id = bonus.id + '_br_' + Date.now();
-        bonus.used = false; bonus.shieldExpended = false;
-        bonus.edgeMod = {n:0,s:0,e:0,w:0};
-        G.playerHand.push(bonus);
+    const hand  = owner === 'player' ? G.playerHand : G.aiHand;
+    const avail = hand.filter(c => c.tier === 'II' && !c.used);
+    if (avail.length > 0) {
+      const _inMp = typeof _mpRoom !== 'undefined' && _mpRoom;
+      const placedCount = G.grid.flat().filter(x => x.card).length;
+      let idx;
+      if (_inMp) {
+        let h = 0;
+        const seedStr = _mpRoom + '|' + card.id + '|' + placedCount;
+        for (const ch of seedStr) h = (h * 31 + ch.charCodeAt(0)) & 0x7fffffff;
+        idx = h % avail.length;
+      } else {
+        idx = Math.floor(Math.random() * avail.length);
+      }
+      const src = avail[idx];
+      // Deep-copy edges/edgeMod so the clone never shares mutable state with its source
+      const bonus = {
+        ...src,
+        id: src.id + '_br_' + placedCount,   // deterministic — identical on both MP clients
+        edges: {...src.edges},
+        edgeMod: {n:0,s:0,e:0,w:0},
+        used: false, shieldExpended: false, shieldConsumedBy: null,
+        _silenced: false, _revengePenalty: 0, cloakRevealed: null,
+      };
+      hand.push(bonus);
+      // MP: register the clone in the owner's static faction deck so the remote
+      // client's mpFindCard(cloneId) resolves if the clone is later placed.
+      // Marked _brClone so initGame filters these out of future hands.
+      if (_inMp && typeof window !== 'undefined') {
+        const _decks = {
+          terran:  typeof PLAYER_CARDS     !== 'undefined' ? PLAYER_CARDS     : null,
+          brood:   typeof BROOD_CARDS      !== 'undefined' ? BROOD_CARDS      : null,
+          crystallis: typeof CRYSTALLIS_CARDS !== 'undefined' ? CRYSTALLIS_CARDS : null,
+          mycos:   typeof MYCOS_CARDS      !== 'undefined' ? MYCOS_CARDS      : null,
+          veil:    typeof VEIL_CARDS       !== 'undefined' ? VEIL_CARDS       : null,
+          entropy: typeof ENTROPY_CARDS    !== 'undefined' ? ENTROPY_CARDS    : null,
+          void:    typeof VOID_CARDS       !== 'undefined' ? VOID_CARDS       : null,
+          gas:     typeof GAS_CARDS        !== 'undefined' ? GAS_CARDS        : null,
+          lithos:  typeof LITHOS_CARDS     !== 'undefined' ? LITHOS_CARDS     : null,
+          quantum: typeof QUANTUM_CARDS    !== 'undefined' ? QUANTUM_CARDS    : null,
+          choir:   typeof CHOIR_CARDS      !== 'undefined' ? CHOIR_CARDS      : null,
+        };
+        const fid  = owner === 'player' ? window.playerRaceId : window.aiRaceId;
+        const deck = _decks[fid];
+        if (deck && !deck.some(d => d.id === bonus.id)) {
+          deck.push({...bonus, edges: {...bonus.edges}, edgeMod: {n:0,s:0,e:0,w:0}, _brClone: true});
+        }
+      }
+      if (owner === 'player') {
         addLog('player', `BIRTHRIGHT: ${card.name} grants a bonus card: ${bonus.name}`);
         if (typeof showToast === 'function') showToast(`BIRTHRIGHT: bonus card drawn`, '#ffaaff');
-      }
-    } else {
-      // AI birthright: pick a random unused T2 from aiHand pool
-      const aiAvail = G.aiHand.filter(c => c.tier === 'II' && !c.used);
-      if (aiAvail.length > 0) {
-        const src = aiAvail[Math.floor(Math.random() * aiAvail.length)];
-        const bonus = {...src};
-        bonus.id = bonus.id + '_br_' + Date.now();
-        bonus.used = false; bonus.shieldExpended = false;
-        bonus.edgeMod = {n:0,s:0,e:0,w:0};
-        G.aiHand.push(bonus);
-        addLog('compare', `BIRTHRIGHT: AI ${card.name} grants a bonus card: ${bonus.name}`);
+      } else {
+        addLog('compare', `BIRTHRIGHT: ${card.name} grants the opponent a bonus card: ${bonus.name}`);
       }
     }
   }
-
-  // Update surge trigger state (used in computeBattleResults)
-
-  if (!G.surgeTrigger) G.surgeTrigger = {player:false, ai:false};
-
-  const s = computeScores();
-
-  G.surgeTrigger.player = s.rowResults.filter(r=>r==='a').length > s.rowResults.filter(r=>r==='p').length;
-
-  G.surgeTrigger.ai     = s.rowResults.filter(r=>r==='p').length > s.rowResults.filter(r=>r==='a').length;
 
 }
 
@@ -331,7 +351,8 @@ function assignRandomAbilities(hand, raceId) {
   // Build an assignment list: all pool abilities in shuffled order first,
   // then random picks for any slots beyond pool size.
   // Guarantees every pool ability appears at least once before duplicates.
-  const _shuffledPool = [...pool].sort(() => _arng() - 0.5);
+  // Uses the seeded Fisher-Yates (_fy) so both MP clients shuffle identically.
+  const _shuffledPool = _fy(pool);
   const _chosenArr = Array.from(chosen);
   const _assignments = _chosenArr.map((_, i) =>
     i < _shuffledPool.length

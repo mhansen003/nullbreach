@@ -3,47 +3,44 @@ function _mobileDims() {
   return { cw:44, ch:52, gap:2, sw:46, sh:54 };
 }
 
-function hasPlacedTier(tier) {
-
-  return G.playerHand.some(c =>
-
-    c.tier === tier && c.used &&
-
-    G.grid.flat().some(cell => cell.card?.id === c.id && cell.owner === 'player')
-
-  );
-
-}
-
 function addLog(type, msg) {
 
   G.log.unshift({type, msg});
 
-  document.getElementById('logEntries').innerHTML =
+  if (typeof document !== 'undefined') {
 
-    G.log.slice(0,18).map(e=>`<div class="log-entry ${e.type}">${e.msg}</div>`).join('');
+    const _le = document.getElementById('logEntries');
+
+    if (_le) _le.innerHTML =
+
+      G.log.slice(0,18).map(e=>`<div class="log-entry ${e.type}">${e.msg}</div>`).join('');
+
+    // Screen-reader announcement region (added by the accessibility pass)
+
+    const _aria = document.getElementById('ariaLive');
+
+    if (_aria) _aria.textContent = msg;
+
+  }
 
 }
 
+// Short codes for the shipped (assignable) abilities only
 function ab(a) {
 
   return {
 
-    shield:'SHD', phantom:'PHT', chain:'CHN', double_strike:'DBL',
+    shield:'SHD', phantom:'PHT', double_strike:'DBL',
 
-    intimidate:'INT', mirror:'MRR', ambush:'AMB', stonewall:'STW',
+    intimidate:'INT', sniper:'SNP', birthright:'BRT',
 
-    sniper:'SNP', birthright:'BRT', deciding_factor:'DF', echo:'ECH',
+    deciding_factor:'DF', density:'DNS', commander:'CMD',
 
-    overwhelm:'OVR', density:'DNS', hat_trick:'HAT', edge_play:'EPY',
+    flank:'FLK', rush:'RSH', pierce:'PRC',
 
-    boost:'BST', commander:'CMD', sweep:'SWP', flank:'FLK',
+    laser_focus:'LSR', lamb:'LMB', home_invader:'HMI',
 
-    rush:'RSH', pierce:'PRC', spawn:'SPN', surge:'SRG',
-
-    laser_focus:'LSR', lamb:'LMB', home_invader:'HMI', cloak:'CLK',
-
-    revenge:'RVG', fortify:'FRT'
+    cloak:'CLK', revenge:'RVG', fortify:'FRT'
 
   }[a] || (a ? a.slice(0,3).toUpperCase() : '');
 
@@ -89,6 +86,8 @@ function seededRand(seed) {
 
   let s = seed;
 
-  return function() { s = (s * 1664525 + 1013904223) & 0xffffffff; return (s >>> 0) / 0xffffffff; };
+  // Divide by 2^32 (not 2^32-1) so the result is always in [0, 1) — never 1.0,
+  // which would make Math.floor(rand()*n) return an out-of-range index n.
+  return function() { s = (s * 1664525 + 1013904223) & 0xffffffff; return (s >>> 0) / 0x100000000; };
 
 }

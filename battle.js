@@ -1,3 +1,40 @@
+// ── Shared effective-edge helpers ────────────────────────────────────────
+// Single source of truth for battle math. Used by computeBattleResults,
+// doComparisons (placement.js) and gzPreviewBattle (preview.js).
+
+function _gzIsMp() {
+  return !!((typeof _mpRoom !== 'undefined' && _mpRoom) ||
+            (typeof _mpPlayer !== 'undefined' && _mpPlayer));
+}
+
+// Aggressive-difficulty AI buff: SYMMETRIC — applies to ALL of the AI card's
+// battle edges (attack AND defense, horizontal AND vertical). PvE only:
+// never applied in multiplayer (both clients would disagree on who is 'ai').
+function gzAiBuffMult(owner) {
+  return (owner === 'ai' && !_gzIsMp() &&
+          typeof window !== 'undefined' && window.aiDifficulty === 'aggressive') ? 1.1 : 1;
+}
+
+// Effective battle value of one edge: base + edgeMod, then AI buff (rounded).
+function gzEffEdge(card, owner, dir) {
+  const v = card.edges[dir] + (card.edgeMod?.[dir] || 0);
+  return Math.round(v * gzAiBuffMult(owner));
+}
+
+// SHIELD: absorbs exactly ONE losing battle per game. The first loss consumes
+// the shield and records WHICH battle consumed it ('<defending edge>:<attacker id>')
+// so that recomputes suppress only that same battle's loss — every other loss
+// counts normally. shieldExpended stays accurate for the renderers.
+function _gzShieldAbsorbs(card, battleKey) {
+  if (card.ability !== 'shield') return false;
+  if (!card.shieldConsumedBy) {
+    card.shieldConsumedBy = battleKey;
+    card.shieldExpended = true;
+    return true;
+  }
+  return card.shieldConsumedBy === battleKey;
+}
+
 function computeBattleResults() {
 
   // Use win/loss COUNTERS per axis: handles sandwiched cards correctly.
@@ -9,6 +46,15 @@ function computeBattleResults() {
     Array(7).fill(null).map(() => ({ hW:0, hL:0, vW:0, vL:0 }))
 
   );
+
+  // REVENGE (idempotent): the penalty is rebuilt from scratch on every pass as
+  // a pure function of the CURRENT board — a card gets exactly -1 per adjacent
+  // enemy REVENGE card it beats. Cards never leave the board in this game, so
+  // the penalty is effectively permanent, and repeated recomputes can no
+  // longer compound it (old bug: counter += on every computeScores call).
+  for (let r = 0; r < 5; r++)
+    for (let c = 0; c < 7; c++)
+      if (G.grid[r][c].card) G.grid[r][c].card._revengePenalty = 0;
 
   for (let r = 0; r < 5; r++) {
 
@@ -26,17 +72,13 @@ function computeBattleResults() {
 
         if (east.card && east.owner !== cell.owner && cell.owner !== "hazard" && east.owner !== "hazard") {
 
-          const surgeBonus = (cell.card.ability === 'surge' && G.surgeTrigger?.[cell.owner]) ? 3 : 0;
-
-          const _aiBuff = (window.aiDifficulty==='aggressive' && cell.owner==='ai') ? 1.1 : 1.0;
-
           if (cell.card.ability === 'cloak') { cell.card.cloakRevealed = cell.card.cloakRevealed || {}; cell.card.cloakRevealed.e = true; }
 
           if (east.card.ability === 'cloak') { east.card.cloakRevealed = east.card.cloakRevealed || {}; east.card.cloakRevealed.w = true; }
 
-          const me = Math.round((cell.card.edges.e + (cell.card.edgeMod?.e || 0) + surgeBonus) * _aiBuff);
+          const me   = gzEffEdge(cell.card, cell.owner, 'e');
 
-          const them = (east.card.edges.w + (east.card.edgeMod?.w || 0));
+          const them = gzEffEdge(east.card, east.owner, 'w');
 
           const pierce = cell.card.ability === 'pierce';
 
@@ -46,38 +88,23 @@ function computeBattleResults() {
 
             b[r][c].hW++;
 
-            const hMargin = me - them;
+            if (!_gzShieldAbsorbs(east.card, 'w:' + cell.card.id)) b[r][c+1].hL++;
 
-            // OVERWHELM: H win by 3+ → bonus V win
-
-            if (cell.card.ability === 'overwhelm' && hMargin >= 3) b[r][c].vW++;
-
-            if (east.card.ability === 'shield' && !east.card.shieldExpended) {
-
-              east.card.shieldExpended = true;
-
-              east.card.shieldBlockH = true;
-              east.card.shieldBlockV = true;
-
-            }
-
-            if (!east.card.shieldBlockH) b[r][c+1].hL++;
             // REVENGE: east card loses H: penalize the cell card
-            if (east.card.ability === 'revenge') {
-              cell.card._revengePenalty = Math.min((cell.card._revengePenalty || 0) + 1, 9);
-            }
+            if (east.card.ability === 'revenge') cell.card._revengePenalty++;
 
-            // DOUBLE STRIKE 2nd hit at half strength
+            // DOUBLE STRIKE 2nd hit at half strength (skips hazards, respects shield)
 
             if (cell.card.ability === 'double_strike' && c < 5) {
 
               const far = G.grid[r][c+2];
 
-              if (far.card && far.owner !== cell.owner) {
+              if (far.card && far.owner !== cell.owner && far.owner !== 'hazard') {
 
                 const me2 = Math.max(1, Math.floor(me / 2));
 
-                if (me2 > (far.card.edges.w + (far.card.edgeMod?.w||0))) b[r][c+2].hL++;
+                if (me2 > gzEffEdge(far.card, far.owner, 'w') &&
+                    !_gzShieldAbsorbs(far.card, 'dsw:' + cell.card.id)) b[r][c+2].hL++;
 
               }
 
@@ -87,42 +114,28 @@ function computeBattleResults() {
 
             b[r][c+1].hW++;
 
-            const hMargin = them - me;
+            if (!_gzShieldAbsorbs(cell.card, 'e:' + east.card.id)) b[r][c].hL++;
 
-            // OVERWHELM on east card
-
-            if (east.card.ability === 'overwhelm' && hMargin >= 3) b[r][c+1].vW++;
-
-            if (cell.card.ability === 'shield' && !cell.card.shieldExpended) {
-
-              cell.card.shieldExpended = true;
-
-              cell.card.shieldBlockH = true;
-              cell.card.shieldBlockV = true;
-
-            }
-
-            if (!cell.card.shieldBlockH) b[r][c].hL++;
             // REVENGE: cell loses H: penalize the east card
-            if (cell.card.ability === 'revenge') {
-              east.card._revengePenalty = Math.min((east.card._revengePenalty || 0) + 1, 9);
-            }
+            if (cell.card.ability === 'revenge') east.card._revengePenalty++;
 
             if (east.card.ability === 'double_strike' && c > 0) {
 
               const far = G.grid[r][c-1];
 
-              if (far.card && far.owner !== east.owner) {
+              if (far.card && far.owner !== east.owner && far.owner !== 'hazard') {
 
                 const me2 = Math.max(1, Math.floor(them / 2));
 
-                if (me2 > (far.card.edges.e + (far.card.edgeMod?.e||0))) b[r][c-1].hL++;
+                if (me2 > gzEffEdge(far.card, far.owner, 'e') &&
+                    !_gzShieldAbsorbs(far.card, 'dse:' + east.card.id)) b[r][c-1].hL++;
 
               }
 
             }
 
-          } else { b[r][c].hL++; b[r][c+1].hL++; } // tie = neither wins
+          }
+          // else: pure tie — NO effect on either card (matches player-facing TIE)
 
         }
 
@@ -140,13 +153,9 @@ function computeBattleResults() {
 
           if (south.card.ability === 'cloak') { south.card.cloakRevealed = south.card.cloakRevealed || {}; south.card.cloakRevealed.n = true; }
 
-          const surgeVBonus  = (cell.card.ability === 'surge'  && G.surgeTrigger?.[cell.owner])  ? 3 : 0;
+          const me   = gzEffEdge(cell.card, cell.owner, 's');
 
-          const surgeVBonusS = (south.card.ability === 'surge' && G.surgeTrigger?.[south.owner]) ? 3 : 0;
-
-          const me = (cell.card.edges.s + (cell.card.edgeMod?.s || 0) + surgeVBonus);
-
-          const them = (south.card.edges.n + (south.card.edgeMod?.n || 0) + surgeVBonusS);
+          const them = gzEffEdge(south.card, south.owner, 'n');
 
           const pierceCell  = cell.card.ability === 'pierce';
           const pierceSouth = south.card.ability === 'pierce';
@@ -155,27 +164,17 @@ function computeBattleResults() {
 
             b[r][c].vW++;
 
-            const margin = me - them;
+            if (!_gzShieldAbsorbs(south.card, 'n:' + cell.card.id)) b[r+1][c].vL++;
 
-            // SHIELD V: south card blocks first V loss
-            if (south.card.ability === 'shield' && !south.card.shieldExpended) {
-              south.card.shieldExpended = true;
-              south.card.shieldBlockH = true;
-              south.card.shieldBlockV = true;
-            }
+            if (south.card.ability === 'revenge') cell.card._revengePenalty++;
 
-            if (!south.card.shieldBlockV) b[r+1][c].vL++;
-            if (south.card.ability === 'revenge') {
-              cell.card._revengePenalty = Math.min((cell.card._revengePenalty || 0) + 1, 9);
-            }
-            if (pierceCell && me === them) addLog('compare', 'PIERCE (V): tie → win for cell');
-
-            // DOUBLE STRIKE downward at half strength
+            // DOUBLE STRIKE downward at half strength (skips hazards, respects shield)
             if (cell.card.ability === 'double_strike' && r < 3) {
               const far = G.grid[r+2][c];
-              if (far.card && far.owner !== cell.owner) {
+              if (far.card && far.owner !== cell.owner && far.owner !== 'hazard') {
                 const me2 = Math.max(1, Math.floor(me / 2));
-                if (me2 > (far.card.edges.n + (far.card.edgeMod?.n||0))) b[r+2][c].vL++;
+                if (me2 > gzEffEdge(far.card, far.owner, 'n') &&
+                    !_gzShieldAbsorbs(far.card, 'dsn:' + cell.card.id)) b[r+2][c].vL++;
               }
             }
 
@@ -183,127 +182,22 @@ function computeBattleResults() {
 
             b[r+1][c].vW++;
 
-            // SHIELD V: cell (north card) blocks first V loss
-            if (cell.card.ability === 'shield' && !cell.card.shieldExpended) {
-              cell.card.shieldExpended = true;
-              cell.card.shieldBlockH = true;
-              cell.card.shieldBlockV = true;
-            }
+            if (!_gzShieldAbsorbs(cell.card, 's:' + south.card.id)) b[r][c].vL++;
 
-            if (!cell.card.shieldBlockV) b[r][c].vL++;
-            if (cell.card.ability === 'revenge') {
-              south.card._revengePenalty = Math.min((south.card._revengePenalty || 0) + 1, 9);
-            }
-            if (pierceSouth && me === them) addLog('compare', 'PIERCE (V): tie → win for south');
+            if (cell.card.ability === 'revenge') south.card._revengePenalty++;
 
-            // DOUBLE STRIKE upward at half strength
+            // DOUBLE STRIKE upward at half strength (skips hazards, respects shield)
             if (south.card.ability === 'double_strike' && r > 0) {
               const far = G.grid[r-1][c];
-              if (far.card && far.owner !== south.owner) {
+              if (far.card && far.owner !== south.owner && far.owner !== 'hazard') {
                 const me2 = Math.max(1, Math.floor(them / 2));
-                if (me2 > (far.card.edges.s + (far.card.edgeMod?.s||0))) b[r-1][c].vL++;
+                if (me2 > gzEffEdge(far.card, far.owner, 's') &&
+                    !_gzShieldAbsorbs(far.card, 'dss:' + south.card.id)) b[r-1][c].vL++;
               }
             }
 
-          } else { b[r][c].vL++; b[r+1][c].vL++; } // tie = neither wins
-
-        }
-
-      }
-
-    }
-
-  }
-
-  // ── EDGE PLAY: border cards fight opposite-edge enemies (wrap) ────────
-
-  for (let r = 0; r < 5; r++) {
-
-    for (let c = 0; c < 7; c++) {
-
-      const cell = G.grid[r][c];
-
-      if (!cell.card || cell.card.ability !== 'edge_play') continue;
-
-      const thisOwner = cell.owner;
-
-      // West border: wrap fight with col 6
-
-      // Far card gets no hL: the battle is invisible to it (non-local VP rule)
-
-      if (c === 0) {
-
-        const opp = G.grid[r][6];
-
-        if (opp.card && opp.owner !== thisOwner) {
-
-          const me = cell.card.edges.w + (cell.card.edgeMod?.w||0);
-
-          const them = opp.card.edges.e + (opp.card.edgeMod?.e||0);
-
-          if (me > them) { b[r][c].hW++; }           // edge_play wins, far card unaffected
-
-          else if (me < them) { b[r][c].hL++; }      // edge_play loses, far card unaffected
-
-        }
-
-      }
-
-      // East border: wrap fight with col 0
-
-      if (c === 6) {
-
-        const opp = G.grid[r][0];
-
-        if (opp.card && opp.owner !== thisOwner) {
-
-          const me = cell.card.edges.e + (cell.card.edgeMod?.e||0);
-
-          const them = opp.card.edges.w + (opp.card.edgeMod?.w||0);
-
-          if (me > them) { b[r][c].hW++; }
-
-          else if (me < them) { b[r][c].hL++; }
-
-        }
-
-      }
-
-      // North border: wrap fight with row 4
-
-      if (r === 0) {
-
-        const opp = G.grid[4][c];
-
-        if (opp.card && opp.owner !== thisOwner) {
-
-          const me = cell.card.edges.n + (cell.card.edgeMod?.n||0);
-
-          const them = opp.card.edges.s + (opp.card.edgeMod?.s||0);
-
-          if (me > them) { b[r][c].vW++; }
-
-          else if (me < them) { b[r][c].vL++; }
-
-        }
-
-      }
-
-      // South border: wrap fight with row 0
-
-      if (r === 4) {
-
-        const opp = G.grid[0][c];
-
-        if (opp.card && opp.owner !== thisOwner) {
-
-          const me = cell.card.edges.s + (cell.card.edgeMod?.s||0);
-
-          const them = opp.card.edges.n + (opp.card.edgeMod?.n||0);
-
-          if (me > them) { b[r][c].vW++; }
-
-          else if (me < them) { b[r][c].vL++; }
+          }
+          // else: pure tie — NO effect on either card (matches player-facing TIE)
 
         }
 
@@ -373,8 +267,6 @@ function computeScores() {
 
       if (!cell.card || cell.owner === 'hazard') continue;
 
-      if (cell.card.stonewalled || cell.card.stonewall_victim) continue;
-
       // SNIPER: sniped card contributes 0 VP
 
 
@@ -429,37 +321,29 @@ function computeScores() {
   const rawRowResults = rowResults.slice();
   const rawColResults = colResults.slice();
 
-  // DECIDING FACTOR: breaks ties — but if both sides have one in the same row/col they nullify each other
+  // DECIDING FACTOR: breaks ties — but if both sides have one in the same row/col they nullify each other.
+  // RULE: a DF-decided line scores as if the DF owner had won it by the DF card's
+  // power — the winner gains bonus VP equal to the (highest) DF card's power on
+  // that line. This makes DF a real VP swing, not just badge coloring.
+  // NOTE: computeScores is PURE (no logging / DOM). placeCard (turn.js)
+  // announces DF changes by diffing dfRows/dfCols between placements.
+
+  let dfBonusP = 0, dfBonusA = 0;
+
+  const _dfPower = (cells, owner) => cells.reduce((mx, cell) =>
+    (cell.card && cell.owner === owner && cell.card.ability === 'deciding_factor' && !cell.card._silenced)
+      ? Math.max(mx, cell.card.power || 0) : mx, 0);
 
   for (let r = 0; r < 5; r++) {
 
     if (rowResults[r] === 'tie') {
 
-      const hasPDf  = G.grid[r].some(cell => cell.card && cell.owner === 'player' && cell.card.ability === 'deciding_factor' && !cell.card._silenced);
-      const hasAiDf = G.grid[r].some(cell => cell.card && cell.owner === 'ai'     && cell.card.ability === 'deciding_factor' && !cell.card._silenced);
+      const pDf  = _dfPower(G.grid[r], 'player');
+      const aiDf = _dfPower(G.grid[r], 'ai');
 
-      if (hasPDf && hasAiDf) {
-        addLog('compare', 'DECIDING FACTOR: both sides — nullified (row ' + (r+1) + ' stays TIE)');
-        continue; // stays tie
-      }
-
-      if (hasPDf) {
-        rowResults[r] = 'p';
-        addLog('compare', 'DECIDING FACTOR: tie broken in row ' + (r+1) + ' for player');
-        setTimeout(function() {
-          if (!G || !G.grid || !G.grid[r]) return;
-          for (let _dc=0; _dc<7; _dc++) {
-            const _dfcell = G.grid[r][_dc];
-            if (_dfcell && _dfcell.card && _dfcell.card.ability === 'deciding_factor' && _dfcell.owner === 'player') {
-              const _dfel = document.querySelector('.cell[data-r="'+r+'"][data-c="'+_dc+'"]');
-              if (_dfel) { _dfel.classList.add('just-placed'); setTimeout(function(){_dfel.classList.remove('just-placed');},600); }
-            }
-          }
-        }, 100);
-        continue;
-      }
-
-      if (hasAiDf) rowResults[r] = 'a';
+      if (pDf && aiDf) continue;          // both sides — nullified, stays tie
+      if (pDf)  { rowResults[r] = 'p'; dfBonusP += pDf;  }
+      else if (aiDf) { rowResults[r] = 'a'; dfBonusA += aiDf; }
 
     }
 
@@ -469,22 +353,14 @@ function computeScores() {
 
     if (colResults[c] === 'tie') {
 
-      let hasPDfCol = false, hasAiDfCol = false;
+      const colCells = Array(5).fill(null).map((_, r) => G.grid[r][c]);
 
-      for (let r = 0; r < 5; r++) {
-        const cell = G.grid[r][c];
-        if (!cell.card || cell.card.ability !== 'deciding_factor' || cell.card._silenced) continue;
-        if (cell.owner === 'player') hasPDfCol = true;
-        if (cell.owner === 'ai')     hasAiDfCol = true;
-      }
+      const pDf  = _dfPower(colCells, 'player');
+      const aiDf = _dfPower(colCells, 'ai');
 
-      if (hasPDfCol && hasAiDfCol) {
-        addLog('compare', 'DECIDING FACTOR: both sides — nullified (col ' + (c+1) + ' stays TIE)');
-      } else if (hasPDfCol) {
-        colResults[c] = 'p';
-      } else if (hasAiDfCol) {
-        colResults[c] = 'a';
-      }
+      if (pDf && aiDf) continue;          // nullified
+      if (pDf)  { colResults[c] = 'p'; dfBonusP += pDf;  }
+      else if (aiDf) { colResults[c] = 'a'; dfBonusA += aiDf; }
 
     }
 
@@ -521,6 +397,12 @@ function computeScores() {
     else if (net < 0) aVP += (-net);
 
   });
+
+  // DECIDING FACTOR bonus VP: tied lines score for the DF owner (see rule above)
+
+  pVP += dfBonusP;
+
+  aVP += dfBonusA;
 
   // Track which rows/cols were decided by DECIDING FACTOR (was a tie pre-DF, became a win post-DF)
   const dfRows = rowResults.map((res, r) => rawRowResults[r] === 'tie' && res !== 'tie' ? res : null);

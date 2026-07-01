@@ -1,3 +1,37 @@
+// DECIDING FACTOR announcements: computeScores is pure (no logging/DOM), so the
+// placement path diffs dfRows/dfCols between placements and fires the log +
+// cell pulse exactly once, only when the DF-broken set actually changes.
+function _gzAnnounceDfChanges(s) {
+  const prevR = G._dfPrevRows || Array(5).fill(null);
+  const prevC = G._dfPrevCols || Array(7).fill(null);
+  const pulse = (rr) => {
+    if (typeof document === 'undefined') return;
+    setTimeout(() => {
+      if (!G || !G.grid || !G.grid[rr]) return;
+      for (let dc = 0; dc < 7; dc++) {
+        const cell = G.grid[rr][dc];
+        if (cell && cell.card && cell.card.ability === 'deciding_factor' && cell.owner === 'player') {
+          const el = document.querySelector('.cell[data-r="'+rr+'"][data-c="'+dc+'"]');
+          if (el) { el.classList.add('just-placed'); setTimeout(() => el.classList.remove('just-placed'), 600); }
+        }
+      }
+    }, 100);
+  };
+  s.dfRows.forEach((res, ri) => {
+    if (res && prevR[ri] !== res) {
+      addLog('compare', 'DECIDING FACTOR: tie broken in row ' + (ri+1) + ' for ' + (res==='p' ? 'player' : 'AI'));
+      if (res === 'p') pulse(ri);
+    }
+  });
+  s.dfCols.forEach((res, ci) => {
+    if (res && prevC[ci] !== res) {
+      addLog('compare', 'DECIDING FACTOR: tie broken in column ' + (ci+1) + ' for ' + (res==='p' ? 'player' : 'AI'));
+    }
+  });
+  G._dfPrevRows = s.dfRows.slice();
+  G._dfPrevCols = s.dfCols.slice();
+}
+
 function placeCard(card, r, c, owner) {
 
   G.grid[r][c] = { card, owner };   // owner NEVER changes after this
@@ -11,7 +45,8 @@ function placeCard(card, r, c, owner) {
   fireReactiveAbilities(r, c, card, owner);  // opponent ability cards react
   // Immediately recompute all battle results so ability edgeMod changes are visible
   // before doComparisons and renderAll run. computeScores updates G.grid[r][c].battle.
-  computeScores();
+  const _sPlaced = computeScores();
+  _gzAnnounceDfChanges(_sPlaced);
 
   // Play card placement sound for both players (AI slightly softer + delayed)
 
@@ -43,9 +78,11 @@ function placeCard(card, r, c, owner) {
 
   setTimeout(() => {
 
-    const cells = document.querySelectorAll('.cell');
+    // Select by data attributes — DOM order is REVERSED for P2 in multiplayer
+    // (render-grid iterates rows [4..0] / cols [6..0]), so index math is wrong there.
+    const cellEl = document.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`);
 
-    if (cells[r*7+c]) cells[r*7+c].classList.add('just-placed');
+    if (cellEl) cellEl.classList.add('just-placed');
 
   }, 10);
 
@@ -91,6 +128,10 @@ function checkWin() {
 
   G.gameOver = true;
 
+  // Desktop shell (Steam/Electron): mark the match inactive (rich presence etc.)
+  if (window.gzDesktop && typeof window.gzDesktop.setMatchActive === 'function')
+    window.gzDesktop.setMatchActive(false);
+
   const _evS = computeScores();
   const _evWon = _evS.pVP > _evS.aVP, _evDraw = _evS.pVP === _evS.aVP;
 
@@ -129,15 +170,9 @@ function checkWin() {
 
   }
 
-  const s = computeScores();
+  const s = _evS;
 
   const overlay = document.getElementById('overlay');
-
-  const title   = document.getElementById('overlayTitle');
-
-  const sub     = document.getElementById('overlaySub');
-
-  const bkdn    = document.getElementById('overlayBreakdown');
 
   overlay.classList.add('show');
 
@@ -150,11 +185,11 @@ function checkWin() {
 
   const winCol2 = pWon ? (window.playerFactionColor||'#00ffcc') : draw ? '#888' : (window.aiFactionColor||'#ff0080');
 
-  const winAv2  = pWon ? (window.playerAvatarImg||'') : draw ? '' : (window.aiAvatarImg||'');
+  const winAv2  = pWon ? (window.playerAvatarImg||'') : (window.aiAvatarImg||'');
 
   const loseAv2 = pWon ? (window.aiAvatarImg||'') : (window.playerAvatarImg||'');
 
-  const winNm2  = pWon ? (window.playerFactionName||'YOU') : draw ? 'STALEMATE' : (window.aiFactionName||'AI');
+  const winNm2  = pWon ? (window.playerFactionName||'YOU') : (window.aiFactionName||'AI');
 
   const loseNm2 = pWon ? (window.aiFactionName||'AI') : (window.playerFactionName||'YOU');
 
@@ -162,27 +197,32 @@ function checkWin() {
 
   const loseVP2 = pWon ? s.aVP : s.pVP;
 
-  overlay.innerHTML = `
+  // DRAW: symmetric layout, both avatars equal size (no broken empty <img src="">)
+  const _pCol = window.playerFactionColor || '#00ffcc';
+  const _aCol = window.aiFactionColor || '#ff0080';
+  const _drawSide = (av, nm, col, vp) => `
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+          ${av ? `<img src="${av}" style="width:84px;height:84px;border-radius:50%;object-fit:cover;object-position:top;border:2px solid ${col}88;box-shadow:0 0 20px ${col}44;">` : ''}
+          <span style="font-size:9px;letter-spacing:2px;color:${col};">${nm}</span>
+          <span style="font-size:28px;font-weight:bold;color:${col};text-shadow:0 0 14px ${col};">${vp}</span>
+          <span style="font-size:9px;letter-spacing:2px;color:${col}66;">VP</span>
+        </div>`;
 
-    <div style="display:flex;flex-direction:column;align-items:center;gap:14px;padding:36px 44px;max-width:460px;">
-
-      <div style="font-family:'Orbitron',monospace;font-size:20px;letter-spacing:5px;
-
-        color:${pWon?'#00ffcc':draw?'#888':'#ff3344'};text-shadow:0 0 20px ${pWon?'#00ffcc33':draw?'#88888833':'#ff334433'};">
-
-        ${pWon?'BREACH COMPLETE':draw?'STALEMATE':'BREACH FAILED'}
-
-      </div>
-
+  const _duelHtml = draw ? `
+      <div style="display:flex;align-items:center;gap:18px;">
+        ${_drawSide(window.playerAvatarImg||'', window.playerFactionName||'YOU', _pCol, s.pVP)}
+        <div style="display:flex;flex-direction:column;align-items:center;gap:3px;">
+          <span style="font-size:11px;color:#666;letter-spacing:3px;">VS</span>
+        </div>
+        ${_drawSide(window.aiAvatarImg||'', window.aiFactionName||'AI', _aCol, s.aVP)}
+      </div>` : `
       <div style="display:flex;align-items:center;gap:18px;">
 
         <!-- Winner -->
 
         <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
 
-          <img src="${winAv2}" style="width:96px;height:96px;border-radius:50%;object-fit:cover;
-
-            object-position:top;border:3px solid ${winCol2};box-shadow:0 0 28px ${winCol2}66;">
+          ${winAv2 ? `<img src="${winAv2}" style="width:96px;height:96px;border-radius:50%;object-fit:cover;object-position:top;border:3px solid ${winCol2};box-shadow:0 0 28px ${winCol2}66;">` : ''}
 
           <span style="font-size:9px;letter-spacing:2px;color:${winCol2};">${winNm2}</span>
 
@@ -206,9 +246,7 @@ function checkWin() {
 
         <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
 
-          <img src="${loseAv2}" style="width:70px;height:70px;border-radius:50%;object-fit:cover;
-
-            object-position:top;border:2px solid #555566;filter:grayscale(0.4);">
+          ${loseAv2 ? `<img src="${loseAv2}" style="width:70px;height:70px;border-radius:50%;object-fit:cover;object-position:top;border:2px solid #555566;filter:grayscale(0.4);">` : ''}
 
           <span style="font-size:10px;letter-spacing:2px;color:#9999aa;">${loseNm2}</span>
 
@@ -218,7 +256,21 @@ function checkWin() {
 
         </div>
 
+      </div>`;
+
+  overlay.innerHTML = `
+
+    <div style="display:flex;flex-direction:column;align-items:center;gap:14px;padding:36px 44px;max-width:460px;">
+
+      <div style="font-family:'Orbitron',monospace;font-size:20px;letter-spacing:5px;
+
+        color:${pWon?'#00ffcc':draw?'#888':'#ff3344'};text-shadow:0 0 20px ${pWon?'#00ffcc33':draw?'#88888833':'#ff334433'};">
+
+        ${pWon?'BREACH COMPLETE':draw?'STALEMATE':'BREACH FAILED'}
+
       </div>
+
+      ${_duelHtml}
 
       <div style="height:1px;background:#1a1a28;width:100%;margin:4px 0;"></div>
 
@@ -235,7 +287,7 @@ function checkWin() {
           ${_newAchievs.map(id => {
             const a = (typeof ACHIEVEMENTS !== 'undefined' && ACHIEVEMENTS.find(x=>x.id===id)) || {name:id};
             return `<div title="${a.name}" style="position:relative;">
-              <img src="badges/${id}.png" style="width:36px;height:36px;border-radius:6px;border:1px solid #ffdd0055;box-shadow:0 0 8px #ffdd0033;" onerror="this.style.display='none'">
+              <img src="badges-sm/${id}.webp" style="width:36px;height:36px;border-radius:6px;border:1px solid #ffdd0055;box-shadow:0 0 8px #ffdd0033;" onerror="this.style.display='none'">
             </div>`;
           }).join('')}
         </div>
@@ -328,38 +380,31 @@ function applyMobileCellPreview(r, c, card) {
     if (el && !el.classList.contains('valid')) el.classList.add('future-valid');
   });
 
-  // Battle outcome badges on adjacent enemy cells
-  const _surgeB = (card.ability === 'surge' && G.surgeTrigger?.player) ? 3 : 0;
-  const _sweepB = (card.ability === 'sweep') ? 2 : 0;
-  [{dr:-1,dc:0,myE:'n',theirE:'s'},{dr:1,dc:0,myE:'s',theirE:'n'},{dr:0,dc:-1,myE:'w',theirE:'e'},{dr:0,dc:1,myE:'e',theirE:'w'}].forEach(({dr,dc,myE,theirE}) => {
-    const nr=r+dr, nc=c+dc;
-    if (nr<0||nr>=5||nc<0||nc>=7) return;
-    const adj = G.grid[nr][nc];
-    if (!adj.card || adj.owner === 'player') return;
-    const myVal   = card.edges[myE] + (card.edgeMod?.[myE]||0) + _surgeB + _sweepB;
-    const theirVal= adj.card.edges[theirE] + (adj.card.edgeMod?.[theirE]||0);
-    const pierceTie = card.ability === 'pierce' && myVal === theirVal;
-    const result  = (myVal > theirVal || pierceTie) ? 'win' : myVal < theirVal ? 'lose' : 'tie';
-    const adjEl   = document.querySelector(`.cell[data-r="${nr}"][data-c="${nc}"]`);
+  // Battle outcome badges on adjacent enemy cells — delegated to the shared
+  // preview engine (preview.js) so mobile and desktop show identical results.
+  if (typeof window.gzPreviewBattle !== 'function') return;
+  const _pv = window.gzPreviewBattle(card, r, c);
+  const _frag = typeof window.gzRenderPreviewBadges === 'function' ? window.gzRenderPreviewBadges(_pv) : null;
+  if (!_frag) return;
+  const _dirOff = { n:{dr:-1,dc:0}, s:{dr:1,dc:0}, e:{dr:0,dc:1}, w:{dr:0,dc:-1} };
+  Array.from(_frag.children).forEach(badge => {
+    const d = badge.dataset.dir;
+    const off = _dirOff[d];
+    if (!off) return;
+    const nr = r + off.dr, nc = c + off.dc;
+    const adjEl = document.querySelector(`.cell[data-r="${nr}"][data-c="${nc}"]`);
     if (!adjEl) return;
-    adjEl.classList.add(`bpv-${result}`);
-    const badge = document.createElement('div');
-    badge.dataset.bpv = '1';
-    const col = result==='win'?'#00ff88':result==='lose'?'#ff3333':'#ffdd00';
-    badge.style.cssText = `position:absolute;z-index:12;pointer-events:none;background:#000000ee;border:1px solid ${col}88;border-radius:4px;padding:3px 6px;display:flex;flex-direction:column;align-items:center;gap:1px;font-family:'Courier New',monospace;`;
-    if (dr===1)       badge.style.cssText += `top:4px;left:50%;transform:translateX(-50%);`;
-    else if (dr===-1) badge.style.cssText += `bottom:4px;left:50%;transform:translateX(-50%);`;
-    else if (dc===1)  badge.style.cssText += `left:4px;top:50%;transform:translateY(-50%);`;
-    else              badge.style.cssText += `right:4px;top:50%;transform:translateY(-50%);`;
-    const labelCol = result==='tie'?'#ffee44':col;
-    badge.innerHTML = `<span style="font-size:10px;font-weight:bold;color:${labelCol};letter-spacing:1px;">${result.toUpperCase()}</span><span style="font-size:8px;color:${col}bb;">${myVal}v${theirVal}</span>`;
+    const info = _pv[d];
+    if (info && info.result) adjEl.classList.add(`bpv-${info.result}`);
     adjEl.appendChild(badge);
   });
 }
 
 function onCellClick(r, c) {
 
-  if (!G.selectedCard || G.turn !== 'player' || G.gameOver) return;
+  // _placeInFlight: reject input while a placement is animating/resolving
+  // (mobile double-tap race — two quick taps could place the same card twice)
+  if (!G.selectedCard || G.turn !== 'player' || G.gameOver || G._placeInFlight) return;
 
   if (!getValidPlacements('player', G.selectedCard).some(v=>v.r===r&&v.c===c)) return;
 
@@ -379,23 +424,35 @@ function onCellClick(r, c) {
   G.selectedCard = null; hideDragCard(); hideMobileCardPanel();
   document.body.style.cursor = 'default';
 
+  // Placement in flight: cleared wherever control returns to the player
+  // (flank extra turn, AI-has-no-moves, or animateAiCard's turn flip in ai.js)
+  G._placeInFlight = true;
+
   const _doPlace = () => {
     placeCard(_placedCard, r, c, 'player');
 
     if (G._flankTriggered === 'player') {
       G._flankTriggered = null;
-      G.turn = 'player';
-      if (_mpRoom && _mpPlayer) {
-        const _fSeed = Math.floor(Math.random() * 1000000);
-        window._mpSeed = seededRand(_fSeed);
-        // P2 submits mirrored coords so P1's mpApplyMove (4-r, col) gives correct position
-        const _sr1 = (_mpPlayer===2) ? (4-r) : r;
-        const _sc1 = (_mpPlayer===2) ? (6-c) : c;
-        mpSubmitMove(_placedCardId || 'unknown', _sr1, _sc1, _fSeed, true);
+      // FLANK fizzle guard: only grant the extra turn if the player actually
+      // has an unused card AND a valid placement — otherwise the game would
+      // soft-lock on the player's empty turn. Fizzled flank = normal turn pass.
+      if (!G.gameOver && hasAnyMoves('player')) {
+        G.turn = 'player';
+        if (_mpRoom && _mpPlayer) {
+          const _fSeed = Math.floor(Math.random() * 1000000);
+          window._mpSeed = seededRand(_fSeed);
+          // P2 submits mirrored coords so P1's mpApplyMove (4-r, col) gives correct position
+          const _sr1 = (_mpPlayer===2) ? (4-r) : r;
+          const _sc1 = (_mpPlayer===2) ? (6-c) : c;
+          mpSubmitMove(_placedCardId || 'unknown', _sr1, _sc1, _fSeed, true);
+          if (typeof window.mpStartTurnTimer === 'function') window.mpStartTurnTimer();
+        }
+        showToast('↺ FLANK: EXTRA TURN!', '#ff9900');
+        renderAll();
+        G._placeInFlight = false;
+        return;
       }
-      showToast('↺ FLANK: EXTRA TURN!', '#ff9900');
-      renderAll();
-      return;
+      if (!G.gameOver) addLog('system', 'FLANK: no playable cards for the extra turn — turn passes');
     }
 
     G.turn = 'ai';
@@ -420,6 +477,7 @@ function onCellClick(r, c) {
     if (!hasAnyMoves('ai')) {
       if (!hasAnyMoves('player')) { checkWin(); return; }
       G.turn = 'player';
+      G._placeInFlight = false;
       addLog('system', 'AI has no moves -- your turn again');
       renderScoreHeader();
       return;
