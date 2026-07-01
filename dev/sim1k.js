@@ -17,13 +17,13 @@ function makeEl() {
     style: new Proxy({}, { get:()=>'', set:()=>true }),
     classList: { add:()=>{}, remove:()=>{}, contains:()=>false, toggle:()=>{} },
     innerHTML: '', textContent: '', src: '', href: '',
-    appendChild: ()=>el, addEventListener: ()=>{},
+    appendChild: (n)=>{ el.children.push(n); return n; }, addEventListener: ()=>{},
     removeEventListener: ()=>{}, remove: ()=>{},
-    querySelector: ()=>null, querySelectorAll: ()=>({ forEach:()=>{}, length:0 }),
+    querySelector: ()=>null, querySelectorAll: ()=>{ const a=[]; a.forEach=Array.prototype.forEach.bind(a); return a; },
     getBoundingClientRect: ()=>({ left:0,top:0,right:0,bottom:0,width:0,height:0 }),
     getAttribute: ()=>null, setAttribute: ()=>{},
     dataset: new Proxy({}, { get:()=>'', set:()=>true }),
-    checked: false, value: '',
+    checked: false, value: '', children: [],
     offsetHeight: 200, offsetWidth: 200,
     // Audio element methods
     load: ()=>{}, play: ()=>Promise.resolve(), pause: ()=>{},
@@ -48,6 +48,8 @@ global.localStorage  = { getItem: () => null, setItem: () => {} };
 global.sessionStorage = { getItem: () => null, setItem: () => {} };
 global.setTimeout  = (fn) => { try { fn(); } catch(e) {} };
 global.clearTimeout = () => {};
+global.requestAnimationFrame = (fn) => { try { fn(0); } catch(e) {} return 0; };
+global.cancelAnimationFrame = () => {};
 
 // Silence all render / UI functions
 global.renderAll = () => {};
@@ -83,6 +85,7 @@ global.innerWidth = 1280;
 // ── Load all game modules ─────────────────────────────────────────────────
 const ROOT = path.join(__dirname, '..');
 const MODULES = [
+  'shared-data.js',
   'zones.js','cards.js','abilities-data.js',
   'utils.js','audio.js','battle.js','placement.js',
   'abilities.js','ai.js',

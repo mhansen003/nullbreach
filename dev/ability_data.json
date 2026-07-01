@@ -1,0 +1,281 @@
+{
+  "abilities": [
+    {
+      "ability": "shield",
+      "icon": "🛡",
+      "color": "#aaaaff",
+      "label": "SHIELD",
+      "text": "Absorbs the first battle loss: activates once per game.",
+      "factions": {
+        "terran": "COLONIAL BULWARK",
+        "crystallis": "LATTICE WARD",
+        "lithos": "STONE SKIN"
+      },
+      "count": 3
+    },
+    {
+      "ability": "double_strike",
+      "icon": "⚡⚡",
+      "color": "#ffdd00",
+      "label": "DOUBLE STRIKE",
+      "text": "Win a battle, and the card one step beyond also takes half-damage.",
+      "factions": {
+        "terran": "ACCORD BARRAGE",
+        "entropy": "SECOND ROT",
+        "gas": "TWIN PLASMA"
+      },
+      "count": 3
+    },
+    {
+      "ability": "flank",
+      "icon": "↺↺",
+      "color": "#ff9900",
+      "label": "FLANK",
+      "text": "After placing this card, take one extra turn immediately.",
+      "factions": {
+        "terran": "PINCER MANEUVER",
+        "veil": "AFTERIMAGE",
+        "quantum": "PROBABILITY CASCADE"
+      },
+      "count": 3
+    },
+    {
+      "ability": "overwhelm",
+      "icon": "▲▲",
+      "color": "#88cc44",
+      "label": "OVERWHELM",
+      "text": "Win a battle by 3 or more and you also win the opposing axis.",
+      "factions": {
+        "mycos": "MYCO SURGE",
+        "gas": "PLASMA SURGE",
+        "choir": "SONIC BOOM"
+      },
+      "count": 3
+    },
+    {
+      "ability": "commander",
+      "icon": "★★",
+      "color": "#ffcc00",
+      "label": "COMMANDER",
+      "text": "All adjacent friendly cards gain +2 to every battle value when placed.",
+      "factions": {
+        "terran": "FLEET ADMIRAL",
+        "lithos": "TECTONIC ARRAY"
+      },
+      "count": 2
+    },
+    {
+      "ability": "laser_focus",
+      "icon": "◉",
+      "color": "#ff4400",
+      "label": "LASER FOCUS",
+      "text": "Combines all four battle values into the North facing. Zero on all other sides.",
+      "factions": {
+        "brood": "MANDIBLE FOCUS",
+        "entropy": "RUST EQUALIZE"
+      },
+      "count": 2
+    },
+    {
+      "ability": "rush",
+      "icon": "▶!",
+      "color": "#ff6644",
+      "label": "RUSH",
+      "text": "Can be placed next to any enemy card anywhere on the board.",
+      "factions": {
+        "brood": "ACID CHARGE",
+        "void": "DARK LUNGE"
+      },
+      "count": 2
+    },
+    {
+      "ability": "boost",
+      "icon": "⬆",
+      "color": "#44ffcc",
+      "label": "BOOST",
+      "text": "All adjacent friendly cards gain +1 to every battle value when placed.",
+      "factions": {
+        "brood": "QUEEN'S FAVOR",
+        "choir": "HARMONIC PULSE"
+      },
+      "count": 2
+    },
+    {
+      "ability": "fortify",
+      "icon": "⬡",
+      "color": "#4488ff",
+      "label": "FORTIFY",
+      "text": "Claims all adjacent empty cells: opponents cannot place there.",
+      "factions": {
+        "crystallis": "CRYSTAL FORTRESS",
+        "lithos": "TECTONIC HOLD"
+      },
+      "count": 2
+    },
+    {
+      "ability": "revenge",
+      "icon": "↩⚡",
+      "color": "#ff4488",
+      "label": "REVENGE",
+      "text": "When defeated in battle, the winning card permanently loses 1 VP.",
+      "factions": {
+        "crystallis": "REFRACTION REVENGE",
+        "entropy": "ENTROPY REVERSAL"
+      },
+      "count": 2
+    },
+    {
+      "ability": "home_invader",
+      "icon": "↑⚔",
+      "color": "#ff0066",
+      "label": "HOME INVADER",
+      "text": "Can be placed directly on the opponent's home row.",
+      "factions": {
+        "mycos": "MYCELIUM LINK",
+        "choir": "RESONANT CHORD"
+      },
+      "count": 2
+    },
+    {
+      "ability": "birthright",
+      "icon": "✦+",
+      "color": "#ffaaff",
+      "label": "BIRTHRIGHT",
+      "text": "On placement, a bonus Tier II card is added to your hand.",
+      "factions": {
+        "mycos": "SPORE BURST",
+        "gas": "STORM BIRTH"
+      },
+      "count": 2
+    },
+    {
+      "ability": "phantom",
+      "icon": "◈",
+      "color": "#88ffff",
+      "label": "PHANTOM",
+      "text": "Can be freely placed in your home row or the row above it.",
+      "factions": {
+        "veil": "PHASE SHIFT",
+        "quantum": "SUPERPOSITION"
+      },
+      "count": 2
+    },
+    {
+      "ability": "edge_play",
+      "icon": "↩↪",
+      "color": "#ff55aa",
+      "label": "EDGE PLAY",
+      "text": "Placed on a board edge, this card wraps around to fight the card on the opposite side.",
+      "factions": {
+        "veil": "LIGHT BEND",
+        "gas": "STORM WRAP"
+      },
+      "count": 2
+    },
+    {
+      "ability": "pierce",
+      "icon": "▶▶",
+      "color": "#ff8844",
+      "label": "PIERCE",
+      "text": "Edge ties count as wins for this card instead of draws.",
+      "factions": {
+        "veil": "PHOTON LANCE",
+        "void": "EVENT HORIZON"
+      },
+      "count": 2
+    },
+    {
+      "ability": "ambush",
+      "icon": "✕✕",
+      "color": "#cc44ff",
+      "label": "AMBUSH",
+      "text": "2 random adjacent enemies each lose 1 from every battle value on placement.",
+      "factions": {
+        "entropy": "CORROSIVE STRIKE",
+        "void": "DARK SURGE"
+      },
+      "count": 2
+    },
+    {
+      "ability": "sniper",
+      "icon": "◎",
+      "color": "#ff8800",
+      "label": "SNIPER",
+      "text": "Cancels the opposing home-row card in this column: it scores 0 VP.",
+      "factions": {
+        "void": "VOID LANCE",
+        "quantum": "OBSERVER EFFECT"
+      },
+      "count": 2
+    },
+    {
+      "ability": "deciding_factor",
+      "icon": "⚖",
+      "color": "#ffdd88",
+      "label": "DECIDING FACTOR",
+      "text": "When a row or column ends in a tie, this card tips the result in your favor.",
+      "factions": {
+        "lithos": "FAULT LINE",
+        "quantum": "WAVE COLLAPSE"
+      },
+      "count": 2
+    },
+    {
+      "ability": "spawn",
+      "icon": "★★",
+      "color": "#88cc44",
+      "label": "SPAWN",
+      "text": "Adjacent Brood cards gain +2 to every battle value (hive sync).",
+      "factions": {
+        "brood": "HIVE PULSE"
+      },
+      "count": 1
+    },
+    {
+      "ability": "density",
+      "icon": "⬛+",
+      "color": "#9b59b6",
+      "label": "DENSITY",
+      "text": "This card contributes 1.5× its power to the row/column score.",
+      "factions": {
+        "crystallis": "CRYSTAL DENSITY"
+      },
+      "count": 1
+    },
+    {
+      "ability": "lamb",
+      "icon": "★",
+      "color": "#ffdd00",
+      "label": "LAMB",
+      "text": "5 VP but zero edges. Scores full value uncontested, nothing if attacked.",
+      "factions": {
+        "mycos": "MYCELIAL SACRIFICE"
+      },
+      "count": 1
+    },
+    {
+      "ability": "cloak",
+      "icon": "?",
+      "color": "#8888ff",
+      "label": "CLOAK",
+      "text": "Edges show as ? and are revealed only when this card fights its first battle.",
+      "factions": {
+        "choir": null
+      },
+      "count": 1
+    }
+  ],
+  "factions": [
+    "terran",
+    "brood",
+    "crystallis",
+    "mycos",
+    "veil",
+    "entropy",
+    "void",
+    "gas",
+    "lithos",
+    "quantum",
+    "choir"
+  ]
+}

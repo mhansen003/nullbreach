@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+
+  body {
+    width: 650px;
+    height: 248px;
+    overflow: hidden;
+    background: transparent;
+    font-family: 'Orbitron', monospace;
+  }
+
+  .stars {
+    position: absolute; inset: 0;
+    background-image:
+      radial-gradient(1px 1px at 8% 20%, #ffffff55 0%, transparent 100%),
+      radial-gradient(1px 1px at 25% 70%, #ffffff33 0%, transparent 100%),
+      radial-gradient(1.5px 1.5px at 50% 12%, #ffffff88 0%, transparent 100%),
+      radial-gradient(1px 1px at 75% 80%, #ffffff44 0%, transparent 100%),
+      radial-gradient(1px 1px at 90% 35%, #ffffff55 0%, transparent 100%),
+      radial-gradient(1px 1px at 42% 88%, #ffffff33 0%, transparent 100%);
+  }
+
+  .bg {
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 80% 100% at 50% 50%, #1a003855 0%, transparent 70%);
+  }
+
+  .title-area {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .subtitle-label {
+    font-size: 9px;
+    letter-spacing: 7px;
+    color: #8866ff88;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+  }
+
+  .title-line1 {
+    font-size: 68px;
+    font-weight: 900;
+    letter-spacing: 12px;
+    color: #ffffff;
+    text-shadow:
+      0 0 20px #8844ff,
+      0 0 40px #8844ff88,
+      0 0 80px #8844ff44,
+      0 2px 5px #000000cc;
+    line-height: 1;
+    margin-bottom: 2px;
+  }
+
+  .title-line2 {
+    font-size: 68px;
+    font-weight: 900;
+    letter-spacing: 18px;
+    color: #ffffff;
+    text-shadow:
+      0 0 20px #4488ff,
+      0 0 40px #4488ff88,
+      0 0 80px #4488ff44,
+      0 2px 5px #000000cc;
+    line-height: 1;
+  }
+
+  .title-accent {
+    width: 380px; height: 1px;
+    background: linear-gradient(to right, transparent, #8866ff, #4499ff, #8866ff, transparent);
+    margin-top: 12px;
+  }
+</style>
+</head>
+<body>
+  <div class="stars"></div>
+  <div class="bg"></div>
+  <div class="title-area">
+    <div class="subtitle-label">Strategic Card Battle</div>
+    <div class="title-line1">GALACTIC</div>
+    <div class="title-line2">ZERO</div>
+    <div class="title-accent"></div>
+  </div>
+</body>
+</html>
