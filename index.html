@@ -2,12 +2,13 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>GALACTIC ZERO</title>
-<link rel="icon" type="image/png" href="assets/avatars/terran.png">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="stylesheet" href="assets/fonts/fonts.css">
+<script src="shared-data.js"></script>
+<script src="abilities-data.js"></script>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap');
-
 * { box-sizing: border-box; margin: 0; padding: 0; }
 * { scrollbar-width: none; }
 *::-webkit-scrollbar { display: none; }
@@ -432,17 +433,6 @@ body {
 /* ── ANIMATIONS ── */
 @keyframes fadeIn { from{opacity:0} to{opacity:1} }
 
-/* Avatar deploy pulse: always visible, pulses to signal clickability */
-@keyframes deployPulse {
-  0%, 55%  { opacity: 0; }
-  70%, 90% { opacity: 0.95; }
-  100%     { opacity: 0; }
-}
-@keyframes avatarBorderPulse {
-  0%, 100% { box-shadow: 0 0 8px currentColor; }
-  50%      { box-shadow: 0 0 28px currentColor, 0 0 50px currentColor; }
-}
-
 /* ══════════════════════════════════════
    MOBILE / TABLET RESPONSIVE
 ══════════════════════════════════════ */
@@ -457,13 +447,13 @@ button, [onclick] { touch-action: manipulation; }
   .race-tile { width: 190px; height: 253px; }
   /* Conveyor arrows */
   .conveyor-arrow { width: 40px; height: 64px; font-size: 18px; }
-  /* Lore grid: 3 → 2 columns */
-  #loreContent > div:last-of-type { grid-template-columns: 1fr 1fr !important; }
+  /* Lore row 2 (fleet | abilities): collapse side-by-side into stacked columns */
+  #loreRow2 { flex-direction: column !important; }
+  #tierCardSection, #tierCardPreview { width: 100% !important; }
   /* Opponent grid: 4 → 3 columns */
   #opponentGrid { grid-template-columns: repeat(3, 140px) !important; }
   /* Avatar */
   #loreAvatar { width: 150px !important; height: 150px !important; }
-  #deployBtn  { width: 150px !important; }
 }
 
 /* ── MOBILE (≤ 767px) ── */
@@ -537,14 +527,6 @@ button, [onclick] { touch-action: manipulation; }
     flex-shrink: 0 !important;
   }
 
-  /* Deploy button wrapper: FIXED to bottom of screen */
-  #deployWrap {
-    position: fixed !important;
-    bottom: 0; left: 0; right: 0;
-    z-index: 999;
-    padding: 10px 16px max(14px, env(safe-area-inset-bottom));
-    background: linear-gradient(transparent, #020208 35%);
-  }
   .btn-deploy {
     width: 100% !important; max-width: 100% !important;
     font-size: 13px !important; letter-spacing: 4px !important;
@@ -580,17 +562,8 @@ button, [onclick] { touch-action: manipulation; }
   .lore-text     { font-size: 13px; line-height: 1.7; }
   .lore-weakness { font-size: 12px; }
 
-  /* 3-col lore grid → single column */
-  .ds-lore-content > div:last-of-type {
-    grid-template-columns: 1fr !important;
-    gap: 8px !important;
-  }
-
   /* Footer: hide on mobile (no room) */
   .ds-footer { display: none; }
-
-  /* Hide original deploy wrap: replaced by body-level #mobileLaunchBar */
-  #deployWrap { display: none !important; }
 
   /* ── WIZARD MODAL ── */
   #opponentModal {
@@ -647,8 +620,6 @@ button, [onclick] { touch-action: manipulation; }
   #audioControls { gap: 4px !important; top: 6px !important; right: 6px !important; }
   #audioControls > div { padding: 5px 8px !important; font-size: 16px !important; letter-spacing: 0 !important; }
   #audioControls .lb-label, #audioControls span { display: none !important; }
-  /* Mobile leaderboard float btn: hidden since audioControls now shows it */
-  #lbMobileBtn { display: none !important; }
 
   /* Mode tile labels */
   #modeComputer > div:last-child > div,
@@ -660,14 +631,40 @@ button, [onclick] { touch-action: manipulation; }
 }
 
 /* ── VERY SMALL (≤ 400px) ── */
-
-/* ── VERY SMALL (≤ 400px) ── */
 @media (max-width: 400px) {
   .splash-title { font-size: clamp(28px, 9vw, 48px); letter-spacing: 4px; }
   .race-tile { width: 130px; height: 173px; }
   .conveyor-track { gap: 14px; }
   .ds-race-name { font-size: 17px !important; }
   .btn-enter { padding: 12px 20px; font-size: 9px; letter-spacing: 3px; }
+}
+
+/* ── NARROW: fixed top-right audio controls must not overlap the header title ── */
+@media (max-width: 420px) {
+  .ds-header { padding-right: 138px !important; }
+  .ds-header > div:first-child > div:first-child { font-size: 14px !important; letter-spacing: 3px !important; }
+}
+
+/* ── LANDSCAPE PHONES (short viewport, e.g. 844x390): scrollable deck select ── */
+@media (max-height: 520px) {
+  #deckselect { overflow-y: auto; overflow-x: hidden; justify-content: flex-start; }
+  .ds-header { padding: 6px 16px 4px; }
+  .ds-header > div:first-child > div:first-child { font-size: 15px !important; }
+  .conveyor-wrap { padding: 22px 0 8px; }
+  .race-tile { width: 110px; height: 147px; border-radius: 10px; }
+  .race-tile:hover { transform: translateY(-8px) scale(1.05); }
+  .rt-name { font-size: 11px; }
+  .rt-sub  { font-size: 9px; }
+  #selectedDeckPanel { display: none !important; }
+  /* Lore flows with the page scroll instead of its own inner scroll */
+  .ds-lore-panel { flex: none; overflow-y: visible; padding: 12px 20px 16px; }
+  /* Launch bar sticks to the bottom of the scrollable deck select */
+  #desktopLaunchBar { position: sticky; bottom: 0; z-index: 60; }
+  /* Fixed body-level launch bar (touch devices) stays reachable */
+  #mobileLaunchBar { padding: 6px 12px max(10px, env(safe-area-inset-bottom)) !important; }
+  /* Touch devices get the fixed mobile bar — avoid double launch bars */
+  body.gz-touch #desktopLaunchBar { display: none !important; }
+  body.gz-touch .ds-lore-panel { padding-bottom: 90px; }
 }
 
 /* Fleet card hover: matches ability showcase style */
@@ -684,7 +681,7 @@ button, [onclick] { touch-action: manipulation; }
 <body>
 
 <!-- AUDIO -->
-<audio id="bgMusic" loop preload="auto">
+<audio id="bgMusic" loop preload="none">
   <source src="assets/void-horizon.mp3" type="audio/mpeg">
 </audio>
 <audio id="clickSfx" preload="auto">
@@ -699,7 +696,7 @@ button, [onclick] { touch-action: manipulation; }
 <!-- AUDIO CONTROLS: top right, next to header -->
 <div id="audioControls" style="position:fixed;top:10px;right:10px;z-index:200;display:flex;flex-direction:row;gap:6px;align-items:center;">
   <!-- Leaderboard -->
-  <div onclick="showLeaderboard()" style="
+  <div onclick="showLeaderboard()" tabindex="0" role="button" aria-label="Open Hall of Champions leaderboard" style="
     padding:5px 12px;border-radius:4px;
     background:#000000cc;border:1px solid #ffdd0055;
     color:#ffdd00;font-size:10px;letter-spacing:2px;
@@ -711,7 +708,7 @@ button, [onclick] { touch-action: manipulation; }
   onmouseleave="this.style.borderColor='#ffdd0055';this.style.boxShadow='0 0 12px #ffdd0022'"
   title="Hall of Champions">🏆 <span class="lb-label">LEADERBOARD</span></div>
   <!-- Music mute -->
-  <div id="muteBtn" onclick="toggleMute()" style="
+  <div id="muteBtn" onclick="toggleMute()" tabindex="0" role="button" aria-label="Toggle music" style="
     padding:5px 12px;border-radius:4px;
     background:#000000cc;border:1px solid #ffffff22;
     color:#ffffffaa;font-size:10px;letter-spacing:2px;
@@ -719,7 +716,7 @@ button, [onclick] { touch-action: manipulation; }
     font-family:'Courier New',monospace;transition:all 0.2s;
   " title="Toggle music">🎵 <span id="muteLbl">MUSIC</span></div>
   <!-- Voice mute -->
-  <div id="voiceMuteBtn" onclick="toggleVoiceMute()" style="
+  <div id="voiceMuteBtn" onclick="toggleVoiceMute()" tabindex="0" role="button" aria-label="Toggle civilization voice" style="
     padding:5px 12px;border-radius:4px;
     background:#000000cc;border:1px solid #ffffff22;
     color:#ffffffaa;font-size:10px;letter-spacing:2px;
@@ -777,11 +774,11 @@ button, [onclick] { touch-action: manipulation; }
   <div style="display:flex;align-items:stretch;position:relative;z-index:20;flex-shrink:0;">
     <!-- Scrolling belt -->
     <div class="conveyor-section" style="flex:1;min-width:0;">
-      <div class="conveyor-arrow left" onclick="shiftSpeed(-1)">&#x276E;</div>
+      <div class="conveyor-arrow left" onclick="shiftSpeed(-1)" tabindex="0" role="button" aria-label="Slow conveyor / scroll left">&#x276E;</div>
       <div class="conveyor-wrap" id="conveyorWrap">
         <div class="conveyor-track" id="conveyorTrack"></div>
       </div>
-      <div class="conveyor-arrow right" onclick="shiftSpeed(1)">&#x276F;</div>
+      <div class="conveyor-arrow right" onclick="shiftSpeed(1)" tabindex="0" role="button" aria-label="Speed conveyor / scroll right">&#x276F;</div>
     </div>
     <!-- Selected deck panel: right side, blends into lore below -->
     <div id="selectedDeckPanel" style="
@@ -873,8 +870,6 @@ button, [onclick] { touch-action: manipulation; }
     </button>
   </div>
 
-  </div>
-
 </div>
 
 <script>
@@ -897,7 +892,10 @@ button, [onclick] { touch-action: manipulation; }
     }));
   }
 
+  // Pause the rAF loop while the canvas is fully obscured (deck select / overlays)
+  let running = true;
   function draw() {
+    if (!running) return;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     const t = Date.now() * 0.001;
     stars.forEach(s => {
@@ -910,6 +908,9 @@ button, [onclick] { touch-action: manipulation; }
     requestAnimationFrame(draw);
   }
 
+  window._starfieldPause  = () => { running = false; };
+  window._starfieldResume = () => { if (!running) { running = true; requestAnimationFrame(draw); } };
+
   window.addEventListener('resize', resize);
   resize(); draw();
 })();
@@ -917,121 +918,110 @@ button, [onclick] { touch-action: manipulation; }
 // ── RACE DATA ─────────────────────────────────────
 const RACES = [
   {
-    id: 'terran', cover: 'assets/deck_terran.png', loreBg: 'assets/lore_terran.png',
-    name: 'THE TERRAN ACCORD', sub: 'UNITED COLONIAL FEDERATION',
-    color: '#7ab8e8', avatar: '★', starter: true,
+    id: 'terran', cover: 'assets/menu-sm/deck_terran.webp', loreBg: 'assets/menu-sm/lore_terran.webp',
+    name: GZ_FACTIONS.terran.name, sub: 'UNITED COLONIAL FEDERATION',
+    color: GZ_FACTIONS.terran.color, avatar: '★', starter: true,
     quote: '"We are many worlds, one purpose."',
-    abilities: ['COMMANDER', 'FLANK', 'SHIELD', 'DOUBLE STRIKE'],
     playstyle: 'Balanced generalist',
     lore: "Humanity's unified colonial federation: 40 colony worlds, one military doctrine. No alien mystique, no ancient wisdom. They fight with discipline, numbers, and the one advantage no alien race shares: they understand each other.",
     history: "The Accord emerged from centuries of intercolonial conflict, unified under the Colonial Defense Treaty after the Proxima Wars. They were the last major civilization to push toward the galactic core, and the first to realize all expansion routes led to the same impossible convergence.",
     counter: 'Lithos high battle-value walls absorb their standard attacks. Veil phase abilities bypass formation tactics.'
   },
   {
-    id: 'crystallis', cover: 'assets/deck_crystallis.png', loreBg: 'assets/lore_crystallis.png',
-    name: 'THE CRYSTALLIS', sub: 'SILICON LATTICE CIVILIZATION',
-    color: '#00ccff', avatar: '💎',
+    id: 'crystallis', cover: 'assets/menu-sm/deck_crystallis.webp', loreBg: 'assets/menu-sm/lore_crystallis.webp',
+    name: GZ_FACTIONS.crystallis.name, sub: 'SILICON LATTICE CIVILIZATION',
+    color: GZ_FACTIONS.crystallis.color, avatar: '💎',
     quote: '"You will fracture against us."',
-    abilities: ['DENSITY', 'FORTIFY', 'SHIELD', 'REVENGE'],
     playstyle: 'Defensive anchor',
     lore: "Silicon-lattice beings grown from asteroid fields: not manufactured but crystallized over geological time. What appears to be a ship is a mobile extension of their homeworld lattice, indistinguishable from the structure it grew from.",
     history: "The Crystallis did not travel to Galactic Zero. They grew toward it: their expansion network extending one node at a time across millennia. When other civilizations arrived, the Crystallis had already been present for ten thousand years, waiting in silence.",
     counter: 'Intimidate and Revenge weaken Crystallis battle values. Entropy abilities turn their lattice defenses against themselves.'
   },
   {
-    id: 'mycos', cover: 'assets/deck_mycos.png', loreBg: 'assets/lore_mycos.png',
-    name: 'THE MYCOS DRIFT', sub: 'DISTRIBUTED FUNGAL INTELLIGENCE',
-    color: '#9dcf6e', avatar: '🍄',
+    id: 'mycos', cover: 'assets/menu-sm/deck_mycos.webp', loreBg: 'assets/menu-sm/lore_mycos.webp',
+    name: GZ_FACTIONS.mycos.name, sub: 'DISTRIBUTED FUNGAL INTELLIGENCE',
+    color: GZ_FACTIONS.mycos.color, avatar: '🍄',
     quote: '"We have already begun."',
-    abilities: ['LAMB', 'INTIMIDATE', 'HOME INVADER', 'BIRTHRIGHT'],
     playstyle: 'Attrition spreader',
     lore: "A distributed mycorrhizal intelligence spanning solar systems: no central mind, only network. The Drift does not make decisions. It grows. Every spore carries the full consciousness of the whole. Ships are enormous fruiting bodies deployed from an organism larger than most star systems.",
     history: "The Mycos Drift arrived at Galactic Zero not as an expedition but as an infection. The sector's unusual gravitational profile carried their spores from a system they had already consumed. By the time other races identified them as a civilization, the Drift had established roots in seventeen transit corridors.",
     counter: 'Rush cards can strike before adjacency links set up. Phantom and Flank abilities bypass fungal zone control.'
   },
   {
-    id: 'veil', cover: 'assets/deck_veil.png', loreBg: 'assets/lore_veil.png',
-    name: 'THE VEIL', sub: 'COHERENT LIGHT ENTITIES',
-    color: '#ffee33', avatar: '✦',
+    id: 'veil', cover: 'assets/menu-sm/deck_veil.webp', loreBg: 'assets/menu-sm/lore_veil.webp',
+    name: GZ_FACTIONS.veil.name, sub: 'COHERENT LIGHT ENTITIES',
+    color: GZ_FACTIONS.veil.color, avatar: '✦',
     quote: '"You cannot strike what you cannot see."',
-    abilities: ['FLANK', 'PHANTOM', 'PIERCE', 'CLOAK'],
     playstyle: 'Deception and displacement',
     lore: "Beings of coherent light who never fully solidify. Visible only when two waveforms cross: and only for a moment. What other races perceive as a Veil ship is a briefly-stable interference pattern. Strike it and it becomes somewhere else.",
     history: "The Veil's presence at Galactic Zero was detected only after they had placed three nodes in contested corridors. No one saw them arrive. Diplomatic contact has been limited to interference patterns in communication arrays: messages left as standing waves in empty space.",
     counter: 'Fortify and Shield abilities block Veil scoring. Sniper targets their home row anchor before it can support.'
   },
   {
-    id: 'entropy', cover: 'assets/deck_entropy.png', loreBg: 'assets/lore_entropy.png',
-    name: 'THE ENTROPY CULT', sub: 'ANCIENT DECAY WORSHIPPERS',
-    color: '#c4723a', avatar: '☄',
+    id: 'entropy', cover: 'assets/menu-sm/deck_entropy.webp', loreBg: 'assets/menu-sm/lore_entropy.webp',
+    name: GZ_FACTIONS.entropy.name, sub: 'ANCIENT DECAY WORSHIPPERS',
+    color: GZ_FACTIONS.entropy.color, avatar: '☄',
     quote: '"Everything ends. We simply hasten it."',
-    abilities: ['LAMB', 'LASER FOCUS', 'INTIMIDATE', 'REVENGE'],
     playstyle: 'Board degrader',
     lore: "Ancient beings who reached the inevitable philosophical conclusion long ago: heat death is not a tragedy but a destination. Their technology is designed not to preserve but to accelerate: every weapon is entropy made purposeful, every ship a slow-motion collapse.",
     history: "The Entropy Cult has fought at seventeen convergence points across galactic history. They lose most of them: deliberately. Each defeat weakens the victor. At Galactic Zero they arrive as they always do: with beautiful corroded ships, genuine smiles, and no fear of the outcome.",
     counter: 'Fortify and Shield block entropy spread. Density and Sniper outscore the slow decay strategy.'
   },
   {
-    id: 'brood', cover: 'assets/deck_brood.png', loreBg: 'assets/lore_brood.png',
-    name: 'THE BROOD SOVEREIGN', sub: 'INSECTOID HIVE-MIND',
-    color: '#ff7700', avatar: '🪲',
+    id: 'brood', cover: 'assets/menu-sm/deck_brood.webp', loreBg: 'assets/menu-sm/lore_brood.webp',
+    name: GZ_FACTIONS.brood.name, sub: 'INSECTOID HIVE-MIND',
+    color: GZ_FACTIONS.brood.color, avatar: '🪲',
     quote: '"The Sovereign sees through ten thousand eyes."',
-    abilities: ['COMMANDER', 'LASER FOCUS', 'RUSH', 'BIRTHRIGHT'],
     playstyle: 'Cluster formation',
     lore: "Insectoid hive-mind where the Sovereign: always singular, always enormous: is the central consciousness. Ships are colonies of living bodies fused into hull-shapes. The Sovereign herself is the Dreadnaught: a mobile throne that makes everything around her lethal.",
     history: "The Brood arrived at Galactic Zero as a colony fleet that had consumed three neighboring systems. The Sovereign tasted the gravitational anomaly of the sector from parsecs away and redirected her entire expansion drive toward it. She has never retreated in recorded history.",
     counter: "Isolate their clusters before they mass. The Sovereign's COMMANDER bonuses require adjacency."
   },
   {
-    id: 'void', cover: 'assets/deck_void.png', loreBg: 'assets/lore_void.png',
-    name: 'THE VOID HUNTERS', sub: 'DARK MATTER PREDATORS',
-    color: '#9b59b6', avatar: '▪',
+    id: 'void', cover: 'assets/menu-sm/deck_void.webp', loreBg: 'assets/menu-sm/lore_void.webp',
+    name: GZ_FACTIONS.void.name, sub: 'DARK MATTER PREDATORS',
+    color: GZ_FACTIONS.void.color, avatar: '▪',
     quote: '"We come from the dark between stars."',
-    abilities: ['RUSH', 'PIERCE', 'CLOAK', 'SNIPER'],
     playstyle: 'Aggressive assassin',
     lore: "From the intergalactic void: the true dark between galaxy clusters where no star has ever formed. Defined entirely by absence. Void Hunter ships absorb light; visible only by what they occlude. Their technology is predatory at the fundamental level: find the strongest thing, destroy its strength first.",
     history: "No one knows how old the Void Hunters are. Their recorded interactions with other civilizations go back to the galactic formation period. They have no territory, no homeworld, no resources: only prey. Galactic Zero attracts them for the same reason it attracts everyone else: concentration of opponents.",
     counter: 'High defensive battle values (Lithos, Crystallis) absorb their strikes. Shield abilities block their critical first comparisons.'
   },
   {
-    id: 'gas', cover: 'assets/deck_gas.png', loreBg: 'assets/lore_gas.png',
-    name: 'THE GAS NOMADS', sub: 'PLASMA STORM BEINGS',
-    color: '#ffaa00', avatar: '⚡',
+    id: 'gas', cover: 'assets/menu-sm/deck_gas.webp', loreBg: 'assets/menu-sm/lore_gas.webp',
+    name: GZ_FACTIONS.gas.name, sub: 'PLASMA STORM BEINGS',
+    color: GZ_FACTIONS.gas.color, avatar: '⚡',
     quote: '"You have angered the storm."',
-    abilities: ['DECIDING FACTOR', 'RUSH', 'HOME INVADER', 'DOUBLE STRIKE'],
     playstyle: 'Volatile comeback',
     lore: "Evolved in the upper atmospheres of gas giants: beings of ionized plasma held together by magnetic will. Ships are literally contained storms: self-sustaining atmospheric systems directed by a collective plasma consciousness. The Dreadnaught is a weaponized planetary hurricane.",
     history: "The Gas Nomads arrived at Galactic Zero because the sector's gravitational anomaly was generating exotic plasma conditions they had never encountered. What began as curiosity became conflict when other races claimed resource streams the Nomads considered natural feeding grounds.",
     counter: "Strike early before Deciding Factor tips the balance. Spread cards to avoid giving Rush an easy target."
   },
   {
-    id: 'lithos', cover: 'assets/deck_lithos.png', loreBg: 'assets/lore_lithos.png',
-    name: 'THE LITHOS', sub: 'GEOLOGICAL ANCIENTS',
-    color: '#a0896a', avatar: '⬡',
+    id: 'lithos', cover: 'assets/menu-sm/deck_lithos.webp', loreBg: 'assets/menu-sm/lore_lithos.webp',
+    name: GZ_FACTIONS.lithos.name, sub: 'GEOLOGICAL ANCIENTS',
+    color: GZ_FACTIONS.lithos.color, avatar: '⬡',
     quote: '"We were here before your stars ignited."',
-    abilities: ['DECIDING FACTOR', 'COMMANDER', 'FORTIFY', 'SHIELD'],
     playstyle: 'Denial control',
     lore: "Near-immortal beings thinking in geological time: a 'fast decision' takes a decade. Ships are asteroids shaped over millions of years by forces the Lithos will into specific geometries. They do not build. They wait for matter to become what they already decided it would be.",
     history: "The Lithos have existed since before the current star generation. Their reason for fighting at Galactic Zero is not expansion: it is memory. The sector contains a gravitational record of the previous galactic configuration, and the Lithos will not allow it to be disturbed.",
     counter: 'Intimidate and Revenge erode even the deepest battle values. Birthright and Rush outscores slow stone accumulation.'
   },
   {
-    id: 'quantum', cover: 'assets/deck_quantum.png', loreBg: 'assets/lore_quantum.png',
-    name: 'THE QUANTUM THREAD', sub: 'SUPERPOSITION ENTITIES',
-    color: '#ff69b4', avatar: '◈',
+    id: 'quantum', cover: 'assets/menu-sm/deck_quantum.webp', loreBg: 'assets/menu-sm/lore_quantum.webp',
+    name: GZ_FACTIONS.quantum.name, sub: 'SUPERPOSITION ENTITIES',
+    color: GZ_FACTIONS.quantum.color, avatar: '◈',
     quote: '"We are all possibilities at once."',
-    abilities: ['DENSITY', 'FLANK', 'PHANTOM', 'SNIPER'],
     playstyle: 'Reactive uncertainty',
     lore: "Beings that exist in superposition: multiple states simultaneously until observed. Their ships are probability clouds: when you look directly at a Quantum Thread vessel, you have already changed what it was. They operate on the principle that the unobserved state contains more power than the resolved one.",
     history: "The Quantum Thread's presence at Galactic Zero is, according to their own cosmology, both certain and impossible. Multiple branches of their probability-consciousness are fighting here simultaneously, in parallel timelines with different outcomes. They do not know which branch they are in.",
     counter: 'High battle values counter Cloak uncertainty. Fortify and Shield resist their Phantom and Sniper attacks.'
   },
   {
-    id: 'choir', cover: 'assets/deck_choir.png', loreBg: 'assets/lore_choir.png',
-    name: 'THE CHOIR', sub: 'RESONANT FREQUENCY ENTITIES',
-    color: '#dd88ff', avatar: '〜',
+    id: 'choir', cover: 'assets/menu-sm/deck_choir.webp', loreBg: 'assets/menu-sm/lore_choir.webp',
+    name: GZ_FACTIONS.choir.name, sub: 'RESONANT FREQUENCY ENTITIES',
+    color: GZ_FACTIONS.choir.color, avatar: '〜',
     quote: '"The note that breaks everything."',
-    abilities: ['COMMANDER', 'FLANK', 'CLOAK', 'BIRTHRIGHT'],
     playstyle: 'Area resonance',
     lore: "No visible form. No detectable mass. The Choir is pure resonant frequency: sound traveling through space at impossible scales. They perceive through vibration, communicate through harmonic modulation, and attack by finding the resonant frequency of whatever they want destroyed.",
     history: "The Choir was detected at Galactic Zero as an anomalous resonance signature in the sector's background radiation. By the time other civilizations understood what they were hearing, The Choir had been present for three centuries: listening, mapping resonant vulnerabilities, calculating the frequency that will shatter each civilization's Dreadnaught.",
@@ -1039,41 +1029,8 @@ const RACES = [
   },
 ];
 
-// Ability descriptions for the showcase cards in lore panel
-const ABILITY_DESC = {
-  'LAMB':             '5 VP but zero on all battle values. Scores full power if uncontested; zero if any enemy is adjacent.',
-  'DENSITY':          'VP of this card is worth 1.5.',
-  'DECIDING FACTOR':  'When a row or column ends in a tie, this card tips the result in your favor.',
-  'COMMANDER':        'Adjacent friendly cards gain battle value on placement (+1 or +2 depending on faction). Stacks.',
-  'LASER FOCUS':      'Sums all four battle values into the enemy-facing side only. Zero on all other sides.',
-  'INTIMIDATE':       'Adjacent enemies lose 1 from their highest battle value on placement. Reactive: fires again when an enemy places adjacent.',
-  'FLANK':            'After placing this card, take one extra turn immediately.',
-  'RUSH':             'Can be placed next to ANY enemy card anywhere on the board, bypassing normal tier zone restrictions.',
-  'PHANTOM':          'Can be freely placed in your home row or the row directly above it, plus normal adjacency cells.',
-  'HOME INVADER':     'Can be placed directly on the opponent\'s home row, bypassing all tier restrictions.',
-  'FORTIFY':          'Claims the forward cell on placement. Opponent cannot place there; you can.',
-  'SHIELD':           'Absorbs the first battle loss. Sets shieldBlockH AND shieldBlockV simultaneously — one use per game.',
-  'PIERCE':           'Ties count as wins for this card instead of draws.',
-  'DOUBLE STRIKE':    'When this card wins any battle, the card two steps beyond in that same direction also takes half-damage.',
-  'CLOAK':            'Battle values show as ? for each side until that specific side fights its first battle.',
-  'SNIPER':           'On placement, silences the highest-power opponent card on their home row. That card contributes 0 VP.',
-  'REVENGE':          'When this card loses a battle comparison, the winning enemy card permanently loses 1 VP (floor of 1).',
-  'BIRTHRIGHT':       'On placement, a bonus Tier II card is added to your hand immediately.',
-};
-
-const RACE_ABILITY_KEYS = {
-  terran:     ['commander','flank','shield','double_strike'],
-  crystallis: ['density','fortify','shield','revenge'],
-  mycos:      ['lamb','intimidate','home_invader','birthright'],
-  veil:       ['flank','phantom','pierce','cloak'],
-  entropy:    ['lamb','laser_focus','intimidate','revenge'],
-  brood:      ['commander','laser_focus','rush','birthright'],
-  void:       ['rush','pierce','cloak','sniper'],
-  gas:        ['deciding_factor','rush','home_invader','double_strike'],
-  lithos:     ['deciding_factor','commander','fortify','shield'],
-  quantum:    ['density','flank','phantom','sniper'],
-  choir:      ['commander','flank','cloak','birthright'],
-};
+// Ability text/keys/icons come from abilities-data.js (ABILITY_TEXT,
+// FACTION_ABILITY_POOLS, RACE_ABILITY_NAMES, ABILITY_ICONS) — single source.
 
 var selectedRace = null;
 
@@ -1139,6 +1096,21 @@ function initConveyorWheel() {
   const screen = document.getElementById('deckselect');
   if (!screen) return;
   screen.addEventListener('wheel', (e) => {
+    // Don't hijack the wheel when the pointer is over a scrollable element
+    // (.ds-lore-panel etc.) that can still scroll in that direction.
+    let _el = e.target instanceof Element ? e.target : null;
+    while (_el) {
+      if (_el.scrollHeight > _el.clientHeight + 1) {
+        const _oy = getComputedStyle(_el).overflowY;
+        if (_oy === 'auto' || _oy === 'scroll') {
+          const _canDown = e.deltaY > 0 && _el.scrollTop + _el.clientHeight < _el.scrollHeight - 1;
+          const _canUp   = e.deltaY < 0 && _el.scrollTop > 0;
+          if (_canDown || _canUp) return; // let it scroll natively
+        }
+      }
+      if (_el === screen) break; // include #deckselect itself (scrollable in landscape)
+      _el = _el.parentElement;
+    }
     e.preventDefault();
     cvWheeling = true;
     const magnitude = Math.min(Math.abs(e.deltaY) * 0.08, 12.0);
@@ -1220,6 +1192,9 @@ function createTile(race) {
   tile.dataset.id = race.id;
   tile.style.backgroundImage = `url('${race.cover}')`;
   tile.style.borderColor = race.color + '33';
+  tile.setAttribute('tabindex', '0');
+  tile.setAttribute('role', 'button');
+  tile.setAttribute('aria-label', race.name + ' — select this civilization');
   tile.innerHTML = `
     ${race.starter ? `<div class="rt-starter-badge" style="color:${race.color};border:1px solid ${race.color}66;background:#00000099">STARTER</div>` : ''}
     <div class="rt-text-group">
@@ -1300,7 +1275,7 @@ function selectRace(race, tileEl) {
       avEl.style.boxShadow  = `0 0 20px ${race.color}44`;
       // Avatar image + deploy overlay (visible on hover)
       avEl.style.animation = ''; // no overlay: deploy button is separate below
-      avEl.innerHTML = `<img src="assets/avatars/${race.id}.png"
+      avEl.innerHTML = `<img src="assets/avatars/${race.id}.png" alt="${race.name} avatar"
         style="width:100%;height:100%;object-fit:cover;display:block;"
         onerror="this.style.display='none'">`;
     }
@@ -1318,19 +1293,25 @@ function selectRace(race, tileEl) {
     document.getElementById('loreDivider').style.background =
       `linear-gradient(90deg, ${race.color}, transparent)`;
 
-    // Ability showcase cards: show ALL abilities
+    // Ability showcase cards: show ALL abilities (data from abilities-data.js)
     const ac = document.getElementById('abilityCards');
-    const _abilityKeys = RACE_ABILITY_KEYS[race.id] || [];
-    ac.innerHTML = race.abilities.map((a, i) => {
-      const _key = _abilityKeys[i];
+    const _abilityKeys = (typeof FACTION_ABILITY_POOLS !== 'undefined' && FACTION_ABILITY_POOLS[race.id]) || [];
+    const _abilityNames = (typeof RACE_ABILITY_NAMES !== 'undefined' && RACE_ABILITY_NAMES[race.id]) || {};
+    ac.innerHTML = _abilityKeys.map(_key => {
+      const _label = _abilityNames[_key] || _key.replace(/_/g, ' ').toUpperCase();
+      const _desc  = (typeof ABILITY_TEXT !== 'undefined' && ABILITY_TEXT[_key]) || '-';
       const _svgPaths = typeof _ABILITY_SVG_PATHS !== 'undefined' ? _ABILITY_SVG_PATHS[_key] : null;
-      const _iconBlock = _svgPaths ? `<div style="width:72px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:${race.color}12;border-right:1px solid ${race.color}22;"><svg width="36" height="36" viewBox="0 0 24 24" fill="none">${_svgPaths}</svg></div>` : '';
+      const _glyph = (typeof ABILITY_ICONS !== 'undefined' && ABILITY_ICONS[_key]) ? ABILITY_ICONS[_key].icon : null;
+      const _iconInner = _svgPaths
+        ? `<svg width="36" height="36" viewBox="0 0 24 24" fill="none">${_svgPaths}</svg>`
+        : (_glyph ? `<span style="font-size:22px;line-height:1;">${_glyph}</span>` : '');
+      const _iconBlock = _iconInner ? `<div style="width:72px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:${race.color}12;border-right:1px solid ${race.color}22;">${_iconInner}</div>` : '';
       return `
       <div class="ability-showcase" style="color:${race.color};border-color:${race.color}44;background:${race.color}08;display:flex;flex-direction:row;gap:0;align-items:stretch;padding:0;overflow:hidden;">
         ${_iconBlock}
         <div style="flex:1;display:flex;flex-direction:column;gap:5px;justify-content:center;padding:12px 14px;">
-          <div class="absc-title">${a}</div>
-          <div class="absc-desc">${ABILITY_DESC[a] || '-'}</div>
+          <div class="absc-title">${_label}</div>
+          <div class="absc-desc">${_desc}</div>
         </div>
       </div>`;
     }).join('');
@@ -1420,7 +1401,7 @@ function selectRace(race, tileEl) {
         return `
         <div style="
           width:100%;height:168px;border-radius:6px;border:1px solid rgba(255,255,255,0.15);box-shadow:none;
-          background:url('${s.art}') center/cover;
+          background:url('${s.art.startsWith('assets/cards/') ? s.art.replace('assets/cards/','assets/cards-sm/').replace(/\.png$/i,'.webp') : s.art}') center/cover;
           position:relative;overflow:hidden;flex-shrink:0;
           ${s.placeholder ? 'filter:brightness(0.3) saturate(0.3);' : ''}
         ">
@@ -1430,15 +1411,6 @@ function selectRace(race, tileEl) {
       tcp.style.display = 'grid';
     }
 
-    const btn = document.getElementById('deployBtn');
-    if (btn) btn.style.cssText = `
-      font-family:'Orbitron',monospace;font-size:12px;letter-spacing:4px;
-      padding:12px 0;cursor:pointer;text-transform:uppercase;border-radius:4px;
-      width:180px;
-      border:2px solid ${race.color};color:${race.color};background:${race.color}11;
-      animation:launchGlow 2s ease-in-out infinite;
-    `;
-    const _dw = document.getElementById('deployWrap'); if (_dw) _dw.style.display = 'block';
     const _flb = document.getElementById('fixedLaunchBtn');
     if (_flb) { _flb.style.borderColor=race.color; _flb.style.color=race.color; _flb.style.background=race.color+'11'; _flb.style.boxShadow='0 0 24px '+race.color+'44'; }
     const _dlb = document.getElementById('desktopLaunchBar');
@@ -1454,6 +1426,11 @@ function selectRace(race, tileEl) {
 
     // Play civilization voice intro
     playCivVoice(race.id);
+
+    // Achievement hooks: lore viewed / deck browsed / faction explored
+    if (typeof achievOnLore === 'function') achievOnLore(race.id);
+    if (typeof achievOnDeckOpen === 'function') achievOnDeckOpen(race.id);
+    if (typeof achievOnExplore === 'function') achievOnExplore(race.id);
   }, 60);
 }
 
@@ -1506,13 +1483,14 @@ const _splashBg = document.getElementById('splashBg');
 if (_isMobile) {
   // Mobile: skip video entirely, show still galaxy image immediately
   gv.style.display = 'none';
+  document.body.classList.add('gz-touch'); // lets CSS pick mobile launch bar over desktop bar
   const _hint = document.getElementById('dsEmptyText');
   if (_hint) _hint.textContent = 'TAP A CIVILIZATION TO SELECT';
 
   // Body-level launch bar: appended to <body> so overflow:hidden on ancestors can't clip it
   const _mbar = document.createElement('div');
   _mbar.id = 'mobileLaunchBar';
-  _mbar.style.cssText = 'display:none;position:fixed;bottom:0;left:0;right:0;z-index:99998;padding:10px 16px 20px;background:linear-gradient(transparent,#020208 30%);';
+  _mbar.style.cssText = 'display:none;position:fixed;bottom:0;left:0;right:0;z-index:99998;padding:10px 16px max(20px, env(safe-area-inset-bottom));background:linear-gradient(transparent,#020208 30%);';
   _mbar.innerHTML = '<div style="display:flex;gap:10px;width:100%;">'
     + '<button onclick="quickStartGame()" style="flex:1;padding:16px 0;font-family:\'Orbitron\',monospace;font-size:11px;letter-spacing:2px;border:2px solid #ff9900;color:#ff9900;background:#ff990011;border-radius:4px;cursor:pointer;white-space:nowrap;">⚡ QUICK START</button>'
     + '<button id="mobileLaunchBtn" onclick="showOpponentPicker()" style="flex:2;padding:16px 0;font-family:\'Orbitron\',monospace;font-size:13px;letter-spacing:4px;border:2px solid #00ffcc;color:#00ffcc;background:transparent;border-radius:4px;cursor:pointer;text-transform:uppercase;white-space:nowrap;">LAUNCH DECK ▶</button>'
@@ -1559,6 +1537,8 @@ let muted = localStorage.getItem("gz_music_muted") === "true";
 function startMusic() {
   if (musicStarted || muted) return;
   const audio = document.getElementById('bgMusic');
+  // preload="none": explicitly fetch on first user gesture (mirrors audio.js pattern)
+  if (!audio._gzLoaded) { audio.load(); audio._gzLoaded = true; }
   audio.loop = true;
   audio.volume = 0.35;
   audio.play().then(() => { musicStarted = true; }).catch(() => {});
@@ -1632,10 +1612,16 @@ function showDeckSelect() {
     const terranTile = document.querySelector('.race-tile[data-id="terran"]');
     if (terranRace && terranTile) selectRace(terranRace, terranTile);
   }, 160);
+  // Starfield is fully obscured once the deck select + race bg are in: stop drawing
+  setTimeout(() => {
+    if (!document.getElementById('deckselect').classList.contains('hidden') &&
+        typeof window._starfieldPause === 'function') window._starfieldPause();
+  }, 1100);
 }
 
 function showSplash() {
   stopCivVoice(); // Stop voice when going back to splash
+  if (typeof window._starfieldResume === 'function') window._starfieldResume();
   const _mbar = document.getElementById('mobileLaunchBar');
   if (_mbar) _mbar.style.display = 'none';
   document.getElementById('deckselect').classList.add('hidden');
@@ -1702,6 +1688,7 @@ function showOpponentPicker() {
   grid.innerHTML = RACES.filter(r => r.id !== selectedRace.id).map(r => `
     <div class="opp-tile" data-rid="${r.id}"
       onclick="selectOpponent('${r.id}', this)"
+      tabindex="0" role="button" aria-label="${r.name} — select as opponent"
       style="height:130px;border-radius:8px;cursor:pointer;overflow:hidden;
         background:url('${r.cover}') center/cover;
         border:2px solid ${r.color}33;position:relative;
@@ -1741,10 +1728,10 @@ function showOpponentPicker() {
   setTimeout(() => setDiff('balanced'), 0);
 }
 
-// ── SUPABASE CONFIG ─────────────────────────────────────────────────────────
-const SB_URL = 'https://mstpkwxxhsspivtngfnm.supabase.co';
-const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1zdHBrd3h4aHNzcGl2dG5nZm5tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0NTE2MTcsImV4cCI6MjA5NjAyNzYxN30.B0F-e_mGzv5kbjwOa2yw499OfsZ3qJDXdoyrCu2tNiI';
-const SB_HDR = { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json' };
+// ── SUPABASE CONFIG (single source: shared-data.js window.GZ_SB) ────────────
+const SB_URL = window.GZ_SB.url;
+const SB_KEY = window.GZ_SB.key;
+const SB_HDR = window.GZ_SB.headers;
 
 async function sbPost(path, body) {
   return fetch(SB_URL + path, { method:'POST', headers:{...SB_HDR,'Prefer':'return=representation'}, body:JSON.stringify(body) });
@@ -1835,8 +1822,17 @@ function _submitP1Initials() {
   createRoom();
 }
 
+// Cancel the invite: clear polling + dot timers and remove the modal
+function cancelInvite() {
+  if (window._gzInviteTimers) { window._gzInviteTimers.forEach(clearInterval); window._gzInviteTimers = null; }
+  document.getElementById('mpInviteModal')?.remove();
+}
+
 async function createRoom() {
   if (!selectedRace) return;
+  // Clear any timers leaked from a previously opened invite before re-creating
+  if (window._gzInviteTimers) { window._gzInviteTimers.forEach(clearInterval); window._gzInviteTimers = null; }
+  document.getElementById('mpInviteModal')?.remove();
   const roomId = genRoomId();
   const initials = window._p1Initials || '---';
   window._p1Initials = null;
@@ -1857,6 +1853,7 @@ async function createRoom() {
 
   // Show invite modal
   const m = document.createElement('div');
+  m.id = 'mpInviteModal';
   m.style.cssText = 'position:fixed;inset:0;z-index:200000;background:#000000ee;display:flex;align-items:center;justify-content:center;font-family:\'Share Tech Mono\',monospace;';
   m.innerHTML = `
     <div style="background:#07070f;border:1px solid #8855ff88;border-radius:12px;padding:32px 40px;max-width:500px;width:92%;text-align:center;box-shadow:0 0 60px #8855ff22;">
@@ -1867,7 +1864,7 @@ async function createRoom() {
       <div style="background:#0a0a18;border:1px solid #1a1a28;border-radius:6px;padding:14px;font-size:12px;color:#00ffcc;word-break:break-all;margin-bottom:20px;line-height:1.5;">${inviteUrl}</div>
       <div style="display:flex;gap:12px;justify-content:center;margin-bottom:24px;">
         <button onclick="navigator.clipboard.writeText('${inviteUrl}');this.textContent='COPIED ✓';this.style.borderColor='#00ffcc88';" style="background:#0a1a2e;border:1px solid #00ffcc66;color:#00ffcc;font-family:'Orbitron',inherit;font-size:13px;letter-spacing:2px;padding:12px 28px;cursor:pointer;border-radius:5px;transition:all 0.2s;">COPY LINK</button>
-        <button onclick="this.closest('[style*=z-index]').remove()" style="background:transparent;border:1px solid #332244;color:#554466;font-family:inherit;font-size:13px;letter-spacing:2px;padding:12px 20px;cursor:pointer;border-radius:5px;transition:all 0.2s;" onmouseenter="this.style.color='#8855ff';this.style.borderColor='#554477'" onmouseleave="this.style.color='#554466';this.style.borderColor='#332244'">← CANCEL</button>
+        <button onclick="cancelInvite()" style="background:transparent;border:1px solid #332244;color:#554466;font-family:inherit;font-size:13px;letter-spacing:2px;padding:12px 20px;cursor:pointer;border-radius:5px;transition:all 0.2s;" onmouseenter="this.style.color='#8855ff';this.style.borderColor='#554477'" onmouseleave="this.style.color='#554466';this.style.borderColor='#332244'">← CANCEL</button>
       </div>
       <div style="font-size:11px;color:#444;letter-spacing:1px;margin-bottom:18px;">Waiting for opponent to join...</div>
       <div id="waitDots" style="font-size:18px;color:#8855ff;letter-spacing:8px;">● ○ ○</div>
@@ -1884,12 +1881,15 @@ async function createRoom() {
     const r = await sbGet(`/rest/v1/gz_rooms?id=eq.${roomId}&select=status,p2_faction,p2_initials`);
     const data = await r.json();
     if (data[0]?.status === 'playing') {
-      clearInterval(pollRoom); clearInterval(dotTimer); m.remove();
+      clearInterval(pollRoom); clearInterval(dotTimer); window._gzInviteTimers = null; m.remove();
       stopCivVoice();
-      const params = new URLSearchParams({ race: selectedRace.id, color: selectedRace.color, name: selectedRace.name, p1initials: initials, p2initials: data[0].p2_initials || '---' });
+      const params = new URLSearchParams({ race: selectedRace.id, name: selectedRace.name, p1initials: initials, p2initials: data[0].p2_initials || '---' });
       window.location.href = `game.html?${params}&difficulty=${_selectedDifficulty}&room=${roomId}&player=1&p2faction=${data[0].p2_faction}`;
     }
   }, 2000);
+
+  // Track both intervals so CANCEL / reopen can clear them
+  window._gzInviteTimers = [dotTimer, pollRoom];
 }
 // Reset wizard to step 1 when modal reopens
 function _resetMode() {
@@ -1951,7 +1951,7 @@ function launchGame(opponentId) {
   sessionStorage.setItem('gz_ai_race', aiId);
   const dep = document.getElementById('deploySfx');
   if (dep) { dep.currentTime = 0; dep.volume = 0.8; dep.play().catch(()=>{}); }
-  const params = new URLSearchParams({ race: selectedRace.id, color: selectedRace.color, name: selectedRace.name });
+  const params = new URLSearchParams({ race: selectedRace.id, name: selectedRace.name });
   setTimeout(() => { window.location.href = `game.html?${params.toString()}&difficulty=${_selectedDifficulty}`; }, 280);
 }
 
@@ -2043,6 +2043,9 @@ function startGame() {
           ${isTaken ? '<div style="font-size:10px;color:#442233;letter-spacing:1px;margin-top:2px;">TAKEN</div>' : ''}
         </div>`;
       if (!isTaken) {
+        tile.setAttribute('tabindex', '0');
+        tile.setAttribute('role', 'button');
+        tile.setAttribute('aria-label', r.name + ' — select your civilization');
         tile.onclick = () => {
           _joinRace = r;
           document.querySelectorAll('#joinRaceGrid .opp-tile').forEach(t => {
@@ -2120,12 +2123,34 @@ async function joinRoom(roomId) {
   });
 
   stopCivVoice();
-  const params = new URLSearchParams({ race: race.id, color: race.color, name: race.name, p2initials: window._p2Initials || '---', p1initials: roomData[0]?.p1_initials || '---' });
+  const params = new URLSearchParams({ race: race.id, name: race.name, p2initials: window._p2Initials || '---', p1initials: roomData[0]?.p1_initials || '---' });
   window.location.href = `game.html?${params}&room=${roomId}&player=2&aifaction=${p1Faction}`;
 }
 
 // Disable right-click on both splash and deck select screens
 document.addEventListener('contextmenu', e => e.preventDefault());
+
+// ── KEYBOARD ACCESS ────────────────────────────────
+// Enter/Space activates any [role="button"] element (tiles, arrows, audio controls)
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Enter' && e.key !== ' ') return;
+  const t = e.target;
+  if (t instanceof Element && t.matches('[role="button"]')) {
+    e.preventDefault();
+    t.click();
+  }
+});
+
+// Escape closes index-hosted modals (topmost first)
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  const p1ov = document.getElementById('p1InitialsOv');
+  if (p1ov) { p1ov.remove(); return; }
+  if (document.getElementById('mpInviteModal')) { cancelInvite(); return; }
+  const om = document.getElementById('opponentModal');
+  if (om && om.style.display !== 'none' && om.style.display !== '') { om.style.display = 'none'; return; }
+  if (document.getElementById('lbModal') && typeof hideLeaderboard === 'function') { hideLeaderboard(); }
+});
 
 // ── INIT ──────────────────────────────────────────
 const _fromGame = new URLSearchParams(window.location.search).get('screen') === 'deck';
@@ -2136,6 +2161,8 @@ if (_fromGame) {
   document.getElementById('splashBg').style.opacity = '0';
   document.getElementById('splashDim').style.opacity = '0';
   document.getElementById('deckselect').classList.remove('hidden');
+  // Deck select covers the starfield: stop drawing
+  setTimeout(() => { if (typeof window._starfieldPause === 'function') window._starfieldPause(); }, 1100);
   // Note: Terran auto-select fires AFTER buildRaceGrid() in the Promise below
 }
 
@@ -2174,7 +2201,7 @@ function quickStartGame() {
   const aiIds = allIds.filter(id => id !== raceId);
   const aiId = aiIds[Math.floor(Math.random() * aiIds.length)];
   sessionStorage.setItem('gz_ai_race', aiId);
-  const params = new URLSearchParams({ race: raceId, color: race.color || '#888', name: race.name || raceId, difficulty: 'balanced' });
+  const params = new URLSearchParams({ race: raceId, name: race.name || raceId, difficulty: 'balanced' });
   window.location.href = 'game.html?' + params.toString();
 }
 </script>
@@ -2197,20 +2224,20 @@ function quickStartGame() {
   <div id="wizStep1" style="display:flex;flex-direction:column;align-items:center;gap:28px;width:100%;transition:opacity 0.22s,transform 0.22s;">
     <div style="font-family:'Orbitron',monospace;font-size:20px;letter-spacing:5px;color:#fff;text-shadow:0 0 20px #8855ffaa;">SELECT GAME TYPE</div>
     <div style="display:flex;gap:12px;justify-content:center;">
-      <div id="modeComputer" onclick="selectMode('computer')" style="
+      <div id="modeComputer" onclick="selectMode('computer')" tabindex="0" role="button" aria-label="Play versus computer" style="
         position:relative;width:232px;height:152px;border-radius:8px;overflow:hidden;
         cursor:pointer;border:2px solid #1a1a28;transition:all 0.22s;box-shadow:none;">
-        <img src="assets/mode-computer.png" style="width:100%;height:100%;object-fit:cover;display:block;filter:brightness(0.8);">
+        <img src="assets/menu-sm/mode-computer.webp" loading="lazy" alt="PvE — play versus computer" style="width:100%;height:100%;object-fit:cover;display:block;filter:brightness(0.8);">
         <div style="position:absolute;inset:0;background:linear-gradient(transparent 45%,#000000bb);"></div>
         <div class="mode-check" style="display:none;position:absolute;top:7px;right:7px;width:20px;height:20px;border-radius:50%;background:#00ffcc;align-items:center;justify-content:center;font-size:11px;color:#000;font-weight:bold;">✓</div>
         <div style="position:absolute;bottom:10px;left:0;right:0;text-align:center;">
           <div style="font-family:'Orbitron',monospace;font-size:15px;letter-spacing:3px;color:#aaa;">PvE</div>
         </div>
       </div>
-      <div id="modeFriend" onclick="selectMode('friend')" style="
+      <div id="modeFriend" onclick="selectMode('friend')" tabindex="0" role="button" aria-label="Play versus a friend" style="
         position:relative;width:232px;height:152px;border-radius:8px;overflow:hidden;
         cursor:pointer;border:2px solid #1a1a28;transition:all 0.22s;box-shadow:none;">
-        <img src="assets/mode-friend.png" style="width:100%;height:100%;object-fit:cover;display:block;filter:brightness(0.8);">
+        <img src="assets/menu-sm/mode-friend.webp" loading="lazy" alt="PvP — play versus a friend" style="width:100%;height:100%;object-fit:cover;display:block;filter:brightness(0.8);">
         <div style="position:absolute;inset:0;background:linear-gradient(transparent 45%,#000000bb);"></div>
         <div class="mode-check" style="display:none;position:absolute;top:7px;right:7px;width:20px;height:20px;border-radius:50%;background:#8855ff;align-items:center;justify-content:center;font-size:11px;color:#fff;font-weight:bold;">✓</div>
         <div style="position:absolute;bottom:10px;left:0;right:0;text-align:center;">
@@ -2241,8 +2268,8 @@ function quickStartGame() {
   <div id="wizStep2" style="display:none;flex-direction:column;align-items:center;gap:28px;width:100%;transition:opacity 0.22s,transform 0.22s;">
     <div style="font-family:'Orbitron',monospace;font-size:20px;letter-spacing:5px;color:#fff;text-shadow:0 0 20px #8855ffaa;">SELECT DIFFICULTY</div>
     <div style="display:flex;gap:12px;justify-content:center;">
-      <div id="diff-passive" onclick="setDiff('passive')" style="position:relative;width:218px;height:144px;border-radius:10px;overflow:hidden;cursor:pointer;border:2px solid #1a1a28;transition:all 0.2s;flex-shrink:0;">
-        <img src="assets/diff-passive.png" style="width:100%;height:100%;object-fit:cover;object-position:center;display:block;">
+      <div id="diff-passive" onclick="setDiff('passive')" tabindex="0" role="button" aria-label="Passive difficulty — low AI" style="position:relative;width:218px;height:144px;border-radius:10px;overflow:hidden;cursor:pointer;border:2px solid #1a1a28;transition:all 0.2s;flex-shrink:0;">
+        <img src="assets/menu-sm/diff-passive.webp" loading="lazy" alt="Passive difficulty" style="width:100%;height:100%;object-fit:cover;object-position:center;display:block;">
         <div style="position:absolute;inset:0;background:linear-gradient(transparent 35%,#000000aa);"></div>
         <div class="diff-check" style="display:none;position:absolute;top:8px;right:8px;width:24px;height:24px;border-radius:50%;background:#4488cc;align-items:center;justify-content:center;font-size:13px;color:#fff;font-weight:bold;">✓</div>
         <div style="position:absolute;bottom:10px;left:0;right:0;text-align:center;">
@@ -2250,8 +2277,8 @@ function quickStartGame() {
           <div style="font-size:11px;color:#bbb;letter-spacing:1px;margin-top:2px;">LOW AI</div>
         </div>
       </div>
-      <div id="diff-balanced" onclick="setDiff('balanced')" style="position:relative;width:218px;height:144px;border-radius:10px;overflow:hidden;cursor:pointer;border:2px solid #1a1a28;transition:all 0.2s;flex-shrink:0;">
-        <img src="assets/diff-balanced.png" style="width:100%;height:100%;object-fit:cover;object-position:center;display:block;">
+      <div id="diff-balanced" onclick="setDiff('balanced')" tabindex="0" role="button" aria-label="Balanced difficulty — fair match" style="position:relative;width:218px;height:144px;border-radius:10px;overflow:hidden;cursor:pointer;border:2px solid #1a1a28;transition:all 0.2s;flex-shrink:0;">
+        <img src="assets/menu-sm/diff-balanced.webp" loading="lazy" alt="Balanced difficulty" style="width:100%;height:100%;object-fit:cover;object-position:center;display:block;">
         <div style="position:absolute;inset:0;background:linear-gradient(transparent 35%,#000000aa);"></div>
         <div class="diff-check" style="display:none;position:absolute;top:8px;right:8px;width:24px;height:24px;border-radius:50%;background:#00ffcc;align-items:center;justify-content:center;font-size:13px;color:#000;font-weight:bold;">✓</div>
         <div style="position:absolute;bottom:10px;left:0;right:0;text-align:center;">
@@ -2259,8 +2286,8 @@ function quickStartGame() {
           <div style="font-size:11px;color:#bbb;letter-spacing:1px;margin-top:2px;">FAIR MATCH</div>
         </div>
       </div>
-      <div id="diff-aggressive" onclick="setDiff('aggressive')" style="position:relative;width:218px;height:144px;border-radius:10px;overflow:hidden;cursor:pointer;border:2px solid #1a1a28;transition:all 0.2s;flex-shrink:0;">
-        <img src="assets/diff-aggressive.png" style="width:100%;height:100%;object-fit:cover;object-position:center;display:block;">
+      <div id="diff-aggressive" onclick="setDiff('aggressive')" tabindex="0" role="button" aria-label="Aggressive difficulty — high AI" style="position:relative;width:218px;height:144px;border-radius:10px;overflow:hidden;cursor:pointer;border:2px solid #1a1a28;transition:all 0.2s;flex-shrink:0;">
+        <img src="assets/menu-sm/diff-aggressive.webp" loading="lazy" alt="Aggressive difficulty" style="width:100%;height:100%;object-fit:cover;object-position:center;display:block;">
         <div style="position:absolute;inset:0;background:linear-gradient(transparent 35%,#000000aa);"></div>
         <div class="diff-check" style="display:none;position:absolute;top:8px;right:8px;width:24px;height:24px;border-radius:50%;background:#ff4422;align-items:center;justify-content:center;font-size:13px;color:#fff;font-weight:bold;">✓</div>
         <div style="position:absolute;bottom:10px;left:0;right:0;text-align:center;">
@@ -2311,18 +2338,7 @@ function quickStartGame() {
 </div>
 
 <!-- Launch bar: now inline inside lore content — see ds-lore-content section -->
-<!-- Mobile leaderboard button: hidden on desktop, shown on mobile via CSS -->
-<div id="lbMobileBtn" onclick="showLeaderboard()" style="
-  display:none;position:fixed;bottom:76px;left:12px;z-index:300;
-  width:44px;height:44px;border-radius:50%;
-  background:#000000cc;border:1px solid #ffdd0066;
-  align-items:center;justify-content:center;
-  font-size:20px;cursor:pointer;
-  box-shadow:0 0 14px #ffdd0033;
-  transition:all 0.2s;
-" onmouseenter="this.style.background='#ffdd0022';this.style.borderColor='#ffdd00'"
-   onmouseleave="this.style.background='#000000cc';this.style.borderColor='#ffdd0066'"
-   title="Hall of Champions">🏆</div>
+<script src="achievements.js"></script>
 <script src="leaderboard.js"></script>
 </body>
 </html>
