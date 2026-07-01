@@ -1,0 +1,16 @@
+# Only the game itself should be publicly served.
+dev/
+docs/
+supabase/
+.playwright-mcp/
+.superpowers/
+.claude/
+Dockerfile
+.dockerignore
+README.md
+electron-main.js
+preload.js
+deploy-itch.js
+package.json
+package-lock.json
+*.py

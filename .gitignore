@@ -1,5 +1,11 @@
 .vercel
 .playwright-mcp/
 .superpowers/
-*.py
+.claude/worktrees/
+.claude/settings.local.json
 _temp*
+node_modules/
+dist/
+galactic-zero-dist.zip
+package-lock.json
+*.log
