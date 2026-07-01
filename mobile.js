@@ -1,5 +1,8 @@
 function showMobileCardPanel(card) {
-  if (window.innerWidth > 480) return;
+  // Touch devices get the panel at ANY width (tooltips are hidden ≤599px and
+  // dismissed on touchstart, so 481-900px tablets would otherwise have no
+  // card-detail access). Fine-pointer devices keep the ≤480px gate.
+  if (!(window.matchMedia('(pointer: coarse)').matches || window.innerWidth <= 480)) return;
   const panel = document.getElementById('mobileCardPanel');
   if (!panel) return;
   panel.style.display = 'block';
@@ -10,10 +13,27 @@ function showMobileCardPanel(card) {
   const tierNum = {'I':1,'II':2,'III':3,'IV':4}[card.tier] || 1;
   const _fc = window.playerFactionColor || '#00ffcc';
   const mod = card.edgeMod;
-  const n = card.edges.n + (mod && mod.n || 0);
-  const s = card.edges.s + (mod && mod.s || 0);
-  const e = card.edges.e + (mod && mod.e || 0);
-  const w = card.edges.w + (mod && mod.w || 0);
+
+  // Locate the card on the grid first (needed for cloak + battle badges)
+  let _cardPos = null;
+  if (typeof G !== 'undefined' && G.grid) {
+    outer: for (let _r = 0; _r < 5; _r++)
+      for (let _c = 0; _c < 7; _c++) {
+        const _gc = G.grid[_r][_c].card;
+        if (_gc && (_gc === card || (card.id && _gc.id === card.id))) { _cardPos = {r:_r, c:_c, own:G.grid[_r][_c].owner}; break outer; }
+      }
+  }
+
+  // CLOAK: hide unrevealed edges of the OPPONENT'S cloak card only —
+  // the owner always sees their own true values.
+  const _ck = function(edge) {
+    return card.ability === 'cloak' && _cardPos && _cardPos.own === 'ai' &&
+      !(card.cloakRevealed && card.cloakRevealed[edge]);
+  };
+  const n = _ck('n') ? '?' : card.edges.n + (mod && mod.n || 0);
+  const s = _ck('s') ? '?' : card.edges.s + (mod && mod.s || 0);
+  const e = _ck('e') ? '?' : card.edges.e + (mod && mod.e || 0);
+  const w = _ck('w') ? '?' : card.edges.w + (mod && mod.w || 0);
 
   const abiInfo = card.ability ? (ABILITY_ICONS[card.ability] || {icon:'✦', color: tierCol, label: card.ability.replace(/_/g,' ').toUpperCase()}) : null;
   const abiCol = abiInfo ? abiInfo.color : tierCol;
@@ -45,25 +65,37 @@ function showMobileCardPanel(card) {
     '</div>' +
     '<div style="font-size:7px;color:#333;font-family:\'Courier New\',monospace;display:flex;justify-content:space-between;padding:1px 3px 0;"><span>W</span><span>E</span></div>';
 
-  // Battle result badges (same logic as desktop tooltip)
-  let _cardPos = null;
-  if (typeof G !== 'undefined' && G.grid) {
-    outer: for (let _r = 0; _r < 5; _r++)
-      for (let _c = 0; _c < 7; _c++)
-        if (G.grid[_r][_c].card === card) { _cardPos = {r:_r, c:_c, own:G.grid[_r][_c].owner}; break outer; }
-  }
+  // Battle result badges — engine-consistent math shared with the desktop
+  // tooltip: battle.js gzEffEdge (symmetric aggressive AI buff), pierce
+  // tie-break both sides, cloak per-edge suppression below.
+  // NOTE: gzPreviewBattle is deliberately NOT used here — it is a PLACEMENT
+  // simulator (re-applies commander/intimidate placement effects) and this
+  // panel shows cards that are already placed, whose edgeMod already contains
+  // those effects; re-simulating would double-apply them.
   const _dir = {n:null, s:null, e:null, w:null};
   if (_cardPos) {
-    const {r:_r, c:_c, own:_own} = _cardPos;
+    const _r = _cardPos.r, _c = _cardPos.c, _own = _cardPos.own;
     const _emy = _own === 'player' ? 'ai' : 'player';
-    const _cmp = function(my, their) { return my > their ? 'W' : my < their ? 'L' : 'T'; };
+    const _cmp = function(my, their, myP, theirP) {
+      return my > their ? 'W' : my < their ? 'L'
+        : (myP && !theirP) ? 'W' : (theirP && !myP) ? 'L' : 'T';
+    };
     const _em  = function(rr,cc) { return G.grid[rr] && G.grid[rr][cc] && G.grid[rr][cc].owner === _emy && G.grid[rr][cc].card ? G.grid[rr][cc].card : null; };
-    const _ev  = function(c2, edge) { return c2.edges[edge] + (c2.edgeMod?.[edge]||0); };
-    if (_em(_r-1,_c)) _dir.n = _cmp(n, _ev(_em(_r-1,_c),'s'));
-    if (_em(_r+1,_c)) _dir.s = _cmp(s, _ev(_em(_r+1,_c),'n'));
-    if (_em(_r,_c-1)) _dir.w = _cmp(w, _ev(_em(_r,_c-1),'e'));
-    if (_em(_r,_c+1)) _dir.e = _cmp(e, _ev(_em(_r,_c+1),'w'));
+    const _eff = function(c2, owner, edge) {
+      return (typeof gzEffEdge === 'function')
+        ? gzEffEdge(c2, owner, edge)
+        : Math.round((c2.edges[edge] + (c2.edgeMod?.[edge]||0)) *
+            ((window.aiDifficulty === 'aggressive' && owner === 'ai') ? 1.1 : 1));
+    };
+    const _myP = card.ability === 'pierce';
+    const _nN = _em(_r-1,_c), _nS = _em(_r+1,_c), _nW = _em(_r,_c-1), _nE = _em(_r,_c+1);
+    if (_nN) _dir.n = _cmp(_eff(card,_own,'n'), _eff(_nN,_emy,'s'), _myP, _nN.ability==='pierce');
+    if (_nS) _dir.s = _cmp(_eff(card,_own,'s'), _eff(_nS,_emy,'n'), _myP, _nS.ability==='pierce');
+    if (_nW) _dir.w = _cmp(_eff(card,_own,'w'), _eff(_nW,_emy,'e'), _myP, _nW.ability==='pierce');
+    if (_nE) _dir.e = _cmp(_eff(card,_own,'e'), _eff(_nE,_emy,'w'), _myP, _nE.ability==='pierce');
   }
+  // Never leak a cloaked edge's outcome to the opponent
+  ['n','s','e','w'].forEach(function(edge) { if (_ck(edge)) _dir[edge] = null; });
   function _mbadge(res) {
     if (!res) return '';
     const bc = res==='W'?'#00ffcc':res==='L'?'#ff4444':'#888';
@@ -112,7 +144,7 @@ function showMobileCardPanel(card) {
     '</div>' +
     // Header: art | name + VP + tier
     '<div style="display:flex;gap:10px;padding-bottom:10px;border-bottom:1px solid #ffffff10;margin-bottom:10px;align-items:flex-start;">' +
-      (card.art ? '<img src="' + card.art + '" style="width:72px;height:94px;object-fit:cover;object-position:top;border-radius:6px;border:1px solid ' + tierCol + '55;flex-shrink:0;">' : '') +
+      (card.art ? '<img src="' + (typeof gzCardArt === 'function' ? gzCardArt(card.art) : card.art) + '" alt="" style="width:72px;height:94px;object-fit:cover;object-position:top;border-radius:6px;border:1px solid ' + tierCol + '55;flex-shrink:0;">' : '') +
       '<div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:6px;justify-content:center;">' +
         '<div style="font-family:\'Orbitron\',monospace;font-size:12px;letter-spacing:1px;color:#fff;font-weight:700;line-height:1.3;">' + (card.name || '') + '</div>' +
         '<div style="display:flex;align-items:baseline;gap:4px;">' +

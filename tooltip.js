@@ -26,7 +26,6 @@ function showAbilityZone(ability, _baseR, _baseC, _owner) {
     pierce:         { inf:[{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}], buf:[], agg:[{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}] },
     double_strike:  { inf:[{dr:-1,dc:0},{dr:-2,dc:0}], buf:[], agg:[{dr:-2,dc:0}] },
     cloak:          { inf:[{dr:0,dc:0}], buf:[{dr:0,dc:0}], agg:[] },
-    sniper:         { inf:[{dr:-1,dc:0},{dr:-2,dc:0},{dr:-3,dc:0},{dr:-4,dc:0}], buf:[], agg:[{dr:-1,dc:0},{dr:-2,dc:0},{dr:-3,dc:0},{dr:-4,dc:0}] },
     deciding_factor:{ inf:[{dr:0,dc:0}], buf:[{dr:0,dc:0}], agg:[] },
     density:        { inf:[{dr:0,dc:0}], buf:[{dr:0,dc:0}], agg:[] },
     lamb:           { inf:[{dr:0,dc:0},{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}], buf:[{dr:0,dc:0}], agg:[] },
@@ -50,6 +49,20 @@ function showAbilityZone(ability, _baseR, _baseC, _owner) {
 
   if (ability === 'rush') {
     document.querySelectorAll('.cell.valid').forEach(el => mkLayer(el, 'agg'));
+    return;
+  }
+
+  // SNIPER (real mechanic): on placement it silences the highest-power card on
+  // the opponent's home row (one-time, engine flag _silenced). Highlight that
+  // home row; mark any already-silenced victim in red.
+  if (ability === 'sniper') {
+    const homeRow = (_owner === 'player') ? (_p2 ? 4 : 0) : (_p2 ? 0 : 4);
+    for (let hc = 0; hc < 7; hc++) {
+      const el = document.querySelector(`.cell[data-r="${homeRow}"][data-c="${hc}"]`);
+      if (!el) continue;
+      const tgt = G.grid[homeRow][hc];
+      mkLayer(el, (tgt.card && tgt.card._silenced) ? 'agg' : 'inf');
+    }
     return;
   }
 
@@ -163,7 +176,7 @@ function buildAbilityVisual(ability) {
     double_strike:  `<div style="display:flex;flex-direction:column;gap:4px;"><div style="display:flex;align-items:center;gap:6px;">${y()}<span style="color:#ffdd00;font-size:11px;">→</span>${e('E1')}<span style="color:#ffdd00;font-size:11px;">→</span>${hit('E2')}</div><div style="display:flex;align-items:center;gap:6px;">${y()}<span style="color:#ffdd00;font-size:11px;">↑</span>${e('E1')}<span style="color:#ffdd00;font-size:11px;">↑</span>${hit('E2')}</div></div>`,
     flank:          `<div style="display:flex;align-items:center;gap:8px;">${y('★')}<span style="color:#00ffcc;font-size:14px;">→</span><div style="font-size:10px;color:#00ffcc;font-weight:600;">EXTRA TURN</div></div>`,
     rush:           G([empty(),e(),empty(), cell(YOU,YB,'★?',true,'0.7'),empty(),e(), empty(),empty(),cell(YOU,YB,'★?',true,'0.7')]),
-    sniper:         G([e('?'),e('!'),e('?'), empty(),empty(),empty(), y('★'),empty(),empty()]),
+    sniper:         `<div style="display:flex;align-items:center;gap:6px;">${y('★')}<span style="color:#ff8800;font-size:10px;">PLACE</span><span style="color:#ff8800;font-size:13px;">→</span>${hit('🎯')}<span style="color:#ff8800;font-size:9px;font-weight:700;line-height:1.3;">SILENCES top enemy<br>home-row card — 0 VP</span></div>`,
     fortify:        G([empty(),`<div style="width:24px;height:20px;border-radius:2px;background:#001830;border:2px dashed #4488ff88;display:flex;align-items:center;justify-content:center;font-size:8px;color:#4488ff;">🔒</div>`,empty(),
                        empty(),
                        `<div style="width:24px;height:20px;border-radius:2px;background:#0a2040;border:3px solid #4488ff;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#4488ff;">★</div>`,
@@ -251,26 +264,6 @@ function buildZoneGrid(card) {
 
 }
 
-// Delayed tooltip for hand cards (2.5s): instant for board
-
-let _tipTimer = null;
-
-function showTipDelayed(e, card) {
-
-  clearTimeout(_tipTimer);
-
-  _tipTimer = setTimeout(() => showTip(e, card), 2500);
-
-}
-
-function cancelTipDelay() {
-
-  clearTimeout(_tipTimer);
-
-  hideTip();
-
-}
-
 function showTip(e, card) {
 
   const tt      = document.getElementById('tooltip');
@@ -279,20 +272,7 @@ function showTip(e, card) {
 
   const abi      = card.ability ? (ABILITY_ICONS[card.ability] || {icon:'✦', color:tierCol, label:card.ability.toUpperCase()}) : null;
 
-  const _iconSrc = card.raceId && card.ability ? `assets/abilities/${card.raceId}_${card.ability}.png` : '';
-
   const mod     = card.edgeMod;
-
-  const _isCloaked = card.ability === 'cloak' && !card.cloakRevealed;
-  const _edgeVal = (base, modVal) => {
-    const eff = base + (modVal || 0);
-    if (card.ability === 'laser_focus' && mod && eff <= 0) return '—';
-    return eff;
-  };
-  const n  = _isCloaked ? '?' : _edgeVal(card.edges.n, mod?.n);
-  const s  = _isCloaked ? '?' : _edgeVal(card.edges.s, mod?.s);
-  const e_ = _isCloaked ? '?' : _edgeVal(card.edges.e, mod?.e);
-  const w  = _isCloaked ? '?' : _edgeVal(card.edges.w, mod?.w);
 
   const tierNum = {'I':1,'II':2,'III':3,'IV':4}[card.tier] || 1;
 
@@ -302,7 +282,8 @@ function showTip(e, card) {
 
   tt.style.setProperty('--tc-glow',tierCol + '18');
 
-  // Per-direction battle result: scan grid to find this card's position
+  // Locate this card on the grid FIRST (needed for cloak owner check below).
+  // Identity match preferred; id match keeps this working for spread copies.
 
   let _cardPos = null;
 
@@ -310,11 +291,36 @@ function showTip(e, card) {
 
     outer: for (let _r = 0; _r < 5; _r++)
 
-      for (let _c = 0; _c < 7; _c++)
+      for (let _c = 0; _c < 7; _c++) {
 
-        if (G.grid[_r][_c].card === card) { _cardPos = {r:_r, c:_c, own:G.grid[_r][_c].owner}; break outer; }
+        const _gc = G.grid[_r][_c].card;
+
+        if (_gc && (_gc === card || (card.id && _gc.id === card.id))) { _cardPos = {r:_r, c:_c, own:G.grid[_r][_c].owner}; break outer; }
+
+      }
 
   }
+
+  // CLOAK: per-edge hiding, and ONLY for the opponent's cloak card.
+  // The owner (local player) always sees their own card's true values —
+  // hand cards and player-owned board cards are never masked.
+  const _hideEdge = (edge) =>
+    card.ability === 'cloak' && _cardPos && _cardPos.own === 'ai' &&
+    !(card.cloakRevealed && card.cloakRevealed[edge]);
+
+  const _edgeVal = (base, modVal) => {
+    const eff = base + (modVal || 0);
+    if (card.ability === 'laser_focus' && mod && eff <= 0) return '—';
+    return eff;
+  };
+  const n  = _hideEdge('n') ? '?' : _edgeVal(card.edges.n, mod?.n);
+  const s  = _hideEdge('s') ? '?' : _edgeVal(card.edges.s, mod?.s);
+  const e_ = _hideEdge('e') ? '?' : _edgeVal(card.edges.e, mod?.e);
+  const w  = _hideEdge('w') ? '?' : _edgeVal(card.edges.w, mod?.w);
+
+  // Per-direction battle result badges — engine-consistent semantics:
+  // pierce wins ties (one-sided), pure tie = no effect ('T'), symmetric
+  // aggressive AI buff on all AI edges (battle.js gzEffEdge/gzAiBuffMult).
 
   const _dir = {n:null, s:null, e:null, w:null};
 
@@ -324,19 +330,31 @@ function showTip(e, card) {
 
     const _emy = _own === 'player' ? 'ai' : 'player';
 
-    const _cmp = (my, their) => my > their ? 'W' : my < their ? 'L' : 'T';
+    const _eff = (cd, owner, edge) => (typeof gzEffEdge === 'function')
+      ? gzEffEdge(cd, owner, edge)
+      : Math.round((cd.edges[edge] + (cd.edgeMod?.[edge]||0)) *
+          ((window.aiDifficulty === 'aggressive' && owner === 'ai') ? 1.1 : 1));
 
-    const _em  = (rr,cc) => G.grid[rr] && G.grid[rr][cc] && G.grid[rr][cc].owner === _emy && G.grid[rr][cc].owner !== 'hazard' && G.grid[rr][cc].card ? G.grid[rr][cc].card : null;
+    const _cmp = (my, their, myP, theirP) =>
+      my > their ? 'W' : my < their ? 'L'
+      : (myP && !theirP) ? 'W' : (theirP && !myP) ? 'L' : 'T';
 
-    const _ev  = (c, edge) => c.edges[edge] + (c.edgeMod?.[edge]||0);
+    const _em  = (rr,cc) => G.grid[rr] && G.grid[rr][cc] && G.grid[rr][cc].owner === _emy && G.grid[rr][cc].card ? G.grid[rr][cc].card : null;
 
-    if (_em(_r-1,_c)) _dir.n = _cmp(n,    _ev(_em(_r-1,_c),'s'));
+    const _myP = card.ability === 'pierce';
 
-    if (_em(_r+1,_c)) _dir.s = _cmp(s,    _ev(_em(_r+1,_c),'n'));
+    const _nN = _em(_r-1,_c), _nS = _em(_r+1,_c), _nW = _em(_r,_c-1), _nE = _em(_r,_c+1);
 
-    if (_em(_r,_c-1)) _dir.w = _cmp(w,    _ev(_em(_r,_c-1),'e'));
+    if (_nN) _dir.n = _cmp(_eff(card,_own,'n'), _eff(_nN,_emy,'s'), _myP, _nN.ability==='pierce');
 
-    if (_em(_r,_c+1)) _dir.e = _cmp(e_,   _ev(_em(_r,_c+1),'w'));
+    if (_nS) _dir.s = _cmp(_eff(card,_own,'s'), _eff(_nS,_emy,'n'), _myP, _nS.ability==='pierce');
+
+    if (_nW) _dir.w = _cmp(_eff(card,_own,'w'), _eff(_nW,_emy,'e'), _myP, _nW.ability==='pierce');
+
+    if (_nE) _dir.e = _cmp(_eff(card,_own,'e'), _eff(_nE,_emy,'w'), _myP, _nE.ability==='pierce');
+
+    // Never leak a cloaked edge's outcome to the opponent
+    ['n','s','e','w'].forEach(edge => { if (_hideEdge(edge)) _dir[edge] = null; });
 
   }
 
@@ -378,7 +396,7 @@ function showTip(e, card) {
     <div style="display:flex;gap:12px;padding:12px 14px 10px;border-bottom:1px solid #ffffff10;">
       ${card.art ? `
       <div style="position:relative;flex-shrink:0;width:80px;height:104px;">
-        <img src="${card.art}" style="width:100%;height:100%;object-fit:cover;object-position:top;border-radius:6px;border:1px solid var(--tc-dim);">
+        <img src="${typeof gzCardArt === 'function' ? gzCardArt(card.art) : card.art}" alt="" style="width:100%;height:100%;object-fit:cover;object-position:top;border-radius:6px;border:1px solid var(--tc-dim);">
         <div style="position:absolute;inset:0;border-radius:6px;overflow:hidden;pointer-events:none;">
           <div style="position:absolute;width:100%;height:35%;background:linear-gradient(transparent,var(--tc-glow),transparent);animation:tipScan 3.5s ease-in-out infinite;"></div>
         </div>
@@ -540,9 +558,13 @@ function showErrorTip(e, reason) {
 
 function hideTip() {
 
-  document.getElementById('tooltip').style.display = 'none';
+  const _tt = document.getElementById('tooltip');
 
-  document.getElementById('errorTip').style.display = 'none';
+  if (_tt) _tt.style.display = 'none';
+
+  const _et = document.getElementById('errorTip');
+
+  if (_et) _et.style.display = 'none';
 
 }
 

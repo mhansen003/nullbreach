@@ -8,32 +8,12 @@ function renderPassiveAbilityGlows(el) {
       if (!cell.card || cell.owner === 'hazard') continue;
       const card = cell.card;
 
-      // ── SNIPER: amber pulse on entire row (except own cell) ──────────────
-      if (card.ability === 'sniper') {
-        for (let sc=0; sc<7; sc++) {
-          if (sc === c) continue;
-          const tgtCell = G.grid[r][sc];
-          const tgtEl = document.querySelector(`.cell[data-r="${r}"][data-c="${sc}"]`);
-          if (!tgtEl) continue;
-          const isEnemy = tgtCell.owner !== cell.owner;
-          const col = isEnemy ? '#ff8800' : '#ff880033';
-          const ov = document.createElement('div');
-          ov.dataset.passiveZone = '1';
-          ov.style.cssText = `position:absolute;inset:0;pointer-events:none;z-index:1;border-radius:3px;background:${col}22;border-top:1px dashed ${col}66;border-bottom:1px dashed ${col}66;`;
-          tgtEl.appendChild(ov);
-          // SNIPER LOCK badge on sniped/locked enemy cards
-          if (tgtCell.card && isEnemy && (tgtCell.card._sniped || tgtCell.card._sniperLocked)) {
-            const badge = document.createElement('div');
-            badge.dataset.passiveZone = '1';
-            badge.style.cssText = `position:absolute;top:3px;left:50%;transform:translateX(-50%);z-index:8;pointer-events:none;background:#220800;border:1px solid #ff880099;border-radius:3px;padding:1px 5px;font-family:'Orbitron',monospace;font-size:7px;letter-spacing:1px;color:#ff8800;text-shadow:0 0 6px #ff8800;white-space:nowrap;`;
-            badge.textContent = '🎯 LOCKED';
-            tgtEl.appendChild(badge);
-          }
-        }
-      }
+      // NOTE: sniper has no passive zone — it is a one-time silence of the
+      // highest-power opponent home-row card at placement time (_silenced);
+      // the victim already shows the 0 VP silenced overlay in render-grid.js.
 
       // ── INTIMIDATE: red threat zone on adjacent cells ────────────────────
-      else if (card.ability === 'intimidate') {
+      if (card.ability === 'intimidate') {
         ADJ4.forEach(({dr,dc}) => {
           const nr=r+dr, nc=c+dc;
           if (nr<0||nr>=5||nc<0||nc>=7) return;
@@ -51,7 +31,7 @@ function renderPassiveAbilityGlows(el) {
       // ── AMBUSH: red threat, dim if charges spent ─────────────────────────
       else if (card.ability === 'ambush') {
         const charges = card._ambushHitsRemaining ?? 2;
-        if (charges <= 0) break;
+        if (charges <= 0) continue; // per-cell guard: spent ambush just skips this cell
         ADJ4.forEach(({dr,dc}) => {
           const nr=r+dr, nc=c+dc;
           if (nr<0||nr>=5||nc<0||nc>=7) return;
@@ -216,18 +196,14 @@ function renderBattleIndicators(el) {
       if (cell.owner === 'hazard' || nb.owner === 'hazard') continue;
       if (cell.card.isHazard || nb.card.isHazard) continue;
 
-      // Recompute edge values with mods + surge bonus
+      // Recompute edge values with mods
 
-      const surgeBonus = (cell.card.ability==='surge' && G.surgeTrigger?.[cell.owner]) ? 3 : 0;
-
-      const nbSurgeBonus = (nb.card.ability==='surge' && G.surgeTrigger?.[nb.owner]) ? 3 : 0;
-
-      let mv = cell.card.edges[d.myE] + (cell.card.edgeMod?.[d.myE]||0) + surgeBonus;
+      let mv = cell.card.edges[d.myE] + (cell.card.edgeMod?.[d.myE]||0);
       if (d.axis === 'h' && cell.owner === 'ai' && window.aiDifficulty === 'aggressive') {
         mv = Math.round(mv * 1.1);
       }
 
-      let tv = nb.card.edges[d.theirE] + (nb.card.edgeMod?.[d.theirE]||0) + nbSurgeBonus;
+      let tv = nb.card.edges[d.theirE] + (nb.card.edgeMod?.[d.theirE]||0);
 
       // PIERCE tiebreak
 
@@ -257,8 +233,6 @@ function renderBattleIndicators(el) {
 
       chip.className = `bti ${isTie?'tie-chip':'win-chip'}`;
 
-      const x = d.chipX(r,c), y = d.chipY(r,c);
-
       // Build ability note for tooltip
 
       const abilities = [];
@@ -266,10 +240,6 @@ function renderBattleIndicators(el) {
       if (cell.card.ability==='shield'&&cell.card.shieldExpended) abilities.push(`${cellName} SHIELD absorbed a loss`);
 
       if (nb.card.ability==='shield'&&nb.card.shieldExpended)     abilities.push(`${nbName} SHIELD absorbed a loss`);
-
-      if (surgeBonus)   abilities.push(`${cellName} SURGE +3`);
-
-      if (nbSurgeBonus) abilities.push(`${nbName} SURGE +3`);
 
       if (pierce&&mv===tv)    abilities.push(`${cellName} PIERCE: tie → win`);
 
@@ -302,6 +272,18 @@ function renderBattleIndicators(el) {
       chip.dataset.nr = r+d.dr; chip.dataset.nc = c+d.dc;
 
       const _mDims = _mobileDims();
+
+      // Position from the ACTUAL cell DOM rects (gzCellRect): correct for the
+      // MP P2 flipped board and any responsive cell size, no stride math.
+      let x = d.chipX(r,c), y = d.chipY(r,c); // legacy stride fallback
+      if (typeof gzCellRect === 'function') {
+        const _ra = gzCellRect(r, c), _rb = gzCellRect(nr, nc);
+        if (_ra && _rb) {
+          const _sz = _mDims ? 24 : CHIP;
+          x = (Math.min(_ra.left, _rb.left) + Math.max(_ra.left + _ra.width, _rb.left + _rb.width)) / 2 - _sz / 2;
+          y = (Math.min(_ra.top,  _rb.top)  + Math.max(_ra.top  + _ra.height, _rb.top + _rb.height)) / 2 - _sz / 2;
+        }
+      }
       if (_mDims) {
         // Mobile: compact W/L/T text chips
         const mChipSz = 24;
@@ -317,6 +299,9 @@ function renderBattleIndicators(el) {
         }
         chip.onclick = (ev) => {
           ev.stopPropagation();
+          // Any new tap cancels the previous auto-hide timer so it can't
+          // clobber a freshly opened tip / freshly toggled chip.
+          clearTimeout(window._gzChipTimer);
           if (chip._active) {
             hideTip();
             chip._active = false;
@@ -328,7 +313,11 @@ function renderBattleIndicators(el) {
           chip.classList.add('bchip-active');
           const _d = JSON.parse(chip.dataset.tip);
           showBattleTip(ev, _d);
-          setTimeout(() => { hideTip(); chip._active = false; chip.classList.remove('bchip-active'); }, 2800);
+          window._gzChipTimer = setTimeout(() => {
+            hideTip();
+            // Class query survives re-render: clear whichever chip is active now
+            document.querySelectorAll('.bchip-active').forEach(c => { c._active = false; c.classList.remove('bchip-active'); });
+          }, 2800);
         };
       } else if (isTie) {
 
@@ -340,7 +329,7 @@ function renderBattleIndicators(el) {
 
         chip.style.cssText = `position:absolute;left:${x}px;top:${y}px;width:${CHIP}px;height:${CHIP}px;border:3px solid ${winCol};--wc:${winCol};background:${winCol}18;z-index:22;`;
 
-        chip.innerHTML = `<img src="${winAvg}" style="width:${CHIP-6}px;height:${CHIP-6}px;border-radius:50%;object-fit:cover;object-position:top;pointer-events:none;">`;
+        chip.innerHTML = `<img src="${winAvg}" alt="${winName} wins" style="width:${CHIP-6}px;height:${CHIP-6}px;border-radius:50%;object-fit:cover;object-position:top;pointer-events:none;">`;
 
       }
 
@@ -453,7 +442,7 @@ function showBattleTip(e, d) {
 
       <div style="display:flex;align-items:center;gap:8px;">
 
-        <img src="${cIsP?d.pAvg:d.aAvg}" style="width:22px;height:22px;border-radius:50%;object-fit:cover;border:2px solid ${cCol};flex-shrink:0;">
+        <img src="${cIsP?d.pAvg:d.aAvg}" alt="${d.cellName}" style="width:22px;height:22px;border-radius:50%;object-fit:cover;border:2px solid ${cCol};flex-shrink:0;">
 
         <span style="font-size:10px;color:${cCol};letter-spacing:1px;flex:1;">${d.cellName}</span>
 
@@ -469,7 +458,7 @@ function showBattleTip(e, d) {
 
       <div style="display:flex;align-items:center;gap:8px;">
 
-        <img src="${cIsP?d.aAvg:d.pAvg}" style="width:22px;height:22px;border-radius:50%;object-fit:cover;border:2px solid ${nCol};flex-shrink:0;">
+        <img src="${cIsP?d.aAvg:d.pAvg}" alt="${d.nbName}" style="width:22px;height:22px;border-radius:50%;object-fit:cover;border:2px solid ${nCol};flex-shrink:0;">
 
         <span style="font-size:10px;color:${nCol};letter-spacing:1px;flex:1;">${d.nbName}</span>
 
@@ -495,7 +484,7 @@ function showBattleTip(e, d) {
 
         : `<div style="display:flex;align-items:center;gap:8px;">
 
-            <img src="${d.winAvg}" style="width:18px;height:18px;border-radius:50%;object-fit:cover;border:1px solid ${d.winCol};">
+            <img src="${d.winAvg}" alt="" style="width:18px;height:18px;border-radius:50%;object-fit:cover;border:1px solid ${d.winCol};">
 
             <span style="font-size:12px;font-weight:bold;color:${d.winCol};letter-spacing:1px;">${d.winName} WINS</span>
 
@@ -515,6 +504,12 @@ function showBattleTip(e, d) {
 
   </div>`;
 
+  // Set final width + clear fixed-corner positioning BEFORE measuring,
+  // otherwise offsetWidth/offsetHeight reflect the previous tooltip's box.
+  tt.style.right  = 'auto';
+  tt.style.bottom = 'auto';
+  tt.style.width  = '220px'; // battle tips are narrower than card tips
+
   tt.style.display = 'block';
 
   const ttH = tt.offsetHeight || 220;
@@ -527,10 +522,6 @@ function showBattleTip(e, d) {
 
   const left = e.clientX + ttW + 20 > window.innerWidth ? e.clientX - ttW - 14 : e.clientX + 14;
 
-  // Clear fixed-corner positioning from card tooltip before cursor-follow
-  tt.style.right  = 'auto';
-  tt.style.bottom = 'auto';
-  tt.style.width  = '220px'; // battle tips are narrower than card tips
   tt.style.top  = Math.max(8, top)  + 'px';
   tt.style.left = Math.max(8, left) + 'px';
 
@@ -540,9 +531,19 @@ function showFlash(r1, c1, r2, c2, myVal, theirVal, iWin) {
 
   const el  = document.getElementById('grid');
 
-  const midY = ((r1+r2)/2)*CS_H + 58;
-
-  const midX = ((c1+c2)/2)*CS_W + 24;
+  // Position from actual cell rects (correct on mobile strides + MP P2 flip);
+  // legacy desktop stride math kept as fallback.
+  let midY = ((r1+r2)/2)*CS_H + 58;
+  let midX = ((c1+c2)/2)*CS_W + 24;
+  if (typeof gzCellRect === 'function') {
+    const _a = gzCellRect(r1, c1), _b = gzCellRect(r2, c2);
+    if (_a && _b) {
+      // Approx flash box is ~80x20; offset so it centers on the shared edge.
+      // (Cannot use transform: the flashFade keyframes animate transform.)
+      midX = ((_a.left + _a.width/2) + (_b.left + _b.width/2)) / 2 - 40;
+      midY = ((_a.top + _a.height/2) + (_b.top + _b.height/2)) / 2 - 10;
+    }
+  }
 
   const f   = document.createElement('div');
 

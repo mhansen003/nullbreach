@@ -187,7 +187,7 @@ const GUIDE_PAGES = [
 
     <div style="position:relative;width:90px;height:119px;border-radius:5px;overflow:hidden;border:2px solid #00ffcc;background:#0a1c16;animation:g2fly-l 0.45s ease 0.3s both;">
 
-      <img src="assets/cards/terran/t1_a.png" style="width:100%;height:100%;object-fit:cover;object-position:center top;filter:brightness(1.3);">
+      <img src="assets/cards-sm/terran/t1_a.webp" style="width:100%;height:100%;object-fit:cover;object-position:center top;filter:brightness(1.3);">
 
       <span style="position:absolute;top:3px;left:50%;transform:translateX(-50%);font-size:11px;font-weight:bold;color:#fff;background:rgba(0,0,0,0.8);border-radius:50%;min-width:16px;text-align:center;padding:1px 2px;line-height:1.4;">6</span>
 
@@ -235,7 +235,7 @@ const GUIDE_PAGES = [
 
     <div style="position:relative;width:90px;height:119px;border-radius:5px;overflow:hidden;border:2px solid #ff0080;background:#1c0a0a;animation:g2fly-r 0.45s ease 0.5s both;">
 
-      <img src="assets/cards/crystallis/t1_a.png" style="width:100%;height:100%;object-fit:cover;object-position:center top;filter:brightness(1.2);">
+      <img src="assets/cards-sm/crystallis/t1_a.webp" style="width:100%;height:100%;object-fit:cover;object-position:center top;filter:brightness(1.2);">
 
       <span style="position:absolute;top:3px;left:50%;transform:translateX(-50%);font-size:11px;font-weight:bold;color:#ffdd00;background:rgba(0,0,0,0.8);border-radius:50%;min-width:16px;text-align:center;padding:1px 2px;line-height:1.4;">3</span>
 
@@ -380,7 +380,7 @@ const GUIDE_PAGES = [
   <!-- Card 1: LAMB -->
   <div class="g3-card-wrap" style="display:flex;flex-direction:column;align-items:center;gap:10px;width:180px;animation:g3fly 0.4s ease 0.3s both;">
     <div class="g3-card-img" style="position:relative;width:114px;height:152px;border-radius:8px;overflow:hidden;border:2px solid #ffdd00;background:#0e0e08;box-shadow:0 0 18px #ffdd0033;">
-      <img src="assets/cards/mycos/t2_a.png" style="width:100%;height:100%;object-fit:cover;object-position:center top;filter:brightness(1.2);" onerror="this.style.background=&apos;#1a1a10&apos;">
+      <img src="assets/cards-sm/mycos/t2_a.webp" style="width:100%;height:100%;object-fit:cover;object-position:center top;filter:brightness(1.2);" onerror="this.style.background=&apos;#1a1a10&apos;">
       <span style="position:absolute;top:4px;left:50%;transform:translateX(-50%);font-size:14px;font-weight:bold;color:#fff;background:rgba(0,0,0,0.72);border-radius:50%;min-width:20px;text-align:center;padding:1px 3px;">0</span>
       <span style="position:absolute;bottom:4px;left:50%;transform:translateX(-50%);font-size:14px;font-weight:bold;color:#fff;background:rgba(0,0,0,0.72);border-radius:50%;min-width:20px;text-align:center;padding:1px 3px;">0</span>
       <span style="position:absolute;left:4px;top:50%;transform:translateY(-50%);font-size:14px;font-weight:bold;color:#fff;background:rgba(0,0,0,0.72);border-radius:50%;min-width:20px;text-align:center;padding:1px 3px;">0</span>
@@ -400,7 +400,7 @@ const GUIDE_PAGES = [
   <!-- Card 2: COMMANDER -->
   <div style="display:flex;flex-direction:column;align-items:center;gap:10px;width:180px;animation:g3fly 0.4s ease 0.5s both;">
     <div style="position:relative;width:114px;height:152px;border-radius:8px;overflow:hidden;border:2px solid #ffcc00;background:#160810;box-shadow:0 0 14px #ffcc0022;">
-      <img src="assets/cards/terran/carrier-wing.png" style="width:100%;height:100%;object-fit:cover;object-position:center top;filter:brightness(1.15);" onerror="this.style.background=&apos;#181008&apos;">
+      <img src="assets/cards-sm/terran/carrier-wing.webp" style="width:100%;height:100%;object-fit:cover;object-position:center top;filter:brightness(1.15);" onerror="this.style.background=&apos;#181008&apos;">
       <span style="position:absolute;top:4px;left:50%;transform:translateX(-50%);font-size:13px;font-weight:bold;color:#fff;background:rgba(0,0,0,0.72);border-radius:50%;min-width:19px;text-align:center;padding:1px 3px;">7</span>
       <span style="position:absolute;bottom:4px;left:50%;transform:translateX(-50%);font-size:13px;font-weight:bold;color:#fff;background:rgba(0,0,0,0.72);border-radius:50%;min-width:19px;text-align:center;padding:1px 3px;">4</span>
       <span style="position:absolute;left:4px;top:50%;transform:translateY(-50%);font-size:13px;font-weight:bold;color:#fff;background:rgba(0,0,0,0.72);border-radius:50%;min-width:19px;text-align:center;padding:1px 3px;">5</span>
@@ -629,9 +629,15 @@ function showGuide() {
 
   m.style.display = 'flex';
 
+  // Register with the modal stack (ui.js) so Escape closes topmost-first
+  // and focus is restored. Guarded: ui.js is not loaded on every page.
+  if (typeof gzModalOpen === 'function') gzModalOpen(m, _guideDoClose);
+
 }
 
-function closeGuide() {
+// The actual close work — invoked by the modal registry (or directly when
+// the registry is unavailable). Never call gzModalClose from here.
+function _guideDoClose() {
 
   const m = document.getElementById('guideModal');
 
@@ -642,6 +648,19 @@ function closeGuide() {
     localStorage.setItem('gz_guide_seen', '1');
 
   }
+
+}
+
+function closeGuide() {
+
+  const m = document.getElementById('guideModal');
+
+  // Route through the registry when this modal is registered so the stack
+  // entry is popped; gzModalClose invokes _guideDoClose for us.
+  if (typeof gzModalClose === 'function' && window._gzModalStack &&
+      window._gzModalStack.some(s => s.el === m)) { gzModalClose(m); return; }
+
+  _guideDoClose();
 
 }
 

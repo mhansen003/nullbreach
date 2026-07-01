@@ -28,7 +28,7 @@ function _buildScoreBreakdown(axis, idx) {
     let silenced = false;
     let _silenceReason = 'silenced';
 
-    if (cell.card._silenced || cell.card.stonewalled || cell.card.stonewall_victim) silenced = true;
+    if (cell.card._silenced) silenced = true;
 
     // LAMB: 0 VP if any enemy is adjacent (mirrors battle.js computeScores logic)
     if (!silenced && cell.card.ability === 'lamb') {
@@ -68,7 +68,7 @@ function _buildScoreBreakdown(axis, idx) {
   const winCol  = result==='p' ? pCol  : result==='a' ? aCol  : '#ffdd00';
   const heroHtml = `
     <div style="display:flex;align-items:center;gap:12px;padding:10px 0 12px;border-bottom:1px solid #ffffff0a;margin-bottom:8px;">
-      ${winAvg ? `<img src="${winAvg}" style="width:44px;height:44px;border-radius:50%;object-fit:cover;border:2px solid ${winCol};box-shadow:0 0 12px ${winCol}44;flex-shrink:0;">` : `<div style="width:44px;height:44px;border-radius:50%;background:#ffdd0022;border:2px solid #ffdd0066;display:flex;align-items:center;justify-content:center;font-size:18px;">⚖</div>`}
+      ${winAvg ? `<img src="${winAvg}" alt="${winName}" style="width:44px;height:44px;border-radius:50%;object-fit:cover;border:2px solid ${winCol};box-shadow:0 0 12px ${winCol}44;flex-shrink:0;">` : `<div style="width:44px;height:44px;border-radius:50%;background:#ffdd0022;border:2px solid #ffdd0066;display:flex;align-items:center;justify-content:center;font-size:18px;">⚖</div>`}
       <div>
         <div style="font-family:'Orbitron',monospace;font-size:12px;font-weight:700;color:${winCol};letter-spacing:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px;">${winName}</div>
         <div style="font-size:10px;color:#ccd;letter-spacing:2px;margin-top:2px;">${result==='tie'?'ALL TIED':'WINS '+label}</div>
@@ -96,7 +96,7 @@ function _buildScoreBreakdown(axis, idx) {
       : `${e.vp}`;
     return `
       <div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid #0f0f1a;">
-        <img src="${e.avatar}" style="width:20px;height:20px;border-radius:50%;object-fit:cover;border:1px solid ${e.fCol}44;flex-shrink:0;">
+        <img src="${e.avatar}" alt="" style="width:20px;height:20px;border-radius:50%;object-fit:cover;border:1px solid ${e.fCol}44;flex-shrink:0;">
         <span style="flex:1;font-size:12px;color:#dde;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${e.name}${abilTag}</span>
         ${modTag}
         <span style="font-size:14px;color:${icol};flex-shrink:0;width:12px;text-align:center;">${icon}</span>
@@ -129,7 +129,77 @@ function _hideScoreTip() {
   if (_scoreTipEl) { _scoreTipEl.remove(); _scoreTipEl = null; }
 }
 
+// ── Row/col grid highlight: class toggles on #grid + cells; the .row-hl/
+// .col-hl + .hl-target/.hl-cancel/.hl-hazard rules live in game.css (task 74).
+function _gzShowGridHl(axis, idx, res) {
+  _gzClearGridHl();
+  const gridEl = document.getElementById('grid');
+  if (!gridEl) return;
+  const pCol = window.playerFactionColor || '#00ffcc';
+  const aCol = window.aiFactionColor     || '#ff0080';
+  const hlCol = res === 'p' ? pCol : res === 'a' ? aCol : '#ffffff';
+  const batKey = axis === 'row' ? 'h' : 'v';
+
+  gridEl.classList.add(axis === 'row' ? 'row-hl' : 'col-hl');
+
+  gridEl.querySelectorAll('.cell').forEach(el => {
+    const er = +el.dataset.r, ec = +el.dataset.c;
+    if ((axis === 'row' ? er : ec) !== idx) return;
+    el.classList.add('hl-target');
+    const cell = G.grid[er] && G.grid[er][ec];
+    if (!cell) return;
+    if (cell.owner === 'hazard') { el.classList.add('hl-hazard'); return; }
+    const bat = cell.card ? (cell.battle || {h:'none', v:'none'}) : null;
+    const cancelled = bat && (bat[batKey] === 'tie' || bat[batKey] === 'lose');
+    const hazardHit = cell.card && [{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}]
+      .some(({dr,dc}) => { const rr=er+dr, cc=ec+dc; return rr>=0&&rr<5&&cc>=0&&cc<7&&G.grid[rr][cc].owner==='hazard'; });
+    if (cancelled || hazardHit) el.classList.add('hl-cancel');
+  });
+
+  // Frame overlay: union of the line's end-cell rects (correct on MP P2 + mobile)
+  if (typeof gzCellRect === 'function') {
+    const a = axis === 'row' ? gzCellRect(idx, 0) : gzCellRect(0, idx);
+    const b = axis === 'row' ? gzCellRect(idx, 6) : gzCellRect(4, idx);
+    if (a && b) {
+      const left = Math.min(a.left, b.left), top = Math.min(a.top, b.top);
+      const w = Math.max(a.left + a.width,  b.left + b.width)  - left;
+      const h = Math.max(a.top  + a.height, b.top  + b.height) - top;
+      const ov = document.createElement('div');
+      ov.className = 'score-hl';
+      ov.style.cssText = `position:absolute;pointer-events:none;z-index:8;top:${top}px;left:${left}px;width:${w}px;height:${h}px;border:3px solid ${hlCol}cc;border-radius:6px;box-shadow:0 0 22px ${hlCol}55,inset 0 0 10px ${hlCol}11;`;
+      gridEl.appendChild(ov);
+    }
+  }
+}
+
+function _gzClearGridHl() {
+  const gridEl = document.getElementById('grid');
+  if (gridEl) gridEl.classList.remove('row-hl', 'col-hl');
+  document.querySelectorAll('#grid .cell.hl-target, #grid .cell.hl-cancel, #grid .cell.hl-hazard')
+    .forEach(el => el.classList.remove('hl-target', 'hl-cancel', 'hl-hazard'));
+  document.querySelectorAll('.score-hl').forEach(el => el.remove());
+}
+
+// Create badge nodes once; later renders update them in place (keep DOM).
+function _gzEnsureBadgeStrip(container, count, cls) {
+  if (container._gzCount !== count) {
+    container.innerHTML = '';
+    for (let i = 0; i < count; i++) {
+      const b = document.createElement('div');
+      b.className = cls;
+      b.style.cursor = 'pointer';
+      container.appendChild(b);
+    }
+    container._gzCount = count;
+  }
+  return Array.from(container.children);
+}
+
 function renderScoreBadges(_precomputed) {
+
+  // Kill stale pinned tooltips before touching the strips
+  if (typeof _hideScoreTip === 'function') _hideScoreTip();
+  if (typeof hideTip === 'function') hideTip();
 
   const s = _precomputed || computeScores();
 
@@ -186,7 +256,7 @@ function renderScoreBadges(_precomputed) {
 
       <div style="display:flex;flex-direction:column;align-items:center;gap:3px;pointer-events:none;">
 
-        <img src="${wAvg}" style="width:26px;height:26px;border-radius:50%;object-fit:cover;
+        <img src="${wAvg}" alt="" style="width:26px;height:26px;border-radius:50%;object-fit:cover;
 
           object-position:top;border:2px solid ${wCol};box-shadow:0 0 8px ${wCol}66;pointer-events:none;">
 
@@ -225,7 +295,7 @@ function renderScoreBadges(_precomputed) {
 
       <div style="display:flex;align-items:center;gap:5px;pointer-events:none;">
 
-        <img src="${wAvg}" style="width:26px;height:26px;border-radius:50%;object-fit:cover;
+        <img src="${wAvg}" alt="" style="width:26px;height:26px;border-radius:50%;object-fit:cover;
 
           object-position:top;border:2px solid ${wCol};box-shadow:0 0 8px ${wCol}55;pointer-events:none;">
 
@@ -239,181 +309,100 @@ function renderScoreBadges(_precomputed) {
 
   }
 
+  // Shared wiring for a badge: listeners attach ONCE; per-render state lives
+  // in dataset so handlers always read the latest result.
+  function _wireBadge(badge, axis, idx) {
+    if (badge._gzWired) return;
+    badge._gzWired = true;
+    badge.addEventListener('mouseenter', () => {
+      if (window.innerWidth <= 480) return;
+      document.body.style.cursor = 'default';
+      _gzShowGridHl(axis, idx, badge.dataset.res);
+      _showScoreTip(badge, axis, idx);
+    });
+    badge.addEventListener('mouseleave', () => {
+      if (window.innerWidth <= 480) return;
+      _gzClearGridHl();
+      _hideScoreTip();
+    });
+    badge.addEventListener('click', () => {
+      if (window.innerWidth > 480) return;
+      if (_activeBadge === badge) { _activeBadge = null; _gzClearGridHl(); }
+      else { if (_activeBadge) _gzClearGridHl(); _activeBadge = badge; _gzShowGridHl(axis, idx, badge.dataset.res); }
+    });
+  }
+
+  // Update a badge in place: only touch DOM when content/styling changed.
+  function _updateBadge(badge, html, css, res, prevRes) {
+    if (badge._gzHtml !== html) { badge.innerHTML = html; badge._gzHtml = html; }
+    if (badge._gzCss !== css) { badge.style.cssText = css + 'cursor:pointer;'; badge._gzCss = css; }
+    badge.dataset.res = res;
+    // Flip animation when leadership changes between renders
+    if (prevRes !== null && prevRes !== res && (res==='p'||res==='a') && (prevRes==='p'||prevRes==='a')) {
+      badge.classList.add('badge-flip');
+      setTimeout(() => badge.classList.remove('badge-flip'), 450);
+    }
+  }
+
   // ROW score badges: apply faction border color dynamically
 
   const rowEl = document.getElementById('rowScores');
 
-  rowEl.innerHTML = '';
-
   const _rowOrder = (typeof _mpPlayer !== 'undefined' && _mpPlayer === 2)
     ? [4,3,2,1,0] : [0,1,2,3,4];
-  for (const r of _rowOrder) {
+
+  const rowBadges = _gzEnsureBadgeStrip(rowEl, 5, 'row-score-badge');
+
+  _rowOrder.forEach((r, i) => {
+
+    const badge = rowBadges[i];
 
     const {p,a} = s.rows[r];
 
     const res = s.rowResults[r];
 
-    const badge = document.createElement('div');
-
-    badge.className = 'row-score-badge'; badge.style.cursor = 'pointer';
-
     // WIN=player color border, LOSE=opponent color border, TIE=grey
-
     const rowWinCol  = res==='p' ? pCol : res==='a' ? aCol : '#333';
-
-    const rowBg      = res==='p' ? '#06060e' : res==='a' ? '#06060e' : (p===0&&a===0)?'#06060e':'#06060e';
-
     const rowBorder  = res==='p' ? pCol+'55' : res==='a' ? aCol+'55' : (p===0&&a===0)?'#111120':'#221a33';
+    const css = `background:#06060e;border:1px solid ${rowBorder};border-left:3px solid ${rowWinCol};`;
 
-    badge.style.cssText = `background:${rowBg};border:1px solid ${rowBorder};border-left:3px solid ${rowWinCol};`;
-
-    badge.innerHTML = rowBadgeHtml(p, a, res, s.dfRows && s.dfRows[r]);
-
-    // Flip animation when leadership changes between renders
-
-    const prevRes = _prevBadgeRes.rows[r];
-
-    if (prevRes !== null && prevRes !== res && (res==='p'||res==='a') && (prevRes==='p'||prevRes==='a')) {
-
-      badge.classList.add('badge-flip');
-
-      setTimeout(() => badge.classList.remove('badge-flip'), 450);
-
-    }
+    _updateBadge(badge, rowBadgeHtml(p, a, res, s.dfRows && s.dfRows[r]), css, res, _prevBadgeRes.rows[r]);
 
     _prevBadgeRes.rows[r] = res;
 
-    const _rowHlCol = res==='p' ? pCol : res==='a' ? aCol : '#ffffff';
+    _wireBadge(badge, 'row', r);
 
-    const _showRowHl = () => {
-      document.querySelectorAll('.cell').forEach(el => {
-        const er = el.dataset.r;
-        const ec = el.dataset.c;
-        if (er == r) {
-          const cell = G.grid[er][ec];
-          const bat  = cell?.card ? (cell.battle || {h:'none',v:'none'}) : null;
-          const cancelled = bat && (bat.h === 'tie' || bat.h === 'lose');
-          const hazardHit = cell?.card && cell.owner !== 'hazard' && [{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}]
-            .some(({dr,dc}) => { const rr=+er+dr,cc=+ec+dc; return rr>=0&&rr<5&&cc>=0&&cc<7&&G.grid[rr][cc].owner==='hazard'; });
-          el.style.outline = cell?.owner === 'hazard' ? '2px solid #ff660099' : 'none';
-          el.style.filter  = (cancelled || hazardHit) ? 'brightness(0.4) saturate(0.2)' : 'brightness(1.1)';
-          el.style.opacity = '1';
-        } else { el.style.filter='brightness(0.38)'; el.style.opacity='0.5'; }
-      });
-      document.querySelectorAll('.score-hl').forEach(el=>el.remove());
-      const gridEl = document.getElementById('grid');
-      const ov = document.createElement('div');
-      ov.className = 'score-hl';
-      const m = _mobileDims();
-      const gw = m ? (GRID_COLS*m.cw+(GRID_COLS-1)*m.gap) : (GRID_COLS*124+(GRID_COLS-1)*6);
-      const ch_ = m ? m.ch : 152;
-      const topY = m ? r*m.sh : r*CS_H;
-      ov.style.cssText = `position:absolute;pointer-events:none;z-index:8;top:${topY}px;left:0;width:${gw}px;height:${ch_}px;border:3px solid ${_rowHlCol}cc;border-radius:6px;box-shadow:0 0 22px ${_rowHlCol}55,inset 0 0 10px ${_rowHlCol}11;`;
-      gridEl.appendChild(ov);
-    };
-    const _clearRowHl = () => {
-      document.querySelectorAll('.cell').forEach(el => { el.style.outline=''; el.style.filter=''; el.style.opacity=''; });
-      document.querySelectorAll('.score-hl').forEach(el=>el.remove());
-    };
-
-    badge.addEventListener('mouseenter', () => { if (window.innerWidth > 480) { document.body.style.cursor='default'; _showRowHl(); _showScoreTip(badge,'row',r); } });
-    badge.addEventListener('mouseleave', () => { if (window.innerWidth > 480) { _clearRowHl(); _hideScoreTip(); } });
-    badge.addEventListener('click', () => {
-      if (window.innerWidth > 480) return;
-      if (_activeBadge === badge) { _activeBadge = null; _clearRowHl(); }
-      else { if (_activeBadge) _clearRowHl(); _activeBadge = badge; _showRowHl(); }
-    });
-
-    rowEl.appendChild(badge);
-
-  }
+  });
 
   // COL score badges: apply faction border color dynamically
 
   const colEl = document.getElementById('colScores');
 
-  colEl.innerHTML = '';
-
   const _colOrder = (typeof _mpPlayer !== 'undefined' && _mpPlayer === 2)
     ? [6,5,4,3,2,1,0] : [0,1,2,3,4,5,6];
-  for (const c of _colOrder) {
+
+  const colBadges = _gzEnsureBadgeStrip(colEl, 7, 'col-score-badge');
+
+  _colOrder.forEach((c, i) => {
+
+    const badge = colBadges[i];
 
     const {p,a} = s.cols[c];
 
     const res = s.colResults[c];
 
-    const badge = document.createElement('div');
-
-    badge.className = 'col-score-badge'; badge.style.cursor = 'pointer';
-
     // WIN=player color top-border, LOSE=opponent color, TIE=grey
-
     const colWinCol  = res==='p' ? pCol : res==='a' ? aCol : '#333';
-
-    const colBg      = res==='p' ? '#06060e' : res==='a' ? '#06060e' : (p===0&&a===0)?'#06060e':'#06060e';
-
     const colBorder  = res==='p' ? pCol+'55' : res==='a' ? aCol+'55' : (p===0&&a===0)?'#111120':'#221a33';
+    const css = `background:#06060e;border:1px solid ${colBorder};border-top:3px solid ${colWinCol};`;
 
-    badge.style.cssText = `background:${colBg};border:1px solid ${colBorder};border-top:3px solid ${colWinCol};`;
-
-    badge.innerHTML = colBadgeHtml(p, a, res, s.dfCols && s.dfCols[c]);
-
-    const prevResC = _prevBadgeRes.cols[c];
-
-    if (prevResC !== null && prevResC !== res && (res==='p'||res==='a') && (prevResC==='p'||prevResC==='a')) {
-
-      badge.classList.add('badge-flip');
-
-      setTimeout(() => badge.classList.remove('badge-flip'), 450);
-
-    }
+    _updateBadge(badge, colBadgeHtml(p, a, res, s.dfCols && s.dfCols[c]), css, res, _prevBadgeRes.cols[c]);
 
     _prevBadgeRes.cols[c] = res;
 
-    const _colHlCol = res==='p' ? pCol : res==='a' ? aCol : '#ffffff';
+    _wireBadge(badge, 'col', c);
 
-    const _showColHl = () => {
-      document.querySelectorAll('.cell').forEach(el => {
-        const er = el.dataset.r;
-        const ec = el.dataset.c;
-        if (ec == c) {
-          const cell = G.grid[er][ec];
-          const bat  = cell?.card ? (cell.battle || {h:'none',v:'none'}) : null;
-          const cancelled = bat && (bat.v === 'tie' || bat.v === 'lose');
-          const hazardHit = cell?.card && cell.owner !== 'hazard' && [{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}]
-            .some(({dr,dc}) => { const rr=+er+dr,cc=+ec+dc; return rr>=0&&rr<5&&cc>=0&&cc<7&&G.grid[rr][cc].owner==='hazard'; });
-          el.style.outline = cell?.owner === 'hazard' ? '2px solid #ff660099' : 'none';
-          el.style.filter  = (cancelled || hazardHit) ? 'brightness(0.4) saturate(0.2)' : 'brightness(1.1)';
-          el.style.opacity = '1';
-        } else { el.style.filter='brightness(0.38)'; el.style.opacity='0.5'; }
-      });
-      document.querySelectorAll('.score-hl').forEach(el=>el.remove());
-      const gridEl = document.getElementById('grid');
-      const ov = document.createElement('div');
-      ov.className = 'score-hl';
-      const m = _mobileDims();
-      const gh = m ? (GRID_ROWS*m.ch+(GRID_ROWS-1)*m.gap) : (GRID_ROWS*152+(GRID_ROWS-1)*6);
-      const cw_ = m ? m.cw : 124;
-      const leftX = m ? c*m.sw : c*CS_W;
-      ov.style.cssText = `position:absolute;pointer-events:none;z-index:8;top:0;left:${leftX}px;width:${cw_}px;height:${gh}px;border:3px solid ${_colHlCol}cc;border-radius:6px;box-shadow:0 0 22px ${_colHlCol}55,inset 0 0 10px ${_colHlCol}11;`;
-      gridEl.appendChild(ov);
-    };
-    const _clearColHl = () => {
-      document.querySelectorAll('.cell').forEach(el => { el.style.outline=''; el.style.filter=''; el.style.opacity=''; });
-      document.querySelectorAll('.score-hl').forEach(el=>el.remove());
-    };
-
-    badge.addEventListener('mouseenter', () => { if (window.innerWidth > 480) { document.body.style.cursor='default'; _showColHl(); _showScoreTip(badge,'col',c); } });
-    badge.addEventListener('mouseleave', () => { if (window.innerWidth > 480) { _clearColHl(); _hideScoreTip(); } });
-    badge.addEventListener('click', () => {
-      if (window.innerWidth > 480) return;
-      if (_activeBadge === badge) { _activeBadge = null; _clearColHl(); }
-      else { if (_activeBadge) { document.querySelectorAll('.cell').forEach(el=>{el.style.outline='';el.style.filter='';el.style.opacity='';}); document.querySelectorAll('.score-hl').forEach(el=>el.remove()); } _activeBadge = badge; _showColHl(); }
-    });
-
-    colEl.appendChild(badge);
-
-  }
+  });
 
 }
 
@@ -432,6 +421,14 @@ function renderScoreHeader(_precomputed) {
 
     tag.className   = 'turn-tag ' + G.turn;
 
+  }
+
+  // Screen-reader announcements: turn changes + running battle score
+  if (typeof gzAnnounce === 'function' && window._gzLastTurn !== G.turn) {
+    window._gzLastTurn = G.turn;
+    gzAnnounce(G.turn === 'player'
+      ? `Your turn. Score: you ${s.pVP}, opponent ${s.aVP}.`
+      : `Opponent's turn. Score: you ${s.pVP}, opponent ${s.aVP}.`);
   }
 
   const q = document.getElementById('aiQuote');
@@ -459,11 +456,17 @@ function renderScoreHeader(_precomputed) {
   let pNam = window.playerFactionName  || 'YOU';
   let aNam = window.aiFactionName      || 'AI';
 
-  // In multiplayer, show player initials when available
-  if (window._mpPlayer === 1) {
+  // In multiplayer, show player initials when available.
+  // multiplayer.js declares `const _mpPlayer` (a global lexical binding, NOT
+  // window._mpPlayer) derived from the ?player= URL param — read it the same
+  // way, with the URL param as a belt-and-braces fallback.
+  const _mpLocal = (typeof _mpPlayer !== 'undefined' && _mpPlayer)
+    ? _mpPlayer
+    : parseInt(new URLSearchParams(window.location.search).get('player') || '0', 10);
+  if (_mpLocal === 1) {
     if (window._mpP1Initials && window._mpP1Initials !== '---') pNam = window._mpP1Initials;
     if (window._mpP2Initials && window._mpP2Initials !== '---') aNam = window._mpP2Initials;
-  } else if (window._mpPlayer === 2) {
+  } else if (_mpLocal === 2) {
     if (window._mpP2Initials && window._mpP2Initials !== '---') pNam = window._mpP2Initials;
     if (window._mpP1Initials && window._mpP1Initials !== '---') aNam = window._mpP1Initials;
   }

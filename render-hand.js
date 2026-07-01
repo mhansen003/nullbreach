@@ -66,7 +66,23 @@ function renderHand() {
 
     if (isNew) { div.classList.add('card-pop-in'); div.style.animationDelay = (idx*55)+'ms'; }
 
-    if (card.art) div.style.backgroundImage = "url('" + card.art + "')";
+    if (card.art) div.style.backgroundImage = "url('" + gzCardArt(card.art) + "')";
+
+    // Keyboard + screen reader access
+    div.tabIndex = 0;
+    div.setAttribute('role', 'button');
+    div.setAttribute('aria-pressed', isSel ? 'true' : 'false');
+    div.setAttribute('aria-label',
+      card.name + ', Tier ' + tdNum + ', power ' + card.power +
+      ', edges North ' + card.edges.n + ' East ' + card.edges.e +
+      ' South ' + card.edges.s + ' West ' + card.edges.w +
+      (card.ability ? ', ability ' + ab(card.ability) : ''));
+    div.addEventListener('keydown', function(e) {
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      e.preventDefault();
+      onCardSelect(card);
+    });
+    if (typeof _gzFocusTip === 'function') _gzFocusTip(div);
 
     div.style.borderColor = factionC;
 
@@ -196,7 +212,13 @@ function renderHand() {
         }
 
         function _end(e) {
-          if (_done && !_dragging) { _cleanup(); return; }
+          if (_done && !_dragging) {
+            // Long-press already handled: block the synthetic click that would
+            // otherwise fire after touchend and deselect the card.
+            if (e.cancelable) e.preventDefault();
+            _cleanup();
+            return;
+          }
           const touch = Array.from(e.changedTouches).find(tt => tt.identifier === _id);
           if (!touch) return;
           if (_dragging) {
@@ -302,7 +324,7 @@ function renderHand() {
 
     if (cards[0] && cards[0].art) {
 
-      front.style.backgroundImage = "url('"+cards[0].art+"')";
+      front.style.backgroundImage = "url('"+gzCardArt(cards[0].art)+"')";
 
       front.style.backgroundSize  = 'cover';
 
@@ -373,6 +395,15 @@ function renderHand() {
       };
 
       wrap.title = `TIER ${tier}: Click to expand (${cards.length} card${cards.length!==1?'s':''})`;
+
+      wrap.tabIndex = 0;
+      wrap.setAttribute('role', 'button');
+      wrap.setAttribute('aria-label', `Tier ${tier} stack, ${cards.length} card${cards.length!==1?'s':''}, activate to expand`);
+      wrap.addEventListener('keydown', function(e) {
+        if (e.key !== 'Enter' && e.key !== ' ') return;
+        e.preventDefault();
+        wrap.onclick();
+      });
 
       wrap.onmouseenter = function(e) {
 
@@ -462,7 +493,7 @@ function renderHand() {
       // Use eligible art first, fall back to ineligible art, both get dimmed when locked/empty
       const artCard = cards[0] || inelCards[0];
       if (artCard && artCard.art) {
-        cover.style.backgroundImage = "url('" + artCard.art + "')";
+        cover.style.backgroundImage = "url('" + gzCardArt(artCard.art) + "')";
         cover.style.filter = isAct ? 'brightness(1)' : (onlyLocked ? 'brightness(0.3) saturate(0.2)' : !hasAny ? 'brightness(0.15) saturate(0)' : 'brightness(0.75)');
       } else if (!hasAny) {
         cover.style.filter = 'brightness(0.15)';
@@ -663,7 +694,7 @@ function showDragCard(card, x, y) {
 
   if (card.art) {
 
-    dc.style.backgroundImage = `url('${card.art}')`;
+    dc.style.backgroundImage = `url('${gzCardArt(card.art)}')`;
 
     dc.style.backgroundSize  = 'cover';
 

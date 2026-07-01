@@ -10,33 +10,71 @@ document.addEventListener('mousemove', e => {
 
 });
 
+// ── MODAL REGISTRY ─────────────────────────────
+// Any modal opened through gzModalOpen gets document-level Escape handling
+// (topmost closes first) and focus restore. game.html / leaderboard.js owners:
+// wire your modals through window.gzModalOpen(el, closeFn) / window.gzModalClose().
+
+window._gzModalStack = window._gzModalStack || [];
+
+window.gzModalOpen = function(el, closeFn) {
+  window._gzModalStack.push({ el, closeFn, prevFocus: document.activeElement });
+  const focusable = el.querySelector('button, [href], input, select, textarea, [tabindex]');
+  if (focusable) { try { focusable.focus(); } catch (e) {} }
+};
+
+window.gzModalClose = function(el) {
+  const stack = window._gzModalStack;
+  const idx = el ? stack.findIndex(m => m.el === el) : stack.length - 1;
+  if (idx < 0) return false;
+  const m = stack.splice(idx, 1)[0];
+  try { if (m.closeFn) m.closeFn(); else m.el.remove(); } catch (e) {}
+  if (m.prevFocus && document.contains(m.prevFocus)) { try { m.prevFocus.focus(); } catch (e) {} }
+  return true;
+};
+
+// ── ESCAPE: close topmost modal → deselect card → toggle pause menu ─────────
+// (F5 / Ctrl+R are no longer hijacked: the browser refreshes normally.)
+
 document.addEventListener('keydown', e => {
 
-  if (e.key === 'Escape' && G.selectedCard) {
+  if (e.key !== 'Escape') return;
 
+  // 1) A registered modal is open: close the topmost one
+  if (window._gzModalStack.length > 0) { e.preventDefault(); gzModalClose(); return; }
+
+  // 2) The in-game menu is open: close it
+  const gm = document.getElementById('gameMenu');
+  if (gm && gm.style.display && gm.style.display !== 'none') { closeMenu(); return; }
+
+  // 3) A card is selected: deselect
+  if (G.selectedCard) {
     G.selectedCard = null;
-
     hideDragCard();
-
     document.body.style.cursor = 'default';
-
     renderGrid();
-
     renderHand();
-
+    return;
   }
+
+  // 4) Nothing open: toggle the pause menu
+  if (typeof G !== 'undefined' && !G.gameOver) showPauseModal();
 
 });
 
-// Click on a non-valid area (board background) deselects
+// Click on a non-valid area (board background) deselects.
+// Bubble phase + battle-chip early-return so chip taps never eat the selection.
 
 document.addEventListener('click', e => {
 
   if (!G.selectedCard) return;
 
-  // Only deselect if target is not a valid cell, not a hand card, not the drag card
-
   const target = e.target;
+
+  // Battle indicator chips handle their own clicks — never deselect from them
+  if (target.closest && (target.closest('.bti') || target.closest('.bchip-active'))) return;
+
+  // Only deselect if target is not a valid cell, not a hand card, not the drag card
 
   const isValidCell = target.closest && target.closest('.cell.valid');
 
@@ -60,7 +98,7 @@ document.addEventListener('click', e => {
 
   }
 
-}, true);
+});
 
 function forfeitGame() {
   if (!_mpRoom) return;
@@ -163,53 +201,81 @@ function goToMenu() {
 
 }
 
-function goToMenuNow() { closeMenu(); goToMenu(); }
+// ── SHARED CONFIRM MODAL ───────────────────────
+// One helper for confirmDeckNav / confirmRestart / the pause menu.
+// Buttons: { label, theme: 'confirm'|'danger'|'muted', onClick }.
+
+function _gzConfirmModal(opts) {
+
+  if (document.getElementById('gzConfirm')) return;
+
+  const m = document.createElement('div');
+
+  m.id = 'gzConfirm';
+
+  m.setAttribute('role', 'dialog');
+  m.setAttribute('aria-modal', 'true');
+  m.setAttribute('aria-label', opts.title);
+
+  m.style.cssText = `position:fixed;inset:0;z-index:150000;background:#000000bb;
+    display:flex;align-items:center;justify-content:center;font-family:'Courier New',monospace;`;
+
+  const box = document.createElement('div');
+
+  box.style.cssText = `background:#0a0a18;border:1px solid #8855ffaa;border-radius:10px;
+    padding:28px 36px;text-align:center;box-shadow:0 0 48px #8855ff22;min-width:280px;`;
+
+  box.innerHTML = `
+    <div style="font-family:'Orbitron',monospace;font-size:14px;letter-spacing:3px;color:#fff;margin-bottom:6px;">${opts.title}</div>
+    <div style="font-size:10px;color:#555;letter-spacing:2px;margin-bottom:22px;">${opts.subtitle || ''}</div>`;
+
+  const THEMES = {
+    confirm: 'background:#0a1a14;border:1px solid #226644;color:#00ffcc;',
+    danger:  'background:#1a0a2e;border:1px solid #6644aa;color:#aa88ff;',
+    muted:   'background:transparent;border:1px solid #222233;color:#666;',
+  };
+
+  const row = document.createElement('div');
+
+  row.style.cssText = opts.stack
+    ? 'display:flex;flex-direction:column;gap:10px;'
+    : 'display:flex;gap:12px;justify-content:center;';
+
+  (opts.buttons || []).forEach(bd => {
+    const b = document.createElement('button');
+    b.textContent = bd.label;
+    b.style.cssText = (THEMES[bd.theme] || THEMES.muted) +
+      `font-family:inherit;font-size:11px;letter-spacing:2px;padding:9px 22px;
+       cursor:pointer;border-radius:4px;` + (opts.stack ? 'width:100%;' : '');
+    b.onclick = () => { gzModalClose(m); if (bd.onClick) bd.onClick(); };
+    row.appendChild(b);
+  });
+
+  box.appendChild(row);
+
+  m.appendChild(box);
+
+  // Backdrop click closes (acts like cancel)
+  m.addEventListener('click', e => { if (e.target === m) gzModalClose(m); });
+
+  document.body.appendChild(m);
+
+  gzModalOpen(m, () => m.remove());
+
+}
 
 function confirmDeckNav() {
 
   closeMenu();
 
-  const m = document.createElement('div');
-
-  m.id = 'restartConfirm';
-
-  m.style.cssText = `position:fixed;inset:0;z-index:150000;background:#000000bb;
-
-    display:flex;align-items:center;justify-content:center;font-family:'Courier New',monospace;`;
-
-  m.innerHTML = `
-
-    <div style="background:#0a0a18;border:1px solid #8855ffaa;border-radius:10px;
-
-      padding:28px 36px;text-align:center;box-shadow:0 0 48px #8855ff22;">
-
-      <div style="font-family:'Orbitron',monospace;font-size:14px;letter-spacing:3px;color:#fff;margin-bottom:6px;">ABANDON BATTLE?</div>
-
-      <div style="font-size:10px;color:#444;letter-spacing:2px;margin-bottom:22px;">Progress will be lost</div>
-
-      <div style="display:flex;gap:12px;justify-content:center;">
-
-        <button onclick="document.getElementById('restartConfirm').remove();goToMenu();"
-
-          style="background:#1a0a2e;border:1px solid #6644aa;color:#aa88ff;
-
-          font-family:inherit;font-size:11px;letter-spacing:2px;padding:9px 22px;
-
-          cursor:pointer;border-radius:4px;">LEAVE</button>
-
-        <button onclick="document.getElementById('restartConfirm').remove();"
-
-          style="background:#0a1a14;border:1px solid #226644;color:#00ffcc;
-
-          font-family:inherit;font-size:11px;letter-spacing:2px;padding:9px 22px;
-
-          cursor:pointer;border-radius:4px;">STAY</button>
-
-      </div>
-
-    </div>`;
-
-  document.body.appendChild(m);
+  _gzConfirmModal({
+    title: 'ABANDON BATTLE?',
+    subtitle: 'Progress will be lost',
+    buttons: [
+      { label: 'LEAVE', theme: 'danger', onClick: goToMenu },
+      { label: 'STAY',  theme: 'confirm' },
+    ],
+  });
 
 }
 
@@ -217,59 +283,29 @@ function confirmRestart() {
 
   closeMenu();
 
-  const m = document.createElement('div');
+  _gzConfirmModal({
+    title: 'RESTART GAME?',
+    subtitle: 'Current battle will be lost',
+    buttons: [
+      { label: 'CONFIRM', theme: 'confirm', onClick: () => initGame() },
+      { label: 'CANCEL',  theme: 'danger' },
+    ],
+  });
 
-  m.id = 'restartConfirm';
+}
 
-  m.style.cssText = `position:fixed;inset:0;z-index:150000;background:#000000bb;
+function showPauseModal() {
 
-    display:flex;align-items:center;justify-content:center;font-family:'Courier New',monospace;`;
-
-  m.innerHTML = `
-
-    <div style="background:#0a0a18;border:1px solid #8855ffaa;border-radius:10px;
-
-      padding:28px 36px;text-align:center;box-shadow:0 0 48px #8855ff22;">
-
-      <div style="font-family:'Orbitron',monospace;font-size:14px;letter-spacing:3px;
-
-        color:#fff;margin-bottom:6px;">RESTART GAME?</div>
-
-      <div style="font-size:10px;color:#444;letter-spacing:2px;margin-bottom:22px;">
-
-        Current battle will be lost</div>
-
-      <div style="display:flex;gap:12px;justify-content:center;">
-
-        <button onclick="document.getElementById('restartConfirm').remove();initGame();"
-
-          style="background:#0a1a14;border:1px solid #226644;color:#00ffcc;
-
-          font-family:inherit;font-size:11px;letter-spacing:2px;padding:9px 22px;
-
-          cursor:pointer;border-radius:4px;transition:all 0.2s;"
-
-          onmouseenter="this.style.background='#0e2a1e'"
-
-          onmouseleave="this.style.background='#0a1a14'">CONFIRM</button>
-
-        <button onclick="document.getElementById('restartConfirm').remove();"
-
-          style="background:#1a0a2e;border:1px solid #443366;color:#8866aa;
-
-          font-family:inherit;font-size:11px;letter-spacing:2px;padding:9px 22px;
-
-          cursor:pointer;border-radius:4px;transition:all 0.2s;"
-
-          onmouseenter="this.style.background='#2a1040'"
-
-          onmouseleave="this.style.background='#1a0a2e'">CANCEL</button>
-
-      </div>
-
-    </div>`;
-
-  document.body.appendChild(m);
+  _gzConfirmModal({
+    title: 'PAUSE',
+    subtitle: 'WHAT WOULD YOU LIKE TO DO?',
+    stack: true,
+    buttons: [
+      { label: '↺ RESTART BATTLE',       theme: 'confirm', onClick: () => initGame() },
+      { label: '← BACK TO DECK SELECT',  theme: 'danger',  onClick: goToMenu },
+      { label: 'RESUME',                 theme: 'muted' },
+    ],
+  });
 
 }
 
@@ -290,86 +326,6 @@ function toggleGameMusic() {
 
 }
 
-function showRestartModal() {
-
-  const m = document.createElement('div');
-
-  m.id = 'restartModal';
-
-  m.style.cssText = `
-
-    position:fixed;inset:0;z-index:1000;
-
-    background:#000000cc;backdrop-filter:blur(4px);
-
-    display:flex;align-items:center;justify-content:center;
-
-  `;
-
-  m.innerHTML = `
-
-    <div style="
-
-      background:#07070fee;border:1px solid #8855ff55;border-radius:8px;
-
-      padding:36px 48px;text-align:center;font-family:'Courier New',monospace;
-
-      box-shadow:0 0 60px #8855ff33;
-
-    ">
-
-      <div style="font-family:'Orbitron',monospace;font-size:18px;letter-spacing:4px;color:#fff;margin-bottom:8px;">RESTART GAME?</div>
-
-      <div style="font-size:11px;color:#555;letter-spacing:2px;margin-bottom:28px;">Current battle will be lost</div>
-
-      <div style="display:flex;gap:16px;justify-content:center;">
-
-        <button onclick="document.getElementById('restartModal').remove();initGame();" style="
-
-          background:transparent;border:1px solid #00ffcc;color:#00ffcc;
-
-          font-family:inherit;font-size:10px;letter-spacing:3px;
-
-          padding:10px 28px;cursor:pointer;border-radius:3px;
-
-          transition:all 0.2s;
-
-        " onmouseenter="this.style.background='#00ffcc22'" onmouseleave="this.style.background='transparent'">
-
-          ↺ NEW GAME
-
-        </button>
-
-        <button onclick="document.getElementById('restartModal').remove();" style="
-
-          background:transparent;border:1px solid #443366;color:#7755aa;
-
-          font-family:inherit;font-size:10px;letter-spacing:3px;
-
-          padding:10px 28px;cursor:pointer;border-radius:3px;
-
-          transition:all 0.2s;
-
-        " onmouseenter="this.style.borderColor='#8855ff';this.style.color='#aa88ff'" onmouseleave="this.style.borderColor='#443366';this.style.color='#7755aa'">
-
-          CANCEL
-
-        </button>
-
-      </div>
-
-    </div>
-
-  `;
-
-  document.body.appendChild(m);
-
-  // Also close on backdrop click
-
-  m.addEventListener('click', e => { if (e.target === m) m.remove(); });
-
-}
-
 // Global button click sound: plays for any button not already handled
 
 document.addEventListener('click', ev => {
@@ -386,66 +342,51 @@ document.addEventListener('click', ev => {
 
 }, true);
 
-// F5 / Ctrl+R → show options modal instead of hard refresh
+// NOTE: F5 / Ctrl+R are intentionally NOT intercepted anymore — the pause
+// menu now lives on Escape (see the keydown handler above).
 
-document.addEventListener('keydown', e => {
+// ── Task 109: re-render when the 480px mobile/desktop boundary is crossed ────
+// Debounced 250ms. Only re-renders when a game is active (G.grid) and never
+// mid-placement-animation (G._placeInFlight) — deferred with a bounded retry.
 
-  if (e.key === 'F5' || (e.ctrlKey && e.key === 'r')) {
+(function() {
 
-    e.preventDefault();
+  let _lastMobile = window.innerWidth <= 480;
 
-    if (document.getElementById('restartConfirm')) return; // already open
+  let _resizeTimer = null;
 
-    const m = document.createElement('div');
+  function _rerender(retries) {
 
-    m.id = 'restartConfirm';
+    if (typeof G === 'undefined' || !G || !G.grid) return;
 
-    m.style.cssText = `position:fixed;inset:0;z-index:150000;background:#000000bb;
+    if (G._placeInFlight) {
+      if (retries > 0) setTimeout(() => _rerender(retries - 1), 300);
+      return;
+    }
 
-      display:flex;align-items:center;justify-content:center;font-family:'Courier New',monospace;`;
-
-    m.innerHTML = `
-
-      <div style="background:#0a0a18;border:1px solid #8855ffaa;border-radius:10px;
-
-        padding:28px 36px;text-align:center;box-shadow:0 0 48px #8855ff22;min-width:280px;">
-
-        <div style="font-family:'Orbitron',monospace;font-size:14px;letter-spacing:3px;color:#fff;margin-bottom:6px;">PAUSE</div>
-
-        <div style="font-size:10px;color:#444;letter-spacing:2px;margin-bottom:22px;">WHAT WOULD YOU LIKE TO DO?</div>
-
-        <div style="display:flex;flex-direction:column;gap:10px;">
-
-          <button onclick="document.getElementById('restartConfirm').remove();initGame();"
-
-            style="background:#0a1a14;border:1px solid #226644;color:#00ffcc;
-
-            font-family:inherit;font-size:11px;letter-spacing:2px;padding:10px;
-
-            cursor:pointer;border-radius:4px;width:100%;">↺ RESTART BATTLE</button>
-
-          <button onclick="document.getElementById('restartConfirm').remove();goToMenu();"
-
-            style="background:#1a0a2e;border:1px solid #6644aa;color:#aa88ff;
-
-            font-family:inherit;font-size:11px;letter-spacing:2px;padding:10px;
-
-            cursor:pointer;border-radius:4px;width:100%;">← BACK TO DECK SELECT</button>
-
-          <button onclick="document.getElementById('restartConfirm').remove();"
-
-            style="background:transparent;border:1px solid #222233;color:#444;
-
-            font-family:inherit;font-size:11px;letter-spacing:2px;padding:10px;
-
-            cursor:pointer;border-radius:4px;width:100%;">CANCEL</button>
-
-        </div>
-
-      </div>`;
-
-    document.body.appendChild(m);
+    renderAll();
 
   }
 
-});
+  function _onBoundaryCheck(force) {
+
+    const nowMobile = window.innerWidth <= 480;
+
+    if (force || nowMobile !== _lastMobile) {
+      _lastMobile = nowMobile;
+      _rerender(10);
+    }
+
+  }
+
+  window.addEventListener('resize', () => {
+    clearTimeout(_resizeTimer);
+    _resizeTimer = setTimeout(() => _onBoundaryCheck(false), 250);
+  });
+
+  window.addEventListener('orientationchange', () => {
+    clearTimeout(_resizeTimer);
+    _resizeTimer = setTimeout(() => _onBoundaryCheck(true), 250);
+  });
+
+})();
