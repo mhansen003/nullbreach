@@ -2,21 +2,45 @@
 
 const _LB_KEY = 'gz_lb_v1';
 
-// Seed demo entry so the leaderboard isn't entirely blank on first view
+// One-time cleanup: remove the old demo seed entry (terran_vs_veil / MDH / +7)
+// that earlier builds injected into localStorage on first view.
 (function() {
   try {
     var _d = JSON.parse(localStorage.getItem(_LB_KEY) || '{}');
-    if (!_d['terran_vs_veil']) {
-      _d['terran_vs_veil'] = { initials: 'MDH', delta: 7 };
+    var _e = _d['terran_vs_veil'];
+    if (_e && _e.initials === 'MDH' && _e.delta === 7) {
+      delete _d['terran_vs_veil'];
       localStorage.setItem(_LB_KEY, JSON.stringify(_d));
     }
   } catch(e) {}
 })();
 
-// ── Supabase config (anon/public key — safe to ship) ─────────────────────────
-const _SB_LB_URL = 'https://mstpkwxxhsspivtngfnm.supabase.co';
-const _SB_LB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1zdHBrd3h4aHNzcGl2dG5nZm5tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0NTE2MTcsImV4cCI6MjA5NjAyNzYxN30.B0F-e_mGzv5kbjwOa2yw499OfsZ3qJDXdoyrCu2tNiI';
-const _SB_LB_H = { 'apikey': _SB_LB_KEY, 'Authorization': 'Bearer ' + _SB_LB_KEY, 'Content-Type': 'application/json' };
+// ── Supabase config (single source: shared-data.js window.GZ_SB) ─────────────
+const _SB_LB_URL = window.GZ_SB.url;
+const _SB_LB_KEY = window.GZ_SB.key;
+const _SB_LB_H = window.GZ_SB.headers;
+
+// ── Modal registry glue (ui.js gzModalOpen/gzModalClose — game.html only) ────
+// index.html does not load ui.js and has its own Escape chain that calls
+// hideLeaderboard()/_lbSkipInitials() directly, so every call below is
+// typeof-guarded: with no registry these are no-ops and nothing double-closes.
+function _lbRegisterModal(el, closeFn) {
+  if (typeof gzModalOpen !== 'function') return;
+  // Tab switches rebuild #lbModal without closing it — drop stale entries first
+  if (window._gzModalStack) {
+    for (let i = window._gzModalStack.length - 1; i >= 0; i--) {
+      const s = window._gzModalStack[i];
+      if (s.el && s.el.id === el.id && !document.contains(s.el)) window._gzModalStack.splice(i, 1);
+    }
+  }
+  gzModalOpen(el, closeFn);
+}
+// Returns true if the registry owned the element and closed it (closeFn ran).
+function _lbCloseViaRegistry(el) {
+  if (typeof gzModalClose !== 'function' || !window._gzModalStack) return false;
+  if (!window._gzModalStack.some(s => s.el === el)) return false;
+  return gzModalClose(el);
+}
 
 // ── Activity logging ──────────────────────────────────────────────────────────
 function logGameEvent(event, data) {
@@ -27,26 +51,41 @@ function logGameEvent(event, data) {
   }).catch(() => {});
 }
 
-// POST a single entry to Supabase (fire-and-forget)
+// POST a single entry to Supabase (fire-and-forget).
+// Outbound values are clamped to exactly match the server-side RLS CHECKs in
+// supabase/migration.sql: delta BETWEEN 1 AND 100, initials ~ '^[A-Z][A-Z-]{0,2}$',
+// mode IN ('pve','pvp'). Anything that can't be made to pass is not sent.
 function _sbSaveEntry(pFac, aFac, initials, delta, mode) {
+  if (!_lbValidFaction(pFac) || !_lbValidFaction(aFac)) return;
+  const d = _lbSanitizeDelta(delta);
+  if (d === null) return;
+  const inits = String(initials == null ? '' : initials).toUpperCase();
+  if (!/^[A-Z][A-Z-]{0,2}$/.test(inits)) return; // server rejects e.g. '---'
   fetch(_SB_LB_URL + '/rest/v1/gz_leaderboard', {
     method: 'POST',
     headers: _SB_LB_H,
-    body: JSON.stringify({ player_faction: pFac, ai_faction: aFac, initials, delta, mode: mode || 'pve' })
+    body: JSON.stringify({ player_faction: pFac, ai_faction: aFac, initials: inits, delta: d, mode: _lbSanitizeMode(mode) })
   }).catch(() => {});
 }
 
 // Fetch best record per opponent for a given player faction from Supabase
 function _sbFetchFaction(pFac, cb) {
-  fetch(_SB_LB_URL + '/rest/v1/gz_leaderboard?player_faction=eq.' + pFac + '&select=ai_faction,initials,delta,mode&order=delta.desc', {
+  if (!_lbValidFaction(pFac)) return cb({});
+  fetch(_SB_LB_URL + '/rest/v1/gz_leaderboard?player_faction=eq.' + encodeURIComponent(pFac) + '&select=ai_faction,initials,delta,mode&order=delta.desc', {
     headers: _SB_LB_H
   })
   .then(r => r.ok ? r.json() : [])
   .then(rows => {
     const best = {};
     (rows || []).forEach(row => {
-      if (!best[row.ai_faction] || row.delta > best[row.ai_faction].delta) {
-        best[row.ai_faction] = { initials: row.initials, delta: row.delta, mode: row.mode };
+      if (!row || typeof row !== 'object') return;
+      // Sanitize at merge time: whitelist faction key, validate delta, scrub initials.
+      if (!_lbValidFaction(row.ai_faction)) return;
+      const delta = _lbSanitizeDelta(row.delta);
+      if (delta === null) return; // discard rows with bogus deltas
+      const initials = _lbSanitizeInitials(row.initials);
+      if (!best[row.ai_faction] || delta > best[row.ai_faction].delta) {
+        best[row.ai_faction] = { initials, delta, mode: _lbSanitizeMode(row.mode) };
       }
     });
     cb(best);
@@ -54,20 +93,55 @@ function _sbFetchFaction(pFac, cb) {
   .catch(() => cb({}));
 }
 
-const _LB_FACTIONS = {
-  terran:     { name:'TERRAN ACCORD',   short:'TERRAN',     color:'#7ab8e8', img:'assets/avatars/terran.png'     },
-  brood:      { name:'BROOD SOVEREIGN', short:'BROOD',      color:'#88cc44', img:'assets/avatars/brood.png'      },
-  crystallis: { name:'THE CRYSTALLIS',  short:'CRYSTALLIS', color:'#00ccff', img:'assets/avatars/crystallis.png' },
-  mycos:      { name:'MYCOS DRIFT',     short:'MYCOS',      color:'#9dcf6e', img:'assets/avatars/mycos.png'      },
-  veil:       { name:'THE VEIL',        short:'VEIL',       color:'#fff5a0', img:'assets/avatars/veil.png'       },
-  entropy:    { name:'ENTROPY CULT',    short:'ENTROPY',    color:'#c4723a', img:'assets/avatars/entropy.png'    },
-  void:       { name:'VOID HUNTERS',    short:'VOID',       color:'#9b59b6', img:'assets/avatars/void.png'       },
-  gas:        { name:'GAS NOMADS',      short:'GAS',        color:'#ffd700', img:'assets/avatars/gas.png'        },
-  lithos:     { name:'THE LITHOS',      short:'LITHOS',     color:'#a0896a', img:'assets/avatars/lithos.png'     },
-  quantum:    { name:'QUANTUM THREAD',  short:'QUANTUM',    color:'#ff69b4', img:'assets/avatars/quantum.png'    },
-  choir:      { name:'THE CHOIR',       short:'CHOIR',      color:'#c8c8ff', img:'assets/avatars/choir.png'      },
-};
+// Faction display data. Names/colors are sourced from the shared registry
+// (window.GZ_FACTIONS in shared-data.js) when present; the literals below are
+// the fallback so this file keeps working standalone.
+const _LB_FACTIONS = (function() {
+  const defs = {
+    terran:     { name:'TERRAN ACCORD',   short:'TERRAN',     color:'#7ab8e8', img:'assets/avatars/terran.png'     },
+    brood:      { name:'BROOD SOVEREIGN', short:'BROOD',      color:'#88cc44', img:'assets/avatars/brood.png'      },
+    crystallis: { name:'THE CRYSTALLIS',  short:'CRYSTALLIS', color:'#00ccff', img:'assets/avatars/crystallis.png' },
+    mycos:      { name:'MYCOS DRIFT',     short:'MYCOS',      color:'#9dcf6e', img:'assets/avatars/mycos.png'      },
+    veil:       { name:'THE VEIL',        short:'VEIL',       color:'#fff5a0', img:'assets/avatars/veil.png'       },
+    entropy:    { name:'ENTROPY CULT',    short:'ENTROPY',    color:'#c4723a', img:'assets/avatars/entropy.png'    },
+    void:       { name:'VOID HUNTERS',    short:'VOID',       color:'#9b59b6', img:'assets/avatars/void.png'      },
+    gas:        { name:'GAS NOMADS',      short:'GAS',        color:'#ffd700', img:'assets/avatars/gas.png'        },
+    lithos:     { name:'THE LITHOS',      short:'LITHOS',     color:'#a0896a', img:'assets/avatars/lithos.png'     },
+    quantum:    { name:'QUANTUM THREAD',  short:'QUANTUM',    color:'#ff69b4', img:'assets/avatars/quantum.png'    },
+    choir:      { name:'THE CHOIR',       short:'CHOIR',      color:'#c8c8ff', img:'assets/avatars/choir.png'      },
+  };
+  const shared = (typeof window !== 'undefined' && window.GZ_FACTIONS) || {};
+  Object.keys(defs).forEach(k => {
+    const s = shared[k];
+    if (!s) return;
+    if (typeof s.name  === 'string' && s.name)  defs[k].name  = s.name;
+    if (typeof s.color === 'string' && s.color) defs[k].color = s.color;
+  });
+  return defs;
+})();
 const _LB_ORDER = ['terran','brood','crystallis','mycos','veil','entropy','void','gas','lithos','quantum','choir'];
+
+// ── Remote-data sanitizers ────────────────────────────────────────────────────
+// Supabase rows are attacker-writable (shipped anon key), so every value that
+// came from — or may have been merged from — the network is sanitized both at
+// merge time and again at render time before touching innerHTML.
+function _lbSanitizeInitials(v) {
+  const s = String(v == null ? '' : v).toUpperCase();
+  return /^[A-Z-]{1,3}$/.test(s) ? s : '???';
+}
+// Returns an integer delta in 1..100, or null (caller must discard the row).
+function _lbSanitizeDelta(v) {
+  const n = Number(v);
+  if (!Number.isFinite(n)) return null;
+  const i = Math.round(n);
+  if (i < 1 || i > 100) return null;
+  return i;
+}
+// Whitelist faction keys coming from remote rows / URL params.
+function _lbValidFaction(k) {
+  return typeof k === 'string' && Object.prototype.hasOwnProperty.call(_LB_FACTIONS, k);
+}
+function _lbSanitizeMode(m) { return m === 'pvp' ? 'pvp' : 'pve'; }
 
 let _lbActiveFaction = 'terran'; // which player faction tab is active; 'achievements' for badge gallery
 
@@ -83,24 +157,36 @@ function _lbKey(p, a) { return p + '_vs_' + a; }
 // ── Win hook ──────────────────────────────────────────────────────────────────
 function checkLeaderboardRecord(playerFaction, aiFaction, playerVP, aiVP, mode) {
   if (!playerFaction || !aiFaction || playerVP <= aiVP) return;
-  const delta    = playerVP - aiVP;
+  // Faction ids can arrive via URL params in multiplayer — whitelist them
+  // before they reach any innerHTML sink.
+  if (!_lbValidFaction(playerFaction) || !_lbValidFaction(aiFaction)) return;
+  const delta    = _lbSanitizeDelta(playerVP - aiVP);
+  if (delta === null) return;
   const existing = _lbLoad()[_lbKey(playerFaction, aiFaction)];
   if (!existing || delta > (existing.delta || 0)) {
     setTimeout(() => showInitialsEntry(playerFaction, aiFaction, delta, mode || 'pve'), 800);
   }
 }
 function saveLeaderboardEntry(pFac, aFac, initials, delta, mode) {
+  if (!_lbValidFaction(pFac) || !_lbValidFaction(aFac)) return;
+  const d = _lbSanitizeDelta(delta);
+  if (d === null) return;
+  const inits = _lbSanitizeInitials(initials);
   const data = _lbLoad();
-  data[_lbKey(pFac, aFac)] = { initials: initials.toUpperCase(), delta, mode: mode || 'pve' };
+  data[_lbKey(pFac, aFac)] = { initials: inits, delta: d, mode: _lbSanitizeMode(mode) };
   _lbSave(data);
-  _sbSaveEntry(pFac, aFac, initials.toUpperCase(), delta, mode);
+  _sbSaveEntry(pFac, aFac, inits, d, mode);
 }
 
 // ── Initials entry ────────────────────────────────────────────────────────────
 function showInitialsEntry(playerFaction, aiFaction, delta, mode) {
-  var _lbMode = mode || 'pve';
-  const pF = _LB_FACTIONS[playerFaction] || { name:playerFaction, color:'#00ffcc', img:'' };
-  const aF = _LB_FACTIONS[aiFaction]    || { name:aiFaction,    color:'#ff0080', img:'' };
+  // Whitelist everything that gets interpolated into markup below.
+  if (!_lbValidFaction(playerFaction) || !_lbValidFaction(aiFaction)) return;
+  delta = _lbSanitizeDelta(delta);
+  if (delta === null) return;
+  var _lbMode = _lbSanitizeMode(mode);
+  const pF = _LB_FACTIONS[playerFaction];
+  const aF = _LB_FACTIONS[aiFaction];
 
   const el = document.createElement('div');
   el.id = 'lbInitialsOverlay';
@@ -132,6 +218,7 @@ function showInitialsEntry(playerFaction, aiFaction, delta, mode) {
       </div>
     </div>`;
   document.body.appendChild(el);
+  _lbRegisterModal(el, () => el.remove()); // Escape = skip (no save)
 
   [0,1,2].forEach(i => {
     const inp = document.getElementById('lbInit'+i);
@@ -155,7 +242,12 @@ function showInitialsEntry(playerFaction, aiFaction, delta, mode) {
     inp.addEventListener('blur',   function(){ this.style.borderColor='#ffdd0044'; this.style.boxShadow='none'; });
   });
 }
-function _lbSkipInitials() { document.getElementById('lbInitialsOverlay')?.remove(); }
+function _lbSkipInitials() {
+  const ov = document.getElementById('lbInitialsOverlay');
+  if (!ov) return;
+  if (_lbCloseViaRegistry(ov)) return;
+  ov.remove();
+}
 function _lbSubmitInitials(pFac, aFac, delta, mode) {
   try {
     var a=(document.getElementById('lbInit0')||{}).value||'-';
@@ -166,7 +258,7 @@ function _lbSubmitInitials(pFac, aFac, delta, mode) {
   } catch(e) {}
   // Remove overlay first: always, even if save failed
   var ov = document.getElementById('lbInitialsOverlay');
-  if (ov) ov.parentNode.removeChild(ov);
+  if (ov && !_lbCloseViaRegistry(ov)) ov.parentNode.removeChild(ov);
   var flash=document.createElement('div');
   flash.style.cssText='position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:100000;font-family:"Orbitron",monospace;font-size:20px;letter-spacing:4px;color:#ffdd00;text-shadow:0 0 20px #ffdd00;pointer-events:none;';
   flash.textContent=initials+' · RECORDED';
@@ -197,12 +289,14 @@ function _lbRenderModal(data) {
   const opponents = _LB_ORDER.filter(aId => aId !== pId);
   const rowsHtml = opponents.map(aId => {
     const aF    = _LB_FACTIONS[aId];
-    const entry = data[_lbKey(pId, aId)];
+    // Render-time sanitization: entries may have been merged from remote data
+    // (or poisoned localStorage from an older build) — never trust them here.
+    let entry   = data[_lbKey(pId, aId)];
+    let delta   = entry ? _lbSanitizeDelta(entry.delta) : null;
+    if (delta === null) entry = null; // discard rows with invalid deltas
     const has   = !!entry;
-    const inits = entry?.initials || 'AAA';
-    const delta = entry?.delta    ?? null;
-    const mode  = entry?.mode     || null;
-    const isPvP = mode === 'pvp';
+    const inits = has ? _lbSanitizeInitials(entry.initials) : 'AAA';
+    const isPvP = has && _lbSanitizeMode(entry.mode) === 'pvp';
 
     return `
       <div class="lb-row" style="
@@ -369,6 +463,7 @@ function _lbRenderModal(data) {
   </div>`;
 
   document.body.appendChild(modal);
+  _lbRegisterModal(modal, () => _lbDoHide(modal));
 
   // Scroll active faction tab into view (important on mobile where tabs overflow)
   setTimeout(() => {
@@ -387,9 +482,14 @@ function _lbRenderModal(data) {
     const local = _lbLoad();
     let changed = false;
     Object.entries(remote).forEach(([aFac, entry]) => {
+      // Merge-time sanitization (defense in depth — _sbFetchFaction already
+      // scrubbed, but nothing unvalidated may enter localStorage).
+      if (!_lbValidFaction(aFac)) return;
+      const delta = _lbSanitizeDelta(entry && entry.delta);
+      if (delta === null) return;
       const k = _lbKey(_fetchFaction, aFac);
-      if (!local[k] || entry.delta > (local[k].delta || 0)) {
-        local[k] = { initials: entry.initials, delta: entry.delta, mode: entry.mode || 'pve' };
+      if (!local[k] || delta > (_lbSanitizeDelta(local[k].delta) || 0)) {
+        local[k] = { initials: _lbSanitizeInitials(entry.initials), delta, mode: _lbSanitizeMode(entry.mode) };
         changed = true;
       }
     });
@@ -458,7 +558,7 @@ function _lbRenderAchievementsPanel() {
         onmouseenter="_lbShowBadgeTip(this,'${a.id}',${isUnlocked})"
         onmouseleave="_lbHideBadgeTip()"
         onclick="_lbBadgeClick(this,'${a.id}',${isUnlocked},event)">
-        <img src="badges/${a.id}.png"
+        <img src="badges-sm/${a.id}.webp" alt="${a.name || a.id}"
           style="width:100%;height:100%;border-radius:8px;object-fit:cover;
             ${isUnlocked
               ? `border:2px solid ${isNew ? '#ffdd00' : '#00ffcc44'};
@@ -547,6 +647,7 @@ function _lbRenderAchievementsPanel() {
   </div>`;
 
   document.body.appendChild(modal);
+  _lbRegisterModal(modal, () => _lbDoHide(modal));
 
   const _lb = document.getElementById('mobileLaunchBar') || document.getElementById('desktopLaunchBar');
   if (_lb) _lb.style.display = 'none';
@@ -589,7 +690,9 @@ function _lbPositionTip(tip, el) {
 }
 
 function _lbShowBadgeTip(el, id, isUnlocked) {
-  if ('ontouchstart' in window) return; // handled by click on touch devices
+  // Hover-less devices are handled by tap/click; touch-capable laptops with a
+  // mouse still get hover tips ('ontouchstart' would wrongly disable them).
+  if (window.matchMedia && window.matchMedia('(hover: none)').matches) return;
   const tip = document.getElementById('lbBadgeTip');
   if (!tip) return;
   tip.innerHTML = _lbBadgeTipContent(id, isUnlocked);
@@ -636,6 +739,14 @@ function _lbBadgeClick(el, id, isUnlocked, evt) {
 function hideLeaderboard() {
   const m = document.getElementById('lbModal');
   if (!m) return;
+  if (_lbCloseViaRegistry(m)) return; // registry invoked _lbDoHide already
+  _lbDoHide(m);
+}
+
+// The actual close work — invoked via the modal registry (game.html) or
+// directly (index.html). Never calls gzModalClose to avoid recursion.
+function _lbDoHide(m) {
+  if (!m || !document.contains(m)) return;
   m.style.opacity='0'; m.style.transition='opacity 0.18s';
   setTimeout(()=>{
     m.remove();

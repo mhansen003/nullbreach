@@ -21,11 +21,13 @@ function _loadStats() {
       totalWins: 0, totalLosses: 0, totalDraws: 0,
       currentStreak: 0, bestStreak: 0,
       factionsWon: [], gamesPlayed: 0,
-      decksOpened: [], loreViewed: false, exploreMode: false,
+      decksOpened: [], loreViewed: false, loreFactionsViewed: [],
+      exploreMode: false, exploreFactions: [],
+      firstAbilityWinDone: false,
       gameStartTime: null
     }, JSON.parse(localStorage.getItem('gz_stats') || '{}'));
   } catch(e) {
-    return { totalWins:0, totalLosses:0, totalDraws:0, currentStreak:0, bestStreak:0, factionsWon:[], gamesPlayed:0, decksOpened:[], loreViewed:false, exploreMode:false, gameStartTime:null };
+    return { totalWins:0, totalLosses:0, totalDraws:0, currentStreak:0, bestStreak:0, factionsWon:[], gamesPlayed:0, decksOpened:[], loreViewed:false, loreFactionsViewed:[], exploreMode:false, exploreFactions:[], firstAbilityWinDone:false, gameStartTime:null };
   }
 }
 function _saveStats(stats) {
@@ -98,7 +100,7 @@ const ACHIEVEMENTS = [
   // Play conditions
   { id:'play_tier4',        name:'Apex Predator',         desc:'Place a Tier IV card in battle.' },
   { id:'play_full_grid',    name:'Full Deployment',       desc:'Fill all 35 cells on the board.' },
-  { id:'play_hazard_zero',  name:'Hazard Avoidance',      desc:'Win without placing any card in a hazard zone.' },
+  { id:'play_hazard_zero',  name:'Hazard Avoidance',      desc:'Win a game with a cosmic hazard on the board without placing any card next to it.' },
   { id:'play_all_abilities',name:'Ability Arsenal',       desc:'Win using cards with 5 different abilities.' },
   { id:'play_no_ability',   name:'Purist',                desc:'Win using only cards with no special ability.' },
   { id:'play_solo_win',     name:'Solo Victory',          desc:'Win with only 1 card placed.' },
@@ -109,7 +111,7 @@ const ACHIEVEMENTS = [
   { id:'ai_perfect',        name:'Flawless Victory',      desc:'Win without the AI ever leading in VP.' },
   { id:'ai_speed',          name:'Speed Runner',          desc:'Win a game in under 2 minutes.' },
   { id:'ai_endgame',        name:'Endgame Closer',        desc:'Win after the final card is placed.' },
-  { id:'ai_underdog',       name:'Underdog',              desc:'Win while the AI had more cells controlled at midgame.' },
+  { id:'ai_underdog',       name:'Underdog',              desc:'Win after the AI led on victory points.' },
 
   // Collection/meta
   { id:'col_all_factions',  name:'Faction Master',        desc:'Win at least once with all 11 factions.' },
@@ -126,14 +128,14 @@ const ACHIEVEMENTS = [
   { id:'rare_no_loss',      name:'Untouchable',           desc:'Win without losing a single row or column.' },
   { id:'rare_deciding_both',name:'Double Decider',        desc:'Win two rows and two columns with deciding factor cards.' },
   { id:'rare_lamb_win',     name:'Lamb to the Slaughter', desc:'Win while having a Lamb card on the board.' },
-  { id:'rare_full_silence', name:'Full Silence',          desc:'Win without playing any card with an ability.' },
+  { id:'rare_full_silence', name:'Full Silence',          desc:'Win a game in which neither side placed a single ability card.' },
   { id:'rare_tier_staircase',name:'Tier Staircase',       desc:'Have one of each tier (I, II, III, IV) on the board at once.' },
   { id:'rare_all_rows',     name:'Row Dominator',         desc:'Win all 5 rows.' },
   { id:'rare_all_cols',     name:'Column Dominator',      desc:'Win all 7 columns.' },
-  { id:'rare_hazard_pivot', name:'Hazard Pivot',          desc:'Win a game where an AI card in a hazard zone turned the tide.' },
+  { id:'rare_hazard_pivot', name:'Hazard Pivot',          desc:'Win a game where an enemy card was weakened by an adjacent cosmic hazard.' },
 
   // Hidden
-  { id:'hidden_first_day',  name:'???',                   desc:'Play for the first time on a specific day.' },
+  { id:'hidden_first_day',  name:'???',                   desc:'Play your first game.' },
   { id:'hidden_night_owl',  name:'???',                   desc:'Play a game after midnight.' },
 ];
 
@@ -142,32 +144,69 @@ const _ACHIEV_MAP = {};
 ACHIEVEMENTS.forEach(a => { _ACHIEV_MAP[a.id] = a; });
 
 // Badge path helper
-function _badgePath(id) { return 'badges/' + id + '.png'; }
+function _badgePath(id) { return 'badges-sm/' + id + '.webp'; }
 
 // ── Public API ─────────────────────────────────────────────────────────────────
 function getUnlockedAchievements() { return _loadAchievements(); }
 
-function unlockAchievement(id) {
+function unlockAchievement(id, opts) {
   if (!_ACHIEV_MAP[id]) return false;
   const unlocked = _loadAchievements();
   if (unlocked.has(id)) return false;
   unlocked.add(id);
   _saveAchievements(unlocked);
-  _sbSyncPlayer();
+  // checkAchievements() batches: it passes deferSync and performs ONE upsert
+  // after the whole pass instead of one per unlocked badge.
+  if (!(opts && opts.deferSync)) _sbSyncPlayer();
   return true;
 }
 
 // ── Supabase sync (same project as leaderboard) ───────────────────────────────
+// Prefers the gz_save_player / gz_get_player RPCs added in supabase/migration.sql
+// (gz_players is RPC-only once RLS hardening is applied — direct table access by
+// the anon role is revoked so tokens can never be enumerated). Falls back to the
+// legacy direct table access while the migration hasn't been applied yet (404).
 function _sbSyncPlayer() {
   if (typeof _SB_LB_URL === 'undefined') return;
   const token = _getToken();
   const achievements = [..._loadAchievements()];
   const stats = _loadStats();
-  fetch(_SB_LB_URL + '/rest/v1/gz_players', {
+  fetch(_SB_LB_URL + '/rest/v1/rpc/gz_save_player', {
     method: 'POST',
-    headers: { ..._SB_LB_H, 'Prefer': 'resolution=merge-duplicates,return=minimal' },
-    body: JSON.stringify({ token, achievements, stats, last_seen: new Date().toISOString() })
-  }).catch(() => {});
+    headers: _SB_LB_H,
+    body: JSON.stringify({ p_token: token, p_achievements: achievements, p_stats: stats })
+  })
+  .then(r => {
+    if (r.status !== 404) return; // RPC handled it (or failed non-retryably)
+    // Legacy fallback: direct upsert (pre-migration schema)
+    return fetch(_SB_LB_URL + '/rest/v1/gz_players', {
+      method: 'POST',
+      headers: { ..._SB_LB_H, 'Prefer': 'resolution=merge-duplicates,return=minimal' },
+      body: JSON.stringify({ token, achievements, stats, last_seen: new Date().toISOString() })
+    });
+  })
+  .catch(() => {});
+}
+
+// Merge a remote stats object into local stats without clobbering local
+// progress: counters take Math.max, arrays are unioned, booleans are OR'd.
+function _mergeRemoteStats(local, remote) {
+  const merged = Object.assign({}, local);
+  if (!remote || typeof remote !== 'object') return merged;
+  const counters = ['totalWins','totalLosses','totalDraws','currentStreak','bestStreak','gamesPlayed','_streak5Count'];
+  counters.forEach(k => {
+    const r = Number(remote[k]);
+    if (Number.isFinite(r)) merged[k] = Math.max(Number(local[k]) || 0, r);
+  });
+  const arrays = ['factionsWon','decksOpened','loreFactionsViewed','exploreFactions'];
+  arrays.forEach(k => {
+    const l = Array.isArray(local[k]) ? local[k] : [];
+    const r = Array.isArray(remote[k]) ? remote[k] : [];
+    merged[k] = [...new Set([...l, ...r])];
+  });
+  const bools = ['loreViewed','exploreMode','firstAbilityWinDone'];
+  bools.forEach(k => { merged[k] = !!(local[k] || remote[k]); });
+  return merged;
 }
 
 // On load: if local achievements are empty, try to pull from Supabase by token
@@ -176,28 +215,39 @@ function _sbSyncPlayer() {
   if (unlocked.size > 0) return; // already have local data
   if (typeof _SB_LB_URL === 'undefined') return;
   const token = _getToken();
-  fetch(_SB_LB_URL + '/rest/v1/gz_players?token=eq.' + encodeURIComponent(token) + '&select=achievements,stats', {
-    headers: _SB_LB_H || {}
-  })
-  .then(r => r.ok ? r.json() : [])
-  .then(rows => {
-    if (!rows || !rows.length) return;
-    const row = rows[0];
-    if (row.achievements && row.achievements.length) {
-      _saveAchievements(new Set(row.achievements));
+
+  function _applyRow(row) {
+    if (!row) return;
+    if (Array.isArray(row.achievements) && row.achievements.length) {
+      // Only accept known achievement ids from the network
+      _saveAchievements(new Set(row.achievements.filter(id => _ACHIEV_MAP[id])));
     }
     if (row.stats && typeof row.stats === 'object') {
-      const merged = Object.assign(_loadStats(), row.stats);
-      _saveStats(merged);
+      _saveStats(_mergeRemoteStats(_loadStats(), row.stats));
     }
+  }
+
+  fetch(_SB_LB_URL + '/rest/v1/rpc/gz_get_player', {
+    method: 'POST',
+    headers: _SB_LB_H,
+    body: JSON.stringify({ p_token: token })
   })
+  .then(r => {
+    if (r.status === 404) {
+      // Legacy fallback: direct select (pre-migration schema)
+      return fetch(_SB_LB_URL + '/rest/v1/gz_players?token=eq.' + encodeURIComponent(token) + '&select=achievements,stats', {
+        headers: _SB_LB_H
+      }).then(r2 => r2.ok ? r2.json() : []);
+    }
+    return r.ok ? r.json() : [];
+  })
+  .then(rows => { if (rows && rows.length) _applyRow(rows[0]); })
   .catch(() => {});
 })();
 
 // ── Session tracking ───────────────────────────────────────────────────────────
 window._achievSessionUnlocks = window._achievSessionUnlocks || [];
 window._achievComebacKCount   = window._achievComebacKCount || 0;
-window._achievStreakCount5    = window._achievStreakCount5 || 0;
 window._achievGameStart       = window._achievGameStart || null;
 
 // Call this at game start (state.js initGame)
@@ -238,7 +288,6 @@ function checkAchievements(gameData) {
     if (!stats.factionsWon) stats.factionsWon = [];
     if (playerFaction && !stats.factionsWon.includes(playerFaction)) stats.factionsWon.push(playerFaction);
     if (stats.currentStreak === 5) {
-      window._achievStreakCount5 = (window._achievStreakCount5 || 0) + 1;
       stats._streak5Count = (stats._streak5Count || 0) + 1;
     }
   } else if (lost) {
@@ -267,9 +316,29 @@ function checkAchievements(gameData) {
     }
   }
 
+  // Hazard adjacency: hazard cells live in the grid with owner 'hazard' and
+  // penalize orthogonally adjacent cards (see battle.js). Count how many
+  // player/AI cards ended the game next to a hazard.
+  const _HZ_DIRS = [{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}];
+  let hazardCellCount = 0, playerCardsNearHazard = 0, aiCardsNearHazard = 0;
+  for (let r = 0; r < 5; r++) {
+    for (let c = 0; c < 7; c++) {
+      const cell = grid[r][c];
+      if (!cell || !cell.card || cell.owner === 'hazard') { if (cell && cell.owner === 'hazard') hazardCellCount++; continue; }
+      const nearHazard = _HZ_DIRS.some(({dr,dc}) => {
+        const rr = r + dr, cc = c + dc;
+        return rr >= 0 && rr < 5 && cc >= 0 && cc < 7 && grid[rr][cc] && grid[rr][cc].owner === 'hazard';
+      });
+      if (!nearHazard) continue;
+      if (cell.owner === 'player') playerCardsNearHazard++;
+      else if (cell.owner === 'ai') aiCardsNearHazard++;
+    }
+  }
+
   const newlyUnlocked = [];
   function _check(id, condition) {
-    if (condition && unlockAchievement(id)) newlyUnlocked.push(id);
+    // deferSync: one Supabase upsert for the whole pass (see end of function)
+    if (condition && unlockAchievement(id, { deferSync: true })) newlyUnlocked.push(id);
   }
 
   // ── First events ──────────────────────────────────────────────────────────
@@ -277,8 +346,16 @@ function checkAchievements(gameData) {
   _check('first_loss', lost  && stats.totalLosses === 1);
   _check('first_tie',  draw  && stats.totalDraws === 1);
 
+  // ability_first: unlocks on the FIRST win that used an ability card,
+  // whenever that happens (latched via stats.firstAbilityWinDone — the old
+  // "totalWins === 1" check made this unobtainable if the first-ever win
+  // happened to use no ability cards).
   const playerAbilCards = playerCards.filter(c => c.ability);
-  _check('ability_first', pWon && playerAbilCards.length > 0 && stats.totalWins === 1);
+  if (pWon && playerAbilCards.length > 0 && !stats.firstAbilityWinDone) {
+    stats.firstAbilityWinDone = true;
+    _saveStats(stats);
+  }
+  _check('ability_first', pWon && stats.firstAbilityWinDone);
 
   // ── Win streaks ───────────────────────────────────────────────────────────
   _check('win_3',  pWon && stats.currentStreak >= 3);
@@ -341,11 +418,12 @@ function checkAchievements(gameData) {
   // play_power_9: any player card with power === 9
   _check('play_power_9', playerCards.some(c => c.power >= 9));
 
-  // play_no_ability: won with no ability cards placed
+  // play_no_ability: won with no ability cards placed by the player
   _check('play_no_ability', pWon && playerCards.every(c => !c.ability));
 
-  // rare_full_silence: won without any ability (alias for play_no_ability, slightly different phrasing)
-  _check('rare_full_silence', pWon && playerCards.every(c => !c.ability));
+  // rare_full_silence: won with zero ability cards placed by EITHER side
+  // (strictly harder than play_no_ability, which only looks at the player's cards)
+  _check('rare_full_silence', pWon && allCards.every(c => !c.ability));
 
   // play_all_abilities: won with 5+ different abilities
   const abilSet = new Set(playerCards.map(c => c.ability).filter(Boolean));
@@ -360,8 +438,9 @@ function checkAchievements(gameData) {
   }
   _check('play_comeback_2', (window._achievComebacKCount || 0) >= 2);
 
-  // play_hazard_zero: won without placing in hazard zone (simplified: check G.hazardCells if available)
-  // We skip this here as hazard zone detection requires additional state — leave for future hook
+  // play_hazard_zero: won a game that HAD a hazard on the board, with no
+  // player card ending adjacent to it (hazards penalize adjacent cards)
+  _check('play_hazard_zero', pWon && hazardCellCount > 0 && playerCardsNearHazard === 0);
 
   // ── AI-related ────────────────────────────────────────────────────────────
   // ai_perfect: won without AI ever leading in VP (tracked via window._achievMidgameAiLead)
@@ -423,7 +502,9 @@ function checkAchievements(gameData) {
   // rare_all_cols: won all 7 columns
   _check('rare_all_cols', pWon && colResults && colResults.every(c => c === 'p'));
 
-  // rare_hazard_pivot: requires hazard zone state — skip for now
+  // rare_hazard_pivot: won a game in which at least one AI card ended adjacent
+  // to a hazard (i.e. was weakened by its -2 penalty)
+  _check('rare_hazard_pivot', pWon && aiCardsNearHazard > 0);
 
   // ── Hidden ────────────────────────────────────────────────────────────────
   const now = new Date();
@@ -437,50 +518,70 @@ function checkAchievements(gameData) {
     window._achievSessionUnlocks = (window._achievSessionUnlocks || []).concat(newlyUnlocked);
   }
 
+  // Single batched Supabase upsert for the whole pass (stats always changed —
+  // gamesPlayed — and every unlock above deferred its sync to here).
+  _sbSyncPlayer();
+
   return newlyUnlocked;
 }
 
-// ── Auxiliary event hooks ──────────────────────────────────────────────────────
-function achievOnLore() {
+// ── Auxiliary event hooks (called from index.html UI) ─────────────────────────
+const _ACHIEV_FACTION_IDS = ['terran','brood','crystallis','mycos','veil','entropy','void','gas','lithos','quantum','choir'];
+
+function _achievRecordUnlock(id) {
+  if (unlockAchievement(id)) {
+    window._achievSessionUnlocks = (window._achievSessionUnlocks || []).concat([id]);
+    return true;
+  }
+  return false;
+}
+
+// Lore guide viewed (optionally for a specific faction). Persists both the
+// legacy boolean and the per-faction viewed set; unlocks col_lore_master.
+function achievOnLore(factionKey) {
   const stats = _loadStats();
   stats.loreViewed = true;
+  if (!Array.isArray(stats.loreFactionsViewed)) stats.loreFactionsViewed = [];
+  if (factionKey && _ACHIEV_FACTION_IDS.includes(factionKey) && !stats.loreFactionsViewed.includes(factionKey)) {
+    stats.loreFactionsViewed.push(factionKey);
+  }
   _saveStats(stats);
-  if (unlockAchievement('col_lore_master')) {
-    window._achievSessionUnlocks = (window._achievSessionUnlocks || []).concat(['col_lore_master']);
-  }
+  _achievRecordUnlock('col_lore_master');
 }
 
+// Deck opened. deckId is optional — falls back to the currently selected
+// faction so a bare achievOnDeckOpen() call still records progress.
+// Unlocks deck_opened (first deck) and col_deck_all (all 11 factions).
 function achievOnDeckOpen(deckId) {
+  deckId = deckId || (typeof window !== 'undefined' && (window.selectedRace || window.playerRaceId)) || null;
   const stats = _loadStats();
-  if (!stats.decksOpened) stats.decksOpened = [];
-  if (!stats.decksOpened.includes(deckId)) {
+  if (!Array.isArray(stats.decksOpened)) stats.decksOpened = [];
+  if (deckId && _ACHIEV_FACTION_IDS.includes(deckId) && !stats.decksOpened.includes(deckId)) {
     stats.decksOpened.push(deckId);
-    _saveStats(stats);
-    if (unlockAchievement('deck_opened')) {
-      window._achievSessionUnlocks = (window._achievSessionUnlocks || []).concat(['deck_opened']);
-    }
   }
-  const _FACTIONS = ['terran','brood','crystallis','mycos','veil','entropy','void','gas','lithos','quantum','choir'];
-  if (_FACTIONS.every(f => stats.decksOpened.includes(f))) {
-    if (unlockAchievement('col_deck_all')) {
-      window._achievSessionUnlocks = (window._achievSessionUnlocks || []).concat(['col_deck_all']);
-    }
+  _saveStats(stats);
+  _achievRecordUnlock('deck_opened');
+  if (_ACHIEV_FACTION_IDS.every(f => stats.decksOpened.includes(f))) {
+    _achievRecordUnlock('col_deck_all');
   }
 }
 
-function achievOnExplore() {
+// Explorer mode entered (optionally for a specific faction). Persists the
+// visited-faction set; unlocks col_explore.
+function achievOnExplore(factionKey) {
   const stats = _loadStats();
   stats.exploreMode = true;
-  _saveStats(stats);
-  if (unlockAchievement('col_explore')) {
-    window._achievSessionUnlocks = (window._achievSessionUnlocks || []).concat(['col_explore']);
+  if (!Array.isArray(stats.exploreFactions)) stats.exploreFactions = [];
+  if (factionKey && _ACHIEV_FACTION_IDS.includes(factionKey) && !stats.exploreFactions.includes(factionKey)) {
+    stats.exploreFactions.push(factionKey);
   }
+  _saveStats(stats);
+  _achievRecordUnlock('col_explore');
 }
 
 // ── Midgame VP tracking (call from render-score.js or computeScores) ──────────
 // Attach a watcher so vp_comeback / ai_underdog work correctly
 (function _installVPWatcher() {
-  const _orig = window.computeScores;
   // We patch lazily so we don't break initialization order
   window._achievVPWatchInstalled = false;
   function _installPatch() {
