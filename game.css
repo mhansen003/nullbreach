@@ -132,7 +132,7 @@ body {
 
 .score-a { color: #ff0080; font-size: 15px; font-weight: bold; text-shadow: 0 0 8px #ff0080; }
 
-.score-lbl { font-size: 9px; color: #444; letter-spacing: 2px; }
+.score-lbl { font-size: 9px; color: #8b8ba0; letter-spacing: 2px; }
 
 .turn-tag { font-size: 10px; letter-spacing: 2px; padding: 3px 10px; border-radius: 3px; }
 
@@ -182,7 +182,7 @@ body {
 
 .ai-hand-row { display: none; } /* hidden: opponent deck not shown */
 
-.hand-lbl-v { font-size: 8px; color: #333; letter-spacing: 2px; writing-mode: vertical-lr; transform: rotate(180deg); }
+.hand-lbl-v { font-size: 8px; color: #8b8ba0; letter-spacing: 2px; writing-mode: vertical-lr; transform: rotate(180deg); }
 
 .facedown {
 
@@ -416,17 +416,27 @@ body {
 
   font-size:9px; font-weight:bold; letter-spacing:1px; color:#cccccc; }
 
-/* Win chip glow pulse */
+/* Win chip glow pulse — perf (task 72): static weak glow on the chip, the stronger glow
+   lives on a ::after overlay whose OPACITY animates (compositor-only) instead of
+   animating box-shadow (repaints 10-20 chips every frame) */
 
 @keyframes chipPulse {
 
-  0%,100% { box-shadow: 0 0 0 2px var(--wc,#fff4), 0 0 8px var(--wc,#fff2); }
+  0%,100% { opacity: 0; }
 
-  50%     { box-shadow: 0 0 0 3px var(--wc,#fff6), 0 0 16px var(--wc,#fff4); }
+  50%     { opacity: 1; }
 
 }
 
-.bti.win-chip { animation: chipPulse 2.5s ease-in-out infinite; }
+.bti.win-chip { box-shadow: 0 0 0 2px var(--wc,#fff4), 0 0 8px var(--wc,#fff2); }
+
+.bti.win-chip::after {
+  content: ''; position: absolute; inset: 0; border-radius: 50%;
+  pointer-events: none;
+  box-shadow: 0 0 0 3px var(--wc,#fff6), 0 0 16px var(--wc,#fff4);
+  opacity: 0;
+  animation: chipPulse 2.5s ease-in-out infinite;
+}
 
 @keyframes starPulse {
 
@@ -438,10 +448,16 @@ body {
 
 .ability-star { animation: starPulse 2s ease-in-out infinite; }
 
+/* Perf (task 72): abilityPulse keyframes are now OPACITY-only (compositor-friendly) —
+   the glow is a STATIC drop-shadow set on the elements below. The keyframe name is kept
+   because render-hand.js / tooltip.js / mobile.js reference it from inline styles. */
 @keyframes abilityPulse {
-  0%,100% { filter: drop-shadow(0 0 3px #7722aa); opacity: 0.8; }
-  50%     { filter: drop-shadow(0 0 8px #ffffff) drop-shadow(0 0 4px #cc88ff); opacity: 1; }
+  0%,100% { opacity: 0.75; }
+  50%     { opacity: 1; }
 }
+
+/* Static glow for the JS-injected inline-styled ability icons that animate abilityPulse */
+[style*="animation:abilityPulse"] { filter: drop-shadow(0 0 5px #aa66dd); }
 
 .ability-badge {
   position: absolute;
@@ -452,6 +468,7 @@ body {
   background: rgba(10,8,24,0.62);
   display: flex; align-items: center; justify-content: center;
   pointer-events: none;
+  filter: drop-shadow(0 0 5px #aa66dd);
   animation: abilityPulse 2.5s ease-in-out infinite;
 }
 
@@ -506,9 +523,9 @@ body {
 
 .cell-name   { display: none; } /* name shown in tooltip only: too small on board */
 
-.tier-badge  { position: absolute; top: 5px; right: 6px; font-size: 9px; font-weight: bold; opacity: 0.45; z-index: 2; }
+.tier-badge  { position: absolute; top: 5px; right: 6px; font-size: 11px; font-weight: bold; opacity: 0.6; z-index: 2; }
 
-.ability-tag { position: absolute; bottom: 5px; left: 6px; font-size: 7px; letter-spacing: 1px; opacity: 0.6; white-space: nowrap; z-index: 2; }
+.ability-tag { position: absolute; bottom: 5px; left: 6px; font-size: 11px; letter-spacing: 0.5px; opacity: 0.8; white-space: nowrap; z-index: 2; }
 
 /* Tier dot indicators: replace border color as tier signal */
 
@@ -592,13 +609,13 @@ body {
 
 .hc-power-center { font-size: 28px; font-weight: 900; line-height: 1; color: #ffffff; background:rgba(20,18,38,0.58); border-radius:7px; padding:3px 9px; }
 
-.hc-name-small   { font-size: 7px; letter-spacing: 1px; opacity: 0.55; color: #00ffcc; }
+.hc-name-small   { font-size: 11px; letter-spacing: 0.5px; opacity: 0.8; color: #00ffcc; }
 
 /* Hand card badges */
 
-.hc-tier-badge   { position: absolute; top: 3px; right: 5px; font-size: 9px; font-weight: bold; opacity: 0.4; color: #00ffcc; }
+.hc-tier-badge   { position: absolute; top: 3px; right: 5px; font-size: 11px; font-weight: bold; opacity: 0.6; color: #00ffcc; }
 
-.hc-ability-tag  { position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%); font-size: 7px; letter-spacing: 1px; opacity: 0.55; color: #00ffcc; white-space: nowrap; }
+.hc-ability-tag  { position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%); font-size: 11px; letter-spacing: 0.5px; opacity: 0.8; color: #00ffcc; white-space: nowrap; }
 
 /* .bti: see definition above */
 
@@ -654,11 +671,11 @@ body {
 
 }
 
-.log-title { font-size: 9px; color: #444; letter-spacing: 2px; margin-bottom: 8px; }
+.log-title { font-size: 9px; color: #8b8ba0; letter-spacing: 2px; margin-bottom: 8px; }
 
 .log-entries { flex:1; overflow:hidden; display:flex; flex-direction:column-reverse; gap:4px; }
 
-.log-entry { font-size: 9px; color:#bbb; letter-spacing:0.5px; line-height:1.4; padding:3px 5px; border-left:2px solid #1a1a2e; }
+.log-entry { font-size: 11px; color:#bbb; letter-spacing:0.5px; line-height:1.4; padding:3px 5px; border-left:2px solid #1a1a2e; }
 
 .log-entry.system  { color:#ccc; border-left-color:#333; }
 
@@ -712,7 +729,7 @@ body {
 
 .player-name  { color: #00ffcc; font-size: 10px; letter-spacing: 2px; }
 
-.player-sub   { color: #444; font-size: 8px; letter-spacing: 1px; margin-top: 2px; }
+.player-sub   { color: #8b8ba0; font-size: 8px; letter-spacing: 1px; margin-top: 2px; }
 
 /* HAND: column layout: card tray on top, tier nav below */
 
@@ -892,7 +909,7 @@ body {
 
 .ob-col { text-align:center; }
 
-.ob-label { font-size:9px; color:#444; letter-spacing:2px; margin-bottom:4px; }
+.ob-label { font-size:9px; color:#8b8ba0; letter-spacing:2px; margin-bottom:4px; }
 
 .ob-val   { font-size:22px; font-weight:bold; }
 
@@ -1114,6 +1131,15 @@ button, [onclick] { touch-action: manipulation; }
   #sbAiLead, #sbPlayerLead { font-size: 7px !important; }
   .hand-locked-badge { width: 30px !important; }
 
+  /* Guide button stays hidden on phones (hamburger menu has USER GUIDE) — it crowds the
+     top strip and wraps faction names. Desktop >900px shows it (task 35). */
+  #fhGuideBtn { display: none !important; }
+
+  /* Task 106: the HUD strip above is fixed at top:36px (bottom edge ≈ 98px) and was
+     covering the top board row at 481-599px — push main-area content below it.
+     (The ≤480px block later in the file overrides this with its own padding.) */
+  .main-area { padding-top: 66px; }
+
 }
 
 /* ── MEDIUM (900px: 1280px): scale board so it fits without scrolling ── */
@@ -1264,9 +1290,11 @@ button, [onclick] { touch-action: manipulation; }
 
   /* Tier badge + ability tag on cells */
 
-  .tier-badge  { font-size: 7px; top: 3px; right: 3px; }
+  /* Task 63: raised from 7px/6px — 11px physically breaks 44px cells, so mobile floor
+     is 9px/8px; full ability info lives in the tap info panel on mobile */
+  .tier-badge  { font-size: 9px; top: 3px; right: 3px; }
 
-  .ability-tag { font-size: 6px; bottom: 3px; left: 3px; }
+  .ability-tag { font-size: 8px; letter-spacing: 0; bottom: 3px; left: 3px; }
 
   .tier-dot    { width: 5px; height: 5px; }
 
@@ -1314,11 +1342,11 @@ button, [onclick] { touch-action: manipulation; }
 
   .hc-power-center { font-size: 13px; }
 
-  .hc-name-small   { font-size: 6px; }
+  .hc-name-small   { font-size: 8px; }
 
-  .hc-tier-badge   { font-size: 7px; top: 2px; right: 3px; }
+  .hc-tier-badge   { font-size: 9px; top: 2px; right: 3px; }
 
-  .hc-ability-tag  { font-size: 6px; bottom: 2px; }
+  .hc-ability-tag  { font-size: 8px; letter-spacing: 0; bottom: 2px; }
 
   /* Hand card hover: smaller lift on mobile */
 
@@ -1434,22 +1462,18 @@ button, [onclick] { touch-action: manipulation; }
 
 }
 
-/* ── iPHONE 13+ (390px wide, 844px tall): no-scroll game layout ── */
-@media (max-width: 430px) {
-  body { overflow: hidden; height: 100vh; }
+/* ── PHONE BREAKPOINT SYSTEM (task 112) ──
+   Two breakpoints govern phones:
+     ≤599px — top-strip faction HUD, small cells, mobile tooltip disable
+     ≤480px — fixed bottom hand tray, 44x52 cells, mobile deck covers/panel
+   A former max-width:430px block that lived here was fully overridden by the
+   ≤480px block below (later in the file, same or higher specificity) and was deleted. */
 
-  /* Push content below header + HUD */
-  .ai-area { padding-top: 84px !important; }
-
-  /* Board wrap: centered, no overflow */
-  .board-wrap { padding: 2px 0 !important; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-  .main-area { overflow-x: hidden; overflow-y: hidden; }
-
-  /* Hide log panel */
-  .log-panel { display: none !important; }
-
-  /* Tooltips: fully disabled */
-  #tooltip, #errorTip { display: none !important; }
+/* Task 111a: at ≤363px the 44px-cell board (grid 320px + row badges + borders ≈ 363px)
+   clipped ~3px under overflow:hidden — drop side padding and allow horizontal scroll
+   ONLY under 364px. (Later ≤480 block sets overflow:hidden, so scope with !important.) */
+@media (max-width: 363px) {
+  .board-wrap { padding-left: 0 !important; padding-right: 0 !important; overflow-x: auto !important; -webkit-overflow-scrolling: touch; }
 }
 
 /* ── LANDSCAPE MOBILE (short viewport, wide) ── */
@@ -1472,7 +1496,8 @@ button, [onclick] { touch-action: manipulation; }
 
 .cell.hazard {
 
-  border-color: #ff440066 !important;
+  /* task 38: removed unreachable `border-color: #ff440066` — the later `border` shorthand
+     (also !important) always won */
 
   box-shadow: 0 0 22px #ff660055, inset 0 0 18px #ff330022;
 
@@ -1488,15 +1513,24 @@ button, [onclick] { touch-action: manipulation; }
 
 }
 
+/* Perf (task 72): hazard cells keep a STATIC shadow (rule above); the pulse is an
+   opacity-only animation on a ::before glow overlay instead of box-shadow keyframes */
+
 @keyframes hazardPulse {
 
-  0%,100% { box-shadow: 0 0 18px #ff660044, inset 0 0 14px #ff330011; border-color: #ff660066 !important; }
+  0%,100% { opacity: 0; }
 
-  50%      { box-shadow: 0 0 36px #ff880088, inset 0 0 24px #ff440044; border-color: #ff8800aa !important; }
+  50%      { opacity: 1; }
 
 }
 
-.cell.hazard { animation: hazardPulse 2.5s ease-in-out infinite; }
+.cell.hazard::before {
+  content: ''; position: absolute; inset: -2px; border-radius: inherit;
+  pointer-events: none; z-index: 1;
+  box-shadow: 0 0 36px #ff880088, inset 0 0 24px #ff440044;
+  opacity: 0;
+  animation: hazardPulse 2.5s ease-in-out infinite;
+}
 
 @keyframes tapPulse { 0%,100% { opacity:0.6; transform:scale(0.95); } 50% { opacity:1; transform:scale(1.05); } }
 @keyframes confirmPulse { 0%,100% { opacity:0.85; transform:scale(1); } 50% { opacity:1; transform:scale(1.12); } }
@@ -1521,6 +1555,15 @@ button, [onclick] { touch-action: manipulation; }
 }
 .cloak-hidden-edge { animation: cloakPulse 1.4s ease-in-out infinite; }
 
+/* ── 600–900px TABLET BAND ──
+   Task 35: this "avatar+number only" block was un-scoped and hid #sbAiName/#sbPlayerName/
+   #fhGuideBtn on EVERY viewport. Scoped to the 600-900px band: desktop (>900px) shows full
+   names + guide button again, and the ≤599px top-strip HUD rules (earlier in the file, but
+   no longer fought by these !importants) win on phones.
+   Task 108: the fixed top-left #factionHUD sat over board cells (0,0)/(1,0) at 768x1024 —
+   reserve its width with board-wrap left padding (HUD right edge ≈ 16px + 130px min-width),
+   and allow horizontal scroll instead of clipping at the narrow end of the band. */
+@media (max-width: 900px) and (min-width: 600px) {
   /* Score panel: avatar+number only */
   #sbAiName, #sbPlayerName { display:none !important; }
   #sbYouBadge { font-size:6px !important; padding:1px 3px !important; }
@@ -1528,8 +1571,17 @@ button, [onclick] { touch-action: manipulation; }
   #sbAiNum, #sbPlayerNum { font-size:20px !important; }
   #fhAi, #fhPlayer { gap:8px !important; padding:3px 6px !important; }
   #fhGuideBtn { display:none !important; }
+  .board-wrap { padding-left: 156px; padding-right: 10px; overflow-x: auto; }
+}
 
+/* ── Mobile card panel (task 107) ──
+   Hidden by default; mobile.js shows it on touch (pointer:coarse) devices at
+   ANY width, so the bottom-sheet layout must live OUTSIDE the ≤480px media
+   query. Capped at 540px and centered so it doesn't span a full tablet. */
 #mobileCardPanel, #mobileCardPanelTab { display: none; }
+#mobileCardPanel { position: fixed; left: 0; right: 0; bottom: 0; top: auto; width: 100%; max-width: 540px; margin: 0 auto; max-height: 50vh; transform: translateY(100%); background: #06060ef2; border: 1px solid #1a1a28; border-bottom: none; border-radius: 12px 12px 0 0; transition: transform 0.25s ease; z-index: 500; padding: 4px 12px 12px; backdrop-filter: blur(8px); overflow-y: auto; overflow-x: hidden; }
+#mobileCardPanel.open { transform: translateY(0); }
+#mobileCardPanelTab { position: fixed; right: 10px; bottom: 10px; width: 40px; height: 40px; background: #0c0c1e; border: 1px solid #2a2a44; border-radius: 50%; align-items: center; justify-content: center; font-size: 14px; color: #aaa; cursor: pointer; transition: background 0.2s, box-shadow 0.2s; z-index: 502; } /* task 111c: 40px min touch target */
 
 /* ═══════════════════════════════════════════════════════════════════
    MOBILE LAYOUT ≤ 480px  (iPhone 13+)
@@ -1561,33 +1613,35 @@ button, [onclick] { touch-action: manipulation; }
   .cell-power { font-size: 12px; }
   .tier-dots { top: 2px; left: 2px; gap: 2px; }
   .tier-dot { width: 5px; height: 5px; }
-  .ability-tag { font-size: 5px; bottom: 2px; }
+  .ability-tag { font-size: 8px; letter-spacing: 0; bottom: 2px; } /* task 63: was 5px */
   .ability-star { font-size: 13px !important; top: -2px !important; right: 1px !important; }
   .bti { width: 24px !important; height: 24px !important; }
   .col-score-row { flex-shrink: 0; gap: 2px !important; }
   .col-score-badge { width: 44px !important; flex: 0 0 44px; height: 26px; font-size: 7px; padding: 2px; }
   .col-score-badge img { width: 16px !important; height: 16px !important; }
   .col-score-badge span { font-size: 11px !important; }
-  .player-area { position: fixed !important; bottom: 0 !important; left: 0 !important; right: 0 !important; z-index: 200; max-height: 210px; padding: 0; border-top: 1px solid #1a1a28; background: #06060edd; backdrop-filter: blur(6px); }
+  .player-area { position: fixed !important; bottom: 0 !important; left: 0 !important; right: 0 !important; z-index: 200; max-height: 210px; padding: 0; padding-bottom: env(safe-area-inset-bottom); border-top: 1px solid #1a1a28; background: #06060edd; backdrop-filter: blur(6px); }
   .player-area::-webkit-scrollbar { display: none; }
   .player-portrait { display: none; }
   #handCards { display: flex !important; flex-direction: column !important; overflow: visible !important; flex-wrap: nowrap !important; gap: 0 !important; width: 100%; align-items: stretch !important; }
-  .mobile-deck-expanded { display: flex; flex-direction: row; gap: 4px; overflow-x: auto; overflow-y: hidden; padding: 5px 6px 4px; -webkit-overflow-scrolling: touch; scrollbar-width: none; height: 88px; flex-shrink: 0; touch-action: pan-x; justify-content: center; }
+  /* Task 111b: plain `center` + overflow-x:auto makes the left overflow unscrollable.
+     `safe center` fixes it; browsers without `safe` fall back to the flex-start line. */
+  .mobile-deck-expanded { display: flex; flex-direction: row; gap: 4px; overflow-x: auto; overflow-y: hidden; padding: 5px 6px 4px; -webkit-overflow-scrolling: touch; scrollbar-width: none; height: 88px; flex-shrink: 0; touch-action: pan-x; justify-content: flex-start; justify-content: safe center; }
   .mobile-deck-expanded:empty { display: none; }
   .mobile-deck-expanded::-webkit-scrollbar { display: none; }
   .mobile-deck-covers { display: flex; gap: 10px; padding: 6px 8px 8px; flex-shrink: 0; justify-content: flex-start; align-items: center; }
   .mobile-deck-cover { position: relative; width: 64px; height: 86px; border-radius: 6px; flex-shrink: 0; cursor: pointer; user-select: none; overflow: hidden; transition: transform 0.15s, box-shadow 0.15s; }
   .mobile-deck-cover.empty { opacity: 0.25; cursor: default; pointer-events: none; }
   .mobile-deck-cover.active { transform: translateY(-4px); }
-  #mobileCardPanel { display: block; position: fixed; left: 0; right: 0; bottom: 0; top: auto; width: 100%; max-height: 50vh; transform: translateY(100%); background: #06060ef2; border: 1px solid #1a1a28; border-bottom: none; border-radius: 12px 12px 0 0; transition: transform 0.25s ease; z-index: 500; padding: 4px 12px 12px; backdrop-filter: blur(8px); overflow-y: auto; overflow-x: hidden; }
-  #mobileCardPanel.open { transform: translateY(0); }
-  #mobileCardPanelTab { position: fixed; right: 10px; bottom: 10px; width: 34px; height: 34px; background: #0c0c1e; border: 1px solid #2a2a44; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; color: #aaa; cursor: pointer; transition: background 0.2s, box-shadow 0.2s; z-index: 502; }
+  /* layout rules for the panel + tab live outside this media query (task 107) */
+  #mobileCardPanel { display: block; }
+  #mobileCardPanelTab { display: flex; }
   body { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
   .hand-card { width: 64px !important; height: 86px !important; }
   .mobile-deck-expanded .hand-card { width: 57px !important; height: 76px !important; }
   .hc-e-n, .hc-e-s, .hc-e-w, .hc-e-e { font-size: 10px; min-width: 14px; }
   .hc-power-center { font-size: 14px; }
-  .hc-tier-badge { font-size: 7px; }
+  .hc-tier-badge { font-size: 9px; } /* task 63: was 7px */
   #tooltip, #errorTip { display: none !important; }
   /* Guide: full-screen on mobile to stop game bleeding through */
   #guideModal { padding: 0; align-items: flex-start !important; }
@@ -1600,7 +1654,7 @@ button, [onclick] { touch-action: manipulation; }
   /* Ability cards on p3: stay side-by-side but ensure they fit */
   #guideContent div[style*="gap:24px"] { gap: 12px !important; justify-content: center !important; }
   .turn-tag { font-size: 9px; padding: 2px 6px; }
-  #logPanel { display: none; }
+  /* task 38: removed `#logPanel` — no such id exists; the element is .log-panel (hidden globally) */
   .ai-area { display: none !important; }
   .ai-avatar { width: 34px; height: 34px; }
   .ai-portrait { min-width: 0; padding: 2px 4px; }
@@ -1674,4 +1728,78 @@ button, [onclick] { touch-action: manipulation; }
   .hand-locked-badge { height: 72px; }
   .hc-power-center { font-size: 14px; }
   .hc-e-n, .hc-e-s, .hc-e-w, .hc-e-e { font-size: 10px; }
+}
+
+/* ══════════════════════════════════════
+   ACCESSIBILITY & SHARED UTILITIES
+══════════════════════════════════════ */
+
+/* Task 61: visually-hidden utility for the #ariaLive screen-reader region */
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Task 60: visible keyboard focus. Additive only — no existing outlines removed. */
+.hand-card:focus-visible,
+.cell:focus-visible,
+button:focus-visible {
+  outline: 2px solid #00ffcc;
+  outline-offset: 2px;
+}
+
+/* Task 62: contrast overrides for JS-injected inline-styled buttons/labels we don't own.
+   (ui.js pause/restart modals use color:#444 inline; leaderboard.js SKIP uses #444466.)
+   !important in a stylesheet beats non-important inline styles. */
+#restartConfirm button[style*="color:#444"],
+#restartConfirm button[style*="rgb(68, 68, 68)"],
+#restartModal button[style*="color:#444"] {
+  color: #8b8ba0 !important;
+  border-color: #3a3a55 !important;
+}
+#restartConfirm div[style*="color:#444"],
+#restartModal div[style*="color:#555"] {
+  color: #8b8ba0 !important;
+}
+button[onclick="_lbSkipInitials()"] {
+  color: #8b8ba0 !important;
+  border-color: #3a3a55 !important;
+}
+
+/* ── Task 74: row/col hover highlight ──
+   render-score.js toggles .row-hl/.col-hl on #grid and .hl-target/.hl-cancel/
+   .hl-hazard on the line's cells (badge hover + score reveal).
+   !important: carded cells carry inline `filter: brightness(...)` from render-grid.js. */
+#grid.row-hl .cell, #grid.col-hl .cell { filter: brightness(0.38) !important; opacity: 0.5; }
+#grid.row-hl .cell.hl-target, #grid.col-hl .cell.hl-target { filter: brightness(1.1) !important; opacity: 1; }
+#grid.row-hl .cell.hl-target.hl-cancel, #grid.col-hl .cell.hl-target.hl-cancel { filter: brightness(0.4) saturate(0.2) !important; }
+#grid.row-hl .cell.hl-target.hl-hazard, #grid.col-hl .cell.hl-target.hl-hazard { outline: 2px solid #ff660099; }
+
+/* ── Task 65: reduced motion ──
+   Kills the infinite pulses (hazardPulse, chipPulse, abilityPulse, tipGlow, errGlow,
+   starPulse, lambEnemyPulse, cloakPulse, hazardPulse2, tapPulse, confirmPulse — the
+   last three are applied via inline styles, caught by the universal rule) and collapses
+   long transitions. One-shot animations still run once. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .cell.hazard::before,
+  .bti.win-chip::after,
+  .ability-badge,
+  [style*="animation:abilityPulse"],
+  .ability-star,
+  .tooltip,
+  .tip-error,
+  .tip-shine-layer::before,
+  .lamb-enemy-adjacent,
+  .cloak-hidden-edge {
+    animation: none !important;
+  }
 }

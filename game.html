@@ -6,21 +6,21 @@
 
 <meta charset="UTF-8">
 
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 
 <title>GALACTIC ZERO</title>
-<link rel="icon" type="image/png" href="assets/avatars/terran.png">
+<link rel="icon" type="image/png" href="assets/favicon.png">
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/fonts/fonts.css">
 
 <link rel="stylesheet" href="game.css">
 
 </head>
 
 <body>
+
+<!-- Screen-reader live region: JS announces turn/battle events here (task 61) -->
+<div id="ariaLive" aria-live="polite" class="sr-only"></div>
 
 <!-- Mobile card info panel (right-side slide-out) -->
 <div id="mobileCardPanel">
@@ -185,7 +185,7 @@
 
     background:#000000aa;border:1px solid #8855ff44;color:#aa88ff;
 
-    font-size:18px;width:36px;height:30px;cursor:pointer;border-radius:3px;
+    font-size:18px;width:40px;height:40px;cursor:pointer;border-radius:3px;
 
     display:flex;align-items:center;justify-content:center;transition:all 0.2s;
 
@@ -195,57 +195,10 @@
 
 </div>
 
-<!-- AI area: minimal: no portrait, no score, just spacing -->
-
-<div class="ai-area" style="min-height:4px;padding:0;">
-
-  <!-- hidden compat stubs -->
-
-  <span id="_sbAiNameStub" style="display:none"></span>
-
-  <span id="aiFactionLabel" style="display:none"></span>
-
-  <span id="aiNameEl" style="display:none"></span>
-
-  <span id="aiQuote" style="display:none"></span>
-
-  <div class="ai-hand-row">
-
-    <div class="hand-lbl-v">AI HAND</div>
-
-    <div class="facedown" id="fd0">?</div>
-
-    <div class="facedown" id="fd1">?</div>
-
-    <div class="facedown" id="fd2">?</div>
-
-    <div class="facedown" id="fd3">?</div>
-
-    <div class="facedown" id="fd4">?</div>
-
-    <div class="facedown" id="fd5">?</div>
-
-    <div class="facedown" id="fd6">?</div>
-
-    <div class="facedown" id="fd7">?</div>
-
-    <div class="facedown" id="fd8">?</div>
-
-    <div class="facedown" id="fd9">?</div>
-
-    <div class="facedown" id="fd10">?</div>
-
-    <div class="facedown" id="fd11">?</div>
-
-    <div class="facedown" id="fd12">?</div>
-
-    <div class="facedown" id="fd13">?</div>
-
-    <div class="facedown" id="fd14">?</div>
-
-  </div>
-
-</div>
+<!-- AI area removed (tasks 36/38): it was permanently hidden (.ai-area { display:none })
+     and duplicated ids aiQuote/aiFactionLabel/aiNameEl that also live in .player-area below
+     (the copies JS actually reads via getElementById). The facedown fd0-fd14 divs were
+     referenced by nothing in the JS. -->
 
 <div class="main-area">
 
@@ -277,7 +230,8 @@
 
   </div>
 
-  <!-- LOG -->
+  <!-- LOG: panel is hidden via CSS (.log-panel { display:none }) but KEEP the element —
+       utils.js writes to #logEntries every turn (task 38) -->
 
   <div class="log-panel">
 
@@ -425,6 +379,7 @@
 
 <!-- Phase 1: Data -->
 <script src="zones.js"></script>
+<script src="shared-data.js"></script>
 <script src="cards.js"></script>
 <script src="abilities-data.js"></script>
 
@@ -436,6 +391,7 @@
 
 <!-- Phase 3: Core Logic -->
 <script src="battle.js"></script>
+<script src="preview.js"></script>
 <script src="placement.js"></script>
 <script src="tooltip.js"></script>
 
@@ -451,6 +407,7 @@
 <script src="render-score.js"></script>
 
 <!-- Phase 6: Turn, State, UI -->
+<script src="channel.js"></script>
 <script src="demo-gate.js"></script>
 <script src="turn.js"></script>
 <script src="state.js"></script>
@@ -460,6 +417,10 @@
 
 <script>
 
+// Desktop build error reporting (task 96): forward runtime errors to the Electron shell
+window.onerror = function (msg, src, line, col, err) { if (window.gzDesktop) window.gzDesktop.logError({ message: String(msg), source: src, line: line, col: col, stack: err && err.stack }); };
+window.addEventListener('unhandledrejection', function (e) { if (window.gzDesktop) window.gzDesktop.logError({ message: 'unhandledrejection: ' + (e.reason && e.reason.message || e.reason), stack: e.reason && e.reason.stack }); });
+
 let G = {};   // game state shorthand
 
 // ── START ─────────────────────────────────────
@@ -467,12 +428,8 @@ let G = {};   // game state shorthand
 // Set active deck from URL param BEFORE initGame reads it
 (function() {
   const raceId = new URLSearchParams(window.location.search).get('race') || 'terran';
-  window.__activeDeck = {
-    terran: PLAYER_CARDS, brood: BROOD_CARDS,
-    crystallis: CRYSTALLIS_CARDS, mycos: MYCOS_CARDS, veil: VEIL_CARDS,
-    entropy: ENTROPY_CARDS, void: VOID_CARDS, gas: GAS_CARDS,
-    lithos: LITHOS_CARDS, quantum: QUANTUM_CARDS, choir: CHOIR_CARDS
-  }[raceId] || PLAYER_CARDS;
+  // Faction → deck map lives in cards.js (window.GZ_DECKS)
+  window.__activeDeck = (window.GZ_DECKS || {})[raceId] || PLAYER_CARDS;
 })();
 
 loadAudioSettings(); // restore vol/mute prefs before game starts
@@ -488,8 +445,11 @@ logGameEvent('game_start', {
 // (user arriving at game.html is a fresh session — music should play unless they mute in THIS session)
 if (localStorage.getItem('gz_musicMuted') === '1') {
   localStorage.removeItem('gz_musicMuted');
+  // Actually unmute (task 32): clear the flag, unmute the <audio> element, and sync
+  // the real menu button (#muteMenuBtn) via ui.js updateMuteLabel().
   if (typeof musicMuted !== 'undefined') musicMuted = false;
-  const _mb = document.getElementById('musicMuteBtn'); if (_mb) _mb.textContent = '🔊';
+  const _bg = document.getElementById('bgTrack'); if (_bg) _bg.muted = false;
+  if (typeof updateMuteLabel === 'function') updateMuteLabel();
 }
 document.addEventListener('click', function _forceMusicStart() {
   if (!musicStarted && !musicMuted) startGameMusic();
