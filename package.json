@@ -1,0 +1,70 @@
+{
+  "name": "galactic-zero",
+  "version": "1.0.0",
+  "description": "Strategic card battle across 11 alien civilizations",
+  "author": "Mark Hansen",
+  "license": "UNLICENSED",
+  "main": "electron-main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder"
+  },
+  "build": {
+    "appId": "com.galacticzero.game",
+    "productName": "GALACTIC ZERO",
+    "files": [
+      "electron-main.js",
+      "preload.js",
+      "channel.js",
+      "index.html",
+      "game.html",
+      "game.css",
+      "zones.js",
+      "cards.js",
+      "abilities-data.js",
+      "abilities.js",
+      "achievements.js",
+      "ai.js",
+      "audio.js",
+      "battle.js",
+      "demo-gate.js",
+      "guide.js",
+      "leaderboard.js",
+      "mobile.js",
+      "multiplayer.js",
+      "placement.js",
+      "render-grid.js",
+      "render-hand.js",
+      "render-overlays.js",
+      "render-score.js",
+      "state.js",
+      "tooltip.js",
+      "turn.js",
+      "ui.js",
+      "utils.js",
+      "assets/**"
+    ],
+    "win": {
+      "target": [
+        "dir",
+        "zip"
+      ],
+      "icon": "assets/icon.ico",
+      "publisherName": "Mark Hansen"
+    },
+    "mac": {
+      "target": "dmg"
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "assets/icon.png"
+    },
+    "directories": {
+      "output": "dist"
+    }
+  },
+  "devDependencies": {
+    "electron": "^35.7.5",
+    "electron-builder": "^25.1.8"
+  }
+}
