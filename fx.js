@@ -19,24 +19,35 @@
     Object.values(FX).forEach(def => { try { const l = document.createElement('link'); l.rel = 'prefetch'; l.as = 'video'; l.href = def.src; document.head.appendChild(l); } catch (_) {} });
   }
 
+  // Live viewport rect of a board cell (survives grid re-renders; MP-P2 safe
+  // because it reads the actual on-screen position).
+  function _cellVRect(r, c) {
+    const el = document.querySelector(`#grid .cell[data-r="${r}"][data-c="${c}"]`);
+    return el ? el.getBoundingClientRect() : null;
+  }
+
   // gzFx(id, r1, c1, r2, c2, owner) — play an effect over one cell, or over the
   // union of two cells (directional effects). owner tints the clip (player=cyan
   // as authored, ai=magenta via hue-rotate).
+  //
+  // IMPORTANT: the video is fixed-positioned on <body>, NOT appended to #grid.
+  // placeCard() calls renderAll() (which rebuilds #grid) on the same synchronous
+  // tick right after firing an effect, so anything parented to #grid is wiped
+  // instantly. document.body is never re-rendered, so the effect persists for
+  // its full duration. Viewport coords (getBoundingClientRect + position:fixed)
+  // keep it aligned to the cell regardless of grid rebuilds or the MP-P2 flip.
   window.gzFx = function (id, r1, c1, r2, c2, owner) {
     try {
       const def = FX[id];
       if (!def) return;
       if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-      if (typeof gzCellRect !== 'function') return;
-      const grid = document.getElementById('grid');
-      if (!grid) return;
-      const a = gzCellRect(r1, c1);
+      const a = _cellVRect(r1, c1);
       if (!a) return;
-      const b = (r2 != null && c2 != null) ? gzCellRect(r2, c2) : null;
+      const b = (r2 != null && c2 != null) ? _cellVRect(r2, c2) : null;
 
-      // Union rect over the involved cells (grid-relative coords, same space as showFlash).
-      let L = a.left, T = a.top, R = a.left + a.width, Bt = a.top + a.height;
-      if (b) { L = Math.min(L, b.left); T = Math.min(T, b.top); R = Math.max(R, b.left + b.width); Bt = Math.max(Bt, b.top + b.height); }
+      // Union rect over the involved cells (viewport coords).
+      let L = a.left, T = a.top, R = a.right, Bt = a.bottom;
+      if (b) { L = Math.min(L, b.left); T = Math.min(T, b.top); R = Math.max(R, b.right); Bt = Math.max(Bt, b.bottom); }
       const w = R - L, h = Bt - T;
       const padX = w * (def.pad || 0.4), padY = h * (def.pad || 0.4);
 
@@ -54,11 +65,11 @@
       else if (def.span === 'v' && b && a.top > b.top) flip = 'transform:scaleY(-1);';     // winner below
 
       v.style.cssText =
-        `position:absolute;left:${(L - padX).toFixed(1)}px;top:${(T - padY).toFixed(1)}px;` +
+        `position:fixed;left:${(L - padX).toFixed(1)}px;top:${(T - padY).toFixed(1)}px;` +
         `width:${(w + padX * 2).toFixed(1)}px;height:${(h + padY * 2).toFixed(1)}px;` +
-        `z-index:60;pointer-events:none;mix-blend-mode:screen;object-fit:contain;` + tint + flip;
+        `z-index:9000;pointer-events:none;mix-blend-mode:screen;object-fit:contain;` + tint + flip;
 
-      grid.appendChild(v);
+      document.body.appendChild(v);
       const kill = () => { try { v.pause(); } catch (_) {} v.remove(); };
       v.addEventListener('ended', kill);
       v.play().catch(() => {});
