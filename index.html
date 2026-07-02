@@ -1312,11 +1312,14 @@ function selectRace(race, tileEl) {
     ac.innerHTML = _abilityKeys.map(_key => {
       const _label = _abilityNames[_key] || _key.replace(/_/g, ' ').toUpperCase();
       const _desc  = (typeof ABILITY_TEXT !== 'undefined' && ABILITY_TEXT[_key]) || '-';
+      const _ic = (typeof ABILITY_ICONS !== 'undefined') ? ABILITY_ICONS[_key] : null;
       const _svgPaths = typeof _ABILITY_SVG_PATHS !== 'undefined' ? _ABILITY_SVG_PATHS[_key] : null;
-      const _glyph = (typeof ABILITY_ICONS !== 'undefined' && ABILITY_ICONS[_key]) ? ABILITY_ICONS[_key].icon : null;
-      const _iconInner = _svgPaths
-        ? `<svg width="36" height="36" viewBox="0 0 24 24" fill="none">${_svgPaths}</svg>`
-        : (_glyph ? `<span style="font-size:22px;line-height:1;">${_glyph}</span>` : '');
+      const _glyph = _ic ? _ic.icon : null;
+      const _iconInner = (_ic && _ic.img)
+        ? `<img src="${_ic.img}" alt="" style="width:40px;height:40px;object-fit:contain;display:block;" onerror="this.style.display='none'">`
+        : (_svgPaths
+          ? `<svg width="36" height="36" viewBox="0 0 24 24" fill="none">${_svgPaths}</svg>`
+          : (_glyph ? `<span style="font-size:22px;line-height:1;">${_glyph}</span>` : ''));
       const _iconBlock = _iconInner ? `<div style="width:72px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:${race.color}12;border-right:1px solid ${race.color}22;">${_iconInner}</div>` : '';
       return `
       <div class="ability-showcase" style="color:${race.color};border-color:${race.color}44;background:${race.color}08;display:flex;flex-direction:row;gap:0;align-items:stretch;padding:0;overflow:hidden;">

@@ -94,15 +94,15 @@ const FACTION_ABILITY_POOLS = {
 
 const ABILITY_ICONS = {
 
-  double_strike:  { icon:'⚡⚡', color:'#ffdd00', label:'DOUBLE STRIKE'  },
+  double_strike:  { icon:'⚡⚡', color:'#ffdd00', label:'DOUBLE STRIKE', img:'assets/abilities/double_strike.webp' },
 
-  pierce:         { icon:'▶▶',  color:'#ff8844', label:'PIERCE'         },
+  pierce:         { icon:'▶▶',  color:'#ff8844', label:'PIERCE', img:'assets/abilities/pierce.webp' },
 
-  flank:          { icon:'↺↺',  color:'#ff9900', label:'FLANK'          },
+  flank:          { icon:'↺↺',  color:'#ff9900', label:'FLANK', img:'assets/abilities/flank.webp' },
 
-  commander:      { icon:'★★',  color:'#ffcc00', label:'COMMANDER'      },
+  commander:      { icon:'★★',  color:'#ffcc00', label:'COMMANDER', img:'assets/abilities/commander.webp' },
 
-  shield:         { icon:'🛡',   color:'#aaaaff', label:'SHIELD'         },
+  shield:         { icon:'🛡',   color:'#aaaaff', label:'SHIELD', img:'assets/abilities/shield.webp' },
 
   fortify:        { icon:'⬡',   color:'#4488ff', label:'FORTIFY'        },
 

@@ -23,6 +23,9 @@ const _ABILITY_SVG_PATHS = {
 };
 
 function _getAbilitySvg(ability) {
+  // Custom ability art (assets/abilities/*.webp) takes precedence over the SVG glyph.
+  const _ic = (typeof ABILITY_ICONS !== 'undefined') ? ABILITY_ICONS[ability] : null;
+  if (_ic && _ic.img) return `<img src="${_ic.img}" alt="" style="width:100%;height:100%;object-fit:contain;display:block;" onerror="this.style.display='none'">`;
   const paths = _ABILITY_SVG_PATHS[ability] || `<text x="12" y="16" text-anchor="middle" fill="white" font-size="9" font-weight="bold">${(ability||'').substring(0,3).toUpperCase()}</text>`;
   return `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">${paths}</svg>`;
 }
