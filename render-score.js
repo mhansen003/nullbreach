@@ -94,10 +94,14 @@ function _buildScoreBreakdown(axis, idx) {
     const _vpDisplay = e.ability === 'density' && e.vp > 0
       ? `${e.vp} <span style="font-size:9px;color:#aaff44;">+2</span>`
       : `${e.vp}`;
+    // A card that contributes 0 VP (tie = won-one/lost-one, loss, silenced, or
+    // hazard-zeroed) is NOT counted toward the line — dim the whole row so it's
+    // visually clear it's eliminated, not just its number.
+    const _dim = e.vp === 0;
     return `
-      <div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid #0f0f1a;">
-        <img src="${e.avatar}" alt="" style="width:20px;height:20px;border-radius:50%;object-fit:cover;border:1px solid ${e.fCol}44;flex-shrink:0;">
-        <span style="flex:1;font-size:12px;color:#dde;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${e.name}${abilTag}</span>
+      <div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid #0f0f1a;${_dim ? 'opacity:0.4;' : ''}">
+        <img src="${e.avatar}" alt="" style="width:20px;height:20px;border-radius:50%;object-fit:cover;border:1px solid ${e.fCol}44;flex-shrink:0;${_dim ? 'filter:grayscale(0.85);' : ''}">
+        <span style="flex:1;font-size:12px;color:${_dim ? '#888' : '#dde'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;${_dim ? 'text-decoration:line-through;' : ''}">${e.name}${abilTag}</span>
         ${modTag}
         <span style="font-size:14px;color:${icol};flex-shrink:0;width:12px;text-align:center;">${icon}</span>
         <span style="font-size:13px;font-weight:bold;color:${e.vp>0?'#fff':'#888'};flex-shrink:0;width:36px;text-align:right;">${_vpDisplay} <span style="font-size:10px;color:#aaa;">VP</span></span>
