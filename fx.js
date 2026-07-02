@@ -6,17 +6,34 @@
 // clips are added to the FX registry and fired via window.gzFx(...).
 (function () {
   const FX = {
-    // id : { src, ms (lifetime), span ('h'|'v'|'cell'), pad (overshoot fraction) }
-    'battle-win-h': { src: 'assets/fx/battle-win-h.mp4', ms: 1400, span: 'h', pad: 0.55 },
-    'battle-win-v': { src: 'assets/fx/battle-win-v.mp4', ms: 1400, span: 'v', pad: 0.55 },
+    // id : { src, ms (lifetime), span ('h'|'v'|'cell'), pad (overshoot fraction), sfx }
+    'battle-win-h': { src: 'assets/fx/battle-win-h.mp4', ms: 1400, span: 'h', pad: 0.55, sfx: 'assets/fx/win.mp3' },
+    'battle-win-v': { src: 'assets/fx/battle-win-v.mp4', ms: 1400, span: 'v', pad: 0.55, sfx: 'assets/fx/win.mp3' },
     'battle-loss':  { src: 'assets/fx/battle-loss.mp4',  ms: 1400, span: 'cell', pad: 0.5, noTint: true },
   };
 
-  // Preload registered clips once (cheap: browser caches the file) after first idle.
+  // Preload registered clips + sounds once (cheap: browser caches the file).
   let _preloaded = false;
+  const _sfxCache = {};
   function _preload() {
     if (_preloaded) return; _preloaded = true;
-    Object.values(FX).forEach(def => { try { const l = document.createElement('link'); l.rel = 'prefetch'; l.as = 'video'; l.href = def.src; document.head.appendChild(l); } catch (_) {} });
+    Object.values(FX).forEach(def => {
+      try { const l = document.createElement('link'); l.rel = 'prefetch'; l.as = 'video'; l.href = def.src; document.head.appendChild(l); } catch (_) {}
+      if (def.sfx && !_sfxCache[def.sfx]) { try { const a = new Audio(def.sfx); a.preload = 'auto'; _sfxCache[def.sfx] = a; } catch (_) {} }
+    });
+  }
+
+  // Play an effect sound, honoring the game's SFX mute/volume (audio.js globals).
+  function _playSfx(src) {
+    try {
+      if (typeof _sfxMuted !== 'undefined' && _sfxMuted) return;
+      const vol = (typeof _sfxVol !== 'undefined' ? _sfxVol : 1);
+      const base = _sfxCache[src] || new Audio(src);
+      const a = base.cloneNode ? base.cloneNode(true) : new Audio(src);  // fresh node so rapid wins can overlap
+      a.volume = Math.max(0, Math.min(1, 0.7 * vol));
+      a.currentTime = 0;
+      a.play().catch(() => {});
+    } catch (_) {}
   }
 
   // Live viewport rect of a board cell (survives grid re-renders; MP-P2 safe
@@ -70,6 +87,7 @@
         `z-index:9000;pointer-events:none;mix-blend-mode:screen;object-fit:contain;` + tint + flip;
 
       document.body.appendChild(v);
+      if (def.sfx) _playSfx(def.sfx);              // win cue (respects SFX mute/volume)
       const kill = () => { try { v.pause(); } catch (_) {} v.remove(); };
       v.addEventListener('ended', kill);
       v.play().catch(() => {});
