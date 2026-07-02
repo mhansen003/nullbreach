@@ -104,21 +104,21 @@ const ABILITY_ICONS = {
 
   shield:         { icon:'🛡',   color:'#aaaaff', label:'SHIELD', img:'assets/abilities/shield.webp' },
 
-  fortify:        { icon:'⬡',   color:'#4488ff', label:'FORTIFY'        },
+  fortify:        { icon:'⬡',   color:'#4488ff', label:'FORTIFY', img:'assets/abilities/fortify.webp' },
 
-  phantom:        { icon:'◈',   color:'#88ffff', label:'PHANTOM'        },
+  phantom:        { icon:'◈',   color:'#88ffff', label:'PHANTOM', img:'assets/abilities/phantom.webp' },
 
-  rush:           { icon:'▶!',  color:'#ff6644', label:'RUSH'           },
+  rush:           { icon:'▶!',  color:'#ff6644', label:'RUSH', img:'assets/abilities/rush.webp' },
 
-  cloak:          { icon:'?',   color:'#8888ff', label:'CLOAK'          },
+  cloak:          { icon:'?',   color:'#8888ff', label:'CLOAK', img:'assets/abilities/cloak.webp' },
 
-  intimidate:     { icon:'↓↓',  color:'#ff4488', label:'INTIMIDATE'     },
+  intimidate:     { icon:'↓↓',  color:'#ff4488', label:'INTIMIDATE', img:'assets/abilities/intimidate.webp' },
 
-  revenge:        { icon:'↩⚡',  color:'#ff4488', label:'REVENGE'        },
+  revenge:        { icon:'↩⚡',  color:'#ff4488', label:'REVENGE', img:'assets/abilities/revenge.webp' },
 
-  laser_focus:    { icon:'◉',   color:'#ff4400', label:'LASER FOCUS'    },
+  laser_focus:    { icon:'◉',   color:'#ff4400', label:'LASER FOCUS', img:'assets/abilities/laser_focus.webp' },
 
-  sniper:         { icon:'◎',   color:'#ff8800', label:'SNIPER'         },
+  sniper:         { icon:'◎',   color:'#ff8800', label:'SNIPER', img:'assets/abilities/sniper.webp' },
 
   birthright:     { icon:'✦+',  color:'#ffaaff', label:'BIRTHRIGHT'     },
 
