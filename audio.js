@@ -50,9 +50,10 @@ function playNextTrack() {
   audio.play().catch(() => {
     // Autoplay blocked — retry on first user interaction
     const retry = () => { audio.play().catch(() => {}); };
-    document.addEventListener('click',      retry, { once:true, capture:true });
-    document.addEventListener('keydown',    retry, { once:true, capture:true });
-    document.addEventListener('touchstart', retry, { once:true, capture:true });
+    document.addEventListener('pointerdown', retry, { once:true, capture:true });
+    document.addEventListener('click',       retry, { once:true, capture:true });
+    document.addEventListener('keydown',     retry, { once:true, capture:true });
+    document.addEventListener('touchstart',  retry, { once:true, capture:true });
   });
 
 }
@@ -91,9 +92,10 @@ function startGameMusic() {
 function _autoStartMusic() {
   if (!musicMuted && !musicStarted) startGameMusic();
 }
-document.addEventListener('click',      _autoStartMusic, { once: true, capture: true });
-document.addEventListener('keydown',    _autoStartMusic, { once: true, capture: true });
-document.addEventListener('touchstart', _autoStartMusic, { once: true, capture: true });
+document.addEventListener('pointerdown', _autoStartMusic, { once: true, capture: true });
+document.addEventListener('click',       _autoStartMusic, { once: true, capture: true });
+document.addEventListener('keydown',     _autoStartMusic, { once: true, capture: true });
+document.addEventListener('touchstart',  _autoStartMusic, { once: true, capture: true });
 
 // Resume music when user returns to tab (mobile suspends audio on tab-switch)
 document.addEventListener('visibilitychange', () => {
