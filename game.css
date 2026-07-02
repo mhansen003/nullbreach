@@ -458,8 +458,19 @@ body {
    the glow is a STATIC drop-shadow set on the elements below. The keyframe name is kept
    because render-hand.js / tooltip.js / mobile.js reference it from inline styles. */
 @keyframes abilityPulse {
-  0%,100% { opacity: 0.62; }
+  0%,100% { opacity: 0.9; }
   50%     { opacity: 1; }
+}
+
+/* Pulsing colored halo around a hand card that has a special ability, so powered
+   cards are unmistakable at a glance. --pow is the ability's color (set in JS);
+   the ring lives on ::after so it never fights the card's own inline box-shadow. */
+@keyframes powPulse { 0%,100% { opacity: 0.4; } 50% { opacity: 1; } }
+.hand-card.special-power::after {
+  content: ''; position: absolute; inset: -2px; border-radius: 10px;
+  pointer-events: none; z-index: 1;
+  box-shadow: 0 0 0 1.5px var(--pow, #b877ff), 0 0 16px 2px var(--pow, #b877ff);
+  animation: powPulse 1.8s ease-in-out infinite;
 }
 
 /* Static glow for the JS-injected inline-styled ability icons that animate abilityPulse.
@@ -931,6 +942,37 @@ body {
 }
 
 .btn-restart:hover { background:#1a3a26; }
+
+/* ── End-of-game action buttons (rematch / deck select / high scores) ──────────
+   One cohesive family instead of three clashing colored fills. Neutral ghost
+   base with a clear hierarchy: the primary action (rematch) carries the accent;
+   secondaries stay quiet, hinting their color only in the icon. */
+.gz-endbtn {
+  font-family: 'Orbitron', monospace; font-size: 11px; letter-spacing: 3px;
+  padding: 13px 24px; border-radius: 8px; cursor: pointer;
+  border: 1px solid #ffffff22; background: #ffffff08; color: #c8cde0;
+  display: inline-flex; align-items: center; gap: 8px; white-space: nowrap;
+  transition: transform .16s ease, box-shadow .16s ease, background .16s ease, border-color .16s ease, color .16s ease;
+}
+.gz-endbtn:hover  { transform: translateY(-2px); background: #ffffff14; border-color: #ffffff55; color: #fff; }
+.gz-endbtn:active { transform: translateY(0); }
+.gz-endbtn:focus-visible { outline: 2px solid #00ffcc; outline-offset: 2px; }
+.gz-endbtn .k { font-size: 13px; line-height: 1; }
+.gz-endbtn.primary {
+  border-color: #00ffcc77; color: #8ffcec;
+  background: linear-gradient(135deg, #00ffcc26, #00ffcc0a);
+  box-shadow: 0 0 18px #00ffcc2e;
+}
+.gz-endbtn.primary:hover {
+  color: #c4fff5; border-color: #00ffccbb;
+  background: linear-gradient(135deg, #00ffcc3a, #00ffcc12);
+  box-shadow: 0 0 30px #00ffcc55;
+}
+.gz-endbtn.deck .k  { color: #b58cff; }
+.gz-endbtn.score .k { color: #ffcf3f; }
+@media (max-width: 480px) {
+  .gz-endbtn { padding: 12px 16px; font-size: 10px; letter-spacing: 2px; }
+}
 
 @keyframes badgeFlip {
 

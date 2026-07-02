@@ -309,8 +309,22 @@ body {
   text-shadow: 0 0 12px #000000cc;
 }
 .ds-lore-content { display: none; flex-direction: column; gap: 8px; width: 100%; }
-.ds-lore-content.visible { display: flex; animation: loreIn 0.4s ease; }
+.ds-lore-content.visible { display: flex; }
+/* Dossier entrance — replays on every deck switch (JS toggles .swap-in with a
+   reflow). Soft dissolve + upward drift so the panel "materializes" rather than
+   popping; the FLEET and ABILITY cards inside cascade in via .cardRise. */
+.ds-lore-content.swap-in { animation: loreSwap 0.44s cubic-bezier(.22,.68,.24,1); }
+@keyframes loreSwap {
+  from { opacity: 0; transform: translateY(16px) scale(0.985); filter: blur(3px); }
+  60%  { filter: blur(0); }
+  to   { opacity: 1; transform: none; filter: blur(0); }
+}
+@keyframes cardRise { from{opacity:0;transform:translateY(18px) scale(0.92)} to{opacity:1;transform:none} }
 @keyframes loreIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+@media (prefers-reduced-motion: reduce) {
+  .ds-lore-content.swap-in { animation: none; }
+  .ds-lore-content.swap-in [style*="cardRise"] { animation: none !important; opacity: 1 !important; transform: none !important; }
+}
 
 .ds-race-name {
   font-family: 'Orbitron', monospace;
@@ -1309,7 +1323,7 @@ function selectRace(race, tileEl) {
     const ac = document.getElementById('abilityCards');
     const _abilityKeys = (typeof FACTION_ABILITY_POOLS !== 'undefined' && FACTION_ABILITY_POOLS[race.id]) || [];
     const _abilityNames = (typeof RACE_ABILITY_NAMES !== 'undefined' && RACE_ABILITY_NAMES[race.id]) || {};
-    ac.innerHTML = _abilityKeys.map(_key => {
+    ac.innerHTML = _abilityKeys.map((_key, _i) => {
       const _label = _abilityNames[_key] || _key.replace(/_/g, ' ').toUpperCase();
       const _desc  = (typeof ABILITY_TEXT !== 'undefined' && ABILITY_TEXT[_key]) || '-';
       const _ic = (typeof ABILITY_ICONS !== 'undefined') ? ABILITY_ICONS[_key] : null;
@@ -1322,7 +1336,7 @@ function selectRace(race, tileEl) {
           : (_glyph ? `<span style="font-size:22px;line-height:1;">${_glyph}</span>` : ''));
       const _iconBlock = _iconInner ? `<div style="width:72px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:${race.color}12;border-right:1px solid ${race.color}22;">${_iconInner}</div>` : '';
       return `
-      <div class="ability-showcase" style="color:${race.color};border-color:${race.color}44;background:${race.color}08;display:flex;flex-direction:row;gap:0;align-items:stretch;padding:0;overflow:hidden;">
+      <div class="ability-showcase" style="color:${race.color};border-color:${race.color}44;background:${race.color}08;display:flex;flex-direction:row;gap:0;align-items:stretch;padding:0;overflow:hidden;animation:cardRise 0.5s cubic-bezier(.22,.68,.24,1) backwards;animation-delay:${(0.14 + _i*0.06).toFixed(2)}s;">
         ${_iconBlock}
         <div style="flex:1;display:flex;flex-direction:column;gap:5px;justify-content:center;padding:12px 14px;">
           <div class="absc-title">${_label}</div>
@@ -1408,7 +1422,7 @@ function selectRace(race, tileEl) {
     if (tcp) {
       const TC = {'I':'#d0d0d0','II':'#44cc66','III':'#4488ff','IV':'#aa44ff'};
       const TDOTS = {'I':1,'II':2,'III':3,'IV':4};
-      tcp.innerHTML = samples.map(s => {
+      tcp.innerHTML = samples.map((s, i) => {
         const tCol = TC[s.tier];
         const dots = Array.from({length:TDOTS[s.tier]||1},()=>
           `<span style="width:5px;height:5px;border-radius:50%;background:${tCol};box-shadow:0 0 3px ${tCol};display:inline-block;"></span>`
@@ -1418,6 +1432,7 @@ function selectRace(race, tileEl) {
           width:100%;height:168px;border-radius:6px;border:1px solid rgba(255,255,255,0.15);box-shadow:none;
           background:url('${s.art.startsWith('assets/cards/') ? s.art.replace('assets/cards/','assets/cards-sm/').replace(/\.png$/i,'.webp') : s.art}') center/cover;
           position:relative;overflow:hidden;flex-shrink:0;
+          animation:cardRise 0.5s cubic-bezier(.22,.68,.24,1) backwards;animation-delay:${(0.08 + i*0.06).toFixed(2)}s;
           ${s.placeholder ? 'filter:brightness(0.3) saturate(0.3);' : ''}
         ">
           <div style="position:absolute;top:5px;left:5px;display:flex;gap:2px;">${dots}</div>
@@ -1431,6 +1446,11 @@ function selectRace(race, tileEl) {
     const _dlb = document.getElementById('desktopLaunchBar');
     if (_dlb) _dlb.style.display='flex';
     lc.classList.add('visible');
+    // Replay the dossier entrance animation on every deck switch (remove +
+    // reflow + re-add so the CSS animation restarts even when already visible).
+    lc.classList.remove('swap-in');
+    void lc.offsetWidth;
+    lc.classList.add('swap-in');
     // Mobile launch bar: update colour and show
     const _mbar = document.getElementById('mobileLaunchBar');
     if (_mbar) {

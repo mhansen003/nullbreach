@@ -293,23 +293,15 @@ function checkWin() {
         </div>
       </div>` : ''}
 
-      <div style="display:flex;gap:14px;margin-top:4px;">
+      <div style="display:flex;gap:10px;margin-top:6px;flex-wrap:wrap;justify-content:center;">
 
         ${_mpRoom
-          ? `<button onclick="window.location.href=window.location.href" style="background:#0a1a14;border:1px solid #226644;color:#00ffcc;font-family:inherit;font-size:11px;letter-spacing:3px;padding:12px 28px;cursor:pointer;border-radius:5px;transition:all 0.2s;" onmouseenter="this.style.background='#0e2a1e'" onmouseleave="this.style.background='#0a1a14'">↺ NEW GAME</button>`
-          : `<button onclick="initGame()" style="background:#0a1a14;border:1px solid #226644;color:#00ffcc;font-family:inherit;font-size:11px;letter-spacing:3px;padding:12px 28px;cursor:pointer;border-radius:5px;transition:all 0.2s;" onmouseenter="this.style.background='#0e2a1e'" onmouseleave="this.style.background='#0a1a14'">↺ REMATCH</button>`}
+          ? `<button class="gz-endbtn primary" onclick="window.location.href=window.location.href"><span class="k">↺</span> NEW GAME</button>`
+          : `<button class="gz-endbtn primary" onclick="initGame()"><span class="k">↺</span> REMATCH</button>`}
 
-        <button onclick="goToMenu()" style="background:#1a0a2e;border:1px solid #6644aa;color:#aa88ff;
+        <button class="gz-endbtn deck" onclick="goToMenu()"><span class="k">←</span> DECK SELECT</button>
 
-          font-family:inherit;font-size:11px;letter-spacing:3px;padding:12px 28px;
-
-          cursor:pointer;border-radius:5px;transition:all 0.2s;"
-
-          onmouseenter="this.style.background='#2a1040'"
-
-          onmouseleave="this.style.background='#1a0a2e'">← DECK SELECT</button>
-
-        <button onclick="typeof showLeaderboard==='function'&&showLeaderboard()" style="background:#1a1400;border:1px solid #aa8800;color:#ffdd00;font-family:inherit;font-size:11px;letter-spacing:3px;padding:12px 28px;cursor:pointer;border-radius:5px;transition:all 0.2s;" onmouseenter="this.style.background='#2a2000'" onmouseleave="this.style.background='#1a1400'">★ HIGH SCORES</button>
+        <button class="gz-endbtn score" onclick="typeof showLeaderboard==='function'&&showLeaderboard()"><span class="k">★</span> HIGH SCORES</button>
 
       </div>
 
