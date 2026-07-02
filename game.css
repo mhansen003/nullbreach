@@ -452,12 +452,13 @@ body {
    the glow is a STATIC drop-shadow set on the elements below. The keyframe name is kept
    because render-hand.js / tooltip.js / mobile.js reference it from inline styles. */
 @keyframes abilityPulse {
-  0%,100% { opacity: 0.75; }
+  0%,100% { opacity: 0.62; }
   50%     { opacity: 1; }
 }
 
-/* Static glow for the JS-injected inline-styled ability icons that animate abilityPulse */
-[style*="animation:abilityPulse"] { filter: drop-shadow(0 0 5px #aa66dd); }
+/* Static glow for the JS-injected inline-styled ability icons that animate abilityPulse.
+   Slightly stronger halo (white-hot inner + purple outer) so special cards read as special. */
+[style*="animation:abilityPulse"] { filter: drop-shadow(0 0 3px #ffffff99) drop-shadow(0 0 9px #b877ff); }
 
 .ability-badge {
   position: absolute;
@@ -468,7 +469,7 @@ body {
   background: rgba(10,8,24,0.62);
   display: flex; align-items: center; justify-content: center;
   pointer-events: none;
-  filter: drop-shadow(0 0 5px #aa66dd);
+  filter: drop-shadow(0 0 3px #ffffff99) drop-shadow(0 0 9px #b877ff);
   animation: abilityPulse 2.5s ease-in-out infinite;
 }
 

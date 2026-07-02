@@ -236,6 +236,16 @@ function doComparisons(r, c, owner, card, depth=0) {
 
     showFlash(r, c, nr, nc, mv, tv, iWin);
 
+    // Cinematic VFX overlay for this battle (fx.js). Win fires directionally on
+    // the winner→loser pair (owner-tinted); a loss fires on the just-placed card.
+    if (typeof window.gzFx === 'function') {
+      if (iWin) {
+        window.gzFx((d.myE === 'e' || d.myE === 'w') ? 'battle-win-h' : 'battle-win-v', r, c, nr, nc, owner);
+      } else if (iLose) {
+        window.gzFx('battle-loss', r, c);
+      }
+    }
+
     addLog('compare', `${card.name} ${mv}${iWin?'>':iLose?'<':'='}${tv} vs ${target.card.name} (${d.lbl})`);
 
     // REVENGE: target card has REVENGE and lost — flash the winner (it takes the -1 VP)
