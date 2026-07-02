@@ -74,8 +74,8 @@ function _buildScoreBreakdown(axis, idx) {
         <div style="font-size:10px;color:#ccd;letter-spacing:2px;margin-top:2px;">${result==='tie'?'ALL TIED':'WINS '+label}</div>
       </div>
       <div style="margin-left:auto;text-align:right;">
-        <div style="font-size:11px;color:#ccd;letter-spacing:1px;">${pName} <span style="color:${pCol};font-weight:bold;">${tot?.p||0}</span></div>
-        <div style="font-size:11px;color:#ccd;letter-spacing:1px;margin-top:2px;">${aName} <span style="color:${aCol};font-weight:bold;">${tot?.a||0}</span></div>
+        <div style="font-size:11px;color:#ccd;letter-spacing:1px;">${pName} <span style="color:${pCol};font-weight:bold;">${(tot && tot.p) ? tot.p : '--'}</span></div>
+        <div style="font-size:11px;color:#ccd;letter-spacing:1px;margin-top:2px;">${aName} <span style="color:${aCol};font-weight:bold;">${(tot && tot.a) ? tot.a : '--'}</span></div>
       </div>
     </div>`;
 
