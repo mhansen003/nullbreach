@@ -243,6 +243,8 @@ function doComparisons(r, c, owner, card, depth=0) {
         window.gzFx((d.myE === 'e' || d.myE === 'w') ? 'battle-win-h' : 'battle-win-v', r, c, nr, nc, owner);
       } else if (iLose) {
         window.gzFx('battle-loss', r, c);
+      } else if (mv === tv) {
+        window.gzFx('battle-tie', r, c, nr, nc);   // pure tie: neutral gold standoff over both cells
       }
     }
 

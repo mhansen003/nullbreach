@@ -202,7 +202,13 @@ body {
 
 /* MAIN AREA */
 
-.main-area { flex: 1; display: flex; overflow: visible; min-height: 0; position: relative; z-index: 1; background: #06060e; }
+/* MUST stay transparent: the faction lore images live on the fixed #game-top-bg
+   (AI, top half) and #game-bottom-bg (player, bottom half) at z-index:0. This
+   container sits above them at z-index:1, so ANY opaque background here paints
+   over the race art and the board goes black. The dark base comes from <body>
+   (#080810), which shows through the masked middle — do NOT add a background
+   color to fix a "black bar"; that reintroduces the recurring dark-board bug. */
+.main-area { flex: 1; display: flex; overflow: visible; min-height: 0; position: relative; z-index: 1; background: transparent; }
 
 /* BOARD WRAP */
 

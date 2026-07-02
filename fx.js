@@ -10,6 +10,7 @@
     'battle-win-h': { src: 'assets/fx/battle-win-h.mp4', ms: 1400, span: 'h', pad: 0.55, sfx: 'assets/fx/win.mp3' },
     'battle-win-v': { src: 'assets/fx/battle-win-v.mp4', ms: 1400, span: 'v', pad: 0.55, sfx: 'assets/fx/win.mp3' },
     'battle-loss':  { src: 'assets/fx/battle-loss.mp4',  ms: 1400, span: 'cell', pad: 0.5, noTint: true },
+    'battle-tie':   { src: 'assets/fx/battle-tie.mp4',   ms: 3000, span: 'pair', pad: 0.5, noTint: true },
   };
 
   // Preload registered clips + sounds once (cheap: browser caches the file).
@@ -76,15 +77,24 @@
 
       let tint = '';
       if (owner === 'ai' && !def.noTint) tint = 'filter:hue-rotate(150deg) saturate(1.2);'; // cyan → magenta
-      // Directional clips face a default way; flip when the winner sits on the far side.
-      let flip = '';
-      if (def.span === 'h' && b && a.left > b.left) flip = 'transform:scaleX(-1);';        // winner to the right
-      else if (def.span === 'v' && b && a.top > b.top) flip = 'transform:scaleY(-1);';     // winner below
+
+      // Placement box (defaults to the padded union); directional clips flip, and
+      // the symmetric 'pair' clip (tie) rotates 90° to align with a vertical pair.
+      let boxL = L - padX, boxT = T - padY, boxW = w + padX * 2, boxH = h + padY * 2, transform = '';
+      if (def.span === 'h' && b && a.left > b.left) transform = 'transform:scaleX(-1);';        // winner to the right
+      else if (def.span === 'v' && b && a.top > b.top) transform = 'transform:scaleY(-1);';     // winner below
+      else if (def.span === 'pair' && b && Math.abs(a.left - b.left) < Math.abs(a.top - b.top)) {
+        // vertical tie: rotate the wide standoff clip 90° (swap box dims, keep center)
+        const cx = boxL + boxW / 2, cy = boxT + boxH / 2;
+        const nw = boxH, nh = boxW;
+        boxL = cx - nw / 2; boxT = cy - nh / 2; boxW = nw; boxH = nh;
+        transform = 'transform:rotate(90deg);';
+      }
 
       v.style.cssText =
-        `position:fixed;left:${(L - padX).toFixed(1)}px;top:${(T - padY).toFixed(1)}px;` +
-        `width:${(w + padX * 2).toFixed(1)}px;height:${(h + padY * 2).toFixed(1)}px;` +
-        `z-index:9000;pointer-events:none;mix-blend-mode:screen;object-fit:contain;` + tint + flip;
+        `position:fixed;left:${boxL.toFixed(1)}px;top:${boxT.toFixed(1)}px;` +
+        `width:${boxW.toFixed(1)}px;height:${boxH.toFixed(1)}px;` +
+        `z-index:9000;pointer-events:none;mix-blend-mode:screen;object-fit:contain;` + tint + transform;
 
       document.body.appendChild(v);
       if (def.sfx) _playSfx(def.sfx);              // win cue (respects SFX mute/volume)
