@@ -362,9 +362,11 @@ function _gzBuildCell(r, c, valid, _p2view, _savedHzVideos) {
     `;
 
     // Orange hazard blast glow on cards adjacent to cosmic hazards
+    let _hzAdj = 0;
     [{dr:-1,dc:0,de:'n'},{dr:1,dc:0,de:'s'},{dr:0,dc:-1,de:'w'},{dr:0,dc:1,de:'e'}].forEach(({dr,dc,de}) => {
       const hr=r+dr, hc=c+dc;
       if (hr<0||hr>=5||hc<0||hc>=7||G.grid[hr][hc].owner!=='hazard') return;
+      _hzAdj++;
       // P2's board is 180 rotated: gradient directions all invert
       const _gradMap = _p2view
         ? {n:'to top',s:'to bottom',w:'to left',e:'to right'}
@@ -374,6 +376,15 @@ function _gzBuildCell(r, c, valid, _p2view, _savedHzVideos) {
       blast.style.cssText = `position:absolute;inset:0;pointer-events:none;z-index:3;border-radius:4px;background:linear-gradient(${gradDir},#ff660055 0%,#ff440022 35%,transparent 55%);animation:hazardPulse2 1.8s ease-in-out infinite;`;
       div.appendChild(blast);
     });
+    // Persistent "-N VP" badge on any hazard-adjacent placed card (player AND ai),
+    // so the penalty the engine applies (battle.js: -2 per adjacent hazard) is
+    // always visible on the board — not just on the player's hover preview.
+    if (_hzAdj > 0) {
+      const hb = document.createElement('div');
+      hb.style.cssText = "position:absolute;top:3px;right:3px;z-index:6;pointer-events:none;background:#1a0800ee;border:1px solid #ff660099;border-radius:3px;padding:1px 4px;font-size:9px;font-weight:bold;color:#ff8800;font-family:'Courier New',monospace;line-height:1.1;";
+      hb.textContent = '⚠ -' + (_hzAdj * 2) + 'vp';
+      div.appendChild(hb);
+    }
 
     // Show tooltip on placed board cards (shows card info + buff status)
     div.onmouseenter = (ev) => {
