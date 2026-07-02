@@ -120,11 +120,11 @@ const ABILITY_ICONS = {
 
   sniper:         { icon:'◎',   color:'#ff8800', label:'SNIPER', img:'assets/abilities/sniper.webp' },
 
-  birthright:     { icon:'✦+',  color:'#ffaaff', label:'BIRTHRIGHT'     },
+  birthright:     { icon:'✦+',  color:'#ffaaff', label:'BIRTHRIGHT', img:'assets/abilities/birthright.webp' },
 
-  deciding_factor:{ icon:'⚖',   color:'#ffdd88', label:'DECIDING FACTOR'},
+  deciding_factor:{ icon:'⚖',   color:'#ffdd88', label:'DECIDING FACTOR', img:'assets/abilities/deciding_factor.webp' },
 
-  lamb:           { icon:'★',   color:'#ff2222', label:'LAMB'           },
+  lamb:           { icon:'★',   color:'#ff2222', label:'LAMB', img:'assets/abilities/lamb.webp' },
 
   density:        { icon:'⬛+',  color:'#9b59b6', label:'DENSITY'        },
 
