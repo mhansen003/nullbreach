@@ -266,6 +266,32 @@ function _lbSubmitInitials(pFac, aFac, delta, mode) {
   setTimeout(()=>flash.remove(),1400);
 }
 
+// ── Section toggle (co-equal LEADERBOARD | ACHIEVEMENTS) ───────────────────────
+// Shared markup so both render paths show an identical, obvious 2-button control
+// directly under the banner. `active` is 'leaderboard' or 'achievements'.
+function _lbToggleHtml(active) {
+  const isLb  = active !== 'achievements';
+  const count = typeof getUnlockedAchievements === 'function' ? getUnlockedAchievements().size : 0;
+  const total = typeof ACHIEVEMENTS !== 'undefined' ? ACHIEVEMENTS.length : 80;
+  // Active tab: bright fill + colored border; inactive: dim, transparent.
+  const lbStyle = isLb
+    ? 'background:#8855ff22;border:1px solid #8855ffaa;color:#cbb6ff;box-shadow:0 0 14px #8855ff33;'
+    : 'background:transparent;border:1px solid #23233a;color:#556;';
+  const acStyle = !isLb
+    ? 'background:#ffdd0022;border:1px solid #ffdd00aa;color:#ffdd00;box-shadow:0 0 14px #ffdd0033;'
+    : 'background:transparent;border:1px solid #23233a;color:#665500;';
+  const base = "flex:1;min-height:42px;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;border-radius:8px;font-family:'Orbitron',monospace;font-size:12px;font-weight:700;letter-spacing:2px;transition:all 0.15s;padding:0 8px;text-align:center;";
+  return `
+    <div style="flex-shrink:0;display:flex;gap:10px;padding:10px 20px;background:#030310;border-bottom:1px solid #0d0d1a;">
+      <div onclick="_lbSetTab(window.playerRaceId&&_LB_FACTIONS[window.playerRaceId]?window.playerRaceId:'terran')"
+        tabindex="0" role="button" aria-label="Show leaderboard faction records"
+        style="${base}${lbStyle}">🏆 LEADERBOARD</div>
+      <div onclick="_lbSetTab('achievements')"
+        tabindex="0" role="button" aria-label="Show achievements gallery, ${count} of ${total} unlocked"
+        style="${base}${acStyle}">✦ ACHIEVEMENTS <span style="opacity:0.85;font-size:11px;">${count}/${total}</span></div>
+    </div>`;
+}
+
 // ── Leaderboard modal ─────────────────────────────────────────────────────────
 function showLeaderboard() {
   if (document.getElementById('lbModal')) return;
@@ -274,6 +300,18 @@ function showLeaderboard() {
   if (!_LB_FACTIONS[_lbActiveFaction]) _lbActiveFaction = 'terran';
   _lbRenderModal();
 }
+
+// Open the modal directly on the achievements gallery.
+function showAchievements() {
+  if (document.getElementById('lbModal')) {
+    // Modal already open — just switch to the achievements view.
+    _lbSetTab('achievements');
+    return;
+  }
+  _lbActiveFaction = 'achievements';
+  _lbRenderAchievementsPanel();
+}
+if (typeof window !== 'undefined') window.showAchievements = showAchievements;
 
 function _lbRenderModal(data) {
   document.getElementById('lbModal')?.remove();
@@ -335,9 +373,7 @@ function _lbRenderModal(data) {
       </div>`;
   }).join('');
 
-  // Faction tab pills
-  const _achivCount = typeof getUnlockedAchievements === 'function' ? getUnlockedAchievements().size : 0;
-  const _achivTotal = typeof ACHIEVEMENTS !== 'undefined' ? ACHIEVEMENTS.length : 80;
+  // Faction tab pills (achievements is now its own section via the toggle, not a pill)
   const tabsHtml = _LB_ORDER.map(id => {
     const f      = _LB_FACTIONS[id];
     const active = id === pId;
@@ -357,17 +393,7 @@ function _lbRenderModal(data) {
         <img src="${f.img}" class="${active?'lb-tab-img-a':'lb-tab-img'}" style="width:${active?'38px':'30px'};height:${active?'38px':'30px'};border-radius:50%;object-fit:cover;object-position:top;border:2px solid ${active?f.color:f.color+'44'};transition:all 0.15s;${active?`box-shadow:0 0 14px ${f.color}55;`:''}">
         ${recs > 0 ? `<div style="font-size:8px;color:${active?f.color:'#aabbcc'};font-family:'Courier New',monospace;letter-spacing:1px;">${recs}/10</div>` : `<div style="font-size:8px;color:#445566;font-family:'Courier New',monospace;">-</div>`}
       </div>`;
-  }).join('') + `
-    <div onclick="_lbSetTab('achievements')" class="lb-tab" style="
-      display:flex;flex-direction:column;align-items:center;gap:4px;
-      padding:8px 10px;cursor:pointer;border-radius:8px;flex-shrink:0;
-      transition:all 0.15s;border-bottom:2px solid transparent;"
-    onmouseenter="this.style.background='#ffdd0011'"
-    onmouseleave="this.style.background='transparent'"
-    data-id="achievements">
-      <div style="width:30px;height:30px;border-radius:50%;background:#ffdd0011;border:2px solid #ffdd0044;display:flex;align-items:center;justify-content:center;font-size:14px;transition:all 0.15s;">✦</div>
-      <div style="font-size:8px;color:#ffdd0088;font-family:'Courier New',monospace;letter-spacing:1px;">${_achivCount}/${_achivTotal}</div>
-    </div>`;
+  }).join('');
 
   const modal = document.createElement('div');
   modal.id = 'lbModal';
@@ -418,6 +444,9 @@ function _lbRenderModal(data) {
         onmouseenter="this.style.background='#ffffff22'"
         onmouseleave="this.style.background='#000000bb'">✕</button>
     </div>
+
+    <!-- Section toggle: LEADERBOARD | ACHIEVEMENTS -->
+    ${_lbToggleHtml('leaderboard')}
 
     <!-- Faction tabs -->
     <div style="flex-shrink:0;border-bottom:1px solid #0d0d1a;background:#030310;overflow-x:auto;scrollbar-width:none;">
@@ -519,31 +548,8 @@ function _lbRenderAchievementsPanel() {
   const count     = unlocked.size;
   const sessionNew = new Set(window._achievSessionUnlocks || []);
 
-  // Tab pills (faction tabs + achievements tab)
-  const data = _lbLoad();
-  const tabsHtml = _LB_ORDER.map(id => {
-    const f = _LB_FACTIONS[id];
-    const recs = _LB_ORDER.filter(a=>a!==id&&data[_lbKey(id,a)]).length;
-    return `
-      <div onclick="_lbSetTab('${id}')" class="lb-tab" style="
-        display:flex;flex-direction:column;align-items:center;gap:4px;
-        padding:8px 10px;cursor:pointer;border-radius:8px;flex-shrink:0;
-        transition:all 0.15s;border-bottom:2px solid transparent;"
-      onmouseenter="this.style.background='${f.color}11'"
-      onmouseleave="this.style.background='transparent'"
-      data-id="${id}">
-        <img src="${f.img}" class="lb-tab-img" style="width:30px;height:30px;border-radius:50%;object-fit:cover;object-position:top;border:2px solid ${f.color}44;transition:all 0.15s;">
-        ${recs > 0 ? `<div style="font-size:8px;color:#aabbcc;font-family:'Courier New',monospace;letter-spacing:1px;">${recs}/10</div>` : `<div style="font-size:8px;color:#445566;font-family:'Courier New',monospace;">-</div>`}
-      </div>`;
-  }).join('') + `
-    <div onclick="_lbSetTab('achievements')" class="lb-tab" style="
-      display:flex;flex-direction:column;align-items:center;gap:4px;
-      padding:8px 10px;cursor:pointer;border-radius:8px;flex-shrink:0;
-      transition:all 0.15s;background:#ffdd0022;border-bottom:2px solid #ffdd00;"
-    data-id="achievements">
-      <div style="width:30px;height:30px;border-radius:50%;background:#ffdd0022;border:2px solid #ffdd00;display:flex;align-items:center;justify-content:center;font-size:16px;">✦</div>
-      <div style="font-size:8px;color:#ffdd00;font-family:'Courier New',monospace;letter-spacing:1px;">${count}/${total}</div>
-    </div>`;
+  // In the achievements view the 11 faction tabs are irrelevant — they are
+  // hidden entirely; the section toggle is the only navigation shown.
 
   // Badge grid
   const badgesHtml = allDefs.map(a => {
@@ -601,19 +607,15 @@ function _lbRenderAchievementsPanel() {
       <div style="position:absolute;inset:0;background:linear-gradient(transparent 20%,#020208f2 100%);"></div>
       <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:14px;">
         <div style="font-family:'Orbitron',monospace;font-size:clamp(18px,3vw,34px);font-weight:900;letter-spacing:6px;color:#fff;text-shadow:0 0 40px #ffdd0077,0 2px 12px #000;">HALL OF CHAMPIONS</div>
-        <div style="font-family:'Courier New',monospace;font-size:9px;letter-spacing:5px;color:#ffdd0088;margin-top:4px;">GALACTIC ZERO · FACTION RECORDS</div>
+        <div style="font-family:'Courier New',monospace;font-size:9px;letter-spacing:5px;color:#ffdd0088;margin-top:4px;">ACHIEVEMENTS · ${count}/${total} UNLOCKED</div>
       </div>
       <button onclick="hideLeaderboard()" style="position:absolute;top:10px;right:12px;background:#000000bb;border:1px solid #ffffff44;border-radius:50%;width:34px;height:34px;cursor:pointer;color:#fff;font-size:15px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;line-height:1;"
         onmouseenter="this.style.background='#ffffff22'"
         onmouseleave="this.style.background='#000000bb'">✕</button>
     </div>
 
-    <!-- Tabs -->
-    <div style="flex-shrink:0;border-bottom:1px solid #0d0d1a;background:#030310;overflow-x:auto;scrollbar-width:none;">
-      <div style="display:flex;gap:2px;padding:6px 14px 0;min-width:max-content;">
-        ${tabsHtml}
-      </div>
-    </div>
+    <!-- Section toggle: LEADERBOARD | ACHIEVEMENTS -->
+    ${_lbToggleHtml('achievements')}
 
     <!-- Achievements header -->
     <div style="flex-shrink:0;padding:14px 24px 12px;background:linear-gradient(90deg,#ffdd0014 0%,transparent 60%);border-bottom:1px solid #ffdd0022;display:flex;align-items:center;gap:16px;">
