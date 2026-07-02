@@ -158,9 +158,9 @@ function initGame() {
 
     const _tried = new Set();
 
-    while (_placed < _count && _tried.size < 21) { // rows 1-3, cols 0-6 = 21 cells
+    while (_placed < _count && _tried.size < 7) { // center row only, cols 0-6 = 7 cells
 
-      const _hr = 1 + Math.floor(_hzRng() * 3); // rows 1,2,3 (not home rows)
+      const _hr = 2; // always the center row — equidistant from both home bases (fair)
 
       const _hc = Math.floor(_hzRng() * 7);
 

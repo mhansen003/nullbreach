@@ -61,54 +61,78 @@ function _buildScoreBreakdown(axis, idx) {
   const tot    = axis === 'row' ? s.rows[idx]       : s.cols[idx];
   const result = axis === 'row' ? s.rowResults[idx] : s.colResults[idx];
   const label  = axis === 'row' ? `ROW ${idx+1}` : `COL ${idx+1}`;
+  const pTot   = tot ? tot.p : 0;
+  const aTot   = tot ? tot.a : 0;
 
-  // Winner hero section
-  const winAvg  = result==='p' ? pAvg  : result==='a' ? aAvg  : null;
-  const winName = result==='p' ? pName : result==='a' ? aName : 'TIE';
-  const winCol  = result==='p' ? pCol  : result==='a' ? aCol  : '#ffdd00';
+  // ── Compact result banner: the two faction totals side by side, so the
+  //    outcome reads as "7 vs 1" at a glance, winner highlighted. ───────────
+  const _pWin = result === 'p', _aWin = result === 'a';
+  const _side = (name, col, total, win) => `
+    <div style="flex:1;text-align:center;padding:7px 4px;border-radius:8px;background:${col}${win?'22':'0d'};border:1px solid ${col}${win?'66':'22'};${win?`box-shadow:0 0 12px ${col}33;`:'opacity:0.72;'}">
+      <div style="font-family:'Orbitron',monospace;font-size:9px;letter-spacing:1px;color:${col};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${name}</div>
+      <div style="font-size:22px;font-weight:800;color:${col};line-height:1.05;margin-top:2px;text-shadow:0 0 10px ${col}66;">${total}</div>
+    </div>`;
   const heroHtml = `
-    <div style="display:flex;align-items:center;gap:12px;padding:10px 0 12px;border-bottom:1px solid #ffffff0a;margin-bottom:8px;">
-      ${winAvg ? `<img src="${winAvg}" alt="${winName}" style="width:44px;height:44px;border-radius:50%;object-fit:cover;border:2px solid ${winCol};box-shadow:0 0 12px ${winCol}44;flex-shrink:0;">` : `<div style="width:44px;height:44px;border-radius:50%;background:#ffdd0022;border:2px solid #ffdd0066;display:flex;align-items:center;justify-content:center;font-size:18px;">⚖</div>`}
-      <div>
-        <div style="font-family:'Orbitron',monospace;font-size:12px;font-weight:700;color:${winCol};letter-spacing:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px;">${winName}</div>
-        <div style="font-size:10px;color:#ccd;letter-spacing:2px;margin-top:2px;">${result==='tie'?'ALL TIED':'WINS '+label}</div>
-      </div>
-      <div style="margin-left:auto;text-align:right;">
-        <div style="font-size:11px;color:#ccd;letter-spacing:1px;">${pName} <span style="color:${pCol};font-weight:bold;">${(tot && tot.p) ? tot.p : '--'}</span></div>
-        <div style="font-size:11px;color:#ccd;letter-spacing:1px;margin-top:2px;">${aName} <span style="color:${aCol};font-weight:bold;">${(tot && tot.a) ? tot.a : '--'}</span></div>
-      </div>
+    <div style="display:flex;align-items:center;gap:8px;padding-bottom:8px;">
+      ${_side(pName, pCol, pTot, _pWin)}
+      <div style="font-size:10px;color:#889;letter-spacing:1px;flex-shrink:0;">${result==='tie'?'TIE':'vs'}</div>
+      ${_side(aName, aCol, aTot, _aWin)}
+    </div>
+    <div style="font-size:9px;letter-spacing:2px;color:#8a8aa0;text-align:center;padding-bottom:8px;border-bottom:1px solid #ffffff0a;margin-bottom:6px;">
+      ${result==='tie' ? `${label} · TIED` : `${(result==='p'?pName:aName).toUpperCase()} WINS ${label}`}
     </div>`;
 
-  // Card rows: clean and minimal
   const batIcon = b => b==='win'?'▲':b==='lose'?'▼':b==='tie'?'◆':'·';
-  const batTxt  = b => b==='win'?'#44dd88':b==='lose'?'#dd4444':b==='tie'?'#ffdd00':'#888';
+  const batTxt  = b => b==='win'?'#44dd88':b==='lose'?'#dd4444':b==='tie'?'#ffdd00':'#7a7a90';
 
-  const cardsHtml = entries.map(e => {
-    if (e.hazard) return `<div style="display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid #0f0f1a;opacity:0.6;"><span style="color:#ff8800;font-size:11px;">⚠ HAZARD</span></div>`;
-    const icon = batIcon(e.axBat);
-    const icol = batTxt(e.axBat);
-    const abilTag = e.ability ? (e.silenced
-      ? `<span style="font-size:9px;color:#555;letter-spacing:1px;text-decoration:line-through;"> · ${(ABILITY_ICONS[e.ability]||{label:e.ability}).label}</span>`
-      : `<span style="font-size:9px;color:#aabbcc;letter-spacing:1px;"> · ${(ABILITY_ICONS[e.ability]||{label:e.ability}).label}</span>`) : '';
+  // One card row, tinted with its faction color so the two sides never blur.
+  const cardRow = e => {
+    const icon = batIcon(e.axBat), icol = batTxt(e.axBat);
+    const _dim = e.vp === 0;
+    const abilTag = e.ability
+      ? `<span style="font-size:9px;color:${e.silenced?'#555':e.fCol+'cc'};letter-spacing:1px;${e.silenced?'text-decoration:line-through;':''}"> · ${(ABILITY_ICONS[e.ability]||{label:e.ability}).label}</span>`
+      : '';
     const modTag  = e.mods.length ? `<span style="font-size:9px;color:#ffaa44;"> ${e.mods.join(', ')}</span>` : '';
     const _vpDisplay = e.ability === 'density' && e.vp > 0
-      ? `${e.vp} <span style="font-size:9px;color:#aaff44;">+2</span>`
-      : `${e.vp}`;
-    // A card that contributes 0 VP (tie = won-one/lost-one, loss, silenced, or
-    // hazard-zeroed) is NOT counted toward the line — dim the whole row so it's
-    // visually clear it's eliminated, not just its number.
-    const _dim = e.vp === 0;
+      ? `${e.vp}<span style="font-size:9px;color:#aaff44;">+2</span>` : `${e.vp}`;
     return `
-      <div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid #0f0f1a;${_dim ? 'opacity:0.4;' : ''}">
-        <img src="${e.avatar}" alt="" style="width:20px;height:20px;border-radius:50%;object-fit:cover;border:1px solid ${e.fCol}44;flex-shrink:0;${_dim ? 'filter:grayscale(0.85);' : ''}">
-        <span style="flex:1;font-size:12px;color:${_dim ? '#888' : '#dde'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;${_dim ? 'text-decoration:line-through;' : ''}">${e.name}${abilTag}</span>
+      <div style="display:flex;align-items:center;gap:7px;padding:4px 6px;border-left:2px solid ${_dim?'#ffffff14':e.fCol};border-radius:0 4px 4px 0;background:${_dim?'transparent':e.fCol+'0c'};margin-bottom:2px;${_dim?'opacity:0.5;':''}">
+        <span style="font-size:12px;color:${icol};flex-shrink:0;width:10px;text-align:center;">${icon}</span>
+        <span style="flex:1;font-size:11.5px;color:${_dim?'#888':'#e6e6f0'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;${_dim?'text-decoration:line-through;':''}">${e.name}${abilTag}</span>
         ${modTag}
-        <span style="font-size:14px;color:${icol};flex-shrink:0;width:12px;text-align:center;">${icon}</span>
-        <span style="font-size:13px;font-weight:bold;color:${e.vp>0?'#fff':'#888'};flex-shrink:0;width:36px;text-align:right;">${_vpDisplay} <span style="font-size:10px;color:#aaa;">VP</span></span>
+        <span style="font-size:13px;font-weight:bold;color:${_dim?'#777':e.fCol};flex-shrink:0;width:30px;text-align:right;">${_vpDisplay}<span style="font-size:9px;color:#889;font-weight:normal;"> vp</span></span>
       </div>`;
-  }).join('');
+  };
 
-  return heroHtml + (cardsHtml || `<div style="font-size:11px;color:#888;padding:4px 0;">No cards placed</div>`);
+  // Faction group: header (name + subtotal in faction color) then its cards,
+  // contributors first so the running sum toward the subtotal is easy to trace.
+  const group = (name, col, total, list) => {
+    if (!list.length) return '';
+    const sorted = [...list].sort((x,y) => (y.vp||0) - (x.vp||0));
+    return `
+      <div style="margin-bottom:8px;">
+        <div style="display:flex;align-items:center;gap:6px;padding:2px 2px 5px;">
+          <span style="width:7px;height:7px;border-radius:50%;background:${col};box-shadow:0 0 6px ${col};flex-shrink:0;"></span>
+          <span style="flex:1;font-family:'Orbitron',monospace;font-size:9px;letter-spacing:1px;color:${col};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${name}</span>
+          <span style="font-size:12px;font-weight:800;color:${col};">${total}<span style="font-size:9px;color:#889;font-weight:normal;"> vp</span></span>
+        </div>
+        ${sorted.map(cardRow).join('')}
+      </div>`;
+  };
+
+  const hazards  = entries.filter(e => e.hazard);
+  const pList    = entries.filter(e => !e.hazard && e.isP);
+  const aList    = entries.filter(e => !e.hazard && !e.isP);
+  const hazHtml  = hazards.length
+    ? `<div style="display:flex;align-items:center;gap:6px;padding:4px 6px;border-left:2px solid #ff880066;background:#ff88000a;border-radius:0 4px 4px 0;margin-bottom:6px;"><span style="color:#ff8800;font-size:10px;letter-spacing:1px;">⚠ ${hazards[0].name} · adjacent cards −2 VP</span></div>`
+    : '';
+
+  // Winner's group first.
+  const groups = _aWin
+    ? group(aName, aCol, aTot, aList) + group(pName, pCol, pTot, pList)
+    : group(pName, pCol, pTot, pList) + group(aName, aCol, aTot, aList);
+
+  return heroHtml + (groups || `<div style="font-size:11px;color:#888;padding:4px 0;">No cards placed</div>`) + hazHtml;
 }
 
 let _scoreTipEl = null;
@@ -154,7 +178,15 @@ function _gzShowGridHl(axis, idx, res) {
     if (!cell) return;
     if (cell.owner === 'hazard') { el.classList.add('hl-hazard'); return; }
     const bat = cell.card ? (cell.battle || {h:'none', v:'none'}) : null;
-    const cancelled = bat && (bat[batKey] === 'tie' || bat[batKey] === 'lose');
+    // A card is greyed out on hover unless it actually contributes VP to THIS line:
+    // net-win or uncontested on the hovered axis, and not otherwise zeroed. Tie or
+    // lose on this axis, SNIPER-silenced, and LAMB-with-adjacent-enemy all score 0.
+    const _lambZeroed = cell.card && cell.card.ability === 'lamb' &&
+      [{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}].some(({dr,dc}) => {
+        const rr=er+dr, cc=ec+dc;
+        return rr>=0&&rr<5&&cc>=0&&cc<7&&G.grid[rr][cc].card&&G.grid[rr][cc].owner!==cell.owner&&G.grid[rr][cc].owner!=='hazard';
+      });
+    const cancelled = bat && (bat[batKey] === 'tie' || bat[batKey] === 'lose' || cell.card._silenced || _lambZeroed);
     const hazardHit = cell.card && [{dr:-1,dc:0},{dr:1,dc:0},{dr:0,dc:-1},{dr:0,dc:1}]
       .some(({dr,dc}) => { const rr=er+dr, cc=ec+dc; return rr>=0&&rr<5&&cc>=0&&cc<7&&G.grid[rr][cc].owner==='hazard'; });
     if (cancelled || hazardHit) el.classList.add('hl-cancel');

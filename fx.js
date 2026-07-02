@@ -7,10 +7,14 @@
 (function () {
   const FX = {
     // id : { src, ms (lifetime), span ('h'|'v'|'cell'), pad (overshoot fraction), sfx }
-    'battle-win-h': { src: 'assets/fx/battle-win-h.mp4', ms: 1400, span: 'h', pad: 0.55, sfx: 'assets/fx/win.mp3' },
+    // pad = overshoot beyond the involved-cell union, as a fraction of that union.
+    // Kept low so the clip hugs only the two cards in the battle (16:9 win/tie clips
+    // fill by width under object-fit:contain, so the union already spans both cards —
+    // a large pad just bleeds the beam a full cell into the neighbours).
+    'battle-win-h': { src: 'assets/fx/battle-win-h.mp4', ms: 1400, span: 'h', pad: 0.25, sfx: 'assets/fx/win.mp3' },
     'battle-win-v': { src: 'assets/fx/battle-win-v.mp4', ms: 1400, span: 'v', pad: 0.55, sfx: 'assets/fx/win.mp3' },
-    'battle-loss':  { src: 'assets/fx/battle-loss.mp4',  ms: 1400, span: 'cell', pad: 0.5, noTint: true },
-    'battle-tie':   { src: 'assets/fx/battle-tie.mp4',   ms: 3000, span: 'pair', pad: 0.5, noTint: true },
+    'battle-loss':  { src: 'assets/fx/battle-loss.mp4',  ms: 1400, span: 'cell', pad: 0.3, noTint: true },
+    'battle-tie':   { src: 'assets/fx/battle-tie.mp4',   ms: 3000, span: 'pair', pad: 0.25, noTint: true },
   };
 
   // Preload registered clips + sounds once (cheap: browser caches the file).

@@ -1784,7 +1784,9 @@ button[onclick="_lbSkipInitials()"] {
    !important: carded cells carry inline `filter: brightness(...)` from render-grid.js. */
 #grid.row-hl .cell, #grid.col-hl .cell { filter: brightness(0.38) !important; opacity: 0.5; }
 #grid.row-hl .cell.hl-target, #grid.col-hl .cell.hl-target { filter: brightness(1.1) !important; opacity: 1; }
-#grid.row-hl .cell.hl-target.hl-cancel, #grid.col-hl .cell.hl-target.hl-cancel { filter: brightness(0.4) saturate(0.2) !important; }
+/* Cards that score 0 on the hovered line (tie/lose/silenced/lamb) grey out clearly
+   so only the cards actually contributing VP read as lit. */
+#grid.row-hl .cell.hl-target.hl-cancel, #grid.col-hl .cell.hl-target.hl-cancel { filter: grayscale(1) brightness(0.34) !important; opacity: 0.42 !important; }
 #grid.row-hl .cell.hl-target.hl-hazard, #grid.col-hl .cell.hl-target.hl-hazard { outline: 2px solid #ff660099; }
 
 /* ── Task 65: reduced motion ──

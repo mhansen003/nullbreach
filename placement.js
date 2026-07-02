@@ -172,11 +172,18 @@ function getZonePreview(r, c, card, owner) {
 
   const fwd = (owner === 'player' && _p2zp) ? -1 : 1;
 
+  // Tier I (base/planet) sits on the home row, which is already fully placeable —
+  // so its unlock preview should never mark cells on that same row (nothing to
+  // "unlock" there). Skip same-row cells for tier-I cards.
+  const _skipSameRow = (card.tier === 'I' || card.tier === 1);
+
   const cells = [];
 
   for (const {dr, dc} of zoneOffsets) {
 
     const nr = r + dr * fwd, nc = c + dc;
+
+    if (_skipSameRow && nr === r) continue;
 
     if (nr >= 0 && nr < 5 && nc >= 0 && nc < 7 && !G.grid[nr][nc].card)
 
