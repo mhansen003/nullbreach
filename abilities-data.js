@@ -126,8 +126,8 @@ const ABILITY_ICONS = {
 
   lamb:           { icon:'★',   color:'#ff2222', label:'LAMB', img:'assets/abilities/lamb.webp' },
 
-  density:        { icon:'⬛+',  color:'#9b59b6', label:'DENSITY'        },
+  density:        { icon:'⬛+',  color:'#9b59b6', label:'DENSITY', img:'assets/abilities/density.webp' },
 
-  home_invader:   { icon:'↑⚔',  color:'#ff0066', label:'HOME INVADER'   },
+  home_invader:   { icon:'↑⚔',  color:'#ff0066', label:'HOME INVADER', img:'assets/abilities/home_invader.webp' },
 
 };
