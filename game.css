@@ -1854,3 +1854,8 @@ button[onclick="_lbSkipInitials()"] {
     animation: none !important;
   }
 }
+
+/* ═══ iPhone safe areas — ported from redl: viewport-fit=cover means the page runs
+   under the notch/status bar; pad it back. env()=0 on desktop/Android, so no-op there.
+   (.player-area already handles the bottom inset.) ═══ */
+body { padding-top: env(safe-area-inset-top); box-sizing: border-box; }

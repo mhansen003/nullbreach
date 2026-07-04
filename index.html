@@ -691,6 +691,15 @@ button, [onclick] { touch-action: manipulation; }
   box-shadow: 0 8px 24px rgba(255,255,255,0.4), 0 0 16px rgba(255,255,255,0.2) !important;
 }
 </style>
+<style>
+/* iPhone safe areas + dvh — ported from redl: viewport-fit=cover runs the page under
+   the notch; pad it back and size to the DYNAMIC viewport. env()=0 elsewhere = no-op. */
+body { height: 100dvh; padding-top: env(safe-area-inset-top); }
+@media (max-width: 767px) {
+  body { height: 100dvh; }
+  #deckselect { height: calc(100dvh - env(safe-area-inset-top)); }
+}
+</style>
 </head>
 <body>
 
